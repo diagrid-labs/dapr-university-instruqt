@@ -204,6 +204,7 @@ Reagardless of the language you use, the expected output should contain log stat
 
 You've now successfully used the Dapr Pub/Sub API to send and receive messages using a message broker. The demos in this challenge use programmatic subscriptions, which are defined in the application code and implements a static subscription to one topic. There are other methods to subscribe to topics with Dapr. For more information read [Declarative, streaming and programmatic subscrtiption types](https://docs.dapr.io/developing-applications/building-blocks/pubsub/subscription-methods/) in the Dapr Docs.
 
----
+## Feedback & Dapr Discord
 
 Congratulations! 🎉 You've now concluded the Dapr 101 training! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training 🚀.
+You can also join the [Dapr Discord](https://bit.ly/dapr-discord) where thousands of developers ask questions & share knowledge. You can use the **#university** channel on Discord for feedback or questions about the challenge.

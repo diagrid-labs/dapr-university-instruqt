@@ -1,6 +1,5 @@
 # The Dapr CLI
 
-
  The Dapr CLI is used during local development to:
  - Run your applications with a Dapr sidecar.
  - Review the Dapr sidecar logs.
@@ -80,8 +79,8 @@ dapr --version
 The expected output should be:
 
 ```output
-CLI version: 1.14.1
-Runtime version: 1.14.4
+CLI version: 1.15.0
+Runtime version: 1.15.0
 ```
 
 ## 5. Verify the containers
