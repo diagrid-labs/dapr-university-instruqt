@@ -69,7 +69,7 @@ Let's take a look at the `checkout` application. This application will publish m
 
 Now let's look at the `order-processor` application that receives the messages. Use the language tab of your choice to navigate to the `order-processor` folder and select the code file that contains the application code.
 
-There are some differences between languages but all of them have an `/order` endpoint that accepts POST requests with an `Order` payload. The code prints a `"Subscriber received"` message to the console and responds returns with a HTTP status code 200.
+There are some differences between languages but all of them have an `/orders` endpoint that accepts POST requests with an `Order` payload. The code prints a `"Subscriber received"` message to the console and responds returns with a HTTP status code 200.
 
 <details>
    <summary><b>.NET & Java specific</b></summary>
