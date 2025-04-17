@@ -4,7 +4,7 @@ In this challenge, you'll explore a workflow application that demonstrates the m
 
 ## 1. Monitor
 
-The monitor pattern is used to execute recurring tasks, for instance running a nightly job to clean up cloud resources. Workflow that use the monitor pattern can run indefinitely or it can stop based on a condition, such as the output of an activity.
+The monitor pattern is used to execute recurring tasks, for instance running a nightly job to clean up cloud resources. Workflows that use the monitor pattern can run indefinitely or it can stop based on a condition, such as the output of an activity.
 
 ![Monitor](images/dapr-uni-wf-pattern-monitor-v1.png)
 

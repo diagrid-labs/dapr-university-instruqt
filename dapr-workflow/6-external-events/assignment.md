@@ -2,20 +2,16 @@
 
 In this challenge, you'll explore a workflow application that demonstrates the monitor pattern.
 
-## 1. Monitor
+## 1. External System Interaction
 
-The monitor pattern is used to execute recurring tasks, for instance running a nightly job to clean up cloud resources. Workflow that use the monitor pattern can run indefinitely or it can stop based on a condition, such as the output of an activity.
+The external system interaction pattern is used hold the workflow until it receives an external event.
 
-![Monitor](images/dapr-uni-wf-pattern-monitor-v1.png)
+![External System Interaction](images/dapr-uni-wf-pattern-external-event-v1.png)
 
 The workflow in this challenge consists of one activity and calling two methods on the `WorkflowContext`.
 
 - The workflow is started with an input argument `counter` with value `0`.
-- The `CheckStatus` activity is called which simulates a status of an external resource.
-- If the status is not ready, the workflow creates a timer via the `WorkflowContext`, and waits until the timer expires.
-- The workflow increments the `counter` and continues as a fresh workflow instance (keeping the same instance ID) via the `ContinueAsNew` method on the `WorkflowContext`. This means that the workflow instance does not have its historical data associated to it anymore.
-
-> This continuation of the workflow is essentially a way of running the workflow in a loop, but in a deterministic way. Use this method instead of doing a `while` loop in the workflow code.
+//TODO
 
 ### 1.1. Choose a language tab
 
@@ -23,21 +19,30 @@ Use one of the language tabs to navigate to the monitor workflow example. Each l
 
 ### 1.2. Inspect the Workflow code
 
-Use the language-specific instructions to learn more about the monitor workflow.
+Use the language-specific instructions to learn more about the external system interaction workflow.
 
 <details>
    <summary><b>.NET workflow code</b></summary>
 
-Open the `MonitorWorkflow.cs` file located in the `Monitor` folder. This file contains the workflow code.
+Open the `ExternalEventsWorkflow.cs` file located in the `ExternalEvents` folder. This file contains the workflow code.
 
 Note how the workflow uses the `WorkflowContext` to create a timer and to continue the workflow as a fresh instance.
 
 ```csharp
-if (!status.IsReady)
+try
 {
-   await context.CreateTimer(TimeSpan.FromSeconds(1));
-   counter++;
-   context.ContinueAsNew(counter);
+    approvalStatus = await context.WaitForExternalEventAsync<ApprovalStatus>(
+        eventName: "approval-event",
+        timeout: TimeSpan.FromSeconds(120));
+}
+catch (TaskCanceledException)
+{
+    // Timeout occurred
+    notificationMessage = $"Approval request for order {order.Id} timed out.";
+    await context.CallActivityAsync(
+        nameof(SendNotification),
+        notificationMessage);
+    return notificationMessage;
 }
 ```
 
@@ -48,7 +53,7 @@ if (!status.IsReady)
 <details>
    <summary><b>.NET activity code</b></summary>
 
-The workflow uses only one activity, `CheckStatus`, and is located in the `Monitor/Activities` folder. It uses a random number generator to simulate the status of a fictional external resource.
+The workflow uses only one activity, `CheckStatus`, and is located in the `ExternalEvents/Activities` folder. It uses a random number generator to simulate the status of a fictional external resource.
 
 </details>
 
@@ -59,7 +64,7 @@ Use the language-specific instructions to learn more about workflow registration
 <details>
    <summary><b>.NET</b></summary>
 
-Locate the `Program.cs` file in the `Monitor` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
+Locate the `Program.cs` file in the `ExternalEvents` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an array of strings as the input.
 
@@ -72,16 +77,16 @@ Use the language-specific instructions to start the workflow application. Use th
 <details>
    <summary><b>Run the .NET application</b></summary>
 
-Navigate to the *csharp/monitor-pattern* folder:
+Navigate to the *csharp/external-system-interaction* folder:
 
 ```bash
-cd csharp/monitor-pattern
+cd csharp/external-system-interaction
 ```
 
 Install the dependencies:
 
 ```bash
-dotnet restore Monitor
+dotnet restore ExternalEvents
 ```
 
 Run the application using the Dapr CLI:
@@ -98,7 +103,7 @@ Inspect the output of the **Dapr CLI** window. The application should now be run
 
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application.
 
-Use the language-specific instructions to start the monitor workflow.
+Use the language-specific instructions to start the external system interaction workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>
@@ -106,7 +111,10 @@ Use the language-specific instructions to start the monitor workflow.
 In the **curl** window, run the following command to start the workflow:
 
 ```curl
-curl -i --request POST http://localhost:5257/start/0
+curl --request POST \
+  --url http://localhost:5258/start \
+  --header 'content-type: application/json' \
+  --data '{"id": "b7dd836b-e913-4446-9912-d400befebec5","description": "Rubber ducks","quantity": 100,"totalPrice": 500}'
 ```
 
 Expected output:
@@ -114,25 +122,42 @@ Expected output:
 ```text
 HTTP/1.1 202 Accepted
 Content-Length: 0
-Date: Thu, 17 Apr 2025 13:41:03 GMT
+Date: Thu, 17 Apr 2025 15:37:51 GMT
 Server: Kestrel
-Location: 402bc03326e94ea9af5e400b1a718b8b
+Location: b7dd836b-e913-4446-9912-d400befebec5
 ```
 
-Use the workflow instance ID from the `Location` to get the status of the workflow instance you just started.
+Note that the `id` field in the request body is used as the workflow instance ID. All further requests will use this ID.
 
-In the **Dapr CLI** window you should see application logs with the incremented counter value:
+</details>
+
+## 4. Send an external event
+
+<details>
+   <summary><b>Send an event to the .NET workflow</b></summary>
+
+In the **curl** window, run the following command to send an `approval-event` to the running workflow instance:
+
+```curl
+curl -i --request POST \
+  --url http://localhost:3558/v1.0/workflows/dapr/b7dd836b-e913-4446-9912-d400befebec5/raiseEvent/approval-event \
+  --header 'content-type: application/json' \
+  --data '{"OrderId": "b7dd836b-e913-4446-9912-d400befebec5","IsApproved": true}'
+```
+
+Expected output:
 
 ```text
-== APP - monitor == CheckStatus: Received input: 0.
-== APP - monitor == CheckStatus: Received input: 1.
-== APP - monitor == CheckStatus: Received input: 2.
-...
+HTTP/1.1 202 Accepted
+Content-Type: application/json
+Traceparent: 00-cd40670f36a8be0b1b6951f3962387c3-95440c97280a6405-01
+Date: Thu, 17 Apr 2025 15:39:14 GMT
+Content-Length: 2
 ```
 
 </details>
 
-## 4. Get the workflow status
+## 5. Get the workflow status
 
 Use the **curl** window to perform a GET request directly the Dapr workflow management API to retrieve the workflow status.
 
@@ -144,25 +169,21 @@ Use the language-specific instructions to get the workflow instance status.
 Use the **curl** window to make a GET request to get the status of a workflow instance:
 
 ```curl
-curl --request GET --url http://localhost:3557/v1.0/workflows/dapr/<INSTANCEID>
+curl --request GET --url http://localhost:3558/v1.0/workflows/dapr/b7dd836b-e913-4446-9912-d400befebec5
 ```
-
-Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in the previous step.
 
 Expected output:
 
 ```json
-{"instanceID":"47e1e4db2ef84bc2b9719d6ba44893e8","workflowName":"MonitorWorkflow","createdAt":"2025-04-17T14:45:18.000956270Z","lastUpdatedAt":"2025-04-17T14:45:18.012774986Z","runtimeStatus":"COMPLETED","properties":{"dapr.workflow.input":"7","dapr.workflow.output":"\"Status is healthy after checking 7 times.\""}}
+{"instanceID":"b7dd836b-e913-4446-9912-d400befebec5","workflowName":"ExternalEventsWorkflow","createdAt":"2025-04-17T15:37:52.010680923Z","lastUpdatedAt":"2025-04-17T15:39:14.342695324Z","runtimeStatus":"COMPLETED","properties":{"dapr.workflow.input":"{\"Id\":\"b7dd836b-e913-4446-9912-d400befebec5\",\"Description\":\"Rubber ducks\",\"Quantity\":100,\"TotalPrice\":500}","dapr.workflow.output":"\"Order b7dd836b-e913-4446-9912-d400befebec5 has been approved.\""}}
 ```
-
-> The actual number of the counter can vary based on the random number generator in the `CheckStatus` activity.
 
 </details>
 
-## 5. Stop the workflow application
+## 6. Stop the workflow application
 
 Use the **Dapr CLI** window to stop the workflow application by pressing `Ctrl+C`.
 
 ---
 
-You've now seen how to use the monitor pattern in a workflow application. Let's move on another pattern: *external system interaction*.
+You've now seen how to use the external system interaction pattern in a workflow application. Now let's have a look how to make workflows more resilient and how to deal with failures.
