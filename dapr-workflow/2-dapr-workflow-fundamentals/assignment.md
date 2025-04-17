@@ -17,15 +17,20 @@ Workflows are authored in code using the Dapr Workflow SDK. Workflows are compos
 
 Workflows orchestrate the activities in a specific order. Workflow code typically contains calls to activities and business logic (if/else statements) based on the outputs of activities to determine which activity should be executed next. Workflow code should be deterministic, meaning that the same input for either workflows or activities, should always result in the same output. Any non-deterministic code should be placed in an activity. More information about (non)deterministic code is covered in a later challenge of this Dapr University track.
 
-## 2 A basic workflow demo
+## 2. A basic workflow demo
 
-The workflow in this challenge consists of two activities that are called in sequence. The workflow is started with an input of `"One"`. The first activity adds `" Two"` to the input and returns `"One Two"`. The second activity adds `" Three"` to the output of the first activity. The final output of the workflow is `"One Two Three"`.
+The workflow in this challenge consists of two activities that are called in sequence.
+
+- The workflow is started with an input of `"One"`.
+- The first activity adds `" Two"` to the input and returns `"One Two"`.
+- The second activity adds `" Three"` to the output of the first activity.
+- The final output of the workflow is `"One Two Three"`.
 
 ![Basic Workflow](images/dapr-uni-wf-fundamental-basic-v1.png)
 
 ### 2.1 Choose a language tab
 
-Use one of the language tabs to navigate to the basic workflow example. Each language tab contains a workflow application and a `dapr.yaml` file that is used to run the example.
+Use one of the language tabs to navigate to the basic workflow example. Each language tab contains a workflow application and a Multi-App Run `dapr.yaml` file.
 
 ### 2.2 Inspect the Workflow code
 
@@ -92,12 +97,12 @@ The `start` method also contains the `DaprWorkflowClient` as an input argument. 
 
 </details>
 
-## 3. Start the workflow application
+## 3. Run the workflow application
 
-Use the language-specific instructions to start the workflow application. Use the *Dapr CLI* window to run the commands.
+Use the language-specific instructions to start the workflow application. Use the **Dapr CLI** window to run the commands.
 
 <details>
-   <summary><b>Run the .NET workflow</b></summary>
+   <summary><b>Run the .NET application</b></summary>
 
 Navigate to the *csharp/fundamentals* folder:
 
@@ -111,15 +116,15 @@ Install the dependencies:
 dotnet restore Basic
 ```
 
-Run the applications using the Dapr CLI:
+Run the application using the Dapr CLI:
 
 ```bash
 dapr run -f .
 ```
 
-Inspect the output of the Dapr CLI window. The workflow application should now be running.
-
 </details>
+
+Inspect the output of the **Dapr CLI** window. The application should now be running.
 
 ## 4. Start the Basic workflow
 
@@ -128,7 +133,7 @@ Use the **curl** window to make a POST request to the `start` endpoint of the wo
 Use the language-specific instructions to start the basic workflow.
 
 <details>
-   <summary><b>Run the .NET workflow</b></summary>
+   <summary><b>Start the .NET workflow</b></summary>
 
 In the *curl* window, run the following command to start the workflow:
 
@@ -152,6 +157,18 @@ Note the `Location` header in the response. This header contains the workflow in
 
 ## 5. Get the workflow status
 
+Inspect the Dapr output in the **Dapr CLI** window. It should contain a message that the workflow has been completed successfully.
+
+```text
+Workflow Actor '<INSTANCEID>': workflow completed with status 'ORCHESTRATION_STATUS_COMPLETED' workflowName 'BasicWorkflow' 
+```
+
+> Dapr workflow uses Dapr actors internally to manage the workflow and activity state. That is why you'll see actors mentioned in the Dapr log output.
+
+We don't want to rely on the Dapr output to get the status of a workflow instance. Instead, we can use the Dapr Workflow Management API to get the status of a workflow instance.
+
+Use the **curl** window to perform a GET request directly the Dapr workflow management API to retrieve the workflow status.
+
 Use the language-specific instructions to get the workflow instance status.
 
 <details>
@@ -163,7 +180,7 @@ Use the **curl** window to make a GET request to get the status of a workflow in
 curl --request GET --url http://localhost:3554/v1.0/workflows/dapr/<INSTANCEID>
 ```
 
-Where `<INSTANCEID>` is the workflow instance ID you received in the `LOCATION` header in the previous step.
+Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in the previous step.
 
 Example:
 
@@ -181,7 +198,11 @@ The workflow status contains the workflow instance ID, the workflow name, the cr
 
 </details>
 
-## 6. Workflow state and replay
+## 6. Stop the workflow application
+
+Use the **Dapr CLI** window to stop the workflow application by pressing `Ctrl+C`.
+
+## 7. Workflow state and replay
 
 Dapr workflow uses durable execution, which means the workflow state is persisted to a state store. Each workflow state change is persisted to the state store. This includes:
 
@@ -205,8 +226,8 @@ Use the *Redis* window and use the following command to list all the keys in the
 keys *basic||dapr.internal.default.basic.workflow*
 ```
 
-You should never edit the workflow state directly, to prevent corrupting the data of workflows that are still running. The Dapr Workflow Client is used to manage workflow instances, and this is covered in the *Workflow Management* challenge later in this learning track.
+You should never edit the workflow state directly, to prevent corrupting the data of workflows that are still running. The Dapr Workflow Client is used to manage workflow instance data, and this is covered in the *Workflow Management* challenge later in this learning track.
 
 ---
 
-You now know how Dapr workflows and activities are defined in code, how to start a workflow and get its status, and how the workflow engine persists workflow state. Let's continue with the various workflow patterns you can apply in your workflow applications.
+You now know how Dapr workflows and activities are defined in code, how to start a workflow and get its status, and how the workflow engine persists workflow state. Let's continue with the various workflow patterns you can apply in your workflow applications. The first one is *task chaining*.
