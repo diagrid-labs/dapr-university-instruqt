@@ -16,6 +16,8 @@ The workflow in this challenge is an order workflow:
 - If the approval event is received and marked as *approved*, the `ProcessOrder` activity will be called.
 - Finally another `SendNotification` activity is called which notifies the user about the approval.
 
+![External System Interaction Demo](images/dapr-uni-wf-external-event-demo-v1.png)
+
 ### 1.1. Choose a language tab
 
 Use one of the language tabs to navigate to the monitor workflow example. Each language tab contains a workflow application, and a Multi-App Run `dapr.yaml` file that is used to run the example.

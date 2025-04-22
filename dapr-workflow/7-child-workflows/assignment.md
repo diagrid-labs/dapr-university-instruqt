@@ -6,7 +6,7 @@ In this challenge, you'll explore a workflow application that demonstrates how t
 
 Workflows can call other workflows, which are referred to as child workflows. This allows the creation of complex workflows by composing smaller, reusable workflows, which can be individually tested.
 
-![Child Workflows]()
+![Child Workflows](images/dapr-uni-wf-child-workflow-v1.png)
 
 The parent workflow in this challenge uses the fan-out/fan-in pattern to call multiple child workflows in parallel.
 
@@ -14,6 +14,8 @@ The parent workflow in this challenge uses the fan-out/fan-in pattern to call mu
 - For each string in the input array, a child workflow task is created.
 - Each child workflow uses task chaining to call two activities.
 - The parent workflow waits for all child workflows to complete and aggregates the results into a single result.
+
+![Child Workflow Demo](images/dapr-uni-wf-child-workflow-demo-v1.png)
 
 ### 1.1 Choose a language tab
 
