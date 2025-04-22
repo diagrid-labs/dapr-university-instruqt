@@ -8,10 +8,13 @@ The external system interaction pattern is used hold the workflow until it recei
 
 ![External System Interaction](images/dapr-uni-wf-pattern-external-event-v1.png)
 
-The workflow in this challenge consists of one activity and calling two methods on the `WorkflowContext`.
+The workflow in this challenge is an order workflow:
 
-- The workflow is started with an input argument `counter` with value `0`.
-//TODO
+- The workflow is started with an `Order` input argument.
+- If the total price of the workflow is over 250, the workflow will wait for an external `approval-event`.
+- If no event is received within 120 seconds, the workflow will call the `SendNotification` activity to notify the user about the approval timeout.
+- If the approval event is received and marked as *approved*, the `ProcessOrder` activity will be called.
+- Finally another `SendNotification` activity is called which notifies the user about the approval.
 
 ### 1.1. Choose a language tab
 
@@ -53,7 +56,7 @@ catch (TaskCanceledException)
 <details>
    <summary><b>.NET activity code</b></summary>
 
-The workflow uses only one activity, `CheckStatus`, and is located in the `ExternalEvents/Activities` folder. It uses a random number generator to simulate the status of a fictional external resource.
+The workflow uses two activities, `SendNotification` and `ProcessOrder`, these are located in the `ExternalEvents/Activities` folder. Both activities are placeholders and do not contain any real logic related to sending notifications or processing orders.
 
 </details>
 
@@ -66,7 +69,7 @@ Use the language-specific instructions to learn more about workflow registration
 
 Locate the `Program.cs` file in the `ExternalEvents` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
-This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an array of strings as the input.
+This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an `Order` as the input.
 
 </details>
 
@@ -111,7 +114,7 @@ Use the language-specific instructions to start the external system interaction 
 In the **curl** window, run the following command to start the workflow:
 
 ```curl
-curl --request POST \
+curl -i --request POST \
   --url http://localhost:5258/start \
   --header 'content-type: application/json' \
   --data '{"id": "b7dd836b-e913-4446-9912-d400befebec5","description": "Rubber ducks","quantity": 100,"totalPrice": 500}'
@@ -128,6 +131,12 @@ Location: b7dd836b-e913-4446-9912-d400befebec5
 ```
 
 Note that the `id` field in the request body is used as the workflow instance ID. All further requests will use this ID.
+
+The application log should contain this log statement:
+
+```
+== APP - externalevents == Received order: Order { Id = b7dd836b-e913-4446-9912-d400befebec5, Description = Rubber ducks, Quantity = 100, TotalPrice = 500 }.
+```
 
 </details>
 
@@ -155,6 +164,13 @@ Date: Thu, 17 Apr 2025 15:39:14 GMT
 Content-Length: 2
 ```
 
+The application log should contain these log statements:
+
+```text
+== APP - externalevents == ProcessOrder: Processed order: b7dd836b-e913-4446-9912-d400befebec5.
+== APP - externalevents == SendNotification: Order b7dd836b-e913-4446-9912-d400befebec5 has been approved.
+```
+
 </details>
 
 ## 5. Get the workflow status
@@ -180,10 +196,14 @@ Expected output:
 
 </details>
 
-## 6. Stop the workflow application
+## 6. Trying different workflow paths
+
+If you want, you can run some additional tests to explore the alternative paths in the workflow by either not sending any events and therefore waiting for the 120 sec timeout, or sending an event with a `"IsApproved": false` value.
+
+## 7. Stop the workflow application
 
 Use the **Dapr CLI** window to stop the workflow application by pressing `Ctrl+C`.
 
 ---
 
-You've now seen how to use the external system interaction pattern in a workflow application. Now let's have a look how to make workflows more resilient and how to deal with failures.
+You've now seen how to use the external system interaction pattern in a workflow application. Now let's have a look how to call a child workflow from a parent workflow.
