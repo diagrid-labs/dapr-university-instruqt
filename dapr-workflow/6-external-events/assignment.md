@@ -1,10 +1,10 @@
 # Workflow pattern: External System Interaction
 
-In this challenge, you'll explore a workflow application that demonstrates the monitor pattern.
+In this challenge, you'll explore a workflow application that demonstrates the external system interaction pattern.
 
 ## 1. External System Interaction
 
-The external system interaction pattern is used hold the workflow until it receives an external event.
+The external system interaction pattern is used pause the workflow until it receives an external event.
 
 ![External System Interaction](images/dapr-uni-wf-pattern-external-event-v1.png)
 

@@ -1,6 +1,6 @@
 # Child Workflows
 
-**In this challenge, ..**
+In this challenge, you'll explore a workflow application that demonstrates how to call child workflows from a parent workflow.
 
 ## 1. Task Chaining
 
