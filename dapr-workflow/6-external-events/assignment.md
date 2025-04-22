@@ -132,9 +132,9 @@ Location: b7dd836b-e913-4446-9912-d400befebec5
 
 Note that the `id` field in the request body is used as the workflow instance ID. All further requests will use this ID.
 
-The application log should contain this log statement:
+The application log in the **Dapr CLI** window should contain this log statement:
 
-```
+```text
 == APP - externalevents == Received order: Order { Id = b7dd836b-e913-4446-9912-d400befebec5, Description = Rubber ducks, Quantity = 100, TotalPrice = 500 }.
 ```
 
@@ -164,7 +164,7 @@ Date: Thu, 17 Apr 2025 15:39:14 GMT
 Content-Length: 2
 ```
 
-The application log should contain these log statements:
+The application log in the **Dapr CLI** window should contain these log statements:
 
 ```text
 == APP - externalevents == ProcessOrder: Processed order: b7dd836b-e913-4446-9912-d400befebec5.

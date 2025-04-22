@@ -153,6 +153,13 @@ Location: 05f63e15a3724c5d86386922919378d6
 
 Note the `Location` header in the response. This header contains the workflow instance ID. You can use this ID to get the status of the workflow instance you just started.
 
+The **Dapr CLI** window should contain these application log statements:
+
+```text
+== APP - basic == Activity1: Received input: One.
+== APP - basic == Activity2: Received input: One Two.
+```
+
 </details>
 
 ## 5. Get the workflow status
@@ -216,11 +223,31 @@ This animation shows when workflow state is persisted and retrieved during workf
 
 The state store component used by Dapr workflow in this example is defined in the `state_redis.yaml` file that is located in the `resources` folder.
 
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+spec:
+  type: state.redis
+  version: v1
+  initTimeout: 1m
+  metadata:
+  - name: redisHost
+    value: localhost:6379
+  - name: redisPassword
+    value: ""
+  - name: actorStateStore
+    value: "true"
+```
+
+> Note: The `actorStateStore` metadata property is set to `true` to enable the use of this state store for Dapr actors. This is required for the workflow engine to work correctly.
+
 ```bash
 docker exec -it dapr_redis redis-cli
 ```
 
-Use the *Redis* window and use the following command to list all the keys in the Redis container that belong to the `basic` workflow you've just executed:
+Use the **Redis CLI** window and use the following command to list all the keys in the Redis container that belong to the `basic` workflow you've just executed:
 
 ```bash
 keys *basic||dapr.internal.default.basic.workflow*

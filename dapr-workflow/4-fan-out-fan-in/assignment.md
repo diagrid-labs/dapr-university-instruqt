@@ -127,7 +127,17 @@ Server: Kestrel
 Location: 402bc03326e94ea9af5e400b1a718b8b
 ```
 
-Use the workflow instance ID from the `Location` to get the status of the workflow instance you just started.
+The **Dapr CLI** window should contain these application log statements:
+
+```text
+== APP - fanoutfanin == GetWordLength: Received input: is.
+== APP - fanoutfanin == GetWordLength: Received input: which.
+== APP - fanoutfanin == GetWordLength: Received input: the.
+== APP - fanoutfanin == GetWordLength: Received input: shortest.
+== APP - fanoutfanin == GetWordLength: Received input: word.
+```
+
+> Note: the order of the log statements may vary, as the activities are executed in parallel.
 
 </details>
 

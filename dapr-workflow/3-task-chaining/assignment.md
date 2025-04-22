@@ -109,7 +109,13 @@ Server: Kestrel
 Location: 67b4526c1c3a49fca2c4801869869016
 ```
 
-Use the workflow instance ID from the `Location` to get the status of the workflow instance you just started.
+The **Dapr CLI** window should contain these application log statements:
+
+```text
+== APP - chaining == Activity1: Received input: This.
+== APP - chaining == Activity2: Received input: This is.
+== APP - chaining == Activity3: Received input: This is task.
+```
 
 </details>
 
