@@ -81,6 +81,10 @@ Locate the `Program.cs` file in the `ShippingApp` folder. This file contains the
 
 </details>
 
+### 1.5. Inspect the Dapr component files
+
+Since the Dapr applications in the challenge use the Dapr pub/sub API, they also require Dapr component files to configure the pub/sub component and the (declarative) subscriptions. These component files can be found in the `resources` folder.
+
 ## 2. Start the workflow app
 
 Use the language specific instructions to start the basic workflow.
