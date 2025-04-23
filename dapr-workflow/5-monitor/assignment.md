@@ -78,10 +78,10 @@ Navigate to the *csharp/monitor-pattern* folder:
 cd csharp/monitor-pattern
 ```
 
-Install the dependencies:
+Install the dependencies and build the project:
 
 ```bash
-dotnet restore Monitor
+dotnet build Monitor
 ```
 
 Run the application using the Dapr CLI:

@@ -88,10 +88,10 @@ Navigate to the *csharp/external-system-interaction* folder:
 cd csharp/external-system-interaction
 ```
 
-Install the dependencies:
+Install the dependencies and build the project:
 
 ```bash
-dotnet restore ExternalEvents
+dotnet build ExternalEvents
 ```
 
 Run the application using the Dapr CLI:

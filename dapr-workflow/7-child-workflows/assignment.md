@@ -70,13 +70,13 @@ Use the language specific instructions to start the basic workflow.
 <details>
    <summary><b>Run the .NET workflow</b></summary>
 
-   Install the dependencies:
+Install the dependencies and build the project:
 
 ```bash
-dotnet restore ChildWorkflows
+dotnet build ChildWorkflows
 ```
 
-Run the applications using the Dapr CLI:
+Run the application using the Dapr CLI:
 
 ```bash
 dapr run -f .
@@ -151,6 +151,10 @@ Expected output:
 ```
 
 </details>
+
+## 5. Stop the workflow application
+
+Use the **Dapr CLI** window to stop the workflow application by pressing `Ctrl+C`.
 
 ---
 

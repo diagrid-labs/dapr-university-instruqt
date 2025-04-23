@@ -85,13 +85,13 @@ Use the language specific instructions to start the basic workflow.
 <details>
    <summary><b>Run the .NET workflow</b></summary>
 
-	Install the dependencies:
+Install the dependencies and build the project:
 
 ```bash
-dotnet restore TaskChaining
+dotnet build TaskChaining
 ```
 
-Run the applications using the Dapr CLI:
+Run the application using the Dapr CLI:
 
 ```bash
 dapr run -f .
@@ -166,6 +166,17 @@ Expected output:
 > Note that the `custom_status` field contains the message that is set in the workflow after the compensation action is called.
 
 </details>
+
+## 5. Trying a different retry policy
+
+If you want, you can run some additional tests to explore different retry policies. Update the `WorkflowRetryPolicy` in the workflow. Use the language specific reference to see what options are available.
+
+- [.NET WorkflowRetryPolicy definition on GitHub](
+https://github.com/dapr/dotnet-sdk/blob/master/src/Dapr.Workflow/WorkflowRetryPolicy.cs)
+
+## 6. Stop the workflow application
+
+Use the **Dapr CLI** window to stop the workflow application by pressing `Ctrl+C`.
 
 ---
 

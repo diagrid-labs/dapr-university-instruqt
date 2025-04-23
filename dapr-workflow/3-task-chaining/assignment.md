@@ -68,10 +68,10 @@ Navigate to the *csharp/task-chaining* folder:
 cd csharp/task-chaining
 ```
 
-Install the dependencies:
+Install the dependencies and build the project:
 
 ```bash
-dotnet restore TaskChaining
+dotnet build TaskChaining
 ```
 
 Run the application using the Dapr CLI:

@@ -110,10 +110,10 @@ Navigate to the *csharp/fundamentals* folder:
 cd csharp/fundamentals
 ```
 
-Install the dependencies:
+Install the dependencies and build the project:
 
 ```bash
-dotnet restore Basic
+dotnet build Basic
 ```
 
 Run the application using the Dapr CLI:

@@ -83,10 +83,10 @@ Navigate to the *csharp/fan-out-fan-in* folder:
 cd csharp/fan-out-fan-in
 ```
 
-Install the dependencies:
+Install the dependencies and build the project:
 
 ```bash
-dotnet restore FanOutFanIn
+dotnet build FanOutFanIn
 ```
 
 Run the application using the Dapr CLI:

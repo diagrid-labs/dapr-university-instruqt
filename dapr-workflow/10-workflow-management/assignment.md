@@ -36,13 +36,13 @@ Use the language specific instructions to start the basic workflow.
 <details>
    <summary><b>Run the .NET workflow</b></summary>
 
-	Install the dependencies:
+	Install the dependencies and build the project and build the project and build the project and build the project:
 
 ```bash
-dotnet restore TaskChaining
+dotnet build TaskChaining
 ```
 
-Run the applications using the Dapr CLI:
+Run the application using the Dapr CLI:
 
 ```bash
 dapr run -f .

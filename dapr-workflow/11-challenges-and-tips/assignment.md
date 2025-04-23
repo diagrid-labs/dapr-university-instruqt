@@ -39,7 +39,7 @@ Use the language specific instructions to start the basic workflow.
 	Install the dependencies:
 
 ```bash
-dotnet restore TaskChaining
+dotnet build TaskChaining
 ```
 
 Run the applications using the Dapr CLI:
