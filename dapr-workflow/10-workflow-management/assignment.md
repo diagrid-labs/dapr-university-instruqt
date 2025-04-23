@@ -1,8 +1,8 @@
 # Workflow Management
 
-**In this challenge, ..**
+In this challenge, you'll explore the Dapr Workflow Management API and test the various operations that can be performed on workflow instances.
 
-## 1. Task Chaining
+## 1. Workflow Management
 
 ### 1.1 Choose a language tab
 
@@ -13,9 +13,9 @@ Use one of the language tabs to navigate to the basic workflow example. Each lan
 <details>
    <summary><b>.NET</b></summary>
 
-Open the `BasicWorkflow.cs` file located in the `Basic` folder. This file contains the workflow code.
+Open the `NeverEndingWorkflow.cs` file located in the `WorkflowManagement` folder. This file contains the workflow code.
 
-
+The input for this workflow is an integer, and gets incremented by `1` every second. The workflow will run indefinitely.
 
 </details>
 
@@ -24,8 +24,29 @@ Open the `BasicWorkflow.cs` file located in the `Basic` folder. This file contai
 <details>
    <summary><b>.NET</b></summary>
 
-Open the `Activity1.cs` file located in the `Basic/Activities` folder. This file contains the code for Activity1.
+Open the `SendNotification.cs` file located in the `WorkflowManagement/Activities` folder. This activity only logs the activity input (the counter) and returns true.
 
+</details>
+
+### 1.4. Inspect the workflow & activity registration
+
+Use the language-specific instructions to learn more about workflow registration.
+
+<details>
+   <summary><b>.NET</b></summary>
+
+Locate the `Program.cs` file in the `WorkflowManagement` folder. This file contains the code to register the workflows and activities using the `AddDaprWorkflow()` extension method.
+
+The application has the following HTTP endpoints:
+
+- `start/{counter}`, a POST endpoint that is used to start the workflow, and accepts an integer as the input.
+- `status/{instanceId}`, a GET endpoint that is used to get the status of the workflow instance, and accepts a workflow instance ID as the input.
+- `suspend/{instanceId}`, a POST endpoint that is used to suspend the workflow instance, and accepts a workflow instance ID as the input.
+- `resume/{instanceId}`, a POST endpoint that is used to resume a suspended workflow instance, and accepts a workflow instance ID as the input.
+- `terminate/{instanceId}`, a POST endpoint that is used to terminate the workflow instance, and accepts a workflow instance ID as the input.
+- `purge/{instanceId}`, a DELETE endpoint that is used to delete the workflow instance, and accepts a workflow instance ID as the input.
+
+All methods use the `DaprWorklowClient` to perform the workflow management operations.
 
 </details>
 
@@ -39,7 +60,7 @@ Use the language specific instructions to start the basic workflow.
 	Install the dependencies and build the project and build the project and build the project and build the project:
 
 ```bash
-dotnet build TaskChaining
+dotnet build WorkflowManagement
 ```
 
 Run the application using the Dapr CLI:
@@ -47,12 +68,204 @@ Run the application using the Dapr CLI:
 ```bash
 dapr run -f .
 ```
+
 </details>
 
 ## 3. Start the workflow
 
+Use the **curl** window to make a POST request to the `start` endpoint of the workflow application.
+
+Use the language-specific instructions to start the external system interaction workflow.
+
+<details>
+   <summary><b>Start the .NET workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow:
+
+```curl
+curl -i --request POST \
+  --url http://localhost:5262/start/0
+```
+
+Expected output:
+
+```text
+HTTP/1.1 202 Accepted
+Content-Length: 0
+Date: Wed, 23 Apr 2025 15:48:10 GMT
+Server: Kestrel
+Location: 71007295959944fd8d05dad5d4526806
+```
+
+The **Dapr CLI** window should contain these application log statements:
+
+```text
+== APP - neverendingworkflow == SendNotification: Received input: 0.
+== APP - neverendingworkflow == SendNotification: Received input: 1.
+== APP - neverendingworkflow == SendNotification: Received input: 2.
+== APP - neverendingworkflow == SendNotification: Received input: 3.
+...
+```
+
+</details>
+
 ## 4. Get the workflow status
+
+Use the **curl** window to perform a GET request to the `status` endpoint of the application to retrieve the workflow status.
+
+Use the language-specific instructions to get the workflow instance status.
+
+<details>
+   <summary><b>Get the .NET workflow status</b></summary>
+
+Use the **curl** window to perform a GET request to the `status` endpoint of the application to retrieve the workflow status:
+
+```curl
+curl --request GET \
+  --url http://localhost:5262/status/<INSTANCEID>
+```
+
+Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in the previous step.
+
+Expected output:
+
+```json
+{"exists":true,"isWorkflowRunning":true,"isWorkflowCompleted":false,"createdAt":"2025-04-23T15:51:43.0005152+00:00","lastUpdatedAt":"2025-04-23T15:51:43.0114001+00:00","runtimeStatus":0,"failureDetails":null}
+```
+
+</details>
+
+## 5. Suspend the workflow
+
+Use the **curl** window to make a POST request to the `suspend` endpoint of the application to suspend the workflow instance.
+
+Use the language-specific instructions to get the workflow instance status.
+
+<details>
+   <summary><b>Get the .NET workflow status</b></summary>
+
+Use the **curl** window to make a POST request to the `suspend` endpoint of the application to suspend the workflow instance:
+
+```curl
+curl -i --request POST \
+  --url http://localhost:5262/suspend/<INSTANCEID>
+```
+
+Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in step 3.
+
+Expected output:
+
+```json
+HTTP/1.1 202 Accepted
+Content-Length: 0
+Date: Wed, 23 Apr 2025 15:54:08 GMT
+Server: Kestrel
+```
+
+> Note: The workflow instance has stopped executing. The **Dapr CLI** window should not show any new log statements.
+
+</details>
+
+## 6. Resume the workflow
+
+Use the **curl** window to make a POST request to the `resume` endpoint of the application to resume the suspended the workflow instance.
+
+Use the language-specific instructions to get the workflow instance status.
+
+<details>
+   <summary><b>Get the .NET workflow status</b></summary>
+
+Use the **curl** window to make a POST request to the `resume` endpoint of the application to resume the suspended the workflow instance:
+
+```curl
+curl -i --request POST \
+  --url http://localhost:5262/resume/<INSTANCEID>
+```
+
+Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in step 3.
+
+Expected output:
+
+```json
+HTTP/1.1 202 Accepted
+Content-Length: 0
+Date: Wed, 23 Apr 2025 15:59:17 GMT
+Server: Kestrel
+```
+
+</details>
+
+## 7. Terminate the workflow
+
+Use the **curl** window to make a POST request to the `terminate` endpoint of the application to terminate the running workflow instance.
+
+Use the language-specific instructions to get the workflow instance status.
+
+<details>
+   <summary><b>Get the .NET workflow status</b></summary>
+
+Use the **curl** window to make a POST request to the `terminate` endpoint of the application to terminate the running workflow instance:
+
+```curl
+curl -i --request POST \
+  --url http://localhost:5262/terminate/<INSTANCEID>
+```
+
+Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in step 3.
+
+Expected output:
+
+```json
+HTTP/1.1 202 Accepted
+Content-Length: 0
+Date: Wed, 23 Apr 2025 15:59:17 GMT
+Server: Kestrel
+```
+
+The **Dapr CLI** window should show a log statement about the workflow being terminated:
+
+```text
+Workflow Actor <INSTANCEID>: workflow completed with status 'ORCHESTRATION_STATUS_TERMINATED' workflowName 'NeverEndingWorkflow'
+```
+
+</details>
+
+## 8. Purge the workflow
+
+Use the **curl** window to make a DELETE request to the `purge` endpoint of the application to purge workflow instance from the state store.
+
+Use the language-specific instructions to get the workflow instance status.
+
+<details>
+   <summary><b>Get the .NET workflow status</b></summary>
+
+Use the **curl** window to make a DELETE request to the `purge` endpoint of the application to purge workflow instance from the state store:
+
+```curl
+curl -i --request DELETE \
+  --url http://localhost:5262/purge/<INSTANCEID>
+```
+
+Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in step 3.
+
+Expected output:
+
+```json
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Wed, 23 Apr 2025 16:04:08 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+
+true
+```
+
+</details>
+
+## 9. Stop the workflow application
+
+Use the **Dapr CLI** window to stop the workflow application by pressing `Ctrl+C`.
 
 ---
 
-Next step: ...
+You've now used the Dapr Workflow Management API to start, get the status, suspend, resume, terminate, and purge a workflow instance. Let's move on to the final challenge, where you'll learn about some of the challenges of code based workflows and how to deal with them.

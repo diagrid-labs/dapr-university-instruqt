@@ -67,7 +67,7 @@ Th WorkflowApp has the following HTTP endpoints:
 
 </details>
 
-### 1.4. Inspect the Shipping App
+### 1.5. Inspect the Shipping App
 
 Use the language-specific instructions to learn more about workflow registration.
 
@@ -81,7 +81,7 @@ Locate the `Program.cs` file in the `ShippingApp` folder. This file contains the
 
 </details>
 
-### 1.5. Inspect the Dapr component files
+### 1.6. Inspect the Dapr component files
 
 Since the Dapr applications in the challenge use the Dapr pub/sub API, they also require Dapr component files to configure the pub/sub component and the (declarative) subscriptions. These component files can be found in the `resources` folder.
 
