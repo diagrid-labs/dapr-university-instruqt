@@ -50,14 +50,22 @@ All methods use the `DaprWorklowClient` to perform the workflow management opera
 
 </details>
 
-## 2. Start the workflow app
+## 2. Run the workflow app
 
-Use the language specific instructions to start the basic workflow.
+Use the language specific instructions to start the workflow management application.
 
 <details>
-   <summary><b>Run the .NET workflow</b></summary>
+   <summary><b>Run the .NET application</b></summary>
 
-	Install the dependencies and build the project and build the project and build the project and build the project:
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *csharp/workflow-management* folder:
+
+```bash
+cd csharp/workflow-management
+```
+
+Install the dependencies and build the project and build the project and build the project and build the project:
 
 ```bash
 dotnet build WorkflowManagement
@@ -70,6 +78,8 @@ dapr run -f .
 ```
 
 </details>
+
+Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
 
 ## 3. Start the workflow
 

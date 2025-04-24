@@ -93,16 +93,18 @@ Locate the `Program.cs` file in the `Basic` folder. This file contains the code 
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow. It accepts a `string` as input, and this input is passed on to the workflow.
 
-The `start` method also contains the `DaprWorkflowClient` as an input argument. This is injected by the Dapr SDK. The `DaprWorkflowClient` is used to schedule a new workflow using the `ScheduleNewWorkflowAsync` method. The first input argument for this method is the name of the workflow; the second input argument is the input for the workflow. The `DaprWorkflowClient` contains more methods to manage workflows. This will be covered in the *Workflow Management* challenge later in this learning track.
+The `start` method also contains the `DaprWorkflowClient` as an input argument. This is injected by the Dapr SDK. The `DaprWorkflowClient` is used to schedule a new workflow using the `ScheduleNewWorkflowAsync` method. The first input argument for this method is the name of the workflow; the second input argument is the input for the workflow. The `ScheduleNewWorkflowAsync` method return the instance ID of the workflow that is scheduled. The ID is used for other workflow operations that can be done with the `DaprWorkflowClient`. This will be covered in the *Workflow Management* challenge later in this learning track.
 
 </details>
 
 ## 3. Run the workflow application
 
-Use the language-specific instructions to start the workflow application. Use the **Dapr CLI** window to run the commands.
+Use the language-specific instructions to start the workflow application.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
 
 Navigate to the *csharp/fundamentals* folder:
 
@@ -124,7 +126,7 @@ dapr run -f .
 
 </details>
 
-Inspect the output of the **Dapr CLI** window. The application should now be running.
+Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
 
 ## 4. Start the Basic workflow
 
@@ -135,7 +137,7 @@ Use the language-specific instructions to start the basic workflow.
 <details>
    <summary><b>Start the .NET workflow</b></summary>
 
-In the *curl* window, run the following command to start the workflow:
+In the **curl** window, run the following command to start the workflow:
 
 ```curl
 curl -i --request POST http://localhost:5254/start/One
@@ -171,9 +173,10 @@ Inspect the Dapr output in the **Dapr CLI** window. It should contain a message 
 Workflow Actor '<INSTANCEID>': workflow completed with status 'ORCHESTRATION_STATUS_COMPLETED' workflowName 'BasicWorkflow' 
 ```
 
+> [!NOTE]
 > Dapr workflow uses Dapr actors internally to manage the workflow and activity state. That is why you'll see actors mentioned in the Dapr log output.
 
-We don't want to rely on the Dapr output to get the status of a workflow instance. Instead, we can use the Dapr Workflow Management API to get the status of a workflow instance.
+We don't want to rely on the Dapr log output to get the status of a workflow instance. Instead, we can use the Dapr Workflow Management API to get the status of a workflow instance.
 
 Use the **curl** window to perform a GET request directly the Dapr workflow management API to retrieve the workflow status.
 
@@ -188,7 +191,7 @@ Use the **curl** window to make a GET request to get the status of a workflow in
 curl --request GET --url http://localhost:3554/v1.0/workflows/dapr/<INSTANCEID>
 ```
 
-Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in the previous step.
+Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in the previous step. You can copy the value from the **curl** window.
 
 Example:
 
@@ -199,7 +202,17 @@ curl --request GET --url http://localhost:3554/v1.0/workflows/dapr/05f63e15a3724
 Expected output:
 
 ```json
-{"instanceID":"05f63e15a3724c5d86386922919378d6","workflowName":"BasicWorkflow","createdAt":"2025-04-16T13:54:30.688455621Z","lastUpdatedAt":"2025-04-16T13:54:30.720682100Z","runtimeStatus":"COMPLETED","properties":{"dapr.workflow.input":"\"One\"","dapr.workflow.output":"\"One Two Three\""}}
+{
+   "instanceID":"05f63e15a3724c5d86386922919378d6",
+   "workflowName":"BasicWorkflow",
+   "createdAt":"2025-04-16T13:54:30.688455621Z",
+   "lastUpdatedAt":"2025-04-16T13:54:30.720682100Z",
+   "runtimeStatus":"COMPLETED",
+   "properties": {
+      "dapr.workflow.input":"\"One\"",
+      "dapr.workflow.output":"\"One Two Three\""
+   }
+}
 ```
 
 The workflow status contains the workflow instance ID, the workflow name, the created and last updated timestamps, the runtime status (`COMPLETED`), and the input and output of the workflow.
@@ -249,6 +262,22 @@ Use the **Redis** window and use the following command to list all the keys in t
 
 ```bash
 keys *basic||dapr.internal.default.basic.workflow*
+```
+
+The expected output should be similar to this:
+
+```text
+ 1) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000007"
+ 2) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||customStatus"
+ 3) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000003"
+ 4) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000008"
+ 5) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000006"
+ 6) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000001"
+ 7) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||metadata"
+ 8) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000005"
+ 9) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000002"
+10) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000000"
+11) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000004"
 ```
 
 You should never edit the workflow state directly, to prevent corrupting the data of workflows that are still running. The Dapr Workflow Client is used to manage workflow instance data, and this is covered in the *Workflow Management* challenge later in this learning track.

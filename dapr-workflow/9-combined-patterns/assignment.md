@@ -86,12 +86,20 @@ Locate the `Program.cs` file in the `ShippingApp` folder. This file contains the
 
 Since the Dapr applications in the challenge use the Dapr pub/sub API, they also require Dapr component files to configure the pub/sub component and the (declarative) subscriptions. These component files can be found in the `resources` folder.
 
-## 2. Start the workflow app
+## 2. Run the workflow app
 
-Use the language specific instructions to start the basic workflow.
+Use the language specific instructions to start the combined patterns workflow.
 
 <details>
-   <summary><b>Run the .NET workflow</b></summary>
+   <summary><b>Run the .NET application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *csharp/combined-patterns* folder:
+
+```bash
+cd csharp/combined-patterns
+```
 
 Install the dependencies and build the projects:
 
@@ -107,6 +115,8 @@ dapr run -f .
 ```
 
 </details>
+
+Inspect the output of the **Dapr CLI** window. Wait until the applications are running before continuing.
 
 ## 3. Start the workflow
 

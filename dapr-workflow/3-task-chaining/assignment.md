@@ -57,10 +57,12 @@ This application also has a `start` HTTP POST endpoint that is used to start the
 
 ## 2. Run the workflow app
 
-Use the language-specific instructions to start the workflow application. Use the **Dapr CLI** window to run the commands.
+Use the language-specific instructions to start the workflow application.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
 
 Navigate to the *csharp/task-chaining* folder:
 
@@ -82,7 +84,7 @@ dapr run -f .
 
 </details>
 
-Inspect the output of the **Dapr CLI** window. The application should now be running.
+Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
 
 ## 3. Start the workflow
 
@@ -139,7 +141,17 @@ Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` 
 Expected output:
 
 ```json
-{"instanceID":"67b4526c1c3a49fca2c4801869869016","workflowName":"ChainingWorkflow","createdAt":"2025-04-17T12:04:53.094038635Z","lastUpdatedAt":"2025-04-17T12:04:53.380547765Z","runtimeStatus":"COMPLETED","properties":{"dapr.workflow.input":"\"This\"","dapr.workflow.output":"\"This is task chaining\""}}
+{
+   "instanceID":"67b4526c1c3a49fca2c4801869869016",
+   "workflowName":"ChainingWorkflow",
+   "createdAt":"2025-04-17T12:04:53.094038635Z",
+   "lastUpdatedAt":"2025-04-17T12:04:53.380547765Z",
+   "runtimeStatus":"COMPLETED",
+   "properties": {
+      "dapr.workflow.input":"\"This\"",
+      "dapr.workflow.output":"\"This is task chaining\""
+   }
+}
 ```
 
 </details>

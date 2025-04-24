@@ -77,10 +77,12 @@ This application also has a `start` HTTP POST endpoint that is used to start the
 
 ## 2. Run the workflow app
 
-Use the language-specific instructions to start the workflow application. Use the **Dapr CLI** window to run the commands.
+Use the language-specific instructions to start the workflow application.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
 
 Navigate to the *csharp/external-system-interaction* folder:
 
@@ -102,7 +104,7 @@ dapr run -f .
 
 </details>
 
-Inspect the output of the **Dapr CLI** window. The application should now be running.
+Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
 
 ## 3. Start the workflow
 
