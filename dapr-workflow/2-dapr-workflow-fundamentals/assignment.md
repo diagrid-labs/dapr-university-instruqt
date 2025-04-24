@@ -234,7 +234,7 @@ Dapr workflow uses durable execution, which means the workflow state is persiste
 
 This animation shows when workflow state is persisted and retrieved during workflow replays:
 
-![Workflow replay]()
+![Workflow replay](images/dapr-uni-wf-replay.gif)
 
 The state store component used by Dapr workflow in this example is defined in the `state_redis.yaml` file that is located in the `resources` folder.
 
