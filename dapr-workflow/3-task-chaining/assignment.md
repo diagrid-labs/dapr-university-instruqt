@@ -1,4 +1,4 @@
-# Workflow pattern: Task Chaining
+# Workflow Pattern: Task Chaining
 
 In this challenge, you'll explore a workflow application that demonstrates the task chaining pattern.
 

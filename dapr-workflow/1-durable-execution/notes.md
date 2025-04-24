@@ -1,6 +1,8 @@
 Click the *Start* button to setup the sandbox environment for this training, this may take up to 1 min. Once the environment ready, click the *Start* button again.
 
-In this challenge, you'll learn:
+There are 11 challenges in total. You can use the *Progress* menu to quickly navigate to any challenge if you don't want to follow them in order.
+
+In this first challenge, you'll learn:
 
 - What durable execution is and why it's beneficial for building distributed applications.
 - How durable execution applies to workflow engines.

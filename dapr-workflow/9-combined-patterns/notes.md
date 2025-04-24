@@ -1,9 +1,5 @@
 The sandbox for this challenge is being prepared. Once it's ready, click the *Start* button.
 
-In this challenge, you'll learn:
-
-- How Dapr workflows and activities are defined in code.
-- How to start a workflow and retrieve the status.
-- How the workflow engine manages the state of the workflow.
+In this challenge, you'll explore a more realistic example of a workflow application, that uses several workflow patterns and multiple Dapr APIs.
 
 If you need more information about Dapr Workflow during (or after) the challenge, visit the [Dapr Docs](https://docs.dapr.io/developing-applications/building-blocks/workflow/). If you have any questions or feedback about this track, you can let us know in the *#university* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
