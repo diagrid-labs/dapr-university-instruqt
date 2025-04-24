@@ -1,4 +1,4 @@
-# Workflow pattern: External System Interaction
+# Workflow Pattern: External System Interaction
 
 In this challenge, you'll explore a workflow application that demonstrates the external system interaction pattern.
 

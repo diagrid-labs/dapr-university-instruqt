@@ -1,4 +1,4 @@
-# Workflow pattern: Fan-out / Fan-in
+# Workflow Pattern: Fan-out / Fan-in
 
 In this challenge, you'll explore a workflow application that demonstrates the fan-out/fan-in pattern.
 
@@ -6,7 +6,7 @@ In this challenge, you'll explore a workflow application that demonstrates the f
 
 The fan-out/fan-in pattern is used when there is no dependency between the activities in the workflow. The activities can be executed in parallel, the workflow will wait until all activities are completed and the results from the activities can be aggregated into a single result.
 
-![Task Chaining](images/dapr-uni-wf-pattern-fan-out-fan-in-v1.png)
+![Fan-out/Fan-in](images/dapr-uni-wf-pattern-fan-out-fan-in-v1.png)
 
 The workflow in this challenge consists of three activities that are called in parallel.
 

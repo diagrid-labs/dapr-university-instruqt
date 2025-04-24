@@ -1,4 +1,4 @@
-# Workflow pattern: Monitor
+# Workflow Pattern: Monitor
 
 In this challenge, you'll explore a workflow application that demonstrates the monitor pattern.
 
