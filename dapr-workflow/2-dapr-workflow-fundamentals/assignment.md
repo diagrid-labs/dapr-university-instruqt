@@ -7,6 +7,7 @@ In this challenge, you'll learn:
 - How to get the status of a workflow instance.
 - How the workflow engine persists workflow state.
 
+> [!NOTE]
 > The code you see in this Dapr University track is available in the [Dapr QuickStarts](https://github.com/dapr/quickstarts/) repository in the `tutorials/workflow` folder. If you want to explore more code samples for other Dapr APIs in this repo, you can do so after completing this track.
 
 ## 1. Workflows and Activities
@@ -233,7 +234,7 @@ Dapr workflow uses durable execution, which means the workflow state is persiste
 
 This animation shows when workflow state is persisted and retrieved during workflow replays:
 
-![Workflow replay]()
+![Workflow replay](images/dapr-uni-wf-replay.gif)
 
 The state store component used by Dapr workflow in this example is defined in the `state_redis.yaml` file that is located in the `resources` folder.
 

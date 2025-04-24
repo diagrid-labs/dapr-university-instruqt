@@ -164,7 +164,17 @@ Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` 
 Expected output:
 
 ```json
-{"instanceID":"402bc03326e94ea9af5e400b1a718b8b","workflowName":"FanOutFanInWorkflow","createdAt":"2025-04-17T13:41:04.035237868Z","lastUpdatedAt":"2025-04-17T13:41:04.083785576Z","runtimeStatus":"COMPLETED","properties":{"dapr.workflow.input":"[\"which\",\"word\",\"is\",\"the\",\"shortest\"]","dapr.workflow.output":"\"is\""}}
+{
+   "instanceID":"402bc03326e94ea9af5e400b1a718b8b",
+   "workflowName":"FanOutFanInWorkflow",
+   "createdAt":"2025-04-17T13:41:04.035237868Z",
+   "lastUpdatedAt":"2025-04-17T13:41:04.083785576Z",
+   "runtimeStatus":"COMPLETED",
+   "properties":{
+      "dapr.workflow.input":"[\"which\",\"word\",\"is\",\"the\",\"shortest\"]",
+      "dapr.workflow.output":"\"is\""
+   }
+}
 ```
 
 </details>

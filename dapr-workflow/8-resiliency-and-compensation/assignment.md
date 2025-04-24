@@ -170,7 +170,17 @@ Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` 
 Expected output:
 
 ```json
-{"instanceID":"da2351d19c874a79a3f66c709a98be61","workflowName":"ResiliencyAndCompensationWorkflow","createdAt":"2025-04-23T09:37:58.941845115Z","lastUpdatedAt":"2025-04-23T09:38:03.049028901Z","runtimeStatus":"COMPLETED","properties":{"dapr.workflow.custom_status":"\"Compensated MinusOne activity with PlusOne activity.\"","dapr.workflow.input":"1","dapr.workflow.output":"1"}}
+{
+   "instanceID":"da2351d19c874a79a3f66c709a98be61",
+   "workflowName":"ResiliencyAndCompensationWorkflow",
+   "createdAt":"2025-04-23T09:37:58.941845115Z",
+   "lastUpdatedAt":"2025-04-23T09:38:03.049028901Z",
+   "runtimeStatus":"COMPLETED",
+   "properties":{
+      "dapr.workflow.custom_status":"\"Compensated MinusOne activity with PlusOne activity.\"",
+      "dapr.workflow.input":"1","dapr.workflow.output":"1"
+   }
+}
 ```
 
 > [!NOTE]

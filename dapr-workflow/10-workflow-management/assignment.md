@@ -140,7 +140,14 @@ Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` 
 Expected output:
 
 ```json
-{"exists":true,"isWorkflowRunning":true,"isWorkflowCompleted":false,"createdAt":"2025-04-23T15:51:43.0005152+00:00","lastUpdatedAt":"2025-04-23T15:51:43.0114001+00:00","runtimeStatus":0,"failureDetails":null}
+{
+   "exists":true,
+   "isWorkflowRunning":true,
+   "isWorkflowCompleted":false,
+   "createdAt":"2025-04-23T15:51:43.0005152+00:00",
+   "lastUpdatedAt":"2025-04-23T15:51:43.0114001+00:00",
+   "runtimeStatus":0,
+   "failureDetails":null}
 ```
 
 </details>
