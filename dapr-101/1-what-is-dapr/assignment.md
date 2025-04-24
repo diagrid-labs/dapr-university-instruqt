@@ -30,7 +30,7 @@ Dapr offers many building block APIs that speed up back-end application developm
 - **Pub/Sub**: Secure, scalable asynchronous messaging between services
 - **Workflow**: Automate and orchestrate tasks within your application
 - **Actors**: Encapsulate code and data in reusable actor objects as a common microservices design pattern
-- **Bindings**: Input andoutput bindings to external resources, including databases and queues
+- **Bindings**: Input and output bindings to external resources, including databases and queues
 - **Configuration**: Access application configuration and be notified of updates
 - **Distributed lock**: Mutually exclusive access to shared resources
 - **Secrets**: Securely access secrets from your application
