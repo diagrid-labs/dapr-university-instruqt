@@ -7,6 +7,7 @@ In this challenge, you'll learn:
 - How to get the status of a workflow instance.
 - How the workflow engine persists workflow state.
 
+> [!NOTE]
 > The code you see in this Dapr University track is available in the [Dapr QuickStarts](https://github.com/dapr/quickstarts/) repository in the `tutorials/workflow` folder. If you want to explore more code samples for other Dapr APIs in this repo, you can do so after completing this track.
 
 ## 1. Workflows and Activities
