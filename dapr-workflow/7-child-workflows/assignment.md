@@ -52,7 +52,8 @@ Open the `ChildWorkflow.cs` file located in the `ChildWorkflows` folder. This fi
 
 ### 1.4. Inspect the workflow & activity registration
 
-Use the language-specific instructions to learn more about workflow registration.
+> [!NOTE]
+> Use the language-specific instructions to learn more about workflow registration.
 
 <details>
    <summary><b>.NET</b></summary>
@@ -98,7 +99,8 @@ Inspect the output of the **Dapr CLI** window. Wait until the application is run
 
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application.
 
-Use the language-specific instructions to start the external system interaction workflow.
+> [!NOTE]
+> Use the language-specific instructions to start the external system interaction workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>
@@ -140,7 +142,8 @@ The **Dapr CLI** window should contain these application log statements:
 
 Use the **curl** window to perform a GET request directly the Dapr workflow management API to retrieve the workflow status.
 
-Use the language-specific instructions to get the workflow instance status.
+> [!NOTE]
+> Use the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>

@@ -30,7 +30,8 @@ Open the `SendNotification.cs` file located in the `WorkflowManagement/Activitie
 
 ### 1.4. Inspect the workflow & activity registration
 
-Use the language-specific instructions to learn more about workflow registration.
+> [!NOTE]
+> Use the language-specific instructions to learn more about workflow registration.
 
 <details>
    <summary><b>.NET</b></summary>
@@ -85,7 +86,8 @@ Inspect the output of the **Dapr CLI** window. Wait until the application is run
 
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application.
 
-Use the language-specific instructions to start the external system interaction workflow.
+> [!NOTE]
+> Use the language-specific instructions to start the external system interaction workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>
@@ -123,7 +125,8 @@ The **Dapr CLI** window should contain these application log statements:
 
 Use the **curl** window to perform a GET request to the `status` endpoint of the application to retrieve the workflow status.
 
-Use the language-specific instructions to get the workflow instance status.
+> [!NOTE]
+> Use the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>
@@ -156,7 +159,8 @@ Expected output:
 
 Use the **curl** window to make a POST request to the `suspend` endpoint of the application to suspend the workflow instance.
 
-Use the language-specific instructions to get the workflow instance status.
+> [!NOTE]
+> Use the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>
@@ -188,7 +192,8 @@ Server: Kestrel
 
 Use the **curl** window to make a POST request to the `resume` endpoint of the application to resume the suspended the workflow instance.
 
-Use the language-specific instructions to get the workflow instance status.
+> [!NOTE]
+> Use the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>
@@ -217,7 +222,8 @@ Server: Kestrel
 
 Use the **curl** window to make a POST request to the `terminate` endpoint of the application to terminate the running workflow instance.
 
-Use the language-specific instructions to get the workflow instance status.
+> [!NOTE]
+> Use the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>
@@ -252,7 +258,8 @@ Workflow Actor <INSTANCEID>: workflow completed with status 'ORCHESTRATION_STATU
 
 Use the **curl** window to make a DELETE request to the `purge` endpoint of the application to purge workflow instance from the state store.
 
-Use the language-specific instructions to get the workflow instance status.
+> [!NOTE]
+> Use the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>

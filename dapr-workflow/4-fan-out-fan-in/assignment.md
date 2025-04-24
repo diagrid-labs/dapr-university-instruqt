@@ -21,7 +21,8 @@ Use one of the language tabs to navigate to the fan-out/fan-in workflow example.
 
 ### 1.2. Inspect the Workflow code
 
-Use the language-specific instructions to learn more about the fan-out/fan-in workflow.
+> [!NOTE]
+> Use the language-specific instructions to learn more about the fan-out/fan-in workflow.
 
 <details>
    <summary><b>.NET workflow code</b></summary>
@@ -59,7 +60,8 @@ The workflow uses only one activity, `GetWordLength`, and is located in the `Fan
 
 ### 1.4. Inspect the workflow & activity registration
 
-Use the language-specific instructions to learn more about workflow registration.
+> [!NOTE]
+> Use the language-specific instructions to learn more about workflow registration.
 
 <details>
    <summary><b>.NET</b></summary>
@@ -72,7 +74,8 @@ This application also has a `start` HTTP POST endpoint that is used to start the
 
 ## 2. Run the workflow app
 
-Use the language-specific instructions to start the workflow application.
+> [!NOTE]
+> Use the language-specific instructions to start the workflow application.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
@@ -105,7 +108,8 @@ Inspect the output of the **Dapr CLI** window. Wait until the application is run
 
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application.
 
-Use the language-specific instructions to start the fan-out/fan-in workflow.
+> [!NOTE]
+> Use the language-specific instructions to start the fan-out/fan-in workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>
@@ -148,7 +152,8 @@ The **Dapr CLI** window should contain these application log statements:
 
 Use the **curl** window to perform a GET request directly the Dapr workflow management API to retrieve the workflow status.
 
-Use the language-specific instructions to get the workflow instance status.
+> [!NOTE]
+> Use the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>

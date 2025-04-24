@@ -35,7 +35,8 @@ Use one of the language tabs to navigate to the basic workflow example. Each lan
 
 ### 2.2 Inspect the Workflow code
 
-Use the language-specific instructions to learn more about workflow code.
+> [!NOTE]
+> Use the language-specific instructions to learn more about workflow code.
 
 <details>
    <summary><b>.NET</b></summary>
@@ -58,7 +59,8 @@ The body of the `RunAsync` method in this example contains two calls to activiti
 
 ### 2.3 Inspect the Activity code
 
-Use the language-specific instructions to learn more about activity code.
+> [!NOTE]
+> Use the language-specific instructions to learn more about activity code.
 
 <details>
    <summary><b>.NET</b></summary>
@@ -85,7 +87,8 @@ Typically, activities contain code that performs one specific task, such as call
 
 Workflows and activities need to be registered in the workflow application. This is to ensure that Dapr can find the workflow and activities when they are scheduled.
 
-Use the language-specific instructions to learn more about workflow registration.
+> [!NOTE]
+> Use the language-specific instructions to learn more about workflow registration.
 
 <details>
    <summary><b>.NET</b></summary>
@@ -100,7 +103,8 @@ The `start` method also contains the `DaprWorkflowClient` as an input argument. 
 
 ## 3. Run the workflow application
 
-Use the language-specific instructions to start the workflow application.
+> [!NOTE]
+> Use the language-specific instructions to start the workflow application.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
@@ -133,7 +137,8 @@ Inspect the output of the **Dapr CLI** window. Wait until the application is run
 
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application and provide `One` as the input.
 
-Use the language-specific instructions to start the basic workflow.
+> [!NOTE]
+> Use the language-specific instructions to start the basic workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>
@@ -181,7 +186,8 @@ We don't want to rely on the Dapr log output to get the status of a workflow ins
 
 Use the **curl** window to perform a GET request directly the Dapr workflow management API to retrieve the workflow status.
 
-Use the language-specific instructions to get the workflow instance status.
+> [!NOTE]
+> Use the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>
