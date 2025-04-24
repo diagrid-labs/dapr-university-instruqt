@@ -183,7 +183,17 @@ Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` 
 Expected output:
 
 ```json
-{"instanceID":"b0d38481-5547-411e-ae7b-255761cce17a","workflowName":"OrderWorkflow","createdAt":"2025-04-23T12:08:02.625836530Z","lastUpdatedAt":"2025-04-23T12:08:03.149685594Z","runtimeStatus":"COMPLETED","properties":{"dapr.workflow.input":"{\"Id\":\"b0d38481-5547-411e-ae7b-255761cce17a\",\"OrderItem\":{\"ProductId\":\"RBD001\",\"ProductName\":\"Rubber Duck\",\"Quantity\":10,\"TotalPrice\":15.00},\"CustomerInfo\":{\"Id\":\"Customer1\",\"Country\":\"The Netherlands\"}}","dapr.workflow.output":"{\"IsSuccess\":true,\"Message\":\"Order b0d38481-5547-411e-ae7b-255761cce17a processed successfully.\"}"}}
+{
+   "instanceID":"b0d38481-5547-411e-ae7b-255761cce17a",
+   "workflowName":"OrderWorkflow",
+   "createdAt":"2025-04-23T12:08:02.625836530Z",
+   "lastUpdatedAt":"2025-04-23T12:08:03.149685594Z",
+   "runtimeStatus":"COMPLETED",
+   "properties":{
+      "dapr.workflow.input":"{\"Id\":\"b0d38481-5547-411e-ae7b-255761cce17a\",\"OrderItem\":{\"ProductId\":\"RBD001\",\"ProductName\":\"Rubber Duck\",\"Quantity\":10,\"TotalPrice\":15.00},\"CustomerInfo\":{\"Id\":\"Customer1\",\"Country\":\"The Netherlands\"}}",
+      "dapr.workflow.output":"{\"IsSuccess\":true,\"Message\":\"Order b0d38481-5547-411e-ae7b-255761cce17a processed successfully.\"}"
+   }
+}
 ```
 
 </details>

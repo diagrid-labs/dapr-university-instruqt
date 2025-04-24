@@ -156,7 +156,17 @@ Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` 
 Expected output:
 
 ```json
-{"instanceID":"0be522fda3db4963b6be9e8828c85938","workflowName":"ParentWorkflow","createdAt":"2025-04-22T13:39:06.694524219Z","lastUpdatedAt":"2025-04-22T13:39:06.994152799Z","runtimeStatus":"COMPLETED","properties":{"dapr.workflow.input":"[\"Item 1\",\"Item 2\"]","dapr.workflow.output":"[\"Item 1 is processed as a child workflow.\",\"Item 2 is processed as a child workflow.\"]"}}
+{
+   "instanceID":"0be522fda3db4963b6be9e8828c85938",
+   "workflowName":"ParentWorkflow",
+   "createdAt":"2025-04-22T13:39:06.694524219Z",
+   "lastUpdatedAt":"2025-04-22T13:39:06.994152799Z",
+   "runtimeStatus":"COMPLETED",
+   "properties":{
+      "dapr.workflow.input":"[\"Item 1\",\"Item 2\"]",
+      "dapr.workflow.output":"[\"Item 1 is processed as a child workflow.\",\"Item 2 is processed as a child workflow.\"]"
+   }
+}
 ```
 
 </details>

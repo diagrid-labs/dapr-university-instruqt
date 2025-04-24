@@ -196,7 +196,17 @@ curl --request GET --url http://localhost:3558/v1.0/workflows/dapr/b7dd836b-e913
 Expected output:
 
 ```json
-{"instanceID":"b7dd836b-e913-4446-9912-d400befebec5","workflowName":"ExternalEventsWorkflow","createdAt":"2025-04-17T15:37:52.010680923Z","lastUpdatedAt":"2025-04-17T15:39:14.342695324Z","runtimeStatus":"COMPLETED","properties":{"dapr.workflow.input":"{\"Id\":\"b7dd836b-e913-4446-9912-d400befebec5\",\"Description\":\"Rubber ducks\",\"Quantity\":100,\"TotalPrice\":500}","dapr.workflow.output":"\"Order b7dd836b-e913-4446-9912-d400befebec5 has been approved.\""}}
+{
+   "instanceID":"b7dd836b-e913-4446-9912-d400befebec5",
+   "workflowName":"ExternalEventsWorkflow",
+   "createdAt":"2025-04-17T15:37:52.010680923Z",
+   "lastUpdatedAt":"2025-04-17T15:39:14.342695324Z",
+   "runtimeStatus":"COMPLETED",
+   "properties":{
+      "dapr.workflow.input":"{\"Id\":\"b7dd836b-e913-4446-9912-d400befebec5\",\"Description\":\"Rubber ducks\",\"Quantity\":100,\"TotalPrice\":500}",
+      "dapr.workflow.output":"\"Order b7dd836b-e913-4446-9912-d400befebec5 has been approved.\""
+   }
+}
 ```
 
 </details>

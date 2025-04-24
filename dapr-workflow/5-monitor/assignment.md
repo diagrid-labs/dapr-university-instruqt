@@ -154,7 +154,17 @@ Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` 
 Expected output:
 
 ```json
-{"instanceID":"47e1e4db2ef84bc2b9719d6ba44893e8","workflowName":"MonitorWorkflow","createdAt":"2025-04-17T14:45:18.000956270Z","lastUpdatedAt":"2025-04-17T14:45:18.012774986Z","runtimeStatus":"COMPLETED","properties":{"dapr.workflow.input":"7","dapr.workflow.output":"\"Status is healthy after checking 7 times.\""}}
+{
+   "instanceID":"47e1e4db2ef84bc2b9719d6ba44893e8",
+   "workflowName":"MonitorWorkflow",
+   "createdAt":"2025-04-17T14:45:18.000956270Z",
+   "lastUpdatedAt":"2025-04-17T14:45:18.012774986Z",
+   "runtimeStatus":"COMPLETED",
+   "properties":{
+      "dapr.workflow.input":"7",
+      "dapr.workflow.output":"\"Status is healthy after checking 7 times.\""
+   }
+}
 ```
 
 > The actual number of the counter can vary based on the random number generator in the `CheckStatus` activity.
