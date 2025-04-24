@@ -15,8 +15,8 @@ Use one of the language tabs to navigate to one of the Service Invocation exampl
 ```bash
 version: 1
 apps:
-  - appDirPath: ./order-processor/
-    appID: order-processor
+  - appID: order-processor
+    appDirPath: ./order-processor/
     appPort: 7001
     command: ["dotnet", "run"]
   - appID: checkout
