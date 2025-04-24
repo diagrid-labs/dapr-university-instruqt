@@ -80,7 +80,7 @@ The expected output should be:
 
 ```output
 CLI version: 1.15.0
-Runtime version: 1.15.0
+Runtime version: 1.15.4
 ```
 
 ## 5. Verify the containers
