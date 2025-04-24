@@ -162,7 +162,8 @@ Date: Wed, 23 Apr 2025 15:54:08 GMT
 Server: Kestrel
 ```
 
-> Note: The workflow instance has stopped executing. The **Dapr CLI** window should not show any new log statements.
+> [!NOTE]
+> The workflow instance has stopped executing. The **Dapr CLI** window should not show any new log statements.
 
 </details>
 

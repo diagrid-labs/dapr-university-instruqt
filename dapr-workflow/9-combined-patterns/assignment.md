@@ -149,7 +149,8 @@ The **Dapr CLI** window should contain these application log statements:
 == APP - order-workflow == Shipment registered for order ShipmentRegistrationStatus { OrderId = 06d49c54-bf65-427b-90d1-730987e96e61, IsSuccess = True, Message = }
 ```
 
-> Note: the order of the log statements may vary, as the child workflows are executed in parallel.
+> [!NOTE]
+> The order of the log statements may vary, as the child workflows are executed in parallel.
 
 </details>
 

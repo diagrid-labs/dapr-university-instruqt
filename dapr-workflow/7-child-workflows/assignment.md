@@ -123,7 +123,8 @@ The **Dapr CLI** window should contain these application log statements:
 == APP - childworkflows == Activity2: Received input: Item 2 is processed.
 ```
 
-> Note: the order of the log statements may vary, as the child workflows are executed in parallel.
+> [!NOTE]
+> The order of the log statements may vary, as the child workflows are executed in parallel.
 
 </details>
 

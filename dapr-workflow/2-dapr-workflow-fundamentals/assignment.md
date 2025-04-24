@@ -151,7 +151,8 @@ Server: Kestrel
 Location: 05f63e15a3724c5d86386922919378d6
 ```
 
-Note the `Location` header in the response. This header contains the workflow instance ID. You can use this ID to get the status of the workflow instance you just started.
+> [!NOTE]
+> The `Location` header in the response contains the workflow instance ID. You can use this ID to get the status of the workflow instance you just started.
 
 The **Dapr CLI** window should contain these application log statements:
 
@@ -241,13 +242,10 @@ spec:
     value: "true"
 ```
 
-> Note: The `actorStateStore` metadata property is set to `true` to enable the use of this state store for Dapr actors. This is required for the workflow engine to work correctly.
+> [!NOTE]
+> The `actorStateStore` metadata property is set to `true` to enable the use of this state store for Dapr actors. This is required for the workflow engine to work correctly.
 
-```bash
-docker exec -it dapr_redis redis-cli
-```
-
-Use the **Redis CLI** window and use the following command to list all the keys in the Redis container that belong to the `basic` workflow you've just executed:
+Use the **Redis** window and use the following command to list all the keys in the Redis container that belong to the `basic` workflow you've just executed:
 
 ```bash
 keys *basic||dapr.internal.default.basic.workflow*

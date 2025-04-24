@@ -136,7 +136,8 @@ The **Dapr CLI** window should contain these application log statements:
 == APP - resiliency == PlusOne: Received input: 0.
 ```
 
-> Note: The `Division` activity is retried 3 times due to the retry policy. The exception is caught in the workflow, and the `PlusOne` activity is called to compensate for `MinusOne` activity.
+> [!NOTE]
+> The `Division` activity is retried 3 times due to the retry policy. The exception is caught in the workflow, and the `PlusOne` activity is called to compensate for `MinusOne` activity.
 
 </details>
 
@@ -163,7 +164,8 @@ Expected output:
 {"instanceID":"da2351d19c874a79a3f66c709a98be61","workflowName":"ResiliencyAndCompensationWorkflow","createdAt":"2025-04-23T09:37:58.941845115Z","lastUpdatedAt":"2025-04-23T09:38:03.049028901Z","runtimeStatus":"COMPLETED","properties":{"dapr.workflow.custom_status":"\"Compensated MinusOne activity with PlusOne activity.\"","dapr.workflow.input":"1","dapr.workflow.output":"1"}}
 ```
 
-> Note that the `custom_status` field contains the message that is set in the workflow after the compensation action is called.
+> [!NOTE]
+> The `custom_status` field contains the message that is set in the workflow after the compensation action is called.
 
 </details>
 

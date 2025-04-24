@@ -137,7 +137,8 @@ The **Dapr CLI** window should contain these application log statements:
 == APP - fanoutfanin == GetWordLength: Received input: word.
 ```
 
-> Note: the order of the log statements may vary, as the activities are executed in parallel.
+> [!NOTE]
+> the order of the log statements may vary, as the activities are executed in parallel.
 
 </details>
 

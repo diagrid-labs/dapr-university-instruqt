@@ -132,7 +132,8 @@ Server: Kestrel
 Location: b7dd836b-e913-4446-9912-d400befebec5
 ```
 
-Note that the `id` field in the request body is used as the workflow instance ID. All further requests will use this ID.
+> [!NOTE]
+> The `id` field in the request body is used as the workflow instance ID. All further requests will use this ID.
 
 The application log in the **Dapr CLI** window should contain this log statement:
 
