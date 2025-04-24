@@ -13,8 +13,7 @@ In this challenge, you'll explore a Workflow App that interacts with a state sto
 The workflow simulates an order processing flow:
 
 - The workflow is started with an order object as the input argument.
-- Two checks are done in a fan-out
-  /fan-in pattern:
+- Two checks are done in a fan-out/fan-in pattern:
   - An inventory check is done to verify if the ordered item is in stock.
   - A shipping destination check is done to verify that the shipping provider can ship the item to the destination.
 - If both checks are successful, an activity is called to process the payment.
