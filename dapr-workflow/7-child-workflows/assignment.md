@@ -23,8 +23,11 @@ Use one of the language tabs to navigate to the child workflow example. Each lan
 
 ### 1.2 Inspect the parent workflow code
 
+> [!NOTE]
+> Use the language-specific instructions to learn more about the parent workflow.
+
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET parent workflow</b></summary>
 
 Open the `ParentWorkflow.cs` file located in the `ChildWorkflows` folder. This file contains the code for the parent workflow.
 
@@ -43,8 +46,11 @@ foreach (string item in input)
 
 ### 1.3 Inspect the child workflow code
 
+> [!NOTE]
+> Use the language-specific instructions to learn more about the child workflow.
+
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET child workflow</b></summary>
 
 Open the `ChildWorkflow.cs` file located in the `ChildWorkflows` folder. This file contains the code for the child workflow. This workflow uses task chaining to call two activities, `Activity1` and `Activity2`, in sequence.
 

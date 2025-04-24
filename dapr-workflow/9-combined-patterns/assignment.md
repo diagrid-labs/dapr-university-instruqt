@@ -28,8 +28,11 @@ Use one of the language tabs to navigate to the combined patterns example. Each 
 
 ### 1.2 Inspect the Workflow code
 
+> [!NOTE]
+> Use the language-specific instructions to learn more about the workflow.
+
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET workflow</b></summary>
 
 Open the `OrderWorkflow.cs` file located in the `WorkflowApp` folder. This file contains the workflow code.
 
@@ -37,8 +40,11 @@ Open the `OrderWorkflow.cs` file located in the `WorkflowApp` folder. This file 
 
 ### 1.3 Inspect the Activity code
 
+> [!NOTE]
+> Use the language-specific instructions to learn more about the activities.
+
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET activities</b></summary>
 
 The activity definitions are located in the `WorkflowApp/Activities` folder. The activities are:
 
@@ -57,7 +63,7 @@ The activity definitions are located in the `WorkflowApp/Activities` folder. The
 > Use the language-specific instructions to learn more about workflow registration.
 
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET registration and endpoints</b></summary>
 
 Locate the `Program.cs` file in the `WorkflowApp` folder. This file contains the code to register the workflows and activities using the `AddDaprWorkflow()` extension method.
 
@@ -71,10 +77,10 @@ Th WorkflowApp has the following HTTP endpoints:
 ### 1.5. Inspect the Shipping App
 
 > [!NOTE]
-> Use the language-specific instructions to learn more about workflow registration.
+> Use the language-specific instructions to learn more about the shipping application.
 
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET shipping app</b></summary>
 
 Locate the `Program.cs` file in the `ShippingApp` folder. This file contains the following HTTP endpoints:
 
@@ -89,7 +95,8 @@ Since the Dapr applications in the challenge use the Dapr pub/sub API, they also
 
 ## 2. Run the workflow app
 
-Use the language specific instructions to start the combined patterns workflow.
+> [!NOTE]
+> Use the language specific instructions to start the combined patterns workflow.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
@@ -124,7 +131,7 @@ Inspect the output of the **Dapr CLI** window. Wait until the applications are r
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application.
 
 > [!NOTE]
-> Use the language-specific instructions to start the external system interaction workflow.
+> Use the language-specific instructions to start the combined patterns workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>

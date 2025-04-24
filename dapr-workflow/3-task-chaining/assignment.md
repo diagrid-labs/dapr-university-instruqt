@@ -36,6 +36,9 @@ The workflow has an `input` of type `string`. This input is used as the input fo
 
 ### 1.3. Inspect the Activity code
 
+> [!NOTE]
+> Use the language-specific instructions to inspect the activities.
+
 <details>
    <summary><b>.NET activity code</b></summary>
 

@@ -39,7 +39,7 @@ Use one of the language tabs to navigate to the basic workflow example. Each lan
 > Use the language-specific instructions to learn more about workflow code.
 
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET workflow</b></summary>
 
 Open the `BasicWorkflow.cs` file located in the `Basic` folder. This file contains the workflow code.
 
@@ -63,7 +63,7 @@ The body of the `RunAsync` method in this example contains two calls to activiti
 > Use the language-specific instructions to learn more about activity code.
 
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET activities</b></summary>
 
 Open the `Activity1.cs` file located in the `Basic/Activities` folder. This file contains the code for Activity1.
 
@@ -91,7 +91,7 @@ Workflows and activities need to be registered in the workflow application. This
 > Use the language-specific instructions to learn more about workflow registration.
 
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET registration and endpoints</b></summary>
 
 Locate the `Program.cs` file in the `Basic` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 

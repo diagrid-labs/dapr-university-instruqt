@@ -29,8 +29,11 @@ Use one of the language tabs to navigate to the resiliency and compensation work
 
 ### 1.2 Inspect the Workflow code
 
+> [!NOTE]
+> Use the language-specific instructions to learn more about the workflow.
+
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET workflow</b></summary>
 
 Open the `ResiliencyAndCompensationWorkflow.cs` file located in the `ResiliencyAndCompensation` folder. This file contains the workflow code.
 
@@ -58,8 +61,11 @@ The `defaultActivityRetryOptions` are passed as the third argument to the `CallA
 
 ### 1.3 Inspect the Activity code
 
+> [!NOTE]
+> Use the language-specific instructions to learn more about the activities.
+
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET activities</b></summary>
 
 The three activity definitions are located in the `ResiliencyAndCompensation/Activities` folder. The `MinusOne` and `PlusOne` activities, subtract and `1` to the numeric input.The `Division` activity divides `100` by the numeric input, and will result in an exception if the input is `0`.
 
@@ -71,7 +77,7 @@ The three activity definitions are located in the `ResiliencyAndCompensation/Act
 > Use the language-specific instructions to learn more about workflow registration.
 
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET registration and endpoints</b></summary>
 
 Locate the `Program.cs` file in the `ResiliencyAndCompensation` folder. This file contains the code to register the workflows and activities using the `AddDaprWorkflow()` extension method.
 
@@ -81,7 +87,8 @@ This application also has a `start` HTTP POST endpoint that is used to start the
 
 ## 2. Run the workflow app
 
-Use the language specific instructions to start the resiliency and compensation workflow.
+> [!NOTE]
+> Use the language specific instructions to start the resiliency and compensation workflow.
 
 <details>
    <summary><b>Run the .NET workflow application</b></summary>
@@ -115,7 +122,7 @@ Inspect the output of the **Dapr CLI** window. Wait until the application is run
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application.
 
 > [!NOTE]
-> Use the language-specific instructions to start the external system interaction workflow.
+> Use the language-specific instructions to start the resiliency and compensation workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>
