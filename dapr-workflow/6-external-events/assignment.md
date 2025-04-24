@@ -20,7 +20,7 @@ The workflow in this challenge is an order workflow:
 
 ### 1.1. Choose a language tab
 
-Use one of the language tabs to navigate to the monitor workflow example. Each language tab contains a workflow application, and a Multi-App Run `dapr.yaml` file that is used to run the example.
+Use one of the language tabs to navigate to the external system interaction workflow example. Each language tab contains a workflow application, and a Multi-App Run `dapr.yaml` file that is used to run the example.
 
 ### 1.2. Inspect the Workflow code
 

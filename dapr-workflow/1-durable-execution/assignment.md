@@ -1,6 +1,6 @@
 # Durable Execution
 
-**In this challenge, you'll learn about durable execution, how they relate to workflow engines, and how Dapr supports workflow as code.**
+In this challenge, you'll learn about durable execution, how they relate to workflow engines, and how Dapr supports workflow as code.
 
 ## 1. What is durable execution
 
@@ -30,7 +30,7 @@ Authoring workflows in code allows developers to use the same tools and processe
 - JavaScript
 - Go
 
-> This Dapr University track currently offers demos in .NET. Other languages will be added in the next couple of weeks.
+> This Dapr University track currently offers .NET example applications. Other languages will be added in the next couple of weeks.
 
 Your application that contains the workflow code communicates with the Dapr workflow engine via the Dapr API. The Dapr workflow engine is responsible for scheduling the workflow and its activities, managing the state of the workflow, and handling errors and retries.
 

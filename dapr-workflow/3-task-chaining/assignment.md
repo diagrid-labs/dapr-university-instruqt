@@ -18,7 +18,7 @@ The workflow in this challenge consists of three activities that are called in s
 
 ### 1.1. Choose a language tab
 
-Use one of the language tabs to navigate to the task chaining workflow example. Each language tab contains a workflow application, and a Multi-App Run `dapr.yaml` file.
+Use one of the language tabs to navigate to the task chaining workflow example. Each language tab contains a workflow application, and a Multi-App Run `dapr.yaml` file that is used to run the example.
 
 ### 1.2. Inspect the Workflow code
 

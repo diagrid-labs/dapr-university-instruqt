@@ -19,7 +19,7 @@ The parent workflow in this challenge uses the fan-out/fan-in pattern to call mu
 
 ### 1.1 Choose a language tab
 
-Use one of the language tabs to navigate to the basic workflow example. Each language tab contains a workflow application, and a `dapr.yaml` file that is used to run the example in the next step.
+Use one of the language tabs to navigate to the child workflow example. Each language tab contains a workflow application, and a Multi-App Run `dapr.yaml` file that is used to run the example.
 
 ### 1.2 Inspect the parent workflow code
 

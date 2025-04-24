@@ -25,7 +25,7 @@ A more realistic scenario where compensation actions are useful is when a workfl
 
 ### 1.1 Choose a language tab
 
-Use one of the language tabs to navigate to the basic workflow example. Each language tab contains a workflow application, and a `dapr.yaml` file that is used to run the example in the next step.
+Use one of the language tabs to navigate to the resiliency and compensation workflow example. Each language tab contains a workflow application, and a Multi-App Run `dapr.yaml` file that is used to run the example.
 
 ### 1.2 Inspect the Workflow code
 

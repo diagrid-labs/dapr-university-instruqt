@@ -6,7 +6,7 @@ In this challenge, you'll explore the Dapr Workflow Management API and test the 
 
 ### 1.1 Choose a language tab
 
-Use one of the language tabs to navigate to the basic workflow example. Each language tab contains a workflow application, and a `dapr.yaml` file that is used to run the example in the next step.
+Use one of the language tabs to navigate to the workflow management example. Each language tab contains a workflow application, and a Multi-App Run `dapr.yaml` file that is used to run the example.
 
 ### 1.2 Inspect the Workflow code
 
