@@ -22,7 +22,8 @@ Use one of the language tabs to navigate to the task chaining workflow example. 
 
 ### 1.2. Inspect the Workflow code
 
-Use the language-specific instructions to learn more about the task chaining workflow.
+> [!NOTE]
+> Expand the language-specific instructions to learn more about the task chaining workflow.
 
 <details>
    <summary><b>.NET workflow code</b></summary>
@@ -35,6 +36,9 @@ The workflow has an `input` of type `string`. This input is used as the input fo
 
 ### 1.3. Inspect the Activity code
 
+> [!NOTE]
+> Expand the language-specific instructions to inspect the activities.
+
 <details>
    <summary><b>.NET activity code</b></summary>
 
@@ -44,10 +48,11 @@ The three activity definitions are located in the `TaskChaining/Activities` fold
 
 ### 1.4. Inspect the workflow & activity registration
 
-Use the language-specific instructions to learn more about workflow registration.
+> [!NOTE]
+> Expand the language-specific instructions to learn more about workflow registration.
 
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET registration and endpoints</b></summary>
 
 Locate the `Program.cs` file in the `TaskChaining` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
@@ -57,7 +62,8 @@ This application also has a `start` HTTP POST endpoint that is used to start the
 
 ## 2. Run the workflow app
 
-Use the language-specific instructions to start the workflow application.
+> [!NOTE]
+> Expand the language-specific instructions to start the workflow application.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
@@ -90,7 +96,8 @@ Inspect the output of the **Dapr CLI** window. Wait until the application is run
 
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application.
 
-Use the language-specific instructions to start the chaining workflow.
+> [!NOTE]
+> Expand the language-specific instructions to start the chaining workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>
@@ -125,7 +132,8 @@ The **Dapr CLI** window should contain these application log statements:
 
 Use the **curl** window to perform a GET request directly the Dapr workflow management API to retrieve the workflow status.
 
-Use the language-specific instructions to get the workflow instance status.
+> [!NOTE]
+> Expand the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>

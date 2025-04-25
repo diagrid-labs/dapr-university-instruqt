@@ -15,6 +15,7 @@ The workflow in this challenge consists of one activity and calling two methods 
 - If the status is not ready, the workflow creates a timer via the `WorkflowContext`, and waits until the timer expires.
 - The workflow increments the `counter` and continues as a fresh workflow instance (keeping the same instance ID) via the `ContinueAsNew` method on the `WorkflowContext`. This means that the workflow instance does not have its historical data associated to it anymore.
 
+> [!IMPORTANT]
 > This continuation of the workflow is essentially a way of running the workflow in a loop, but in a deterministic way. Use this method instead of doing a `while` loop in the workflow code.
 
 ### 1.1. Choose a language tab
@@ -23,7 +24,8 @@ Use one of the language tabs to navigate to the monitor workflow example. Each l
 
 ### 1.2. Inspect the Workflow code
 
-Use the language-specific instructions to learn more about the monitor workflow.
+> [!NOTE]
+> Expand the language-specific instructions to learn more about the monitor workflow.
 
 <details>
    <summary><b>.NET workflow code</b></summary>
@@ -54,10 +56,11 @@ The workflow uses only one activity, `CheckStatus`, and is located in the `Monit
 
 ### 1.4. Inspect the workflow & activity registration
 
-Use the language-specific instructions to learn more about workflow registration.
+> [!NOTE]
+> Expand the language-specific instructions to learn more about workflow registration.
 
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET registration and endpoints</b></summary>
 
 Locate the `Program.cs` file in the `Monitor` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
@@ -67,7 +70,8 @@ This application also has a `start` HTTP POST endpoint that is used to start the
 
 ## 2. Run the workflow app
 
-Use the language-specific instructions to start the workflow application.
+> [!NOTE]
+> Expand the language-specific instructions to start the workflow application.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
@@ -100,7 +104,8 @@ Inspect the output of the **Dapr CLI** window. Wait until the application is run
 
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application.
 
-Use the language-specific instructions to start the monitor workflow.
+> [!NOTE]
+> Expand the language-specific instructions to start the monitor workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>
@@ -138,7 +143,8 @@ In the **Dapr CLI** window you should see application logs with the incremented 
 
 Use the **curl** window to perform a GET request directly the Dapr workflow management API to retrieve the workflow status.
 
-Use the language-specific instructions to get the workflow instance status.
+> [!NOTE]
+> Expand the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>

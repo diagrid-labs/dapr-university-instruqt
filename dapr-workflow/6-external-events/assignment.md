@@ -24,7 +24,8 @@ Use one of the language tabs to navigate to the external system interaction work
 
 ### 1.2. Inspect the Workflow code
 
-Use the language-specific instructions to learn more about the external system interaction workflow.
+> [!NOTE]
+> Expand the language-specific instructions to learn more about the external system interaction workflow.
 
 <details>
    <summary><b>.NET workflow code</b></summary>
@@ -64,10 +65,11 @@ The workflow uses two activities, `SendNotification` and `ProcessOrder`, these a
 
 ### 1.4. Inspect the workflow & activity registration
 
-Use the language-specific instructions to learn more about workflow registration.
+> [!NOTE]
+> Expand the language-specific instructions to learn more about workflow registration.
 
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET registration and endpoints</b></summary>
 
 Locate the `Program.cs` file in the `ExternalEvents` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
@@ -77,7 +79,8 @@ This application also has a `start` HTTP POST endpoint that is used to start the
 
 ## 2. Run the workflow app
 
-Use the language-specific instructions to start the workflow application.
+> [!NOTE]
+> Expand the language-specific instructions to start the workflow application.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
@@ -110,7 +113,8 @@ Inspect the output of the **Dapr CLI** window. Wait until the application is run
 
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application.
 
-Use the language-specific instructions to start the external system interaction workflow.
+> [!NOTE]
+> Expand the language-specific instructions to start the external system interaction workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>
@@ -182,7 +186,8 @@ The application log in the **Dapr CLI** window should contain these log statemen
 
 Use the **curl** window to perform a GET request directly the Dapr workflow management API to retrieve the workflow status.
 
-Use the language-specific instructions to get the workflow instance status.
+> [!NOTE]
+> Expand the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>

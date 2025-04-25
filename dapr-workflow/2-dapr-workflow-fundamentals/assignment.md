@@ -8,7 +8,7 @@ In this challenge, you'll learn:
 - How the workflow engine persists workflow state.
 
 > [!NOTE]
-> The code you see in this Dapr University track is available in the [Dapr QuickStarts](https://github.com/dapr/quickstarts/) repository in the `tutorials/workflow` folder. If you want to explore more code samples for other Dapr APIs in this repo, you can do so after completing this track.
+> All the code you see in this Dapr University track is available in the [Dapr QuickStarts](https://github.com/dapr/quickstarts/) repository in the `tutorials/workflow` folder. If you want to explore more code samples for other Dapr APIs in this repo, you can do so after completing this track.
 
 ## 1. Workflows and Activities
 
@@ -16,7 +16,7 @@ Workflows are authored in code using the Dapr Workflow SDK. Workflows are compos
 
 ![Workflow with activities](images/dapr-uni-wf-fundamental-v1.png)
 
-Workflows orchestrate the activities in a specific order. Workflow code typically contains calls to activities and business logic (if/else statements) based on the outputs of activities to determine which activity should be executed next. Workflow code should be deterministic, meaning that the same input for either workflows or activities, should always result in the same output. Any non-deterministic code should be placed in an activity. More information about (non)deterministic code is covered in a later challenge of this Dapr University track.
+Workflows orchestrate the activities in a specific order. Workflow code typically contains calls to activities and business logic (if/else statements) based on the outputs of activities to determine which activity should be executed next. Workflow code should be deterministic, meaning that the same input for either workflows or activities, should always result in the same output. Any non-deterministic code should be placed in an activity. More information about (non)deterministic code is covered in the last challenge of this Dapr University track.
 
 ## 2. A basic workflow demo
 
@@ -35,10 +35,11 @@ Use one of the language tabs to navigate to the basic workflow example. Each lan
 
 ### 2.2 Inspect the Workflow code
 
-Use the language-specific instructions to learn more about workflow code.
+> [!NOTE]
+> Expand the language-specific instructions to learn more about workflow code.
 
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET workflow</b></summary>
 
 Open the `BasicWorkflow.cs` file located in the `Basic` folder. This file contains the workflow code.
 
@@ -58,10 +59,11 @@ The body of the `RunAsync` method in this example contains two calls to activiti
 
 ### 2.3 Inspect the Activity code
 
-Use the language-specific instructions to learn more about activity code.
+> [!NOTE]
+> Expand the language-specific instructions to learn more about activity code.
 
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET activities</b></summary>
 
 Open the `Activity1.cs` file located in the `Basic/Activities` folder. This file contains the code for Activity1.
 
@@ -73,11 +75,12 @@ Activities are asynchronous and return a `Task` object. In this case, the return
 
 The `WorkflowActivityContext` input argument is provided by the Dapr Workflow package and contains the instance ID of workflow. The second input argument is the input argument for the workflow.
 
-You can use any type of input and output for the workflow, as long as they are serializable.
+You can use any type of input and output for the activity, as long as they are serializable.
 
-The body of the `RunAsync` method in this example just does a `Console.WriteLine` to echo the input and returns a string concatenation of the input and "Two".
+The body of the `RunAsync` method in this example just does a `Console.WriteLine` to echo the input and returns a string concatenation of the input and `"Two"`.
 
-Typically, activities contain code that performs one specific task, such as calling an external service, storing data in a state store, performing a calculation, or publishing a message. A more realistic example will be shown in the *Combined Patterns* challenge later in this learning track.
+> [!IMPORTANT]
+> Typically, activities contain code that performs one specific task, such as calling an external service, storing data in a state store, performing a calculation, or publishing a message. A more realistic example will be shown in the *Combined Patterns* challenge later in this learning track.
 
 </details>
 
@@ -85,10 +88,11 @@ Typically, activities contain code that performs one specific task, such as call
 
 Workflows and activities need to be registered in the workflow application. This is to ensure that Dapr can find the workflow and activities when they are scheduled.
 
-Use the language-specific instructions to learn more about workflow registration.
+> [!NOTE]
+> Expand the language-specific instructions to learn more about workflow registration.
 
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET registration and endpoints</b></summary>
 
 Locate the `Program.cs` file in the `Basic` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
@@ -100,7 +104,8 @@ The `start` method also contains the `DaprWorkflowClient` as an input argument. 
 
 ## 3. Run the workflow application
 
-Use the language-specific instructions to start the workflow application.
+> [!NOTE]
+> Expand the language-specific instructions to start the workflow application.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
@@ -133,7 +138,8 @@ Inspect the output of the **Dapr CLI** window. Wait until the application is run
 
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application and provide `One` as the input.
 
-Use the language-specific instructions to start the basic workflow.
+> [!NOTE]
+> Expand the language-specific instructions to start the basic workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>
@@ -181,7 +187,8 @@ We don't want to rely on the Dapr log output to get the status of a workflow ins
 
 Use the **curl** window to perform a GET request directly the Dapr workflow management API to retrieve the workflow status.
 
-Use the language-specific instructions to get the workflow instance status.
+> [!NOTE]
+> Expand the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>
@@ -236,7 +243,7 @@ This animation shows when workflow state is persisted and retrieved during workf
 
 ![Workflow replay](images/dapr-uni-wf-replay.gif)
 
-The state store component used by Dapr workflow in this example is defined in the `state_redis.yaml` file that is located in the `resources` folder.
+The state store component used by Dapr workflow in this example is defined in the `state_redis.yaml` file:
 
 ```yaml
 apiVersion: dapr.io/v1alpha1
@@ -256,7 +263,7 @@ spec:
     value: "true"
 ```
 
-> [!NOTE]
+> [!IMPORTANT]
 > The `actorStateStore` metadata property is set to `true` to enable the use of this state store for Dapr actors. This is required for the workflow engine to work correctly.
 
 Use the **Redis** window and use the following command to list all the keys in the Redis container that belong to the `basic` workflow you've just executed:
@@ -281,7 +288,8 @@ The expected output should be similar to this:
 11) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000004"
 ```
 
-You should never edit the workflow state directly, to prevent corrupting the data of workflows that are still running. The Dapr Workflow Client is used to manage workflow instance data, and this is covered in the *Workflow Management* challenge later in this learning track.
+> ![WARNING]
+> You should never edit the workflow state directly, to prevent corrupting the data of workflows that are still running. The Dapr Workflow Client is used to manage workflow instance data, and this is covered in the *Workflow Management* challenge later in this learning track.
 
 ---
 

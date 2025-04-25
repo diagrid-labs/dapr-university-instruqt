@@ -21,7 +21,8 @@ Workflows should be deterministic. This means that if a workflow is run multiple
 
 Workflow code should only consist of activity calls and control logic such as if/else statements and try/catch blocks. It's important to wrap any non-deterministic code in an activity.
 
-*Use the language-specific instructions to inspect the workflow code.*
+> [!NOTE]
+> Expand the language-specific instructions to inspect the workflow code.
 
 <details>
    <summary><b>.NET</b></summary>
@@ -55,7 +56,8 @@ Workflows as code are likely to undergo changes over time. These changes can cau
 
 One way to deal with breaking changes is to use workflow name versioning. This means that instead of updating the workflow code, a new workflow is created, and a version number is added to the workflow name: `WorkflowClassV1`, `WorkflowClassV2`, etc. Once the application is deployed with the new workflow version, all the in-flight workflows can be replayed safely and completed with the old workflow. Note that this solution does require that the clients that manage the workflow need to be updated to use the new workflow version.
 
-*Use the language-specific instructions to inspect the workflow code.*
+> [!NOTE]
+> Expand the language-specific instructions to inspect the workflow code.
 
 <details>
    <summary><b>.NET</b></summary>
@@ -73,7 +75,8 @@ When a workflow is using task chaining for many activities and the output of one
 > [!IMPORTANT]
 > Preferably, pass IDs as input arguments to an activity, so the activity can fetch the data, update it, and save it all in one activity. And be selective in what data is passed back to the workflow.
 
-*Use the language-specific instructions to inspect the workflow code.*
+> [!NOTE]
+> Expand the language-specific instructions to inspect the workflow code.
 
 <details>
    <summary><b>.NET</b></summary>
