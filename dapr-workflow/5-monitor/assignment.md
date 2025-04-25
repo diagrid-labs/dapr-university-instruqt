@@ -82,19 +82,19 @@ Use the **Dapr CLI** window to run the commands.
 
 Navigate to the *csharp/monitor-pattern* folder:
 
-```bash
+```bash,run
 cd csharp/monitor-pattern
 ```
 
 Install the dependencies and build the project:
 
-```bash
+```bash,run
 dotnet build Monitor
 ```
 
 Run the application using the Dapr CLI:
 
-```bash
+```bash,run
 dapr run -f .
 ```
 
@@ -114,7 +114,7 @@ Use the **curl** window to make a POST request to the `start` endpoint of the wo
 
 In the **curl** window, run the following command to start the workflow:
 
-```curl
+```curl,run
 curl -i --request POST http://localhost:5257/start/0
 ```
 
