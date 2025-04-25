@@ -4,6 +4,23 @@ In this challenge, you'll explore the Dapr Workflow Management API and test the 
 
 ## 1. Workflow Management
 
+The operations you'll be testing in this challenge besides starting a workflow and getting the status are:
+
+- Suspend a workflow instance
+- Resume a workflow instance
+- Terminate a workflow instance
+- Purge a workflow instance
+
+The workflow used in this challenge is called `NeverEndingWorkflow` and it runs indefinitely. The workflow:
+
+- Is started with an integer input named `counter` with value `0`.
+- Calls a `SendNotification` activity.
+- User a timer to wait for 1 second.
+- Increments the `counter` by `1` 
+- Continues as a new workflow instance.
+
+![Never Ending Workflow](images/dapr-uni-wf-management-v1.png)
+
 ### 1.1 Choose a language tab
 
 Use one of the language tabs to navigate to the workflow management example. Each language tab contains a workflow application, and a Multi-App Run `dapr.yaml` file that is used to run the example.
