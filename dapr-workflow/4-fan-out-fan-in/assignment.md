@@ -15,6 +15,8 @@ The workflow in this challenge consists of three activities that are called in p
 - Once all the tasks are created, they are scheduled in parallel and the workflow waits until they are all completed.
 - The workflow then aggregates the results and returns the shortest word: `"is"`.
 
+![Fan-out/Fan-in Demo](images/dapr-uni-wf-fan-out-fan-in-demo-v1.png)
+
 ### 1.1. Choose a language tab
 
 Use one of the language tabs to navigate to the fan-out/fan-in workflow example. Each language tab contains a workflow application, and a Multi-App Run `dapr.yaml` file that is used to run the example.

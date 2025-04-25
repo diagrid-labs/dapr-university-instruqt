@@ -16,6 +16,8 @@ The workflow in this challenge consists of three activities that are called in s
 - The third activity adds `" chaining"` to the output of the second activity and returns `"This is task chaining"`
 - The output of the workflow is `"This is task chaining"`.
 
+![Task Chaining Demo](images/dapr-uni-wf-task-chaining-demo-v1.png)
+
 ### 1.1. Choose a language tab
 
 Use one of the language tabs to navigate to the task chaining workflow example. Each language tab contains a workflow application, and a Multi-App Run `dapr.yaml` file that is used to run the example.

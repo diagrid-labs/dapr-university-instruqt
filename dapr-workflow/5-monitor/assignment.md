@@ -15,6 +15,8 @@ The workflow in this challenge consists of one activity and calling two methods 
 - If the status is not ready, the workflow creates a timer via the `WorkflowContext`, and waits until the timer expires.
 - The workflow increments the `counter` and continues as a fresh workflow instance (keeping the same instance ID) via the `ContinueAsNew` method on the `WorkflowContext`. This means that the workflow instance does not have its historical data associated to it anymore.
 
+![Monitor Demo](images/dapr-uni-wf-monitor-demo-v1.png)
+
 > [!IMPORTANT]
 > This continuation of the workflow is essentially a way of running the workflow in a loop, but in a deterministic way. Use this method instead of doing a `while` loop in the workflow code.
 
