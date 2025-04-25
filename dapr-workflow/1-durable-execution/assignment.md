@@ -8,7 +8,8 @@ IT systems are failing all the time, and it's unrealistic to think all systems a
 
 Durable execution guarantees that code is run to completion even if the process that runs the code terminates. Durable execution ensures another process is started, and the code is resumed until it completes successfully. This is realized by persisting the state of the execution to a state store.
 
-Basically, durable execution means running your code in a stateful way so it can be recovered if the process crashes.
+> [!IMPORTANT]
+> Durable execution means running your code in a stateful way so it can be recovered if the process crashes.
 
 ## 2. Workflow engines
 

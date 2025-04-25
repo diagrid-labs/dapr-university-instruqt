@@ -24,7 +24,7 @@ Use one of the language tabs to navigate to the child workflow example. Each lan
 ### 1.2 Inspect the parent workflow code
 
 > [!NOTE]
-> Use the language-specific instructions to learn more about the parent workflow.
+> Expand the language-specific instructions to learn more about the parent workflow.
 
 <details>
    <summary><b>.NET parent workflow</b></summary>
@@ -47,7 +47,7 @@ foreach (string item in input)
 ### 1.3 Inspect the child workflow code
 
 > [!NOTE]
-> Use the language-specific instructions to learn more about the child workflow.
+> Expand the language-specific instructions to learn more about the child workflow.
 
 <details>
    <summary><b>.NET child workflow</b></summary>
@@ -59,10 +59,10 @@ Open the `ChildWorkflow.cs` file located in the `ChildWorkflows` folder. This fi
 ### 1.4. Inspect the workflow & activity registration
 
 > [!NOTE]
-> Use the language-specific instructions to learn more about workflow registration.
+> Expand the language-specific instructions to learn more about workflow registration.
 
 <details>
-   <summary><b>.NET</b></summary>
+   <summary><b>.NET registration and endpoints</b></summary>
 
 Locate the `Program.cs` file in the `ChildWorkflows` folder. This file contains the code to register the workflows and activities using the `AddDaprWorkflow()` extension method.
 
@@ -106,7 +106,7 @@ Inspect the output of the **Dapr CLI** window. Wait until the application is run
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application.
 
 > [!NOTE]
-> Use the language-specific instructions to start the external system interaction workflow.
+> Expand the language-specific instructions to start the external system interaction workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>
@@ -149,7 +149,7 @@ The **Dapr CLI** window should contain these application log statements:
 Use the **curl** window to perform a GET request directly the Dapr workflow management API to retrieve the workflow status.
 
 > [!NOTE]
-> Use the language-specific instructions to get the workflow instance status.
+> Expand the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>

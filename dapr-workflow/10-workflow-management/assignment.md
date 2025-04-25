@@ -11,10 +11,10 @@ Use one of the language tabs to navigate to the workflow management example. Eac
 ### 1.2 Inspect the Workflow code
 
 > [!NOTE]
-> Use the language-specific instructions to learn more about the workflow.
+> Expand the language-specific instructions to learn more about the workflow.
 
 <details>
-   <summary><b>.NET workflow</b></summary>
+   <summary><b>.NET workflow code</b></summary>
 
 Open the `NeverEndingWorkflow.cs` file located in the `WorkflowManagement` folder. This file contains the workflow code.
 
@@ -25,7 +25,7 @@ The input for this workflow is an integer, and gets incremented by `1` every sec
 ### 1.3 Inspect the Activity code
 
 <details>
-   <summary><b>.NET activity</b></summary>
+   <summary><b>.NET activity code</b></summary>
 
 Open the `SendNotification.cs` file located in the `WorkflowManagement/Activities` folder. This activity only logs the activity input (the counter) and returns true.
 
@@ -34,7 +34,7 @@ Open the `SendNotification.cs` file located in the `WorkflowManagement/Activitie
 ### 1.4. Inspect the workflow & activity registration
 
 > [!NOTE]
-> Use the language-specific instructions to learn more about workflow registration.
+> Expand the language-specific instructions to learn more about workflow registration.
 
 <details>
    <summary><b>.NET registration and endpoints</b></summary>
@@ -57,7 +57,7 @@ All methods use the `DaprWorklowClient` to perform the workflow management opera
 ## 2. Run the workflow app
 
 > [!NOTE]
-> Use the language-specific instructions to start the workflow management application.
+> Expand the language-specific instructions to start the workflow management application.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
@@ -91,7 +91,7 @@ Inspect the output of the **Dapr CLI** window. Wait until the application is run
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application.
 
 > [!NOTE]
-> Use the language-specific instructions to start the workflow management workflow.
+> Expand the language-specific instructions to start the never ending workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>
@@ -130,7 +130,7 @@ The **Dapr CLI** window should contain these application log statements:
 Use the **curl** window to perform a GET request to the `status` endpoint of the application to retrieve the workflow status.
 
 > [!NOTE]
-> Use the language-specific instructions to get the workflow instance status.
+> Expand the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>
@@ -164,7 +164,7 @@ Expected output:
 Use the **curl** window to make a POST request to the `suspend` endpoint of the application to suspend the workflow instance.
 
 > [!NOTE]
-> Use the language-specific instructions to suspend the workflow instance.
+> Expand the language-specific instructions to suspend the workflow instance.
 
 <details>
    <summary><b>Suspend the .NET workflow</b></summary>
@@ -197,7 +197,7 @@ Server: Kestrel
 Use the **curl** window to make a POST request to the `resume` endpoint of the application to resume the suspended the workflow instance.
 
 > [!NOTE]
-> Use the language-specific instructions to resume the workflow instance.
+> Expand the language-specific instructions to resume the workflow instance.
 
 <details>
    <summary><b>Resume the .NET workflow</b></summary>
@@ -227,7 +227,7 @@ Server: Kestrel
 Use the **curl** window to make a POST request to the `terminate` endpoint of the application to terminate the running workflow instance.
 
 > [!NOTE]
-> Use the language-specific instructions to terminate the workflow instance.
+> Expand the language-specific instructions to terminate the workflow instance.
 
 <details>
    <summary><b>Terminate the .NET workflow</b></summary>
@@ -263,7 +263,7 @@ Workflow Actor <INSTANCEID>: workflow completed with status 'ORCHESTRATION_STATU
 Use the **curl** window to make a DELETE request to the `purge` endpoint of the application to purge workflow instance from the state store.
 
 > [!NOTE]
-> Use the language-specific instructions to purge the workflow instance.
+> Expand the language-specific instructions to purge the workflow instance.
 
 <details>
    <summary><b>Purge the .NET workflow</b></summary>

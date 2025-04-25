@@ -30,10 +30,10 @@ Use one of the language tabs to navigate to the resiliency and compensation work
 ### 1.2 Inspect the Workflow code
 
 > [!NOTE]
-> Use the language-specific instructions to learn more about the workflow.
+> Expand the language-specific instructions to learn more about the workflow.
 
 <details>
-   <summary><b>.NET workflow</b></summary>
+   <summary><b>.NET workflow code</b></summary>
 
 Open the `ResiliencyAndCompensationWorkflow.cs` file located in the `ResiliencyAndCompensation` folder. This file contains the workflow code.
 
@@ -62,10 +62,10 @@ The `defaultActivityRetryOptions` are passed as the third argument to the `CallA
 ### 1.3 Inspect the Activity code
 
 > [!NOTE]
-> Use the language-specific instructions to learn more about the activities.
+> Expand the language-specific instructions to learn more about the activities.
 
 <details>
-   <summary><b>.NET activities</b></summary>
+   <summary><b>.NET activity code</b></summary>
 
 The three activity definitions are located in the `ResiliencyAndCompensation/Activities` folder. The `MinusOne` and `PlusOne` activities, subtract and `1` to the numeric input.The `Division` activity divides `100` by the numeric input, and will result in an exception if the input is `0`.
 
@@ -74,7 +74,7 @@ The three activity definitions are located in the `ResiliencyAndCompensation/Act
 ### 1.4. Inspect the workflow & activity registration
 
 > [!NOTE]
-> Use the language-specific instructions to learn more about workflow registration.
+> Expand the language-specific instructions to learn more about workflow registration.
 
 <details>
    <summary><b>.NET registration and endpoints</b></summary>
@@ -122,7 +122,7 @@ Inspect the output of the **Dapr CLI** window. Wait until the application is run
 Use the **curl** window to make a POST request to the `start` endpoint of the workflow application.
 
 > [!NOTE]
-> Use the language-specific instructions to start the resiliency and compensation workflow.
+> Expand the language-specific instructions to start the resiliency and compensation workflow.
 
 <details>
    <summary><b>Start the .NET workflow</b></summary>
@@ -164,7 +164,7 @@ The **Dapr CLI** window should contain these application log statements:
 Use the **curl** window to perform a GET request directly the Dapr workflow management API to retrieve the workflow status.
 
 > [!NOTE]
-> Use the language-specific instructions to get the workflow instance status.
+> Expand the language-specific instructions to get the workflow instance status.
 
 <details>
    <summary><b>Get the .NET workflow status</b></summary>
