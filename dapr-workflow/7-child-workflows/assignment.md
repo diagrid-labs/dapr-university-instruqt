@@ -81,19 +81,19 @@ Use the **Dapr CLI** window to run the commands.
 
 Navigate to the *csharp/child-workflows* folder:
 
-```bash
+```bash,run
 cd csharp/child-workflows
 ```
 
 Install the dependencies and build the project:
 
-```bash
+```bash,run
 dotnet build ChildWorkflows
 ```
 
 Run the application using the Dapr CLI:
 
-```bash
+```bash,run
 dapr run -f .
 ```
 
@@ -113,7 +113,7 @@ Use the **curl** window to make a POST request to the `start` endpoint of the wo
 
 In the **curl** window, run the following command to start the workflow:
 
-```curl
+```curl,run
 curl -i --request POST \
   --url http://localhost:5259/start \
   --header 'content-type: application/json' \

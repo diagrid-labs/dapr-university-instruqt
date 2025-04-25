@@ -83,19 +83,19 @@ Use the **Dapr CLI** window to run the commands.
 
 Navigate to the *csharp/workflow-management* folder:
 
-```bash
+```bash,run
 cd csharp/workflow-management
 ```
 
 Install the dependencies and build the project and build the project and build the project and build the project:
 
-```bash
+```bash,run
 dotnet build WorkflowManagement
 ```
 
 Run the application using the Dapr CLI:
 
-```bash
+```bash,run
 dapr run -f .
 ```
 
@@ -115,7 +115,7 @@ Use the **curl** window to make a POST request to the `start` endpoint of the wo
 
 In the **curl** window, run the following command to start the workflow:
 
-```curl
+```curl,run
 curl -i --request POST \
   --url http://localhost:5262/start/0
 ```
@@ -155,8 +155,7 @@ Use the **curl** window to perform a GET request to the `status` endpoint of the
 Use the **curl** window to perform a GET request to the `status` endpoint of the application to retrieve the workflow status:
 
 ```curl
-curl --request GET \
-  --url http://localhost:5262/status/<INSTANCEID>
+curl --request GET --url http://localhost:5262/status/<INSTANCEID>
 ```
 
 Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in the previous step.

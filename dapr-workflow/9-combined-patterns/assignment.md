@@ -105,20 +105,20 @@ Use the **Dapr CLI** window to run the commands.
 
 Navigate to the *csharp/combined-patterns* folder:
 
-```bash
+```bash,run
 cd csharp/combined-patterns
 ```
 
 Install the dependencies and build the projects:
 
-```bash
+```bash,run
 dotnet build ShippingApp
 dotnet build WorkflowApp
 ```
 
 Run the applications using the Dapr CLI:
 
-```bash
+```bash,run
 dapr run -f .
 ```
 
@@ -138,7 +138,7 @@ Use the **curl** window to make a POST request to the `start` endpoint of the wo
 
 In the **curl** window, run the following command to start the workflow:
 
-```curl
+```curl,run
 curl -i --request POST \
    --url http://localhost:5260/start \
    --header 'content-type: application/json' \
@@ -185,11 +185,9 @@ Use the **curl** window to perform a GET request directly the Dapr workflow mana
 
 Use the **curl** window to make a GET request to get the status of a workflow instance:
 
-```curl
-curl --request GET --url http://localhost:3560/v1.0/workflows/dapr/<INSTANCEID>
+```curl,run
+curl --request GET --url http://localhost:3560/v1.0/workflows/dapr/b0d38481-5547-411e-ae7b-255761cce17a
 ```
-
-Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in the previous step.
 
 Expected output:
 

@@ -89,19 +89,19 @@ Use the **Dapr CLI** window to run the commands.
 
 Navigate to the *csharp/external-system-interaction* folder:
 
-```bash
+```bash,run
 cd csharp/external-system-interaction
 ```
 
 Install the dependencies and build the project:
 
-```bash
+```bash,run
 dotnet build ExternalEvents
 ```
 
 Run the application using the Dapr CLI:
 
-```bash
+```bash,run
 dapr run -f .
 ```
 
@@ -121,7 +121,7 @@ Use the **curl** window to make a POST request to the `start` endpoint of the wo
 
 In the **curl** window, run the following command to start the workflow:
 
-```curl
+```curl,run
 curl -i --request POST \
   --url http://localhost:5258/start \
   --header 'content-type: application/json' \
@@ -156,7 +156,7 @@ The application log in the **Dapr CLI** window should contain this log statement
 
 In the **curl** window, run the following command to send an `approval-event` to the running workflow instance:
 
-```curl
+```curl,run
 curl -i --request POST \
   --url http://localhost:3558/v1.0/workflows/dapr/b7dd836b-e913-4446-9912-d400befebec5/raiseEvent/approval-event \
   --header 'content-type: application/json' \
@@ -194,7 +194,7 @@ Use the **curl** window to perform a GET request directly the Dapr workflow mana
 
 Use the **curl** window to make a GET request to get the status of a workflow instance:
 
-```curl
+```curl,run
 curl --request GET --url http://localhost:3558/v1.0/workflows/dapr/b7dd836b-e913-4446-9912-d400befebec5
 ```
 

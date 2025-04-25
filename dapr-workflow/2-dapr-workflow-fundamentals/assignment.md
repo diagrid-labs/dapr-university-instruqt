@@ -114,19 +114,19 @@ Use the **Dapr CLI** window to run the commands.
 
 Navigate to the *csharp/fundamentals* folder:
 
-```bash
+```bash,run
 cd csharp/fundamentals
 ```
 
 Install the dependencies and build the project:
 
-```bash
+```bash,run
 dotnet build Basic
 ```
 
 Run the application using the Dapr CLI:
 
-```bash
+```bash,run
 dapr run -f .
 ```
 
@@ -146,7 +146,7 @@ Use the **curl** window to make a POST request to the `start` endpoint of the wo
 
 In the **curl** window, run the following command to start the workflow:
 
-```curl
+```curl,run
 curl -i --request POST http://localhost:5254/start/One
 ```
 
@@ -268,7 +268,7 @@ spec:
 
 Use the **Redis** window and use the following command to list all the keys in the Redis container that belong to the `basic` workflow you've just executed:
 
-```bash
+```bash,run
 keys *basic||dapr.internal.default.basic.workflow*
 ```
 
