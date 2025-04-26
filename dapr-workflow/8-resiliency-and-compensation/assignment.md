@@ -127,11 +127,12 @@ Use the **curl** window to make a POST request to the `start` endpoint of the wo
 <details>
    <summary><b>Start the .NET workflow</b></summary>
 
-In the **curl** window, run the following command to start the workflow:
+In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
 
 ```curl,run
-curl -i --request POST \
-  --url http://localhost:5264/start/1
+INSTANCEID=$(curl -s --request POST \
+  --url http://localhost:5264/start/1 \
+  -i | grep -i "^location:" | sed 's/^location: *//i' | tr -d '\r\n')
 ```
 
 Expected output:
@@ -171,11 +172,11 @@ Use the **curl** window to perform a GET request directly the Dapr workflow mana
 
 Use the **curl** window to make a GET request to get the status of a workflow instance:
 
-```curl
-curl --request GET --url http://localhost:3564/v1.0/workflows/dapr/<INSTANCEID>
+```curl,run
+curl --request GET --url http://localhost:3564/v1.0/workflows/dapr/$INSTANCEID
 ```
 
-Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in the previous step.
+Where `$INSTANCEID` is the environment variable containing the workflow instance ID captured in the previous step.
 
 Expected output:
 

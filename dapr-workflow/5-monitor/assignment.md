@@ -112,10 +112,12 @@ Use the **curl** window to make a POST request to the `start` endpoint of the wo
 <details>
    <summary><b>Start the .NET workflow</b></summary>
 
-In the **curl** window, run the following command to start the workflow:
+In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
 
 ```curl,run
-curl -i --request POST http://localhost:5257/start/0
+INSTANCEID=$(curl -s --request POST \
+  --url http://localhost:5257/start/0 \
+  -i | grep -i "^location:" | sed 's/^location: *//i' | tr -d '\r\n')
 ```
 
 Expected output:
@@ -128,8 +130,6 @@ Server: Kestrel
 Location: 402bc03326e94ea9af5e400b1a718b8b
 ```
 
-Use the workflow instance ID from the `Location` to get the status of the workflow instance you just started.
-
 In the **Dapr CLI** window you should see application logs with the incremented counter value:
 
 ```text
@@ -138,6 +138,9 @@ In the **Dapr CLI** window you should see application logs with the incremented 
 == APP - monitor == CheckStatus: Received input: 2.
 ...
 ```
+
+>[!NOTE]
+> The exact number of log statements can vary based on the random number generator in the `CheckStatus` activity.
 
 </details>
 
@@ -153,11 +156,11 @@ Use the **curl** window to perform a GET request directly the Dapr workflow mana
 
 Use the **curl** window to make a GET request to get the status of a workflow instance:
 
-```curl
-curl --request GET --url http://localhost:3557/v1.0/workflows/dapr/<INSTANCEID>
+```curl,run
+curl --request GET --url http://localhost:3557/v1.0/workflows/dapr/$INSTANCEID
 ```
 
-Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in the previous step.
+Where `$INSTANCEID` is the environment variable containing the workflow instance ID captured in the previous step.
 
 Expected output:
 

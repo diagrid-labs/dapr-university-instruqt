@@ -113,11 +113,12 @@ Use the **curl** window to make a POST request to the `start` endpoint of the wo
 <details>
    <summary><b>Start the .NET workflow</b></summary>
 
-In the **curl** window, run the following command to start the workflow:
+In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
 
 ```curl,run
-curl -i --request POST \
-  --url http://localhost:5262/start/0
+INSTANCEID=$(curl -s --request POST \
+  --url http://localhost:5262/start/0 \
+  -i | grep -i "^location:" | sed 's/^location: *//i' | tr -d '\r\n')
 ```
 
 Expected output:
@@ -154,11 +155,11 @@ Use the **curl** window to perform a GET request to the `status` endpoint of the
 
 Use the **curl** window to perform a GET request to the `status` endpoint of the application to retrieve the workflow status:
 
-```curl
-curl --request GET --url http://localhost:5262/status/<INSTANCEID>
+```curl,run
+curl --request GET --url http://localhost:5262/status/$INSTANCEID
 ```
 
-Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in the previous step.
+Where `$INSTANCEID` is the environment variable containing the workflow instance ID captured in the previous step.
 
 Expected output:
 
@@ -187,12 +188,10 @@ Use the **curl** window to make a POST request to the `suspend` endpoint of the 
 
 Use the **curl** window to make a POST request to the `suspend` endpoint of the application to suspend the workflow instance:
 
-```curl
+```curl,run
 curl -i --request POST \
-  --url http://localhost:5262/suspend/<INSTANCEID>
+  --url http://localhost:5262/suspend/$INSTANCEID
 ```
-
-Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in step 3.
 
 Expected output:
 
@@ -220,12 +219,10 @@ Use the **curl** window to make a POST request to the `resume` endpoint of the a
 
 Use the **curl** window to make a POST request to the `resume` endpoint of the application to resume the suspended the workflow instance:
 
-```curl
+```curl,run
 curl -i --request POST \
-  --url http://localhost:5262/resume/<INSTANCEID>
+  --url http://localhost:5262/resume/$INSTANCEID
 ```
-
-Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in step 3.
 
 Expected output:
 
@@ -250,12 +247,10 @@ Use the **curl** window to make a POST request to the `terminate` endpoint of th
 
 Use the **curl** window to make a POST request to the `terminate` endpoint of the application to terminate the running workflow instance:
 
-```curl
+```curl,run
 curl -i --request POST \
-  --url http://localhost:5262/terminate/<INSTANCEID>
+  --url http://localhost:5262/terminate/$INSTANCEID
 ```
-
-Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in step 3.
 
 Expected output:
 
@@ -288,10 +283,8 @@ Use the **curl** window to make a DELETE request to the `purge` endpoint of the 
 
 ```curl
 curl -i --request DELETE \
-  --url http://localhost:5262/purge/<INSTANCEID>
+  --url http://localhost:5262/purge/$INSTANCEID
 ```
-
-Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in step 3.
 
 Expected output:
 
