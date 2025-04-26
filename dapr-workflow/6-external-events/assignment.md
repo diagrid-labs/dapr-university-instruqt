@@ -75,6 +75,15 @@ Locate the `Program.cs` file in the `ExternalEvents` folder. This file contains 
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an `Order` as the input.
 
+Note that this time an instance ID is provided to the `ScheduleNewWorkflowAsync` method:
+
+```csharp
+var instanceId = await workflowClient.ScheduleNewWorkflowAsync(
+   name: nameof(ExternalEventsWorkflow),
+   instanceId: order.Id,
+   input: order);
+```
+
 </details>
 
 ## 2. Run the workflow app

@@ -160,6 +160,9 @@ Server: Kestrel
 Location: 05f63e15a3724c5d86386922919378d6
 ```
 
+>[!IMPORTANT]
+> Starting a workflow is an asynchronous operation. The workflow engine will return a `202 Accepted` response immediately, even if the workflow has not yet started executing. The workflow engine will schedule the workflow in the background and the workflow application will run the workflow and the activities. Since the workflow could be running for a long time or even indefinitely, the workflow engine will not wait for the workflow to complete before returning a response.
+
 > [!NOTE]
 > The `Location` header in the response contains the workflow instance ID. You can use this ID to get the status of the workflow instance you just started.
 
@@ -168,6 +171,19 @@ The **Dapr CLI** window should contain these application log statements:
 ```text
 == APP - basic == Activity1: Received input: One.
 == APP - basic == Activity2: Received input: One Two.
+```
+
+Now run the following curl command to start the workflow again. This time, the instance ID will be captured in an environment variable, `$INSTANCEID`, and this variable is used in subsequent calls to retrieve the workflow status in the next section without the need to manually copy/paste the instance ID:
+
+```curl,run
+INSTANCEID=$(curl -s --request POST --url http://localhost:5254/start/One \
+  -i | grep -i "^location:" | sed 's/^location: *//i' | tr -d '\r\n')
+```
+
+You can verify the value of the `$INSTANCEID` variable by running the following command in the **curl** window:
+
+```bash,run
+echo $INSTANCEID
 ```
 
 </details>
@@ -195,17 +211,11 @@ Use the **curl** window to perform a GET request directly the Dapr workflow mana
 
 Use the **curl** window to make a GET request to get the status of a workflow instance:
 
-```curl
-curl --request GET --url http://localhost:3554/v1.0/workflows/dapr/<INSTANCEID>
+```curl,run
+curl --request GET --url http://localhost:3554/v1.0/workflows/dapr/$INSTANCEID
 ```
 
-Where `<INSTANCEID>` is the workflow instance ID you received in the `Location` header in the previous step. You can copy the value from the **curl** window.
-
-Example:
-
-```curl
-curl --request GET --url http://localhost:3554/v1.0/workflows/dapr/05f63e15a3724c5d86386922919378d6
-```
+Where `$INSTANCEID` is the environment variable that contains the workflow instance ID that is captured from the `Location` header in the previous step.
 
 Expected output:
 
