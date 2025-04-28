@@ -12,7 +12,7 @@ Use one of the language tabs to navigate to one of the Service Invocation exampl
 
  For the .NET example the `dapr.yaml` is as follows:
 
-```bash
+```bash,nocopy
 version: 1
 apps:
   - appID: order-processor
@@ -51,16 +51,16 @@ Now use the *Terminal* tab to run both `checkout` and `order-processor` applicat
 <details>
    <summary><b>Run the .NET apps</b></summary>
 
-	Install the depedencies:
+	Install the depedencies and build the applications:
 
-```bash
-dotnet restore csharp/http/checkout
-dotnet restore csharp/http/order-processor
+```bash,run
+dotnet build csharp/http/checkout
+dotnet build csharp/http/order-processor
 ```
 
 Run the applications using the Dapr CLI:
 
-```bash
+```bash,run
 dapr run -f "csharp/http/dapr.yaml"
 ```
 </details>
@@ -70,31 +70,32 @@ dapr run -f "csharp/http/dapr.yaml"
 
 Create a virtual environment and activate it:
 
-```bash
+```bash,run
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-Install the depedencies:
+Install the dependencies:
 
-```bash
+```bash,run
 pip3 install -r python/http/checkout/requirements.txt
 pip3 install -r python/http/order-processor/requirements.txt
 ```
 
 Run the applications using the Dapr CLI:
 
-```bash
+```bash,run
 dapr run -f "python/http/dapr.yaml"
 ```
+
 </details>
 
 <details>
    <summary><b>Run the Java apps</b></summary>
 
-Install the depedencies:
+Install the dependencies:
 
-```bash
+```bash,run
 cd java/http/order-processor
 mvn clean install
 cd ../checkout
@@ -103,7 +104,7 @@ mvn clean install
 
 Run the applications using the Dapr CLI:
 
-```bash
+```bash,run
 cd ..
 dapr run -f .
 ```
@@ -114,25 +115,27 @@ dapr run -f .
 
 Install the dependencies:
 
-```bash
+```bash,run
 cd javascript/http/order-processor
 npm install
 cd ../checkout
 npm install
 ```
+
 Run the applications using the Dapr CLI:
 
-```bash
+```bash,run
 cd ..
 dapr run -f .
 ```
+
 </details>
 
 ## Expected output
 
-Reagardless of the language you use, the expected output should contain log statements from the `order-processor` and `checkout` apps:
+Regardless of the language you use, the expected output should contain log statements from the `order-processor` and `checkout` apps:
 
-```output
+```text,nocopy
 == APP - order-processor == Order received : Order { orderId = 1 }
 == APP - checkout == Order passed: Order { OrderId = 1 }
 == APP - order-processor == Order received : Order { orderId = 2 }

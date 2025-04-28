@@ -7,15 +7,11 @@
 
 **In this challenge you'll download the Dapr CLI, initialize Dapr, and verify the installation.**
 
-> [!NOTE]
-> *You can copy/paste the CLI commands in the challenges using the mouse.*
-
 ## 1. Download the Dapr CLI
-
 
 Since this is a Linux environment, download the Dapr CLI using wget:
 
-```bash
+```bash,run
 wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
 ```
 
@@ -23,13 +19,13 @@ wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O 
 
 To verify that the Dapr CLI is installed run:
 
-```bash
+```bash,run
 dapr -h
 ```
 
 The expected output should be:
 
-```output
+```text,nocopy
           __
      ____/ /___ _____  _____
     / __  / __ '/ __ \/ ___/
@@ -63,22 +59,23 @@ Dapr initialization includes:
 
 Initialize Dapr with the CLI:
 
-```bash
+```bash,run
 dapr init
 ```
+
 This will take about 30 seconds depending on download speed.
 
 ## 4. Verify the Dapr version
 
 To verify the installation of both the Dapr CLI and the Dapr runtime run:
 
-```bash
+```bash,run
 dapr --version
 ```
 
 The expected output should be:
 
-```output
+```text,nocopy
 CLI version: 1.15.0
 Runtime version: 1.15.4
 ```
@@ -87,7 +84,7 @@ Runtime version: 1.15.4
 
 Verify that the Dapr containers are running:
 
-```bash
+```bash,run
 docker ps --format {{.Names}}
 ```
 

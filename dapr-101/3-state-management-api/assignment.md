@@ -6,22 +6,23 @@ The goal of this challenge is to run the Dapr sidecar in self-hosted mode and us
 
 First a Dapr sidecar process needs to be started. Run this command in the *Dapr sidecar terminal*:
 
-```bash
+```bash,run
 dapr run --app-id myapp --dapr-http-port 3500
 ```
+
 >[!IMPORTANT]
 >When you run a Dapr process, you always need to specify an `app-id` that identifies your application. In this case there is no application but you're executing cURL commands, so in a sense you are the application that uses the Dapr API.
 
 A lot of output will be printed by running this command. The last few lines should contain:
 
-```output
+```text,nocopy
 ℹ️  Dapr sidecar is up and running.
 ✅  You're up and running! Dapr logs will appear here.
 ```
 
 If you scroll up in the *Dapr sidecar terminal* you'll find this info statement that tells you what type of storage Dapr is using in this demo:
 
-```output
+```text,nocopy
 INFO[0000] Component loaded: statestore (state.redis/v1)
 ```
 
@@ -35,9 +36,10 @@ You're going to make a `POST` request to the `v1.0/state/statestore` endpoint of
 
 Run the following command in the *cURL terminal*:
 
-```bash
+```bash,run
 curl -X POST -H "Content-Type: application/json" -d '[{ "key": "name", "value": "Bruce Wayne"}]' http://localhost:3500/v1.0/state/statestore
 ```
+
 *There will be no return value for this command.*
 
 >[!IMPORTANT]
@@ -47,13 +49,13 @@ curl -X POST -H "Content-Type: application/json" -d '[{ "key": "name", "value": 
 
 Run the following command in the *cURL terminal* to retrieve the state you just saved:
 
-```bash
+```bash,run
 curl http://localhost:3500/v1.0/state/statestore/name
 ```
 
 The output should be:
 
-```output
+```text,nocopy
 "Bruce Wayne"
 ```
 
@@ -61,13 +63,13 @@ The output should be:
 
 Run the following command in the *Redis terminal* to list all the keys in the Redis container:
 
-```bash
+```bash,run
  keys *
 ```
 
 The output should be:
 
-```output
+```text,nocopy
 1) "myapp||name"
 ```
 
@@ -78,7 +80,7 @@ The output should be:
 
 Run the following command in the *cURL terminal* to delete the key/value pair:
 
-```bash
+```bash,run
 curl -v -X DELETE -H "Content-Type: application/json" http://localhost:3500/v1.0/state/statestore/name
 ```
 
@@ -86,13 +88,13 @@ curl -v -X DELETE -H "Content-Type: application/json" http://localhost:3500/v1.0
 
 Run the following command in the *Redis terminal* to verify the key/value pair is removed from Redis:
 
-```bash
+```bash,run
  keys *
 ```
 
 The output should be:
 
-```output
+```text,nocopy
 (empty array)
 ```
 
@@ -102,7 +104,7 @@ Stop the Dapr sidecar by activating the *Dapr sidecar terminal* and typing `CTRL
 
 The output should be:
 
-```output
+```text,nocopy
 terminated signal received: shutting down
 ✅  Exited Dapr successfully
 ```
@@ -111,15 +113,15 @@ terminated signal received: shutting down
 
 Dapr knows to use Redis as the default state store when `statestore` is used in the State Mangement API endpoint because Dapr reads a component file that contains this definition. When Dapr is initialized with the CLI, several default component files are placed in the `.dapr/components` folder in the user profile.
 
-Ensure that the Dapr process is stopped and use the *Dapr sidecar terminal* to type the following command to show the content of the default `statestore.yaml` component file in the user profile:
+Ensure that the Dapr process is stopped and use the *Dapr sidecar terminal* to run the following command to show the content of the default `statestore.yaml` component file in the user profile:
 
-```yaml
+```bash,run
 cat ~/.dapr/components/statestore.yaml
 ```
 
 The output should be:
 
-```yaml
+```yaml,nocopy
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
