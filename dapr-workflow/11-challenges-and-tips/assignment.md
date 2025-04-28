@@ -87,8 +87,14 @@ Navigate to the `PayloadSizeWorkflow.cs` file. It contains two workflows: `Large
 
 ---
 
-Congratulations! You've completed the Dapr University workflow learning track!
+You now know the limitations of workflows as code and how to deal with them.
+
+## Feedback & Dapr Discord
+
+Congratulations! 🎉 You've completed the Dapr University workflow learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training 🚀.
 
 All code samples shown in this Dapr University track are available in the [Dapr QuickStarts](https://github.com/dapr/quickstarts/) repository in the `tutorials/workflow` folder. Give this repo a star and clone it locally to use it as reference material for building your next workflow project.
 
-If you want to quickly build workflows based on a workflow diagram, take a look at [Diagrid Workflow Composer](). You can upload a workflow image, select the language, and this tool will generate a scaffolded Dapr workflow project that you can download and use as a starting point.
+If you have any questions or feedback about this track, you can let us know in the *#university* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+
+If you want to quickly build workflows based on a workflow diagram, take a look at [Diagrid Workflow Composer](https://diagrid.ws/workflows). You can upload a workflow image, select the language, and this tool will generate a scaffolded Dapr workflow project that you can download and use as a starting point.
