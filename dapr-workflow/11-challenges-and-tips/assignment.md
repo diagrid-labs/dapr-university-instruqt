@@ -50,7 +50,7 @@ For instance, when the activity inserts a record into a database and the activit
 > [!IMPORTANT]
 > Always check if the APIs that are used in the activity code provide idempotent operations.
 
-### 1.4. Payload size
+### 1.4. Workflow versioning
 
 Workflows as code are likely to undergo changes over time. These changes can cause issues when the workflow state in the state store of unfinished (or in-flight) workflows is no longer compatible with the new workflow code.
 
@@ -66,7 +66,7 @@ Navigate to the `VersioningWorkflow.cs` file. It contains two workflows: `Versio
 
 </details>
 
-### 1.5. Workflow versioning
+### 1.5. Payload size
 
 The Dapr Workflow engine is continuously interacting with both the workflow application and the state store to pass input and output data back and forth. It is important to keep the input and output of workflows and especially activities small to prevent serializing/deserializing many large objects, which can degrade performance.
 
