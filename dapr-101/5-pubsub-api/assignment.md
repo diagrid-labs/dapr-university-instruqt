@@ -12,7 +12,7 @@ Use one of the language tabs to navigate to one of the Pub/Sub examples. Each la
 
  For the .NET example the `dapr.yaml` is as follows:
 
-```yaml
+```yaml,nocopy
 version: 1
 common:
   resourcesPath: ../../components/
@@ -25,6 +25,7 @@ apps:
     appDirPath: ./checkout/
     command: ["dotnet", "run"]
 ```
+
 You'll see a `common` section with a `resourcesPath` that points to a `components` folder.  This folder contains the `pubsub.yaml` component file that specifies the message broker that will be used.
 
 You'll also see two applications listed in the yaml file: `order-processor` and `checkout`. These are the respective *appIDs*, application identifiers, that Dapr requires. The `order-processor` application has an `appPort` assigned to it, this means that this is a service which can accept HTTP requests. The checkout application does not have an `appPort` and is therefore not a service, and its lifetime is limited to the execution time of the program (it's a console application).
@@ -36,7 +37,7 @@ For more information on Multi-App Run, see the [Dapr Docs](https://docs.dapr.io/
 
 Use the *Components* tab and inspect the `pubsub.yaml` file.
 
-```yaml
+```yaml,nocopy
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
@@ -104,16 +105,16 @@ Now use the *Terminal* tab to run both `checkout` and `order-processor` applicat
 <details>
    <summary><b>Run the .NET apps</b></summary>
 
-Install the depedencies:
+Install the dependencies and build the applications:
 
-```bash
-dotnet restore csharp/sdk/checkout
-dotnet restore csharp/sdk/order-processor
+```bash,run
+dotnet build csharp/sdk/checkout
+dotnet build csharp/sdk/order-processor
 ```
 
 Run the applications using the Dapr CLI:
 
-```bash
+```bash,run
 dapr run -f "csharp/sdk/dapr.yaml"
 ```
 
@@ -124,21 +125,21 @@ dapr run -f "csharp/sdk/dapr.yaml"
 
 Create a virtual environment and activate it:
 
-```bash
+```bash,run
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-Install the depedencies:
+Install the dependencies:
 
-```bash
+```bash,run
 pip3 install -r python/sdk/checkout/requirements.txt
 pip3 install -r python/sdk/order-processor/requirements.txt
 ```
 
 Run the applications using the Dapr CLI:
 
-```bash
+```bash,run
 dapr run -f "python/sdk/dapr.yaml"
 ```
 
@@ -147,9 +148,9 @@ dapr run -f "python/sdk/dapr.yaml"
 <details>
    <summary><b>Run the Java apps</b></summary>
 
-Install the depedencies:
+Install the dependencies:
 
-```bash
+```bash,run
 cd java/sdk/order-processor
 mvn clean install
 cd ../checkout
@@ -158,7 +159,7 @@ mvn clean install
 
 Run the applications using the Dapr CLI:
 
-```bash
+```bash,run
 cd ..
 dapr run -f .
 ```
@@ -170,15 +171,16 @@ dapr run -f .
 
 Install the dependencies:
 
-```bash
+```bash,run
 cd javascript/sdk/order-processor
 npm install
 cd ../checkout
 npm install
 ```
+
 Run the applications using the Dapr CLI:
 
-```bash
+```bash,run
 cd ..
 dapr run -f .
 ```
@@ -187,7 +189,7 @@ dapr run -f .
 
 ## Expected output
 
-Reagardless of the language you use, the expected output should contain log statements from the `order-processor` and `checkout` apps:
+Regardless of the language you use, the expected output should contain log statements from the `order-processor` and `checkout` apps:
 
 ```output
 == APP - checkout-sdk == Published data: Order { OrderId = 1 }
@@ -202,7 +204,7 @@ Reagardless of the language you use, the expected output should contain log stat
 
 ## Summary
 
-You've now successfully used the Dapr Pub/Sub API to send and receive messages using a message broker. The demos in this challenge use programmatic subscriptions, which are defined in the application code and implements a static subscription to one topic. There are other methods to subscribe to topics with Dapr. For more information read [Declarative, streaming and programmatic subscrtiption types](https://docs.dapr.io/developing-applications/building-blocks/pubsub/subscription-methods/) in the Dapr Docs.
+You've now successfully used the Dapr Pub/Sub API to send and receive messages using a message broker. The demos in this challenge use programmatic subscriptions, which are defined in the application code and implements a static subscription to one topic. There are other methods to subscribe to topics with Dapr. For more information read [Declarative, streaming and programmatic subscription types](https://docs.dapr.io/developing-applications/building-blocks/pubsub/subscription-methods/) in the Dapr Docs.
 
 ## Feedback & Dapr Discord
 
