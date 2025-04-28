@@ -61,6 +61,8 @@ catch (TaskCanceledException)
 
 The workflow uses two activities, `SendNotification` and `ProcessOrder`, these are located in the `ExternalEvents/Activities` folder. Both activities are placeholders and do not contain any real logic related to sending notifications or processing orders.
 
+*The `RequestApproval` activity is not used in the workflow at the moment.*
+
 </details>
 
 ### 1.4. Inspect the workflow & activity registration

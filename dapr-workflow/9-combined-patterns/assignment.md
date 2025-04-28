@@ -4,7 +4,7 @@ In this challenge, you'll explore a more realistic example of a workflow applica
 
 ## 1. Combined Patterns
 
-It's common for a workflow to use combine different workflow patterns such as task chaining, fan-out/fan-in, and waiting for external events. Dapr workflow works great with the other Dapr APIs, such as state management, pub/sub, and secrets. These APIs always need to be used in activities, and not in the workflow code.
+It's common for a workflow to combine different workflow patterns such as task chaining, fan-out/fan-in, and waiting for external events. Dapr workflow works great with the other Dapr APIs, such as state management, pub/sub, and secrets. These APIs always need to be used in activities, and not in the workflow code.
 
 In this challenge, you'll explore a Workflow App that interacts with a state store, and communicates with another Dapr application, Shipping App, via service invocation and pub/sub.
 
