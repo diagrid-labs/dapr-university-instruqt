@@ -12,7 +12,7 @@ You'll be learning about durable execution, workflow as code, and running workfl
 
 ## Time limit (minutes)
 
-65
+70
 
 ## Description
 
@@ -25,14 +25,14 @@ In this self-paced track, you'll learn:
 - How to use the workflow management API.
 - How to work with workflow limitations.
 
-This track consists of 11 challenges, you'll probably need around 50 minutes to complete all of them.
+This track consists of 11 challenges, you'll probably need around 60 minutes to complete all of them.
 
-If your session is idle for more than 5 minutes the session will stop and you'll need to restart the learning track. Tracks can be started up to 5 times and you can skip challenges to continue with the challenges you didn't finish previously.
+If your session is idle for more than 7 minutes the session will stop and you'll need to restart the learning track. Tracks can be started up to 5 times and you can skip challenges to continue with the challenges you didn't finish previously.
 
 ### Time out idle users (minutes)
 
-5
+7
 
 ### Extra time (minutes)
 
-5
+10
