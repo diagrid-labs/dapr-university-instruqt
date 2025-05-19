@@ -1,5 +1,3 @@
-# Combined Patterns
-
 In this challenge, you'll explore a more realistic example of a workflow application, that uses several workflow patterns and multiple Dapr APIs.
 
 ## 1. Combined Patterns
@@ -8,7 +6,7 @@ It's common for a workflow to combine different workflow patterns such as task c
 
 In this challenge, you'll explore a Workflow App that interacts with a state store, and communicates with another Dapr application, Shipping App, via service invocation and pub/sub.
 
-![Combined patterns](images/dapr-uni-wf-combined-patterns-demo-v1.png)
+![Combined patterns](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/9-combined-patterns/images/dapr-uni-wf-combined-patterns-demo-v1.png?raw=true)
 
 The workflow simulates an order processing flow:
 
@@ -96,7 +94,7 @@ Since the Dapr applications in the challenge use the Dapr pub/sub API, they also
 ## 2. Run the workflow app
 
 > [!NOTE]
-> Use the language specific instructions to start the combined patterns workflow.
+> Expand the language specific instructions to start the combined patterns workflow.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
@@ -157,7 +155,7 @@ Location: b0d38481-5547-411e-ae7b-255761cce17a
 
 The **Dapr CLI** window should contain these application log statements:
 
-```text
+```text,nocopy
 == APP - order-workflow == CheckInventory: Received input: OrderItem { ProductId = RBD001, ProductName = Rubber Duck, Quantity = 10, TotalPrice = 15.00 }.
 == APP - order-workflow == CheckShippingDestination: Received input: Order { Id = 06d49c54-bf65-427b-90d1-730987e96e61, OrderItem = OrderItem { ProductId = RBD001, ProductName = Rubber Duck, Quantity = 10, TotalPrice = 15.00 }, CustomerInfo = CustomerInfo { Id = Customer1, Country = The Netherlands } }.
 == APP - shipping == checkDestination: Received input: Order { Id = 06d49c54-bf65-427b-90d1-730987e96e61, OrderItem = OrderItem { ProductId = RBD001, ProductName = Rubber Duck, Quantity = 10, TotalPrice = 15.00 }, CustomerInfo = CustomerInfo { Id = Customer1, Country = The Netherlands } }.
@@ -191,7 +189,7 @@ curl --request GET --url http://localhost:3560/v1.0/workflows/dapr/b0d38481-5547
 
 Expected output:
 
-```json
+```json,nocopy
 {
    "instanceID":"b0d38481-5547-411e-ae7b-255761cce17a",
    "workflowName":"OrderWorkflow",

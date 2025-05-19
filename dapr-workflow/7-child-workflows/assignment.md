@@ -1,12 +1,10 @@
-# Child Workflows
-
 In this challenge, you'll explore a workflow application that demonstrates how to call child workflows from a parent workflow.
 
 ## 1. Child Workflows
 
 Workflows can call other workflows, which are referred to as child workflows. This allows the creation of complex workflows by composing smaller, reusable workflows, which can be individually tested.
 
-![Child Workflows](images/dapr-uni-wf-child-workflow-v1.png)
+![Child Workflows](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/7-child-workflows/images/dapr-uni-wf-child-workflow-v1.png?raw=true)
 
 The parent workflow in this challenge uses the fan-out/fan-in pattern to call multiple child workflows in parallel.
 
@@ -15,7 +13,7 @@ The parent workflow in this challenge uses the fan-out/fan-in pattern to call mu
 - Each child workflow uses task chaining to call two activities.
 - The parent workflow waits for all child workflows to complete and aggregates the results into a single result.
 
-![Child Workflow Demo](images/dapr-uni-wf-child-workflow-demo-v1.png)
+![Child Workflow Demo](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/7-child-workflows/images/dapr-uni-wf-child-workflow-demo-v1.png?raw=true)
 
 ### 1.1 Choose a language tab
 
@@ -33,7 +31,7 @@ Open the `ParentWorkflow.cs` file located in the `ChildWorkflows` folder. This f
 
 The `CallChildWorkflowAsync` method is used to call the child workflow. The first argument is the name of the child workflow, and the second argument is the input for the child workflow.
 
-```csharp
+```csharp,nocopy
 foreach (string item in input)
 {
    childWorkflowTasks.Add(context.CallChildWorkflowAsync<string>(
@@ -72,7 +70,8 @@ This application also has a `start` HTTP POST endpoint that is used to start the
 
 ## 2. Run the workflow app
 
-Use the language specific instructions to start the child workflow application.
+> [!NOTE]
+> Expand the language specific instructions to start the child workflow application.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
@@ -123,7 +122,7 @@ INSTANCEID=$(curl -s --request POST \
 
 Expected output:
 
-```text
+```text,nocopy
 HTTP/1.1 202 Accepted
 Content-Length: 0
 Date: Thu, 17 Apr 2025 15:37:51 GMT
@@ -133,7 +132,7 @@ Location: b7dd836b-e913-4446-9912-d400befebec5
 
 The **Dapr CLI** window should contain these application log statements:
 
-```text
+```text,nocopy
 == APP - childworkflows == Activity1: Received input: Item 2.
 == APP - childworkflows == Activity1: Received input: Item 1.
 == APP - childworkflows == Activity2: Received input: Item 1 is processed.
@@ -165,18 +164,8 @@ Where `$INSTANCEID` is the environment variable containing the workflow instance
 
 Expected output:
 
-```json
-{
-   "instanceID":"0be522fda3db4963b6be9e8828c85938",
-   "workflowName":"ParentWorkflow",
-   "createdAt":"2025-04-22T13:39:06.694524219Z",
-   "lastUpdatedAt":"2025-04-22T13:39:06.994152799Z",
-   "runtimeStatus":"COMPLETED",
-   "properties":{
-      "dapr.workflow.input":"[\"Item 1\",\"Item 2\"]",
-      "dapr.workflow.output":"[\"Item 1 is processed as a child workflow.\",\"Item 2 is processed as a child workflow.\"]"
-   }
-}
+```json,nocopy
+{"instanceID":"0be522fda3db4963b6be9e8828c85938","workflowName":"ParentWorkflow","createdAt":"2025-04-22T13:39:06.694524219Z","lastUpdatedAt":"2025-04-22T13:39:06.994152799Z","runtimeStatus":"COMPLETED","properties":{"dapr.workflow.input":"[\"Item 1\",\"Item 2\"]","dapr.workflow.output":"[\"Item 1 is processed as a child workflow.\",\"Item 2 is processed as a child workflow.\"]"}}
 ```
 
 </details>

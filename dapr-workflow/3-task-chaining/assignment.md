@@ -1,12 +1,10 @@
-# Workflow Pattern: Task Chaining
-
 In this challenge, you'll explore a workflow application that demonstrates the task chaining pattern.
 
 ## 1. Task Chaining
 
 The task chaining pattern is used when the order of execution of the activities in the workflow is important. Typically this means there is a dependency between the activities. For example: the output of one activity is used as input for the next activity.
 
-![Task Chaining](images/dapr-uni-wf-pattern-task-chaining-v1.png)
+![Task Chaining](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/3-task-chaining/images/dapr-uni-wf-pattern-task-chaining-v1.png?raw=true)
 
 The workflow in this challenge consists of three activities that are called in sequence.
 
@@ -16,7 +14,7 @@ The workflow in this challenge consists of three activities that are called in s
 - The third activity adds `" chaining"` to the output of the second activity and returns `"This is task chaining"`
 - The output of the workflow is `"This is task chaining"`.
 
-![Task Chaining Demo](images/dapr-uni-wf-task-chaining-demo-v1.png)
+![Task Chaining Demo](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/3-task-chaining/images/dapr-uni-wf-task-chaining-demo-v1.png?raw=true)
 
 ### 1.1. Choose a language tab
 
@@ -114,7 +112,7 @@ INSTANCEID=$(curl -s --request POST \
 
 Expected output:
 
-```text
+```text,nocopy
 HTTP/1.1 202 Accepted
 Content-Length: 0
 Date: Thu, 17 Apr 2025 12:04:53 GMT
@@ -124,7 +122,7 @@ Location: 67b4526c1c3a49fca2c4801869869016
 
 The **Dapr CLI** window should contain these application log statements:
 
-```text
+```text,nocopy
 == APP - chaining == Activity1: Received input: This.
 == APP - chaining == Activity2: Received input: This is.
 == APP - chaining == Activity3: Received input: This is task.
@@ -152,7 +150,7 @@ Where `$INSTANCEID` is the environment variable containing the workflow instance
 
 Expected output:
 
-```json
+```json,nocopy
 {
    "instanceID":"67b4526c1c3a49fca2c4801869869016",
    "workflowName":"ChainingWorkflow",
