@@ -1,12 +1,10 @@
-# Workflow Pattern: Monitor
-
 In this challenge, you'll explore a workflow application that demonstrates the monitor pattern.
 
 ## 1. Monitor
 
 The monitor pattern is used to execute recurring tasks, for instance running a nightly job to clean up cloud resources. Workflows that use the monitor pattern can run indefinitely or it can stop based on a condition, such as the output of an activity.
 
-![Monitor](images/dapr-uni-wf-pattern-monitor-v1.png)
+![Monitor](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/5-monitor/images/dapr-uni-wf-pattern-monitor-v1.png?raw=true)
 
 The workflow in this challenge consists of one activity and calling two methods on the `WorkflowContext`.
 
@@ -15,7 +13,7 @@ The workflow in this challenge consists of one activity and calling two methods 
 - If the status is not ready, the workflow creates a timer via the `WorkflowContext`, and waits until the timer expires.
 - The workflow increments the `counter` and continues as a fresh workflow instance (keeping the same instance ID) via the `ContinueAsNew` method on the `WorkflowContext`. This means that the workflow instance does not have its historical data associated to it anymore.
 
-![Monitor Demo](images/dapr-uni-wf-monitor-demo-v1.png)
+![Monitor Demo](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/5-monitor/images/dapr-uni-wf-monitor-demo-v1.png?raw=true)
 
 > [!IMPORTANT]
 > This continuation of the workflow is essentially a way of running the workflow in a loop, but in a deterministic way. Use this method instead of doing a `while` loop in the workflow code.
@@ -36,7 +34,7 @@ Open the `MonitorWorkflow.cs` file located in the `Monitor` folder. This file co
 
 Note how the workflow uses the `WorkflowContext` to create a timer and to continue the workflow as a fresh instance.
 
-```csharp
+```csharp,nocopy
 if (!status.IsReady)
 {
    await context.CreateTimer(TimeSpan.FromSeconds(1));
@@ -48,6 +46,9 @@ if (!status.IsReady)
 </details>
 
 ### 1.3. Inspect the Activity code
+
+> [!NOTE]
+> Expand the language-specific instructions to inspect the activity.
 
 <details>
    <summary><b>.NET activity code</b></summary>
@@ -122,7 +123,7 @@ INSTANCEID=$(curl -s --request POST \
 
 Expected output:
 
-```text
+```text,nocopy
 HTTP/1.1 202 Accepted
 Content-Length: 0
 Date: Thu, 17 Apr 2025 13:41:03 GMT
@@ -132,7 +133,7 @@ Location: 402bc03326e94ea9af5e400b1a718b8b
 
 In the **Dapr CLI** window you should see application logs with the incremented counter value:
 
-```text
+```text,nocopy
 == APP - monitor == CheckStatus: Received input: 0.
 == APP - monitor == CheckStatus: Received input: 1.
 == APP - monitor == CheckStatus: Received input: 2.
@@ -164,7 +165,7 @@ Where `$INSTANCEID` is the environment variable containing the workflow instance
 
 Expected output:
 
-```json
+```json,nocopy
 {
    "instanceID":"47e1e4db2ef84bc2b9719d6ba44893e8",
    "workflowName":"MonitorWorkflow",

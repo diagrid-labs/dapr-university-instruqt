@@ -1,12 +1,10 @@
-# Workflow Pattern: Fan-out / Fan-in
-
 In this challenge, you'll explore a workflow application that demonstrates the fan-out/fan-in pattern.
 
 ## 1. Fan-out / Fan-in
 
 The fan-out/fan-in pattern is used when there is no dependency between the activities in the workflow. The activities can be executed in parallel, the workflow will wait until all activities are completed and the results from the activities can be aggregated into a single result.
 
-![Fan-out/Fan-in](images/dapr-uni-wf-pattern-fan-out-fan-in-v1.png)
+![Fan-out/Fan-in](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/4-fan-out-fan-in/images/dapr-uni-wf-pattern-fan-out-fan-in-v1.png?raw=true)
 
 The workflow in this challenge consists of three activities that are called in parallel.
 
@@ -15,7 +13,7 @@ The workflow in this challenge consists of three activities that are called in p
 - Once all the tasks are created, they are scheduled in parallel and the workflow waits until they are all completed.
 - The workflow then aggregates the results and returns the shortest word: `"is"`.
 
-![Fan-out/Fan-in Demo](images/dapr-uni-wf-fan-out-fan-in-demo-v1.png)
+![Fan-out/Fan-in Demo](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/4-fan-out-fan-in/images/dapr-uni-wf-fan-out-fan-in-demo-v1.png?raw=true)
 
 ### 1.1. Choose a language tab
 
@@ -33,10 +31,10 @@ Open the `FanOutFanInWorkflow.cs` file located in the `FanOutFanIn` folder. This
 
 Notice that has an `input` of type `string[]`.  The workflow uses a `foreach` loop to iterate over the input array and create a task for each word in the array. Instead of awaiting each task inside the `foreach` loop, the tasks are added to a list of tasks, which is then passed to the `Task.WhenAll()` method outside the loop. At this moment the the workflow engine will schedule all the activities (fan-out), and the workflow will wait until all activities have been completed (fan-in).
 
-```csharp
+```csharp,nocopy
 // This list will contain the tasks that will be executed by the Dapr Workflow engine.
 List<Task<WordLength>> tasks = new();
-        
+
 foreach (string item in input)
 {
    // Tasks are added to the list
@@ -52,6 +50,9 @@ var allWordLengths = await Task.WhenAll(tasks);
 </details>
 
 ### 1.3. Inspect the Activity code
+
+> [!NOTE]
+> Expand the language-specific instructions to inspect the activity.
 
 <details>
    <summary><b>.NET activity code</b></summary>
@@ -128,7 +129,7 @@ INSTANCEID=$(curl -s --request POST \
 
 Expected output:
 
-```text
+```text,nocopy
 HTTP/1.1 202 Accepted
 Content-Length: 0
 Date: Thu, 17 Apr 2025 13:41:03 GMT
@@ -138,7 +139,7 @@ Location: 402bc03326e94ea9af5e400b1a718b8b
 
 The **Dapr CLI** window should contain these application log statements:
 
-```text
+```text,nocopy
 == APP - fanoutfanin == GetWordLength: Received input: is.
 == APP - fanoutfanin == GetWordLength: Received input: which.
 == APP - fanoutfanin == GetWordLength: Received input: the.
@@ -171,7 +172,7 @@ Where `$INSTANCEID` is the environment variable containing the workflow instance
 
 Expected output:
 
-```json
+```json,nocopy
 {
    "instanceID":"402bc03326e94ea9af5e400b1a718b8b",
    "workflowName":"FanOutFanInWorkflow",

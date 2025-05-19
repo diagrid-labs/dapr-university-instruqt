@@ -1,12 +1,10 @@
-# Workflow Pattern: External System Interaction
-
 In this challenge, you'll explore a workflow application that demonstrates the external system interaction pattern.
 
 ## 1. External System Interaction
 
 The external system interaction pattern is used pause the workflow until it receives an external event.
 
-![External System Interaction](images/dapr-uni-wf-pattern-external-event-v1.png)
+![External System Interaction](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/6-external-events/images/dapr-uni-wf-pattern-external-event-v1.png?raw=true)
 
 The workflow in this challenge is an order workflow:
 
@@ -16,7 +14,7 @@ The workflow in this challenge is an order workflow:
 - If the approval event is received and marked as *approved*, the `ProcessOrder` activity will be called.
 - Finally another `SendNotification` activity is called which notifies the user about the approval.
 
-![External System Interaction Demo](images/dapr-uni-wf-external-event-demo-v1.png)
+![External System Interaction Demo](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/6-external-events/images/dapr-uni-wf-external-event-demo-v1.png?raw=true)
 
 ### 1.1. Choose a language tab
 
@@ -34,7 +32,7 @@ Open the `ExternalEventsWorkflow.cs` file located in the `ExternalEvents` folder
 
 Note how the workflow uses the `WorkflowContext` to create a timer and to continue the workflow as a fresh instance.
 
-```csharp
+```csharp,nocopy
 try
 {
     approvalStatus = await context.WaitForExternalEventAsync<ApprovalStatus>(
@@ -55,6 +53,9 @@ catch (TaskCanceledException)
 </details>
 
 ### 1.3. Inspect the Activity code
+
+> [!NOTE]
+> Expand the language-specific instructions to inspect the activities.
 
 <details>
    <summary><b>.NET activity code</b></summary>
@@ -79,7 +80,7 @@ This application also has a `start` HTTP POST endpoint that is used to start the
 
 Note that this time an instance ID is provided to the `ScheduleNewWorkflowAsync` method:
 
-```csharp
+```csharp,nocopy
 var instanceId = await workflowClient.ScheduleNewWorkflowAsync(
    name: nameof(ExternalEventsWorkflow),
    instanceId: order.Id,
@@ -141,7 +142,7 @@ curl -i --request POST \
 
 Expected output:
 
-```text
+```text,nocopy
 HTTP/1.1 202 Accepted
 Content-Length: 0
 Date: Thu, 17 Apr 2025 15:37:51 GMT
@@ -154,13 +155,16 @@ Location: b7dd836b-e913-4446-9912-d400befebec5
 
 The application log in the **Dapr CLI** window should contain this log statement:
 
-```text
+```text,nocopy
 == APP - externalevents == Received order: Order { Id = b7dd836b-e913-4446-9912-d400befebec5, Description = Rubber ducks, Quantity = 100, TotalPrice = 500 }.
 ```
 
 </details>
 
 ## 4. Send an external event
+
+> [!NOTE]
+> Expand the language-specific instructions to send an event to the workflow instance.
 
 <details>
    <summary><b>Send an event to the .NET workflow</b></summary>
@@ -176,7 +180,7 @@ curl -i --request POST \
 
 Expected output:
 
-```text
+```text,nocopy
 HTTP/1.1 202 Accepted
 Content-Type: application/json
 Traceparent: 00-cd40670f36a8be0b1b6951f3962387c3-95440c97280a6405-01
@@ -186,7 +190,7 @@ Content-Length: 2
 
 The application log in the **Dapr CLI** window should contain these log statements:
 
-```text
+```text,nocopy
 == APP - externalevents == ProcessOrder: Processed order: b7dd836b-e913-4446-9912-d400befebec5.
 == APP - externalevents == SendNotification: Order b7dd836b-e913-4446-9912-d400befebec5 has been approved.
 ```
@@ -211,7 +215,7 @@ curl --request GET --url http://localhost:3558/v1.0/workflows/dapr/b7dd836b-e913
 
 Expected output:
 
-```json
+```json,nocopy
 {
    "instanceID":"b7dd836b-e913-4446-9912-d400befebec5",
    "workflowName":"ExternalEventsWorkflow",

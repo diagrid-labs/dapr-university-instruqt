@@ -1,5 +1,3 @@
-# Resiliency and Compensation
-
 In this challenge, you'll learn:
 
 - How to add retry policies when calling activities.
@@ -19,7 +17,7 @@ When authoring workflows, you should anticipate handling exceptions and potentia
 
 The workflow in this challenge performs a simplistic calculation where the first activity, `MinusOne`, subtracts 1 from the numeric workflow input, the result is used as the divisor in the second activity, `Division`. The result of the division is passed as the output of the workflow. If the workflow input is `1`, the divisor results in `0`, causing an exception in the `Division` activity, which would result in a failed workflow. The workflow in this challenge contains a try/catch block that catches the exception, and makes a call to another activity, `PlusOne`, to perform a compensation action, to reset the input value.
 
-![Compensation action](images/dapr-uni-wf-compensation-demo-v1.png)
+![Compensation action](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/8-resiliency-and-compensation/images/dapr-uni-wf-compensation-demo-v1.png?raw=true)
 
 A more realistic scenario where compensation actions are useful is when a workflow calls an activity that creates a new record in an external system. If a subsequent activity fails after the record is created, the workflow can call another activity to remove the new record, or inform another system about the failure.
 
@@ -37,7 +35,7 @@ Use one of the language tabs to navigate to the resiliency and compensation work
 
 Open the `ResiliencyAndCompensationWorkflow.cs` file located in the `ResiliencyAndCompensation` folder. This file contains the workflow code.
 
-```csharp
+```csharp,nocopy
 var defaultActivityRetryOptions = new WorkflowTaskOptions
 {
    RetryPolicy = new WorkflowRetryPolicy(
@@ -48,7 +46,7 @@ var defaultActivityRetryOptions = new WorkflowTaskOptions
 
 This `WorkflowTaskOptions` defines a retry policy that retries activities up to 3 times with an initial delay of 2 seconds.
 
-```csharp
+```csharp,nocopy
 var result1 = await context.CallActivityAsync<int>(
    nameof(MinusOne),
    input,
@@ -62,7 +60,7 @@ The `defaultActivityRetryOptions` are passed as the third argument to the `CallA
 ### 1.3 Inspect the Activity code
 
 > [!NOTE]
-> Expand the language-specific instructions to learn more about the activities.
+> Expand the language-specific instructions to learn about the activities.
 
 <details>
    <summary><b>.NET activity code</b></summary>
@@ -88,7 +86,7 @@ This application also has a `start` HTTP POST endpoint that is used to start the
 ## 2. Run the workflow app
 
 > [!NOTE]
-> Use the language specific instructions to start the resiliency and compensation workflow.
+> Expand the language specific instructions to start the resiliency and compensation workflow.
 
 <details>
    <summary><b>Run the .NET workflow application</b></summary>
@@ -137,7 +135,7 @@ INSTANCEID=$(curl -s --request POST \
 
 Expected output:
 
-```text
+```text,nocopy
 HTTP/1.1 202 Accepted
 Content-Length: 0
 Date: Wed, 23 Apr 2025 09:37:58 GMT
@@ -147,7 +145,7 @@ Location: da2351d19c874a79a3f66c709a98be61
 
 The **Dapr CLI** window should contain these application log statements:
 
-```text
+```text,nocopy
 == APP - resiliency == MinusOne: Received input: 1.
 == APP - resiliency == Division: Received divisor: 0.
 == APP - resiliency == Division: Received divisor: 0.
@@ -180,7 +178,7 @@ Where `$INSTANCEID` is the environment variable containing the workflow instance
 
 Expected output:
 
-```json
+```json,nocopy
 {
    "instanceID":"da2351d19c874a79a3f66c709a98be61",
    "workflowName":"ResiliencyAndCompensationWorkflow",

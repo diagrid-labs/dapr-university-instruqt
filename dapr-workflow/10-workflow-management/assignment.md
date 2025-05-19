@@ -1,5 +1,3 @@
-# Workflow Management
-
 In this challenge, you'll explore the Dapr Workflow Management API and test the various operations that can be performed on workflow instances.
 
 ## 1. Workflow Management
@@ -16,10 +14,10 @@ The workflow used in this challenge is called `NeverEndingWorkflow` and it runs 
 - Is started with an integer input named `counter` with value `0`.
 - Calls a `SendNotification` activity.
 - User a timer to wait for 1 second.
-- Increments the `counter` by `1` 
+- Increments the `counter` by `1`
 - Continues as a new workflow instance.
 
-![Never Ending Workflow](images/dapr-uni-wf-management-v1.png)
+![Never Ending Workflow](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/10-workflow-management/images/dapr-uni-wf-management-v1.png?raw=true)
 
 ### 1.1 Choose a language tab
 
@@ -40,6 +38,9 @@ The input for this workflow is an integer, and gets incremented by `1` every sec
 </details>
 
 ### 1.3 Inspect the Activity code
+
+> [!NOTE]
+> Expand the language-specific instructions to learn more about the activity.
 
 <details>
    <summary><b>.NET activity code</b></summary>
@@ -74,7 +75,7 @@ All methods use the `DaprWorklowClient` to perform the workflow management opera
 ## 2. Run the workflow app
 
 > [!NOTE]
-> Expand the language-specific instructions to start the workflow management application.
+> Expand the language specific instructions to start the workflow management application.
 
 <details>
    <summary><b>Run the .NET application</b></summary>
@@ -123,7 +124,7 @@ INSTANCEID=$(curl -s --request POST \
 
 Expected output:
 
-```text
+```text,nocopy
 HTTP/1.1 202 Accepted
 Content-Length: 0
 Date: Wed, 23 Apr 2025 15:48:10 GMT
@@ -133,7 +134,7 @@ Location: 71007295959944fd8d05dad5d4526806
 
 The **Dapr CLI** window should contain these application log statements:
 
-```text
+```text,nocopy
 == APP - neverendingworkflow == SendNotification: Received input: 0.
 == APP - neverendingworkflow == SendNotification: Received input: 1.
 == APP - neverendingworkflow == SendNotification: Received input: 2.
@@ -156,15 +157,14 @@ Use the **curl** window to perform a GET request to the `status` endpoint of the
 Use the **curl** window to perform a GET request to the `status` endpoint of the application to retrieve the workflow status:
 
 ```curl,run
-curl --request GET --url http://localhost:5262/status/$INSTANCEID
+curl --request GET  --url http://localhost:5262/status/$INSTANCEID
 ```
 
 Where `$INSTANCEID` is the environment variable containing the workflow instance ID captured in the previous step.
 
 Expected output:
 
-```json
-{
+```json,nocopy
    "exists":true,
    "isWorkflowRunning":true,
    "isWorkflowCompleted":false,
@@ -195,7 +195,7 @@ curl -i --request POST \
 
 Expected output:
 
-```json
+```json,nocopy
 HTTP/1.1 202 Accepted
 Content-Length: 0
 Date: Wed, 23 Apr 2025 15:54:08 GMT
@@ -226,7 +226,7 @@ curl -i --request POST \
 
 Expected output:
 
-```json
+```json,nocopy
 HTTP/1.1 202 Accepted
 Content-Length: 0
 Date: Wed, 23 Apr 2025 15:59:17 GMT
@@ -254,7 +254,7 @@ curl -i --request POST \
 
 Expected output:
 
-```json
+```json,nocopy
 HTTP/1.1 202 Accepted
 Content-Length: 0
 Date: Wed, 23 Apr 2025 15:59:17 GMT
@@ -281,14 +281,14 @@ Use the **curl** window to make a DELETE request to the `purge` endpoint of the 
 
 Use the **curl** window to make a DELETE request to the `purge` endpoint of the application to purge workflow instance from the state store:
 
-```curl
+```curl,run
 curl -i --request DELETE \
   --url http://localhost:5262/purge/$INSTANCEID
 ```
 
 Expected output:
 
-```json
+```json,nocopy
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Date: Wed, 23 Apr 2025 16:04:08 GMT

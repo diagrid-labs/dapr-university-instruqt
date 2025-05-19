@@ -1,5 +1,3 @@
-# Dapr Workflow Fundamentals
-
 In this challenge, you'll learn:
 
 - How Dapr workflows and activities are defined in code.
@@ -14,9 +12,9 @@ In this challenge, you'll learn:
 
 Workflows are authored in code using the Dapr Workflow SDK. Workflows are composed of activities, which are the building blocks of a workflow. Activities typically contain code that performs one specific task, such as synchronously calling another service, storing data in a state store, performing a calculation, or publishing a message to a topic.
 
-![Workflow with activities](images/dapr-uni-wf-fundamental-v1.png)
+![Workflow with activities](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/2-dapr-workflow-fundamentals/images/dapr-uni-wf-fundamental-v1.png?raw=true)
 
-Workflows orchestrate the activities in a specific order. Workflow code typically contains calls to activities and business logic (if/else statements) based on the outputs of activities to determine which activity should be executed next. Workflow code should be deterministic, meaning that the same input for either workflows or activities, should always result in the same output. Any non-deterministic code should be placed in an activity. More information about (non)deterministic code is covered in the last challenge of this Dapr University track.
+Workflows orchestrate the activities in a specific order. Workflow code typically contains calls to activities, business logic (if/else statements) and other control logic (try/catch block) based on the outputs of activities to determine which activity should be executed next. Workflow code should be deterministic, meaning that the same input for either workflows or activities, should always result in the same output. Any non-deterministic code should be placed in an activity. More information about (non)deterministic code is covered in the last challenge of this Dapr University track.
 
 ## 2. A basic workflow demo
 
@@ -27,7 +25,7 @@ The workflow in this challenge consists of two activities that are called in seq
 - The second activity adds `" Three"` to the output of the first activity.
 - The final output of the workflow is `"One Two Three"`.
 
-![Basic Workflow](images/dapr-uni-wf-fundamental-basic-v1.png)
+![Basic Workflow](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/2-dapr-workflow-fundamentals/images/dapr-uni-wf-fundamental-basic-v1.png?raw=true)
 
 ### 2.1 Choose a language tab
 
@@ -77,10 +75,9 @@ The `WorkflowActivityContext` input argument is provided by the Dapr Workflow pa
 
 You can use any type of input and output for the activity, as long as they are serializable.
 
-The body of the `RunAsync` method in this example just does a `Console.WriteLine` to echo the input and returns a string concatenation of the input and `"Two"`.
+The body of the `RunAsync` method in this example just does a `Console.WriteLine` to echo the input and returns a string concatenation of the input and "Two".
 
-> [!IMPORTANT]
-> Typically, activities contain code that performs one specific task, such as calling an external service, storing data in a state store, performing a calculation, or publishing a message. A more realistic example will be shown in the *Combined Patterns* challenge later in this learning track.
+Typically, activities contain code that performs one specific task, such as calling an external service, storing data in a state store, performing a calculation, or publishing a message. A more realistic example is shown in the *Combined Patterns* challenge later in this learning track.
 
 </details>
 
@@ -150,9 +147,12 @@ In the **curl** window, run the following command to start the workflow:
 curl -i --request POST http://localhost:5254/start/One
 ```
 
+>[!WARNING]
+> You might see a warning in the Dapr CLI log window about `Error processing operation DaprBuiltInActorNotFoundRetries.`. Don't worry, this is a transient error, the Dapr process is trying to communicate to the actor that is responsible for scheduling the workflow. You'll see this frequently since the sandbox environment is quite slow.
+
 Expected output:
 
-```text
+```text,nocopy
 HTTP/1.1 202 Accepted
 Content-Length: 0
 Date: Wed, 16 Apr 2025 13:54:29 GMT
@@ -168,12 +168,13 @@ Location: 05f63e15a3724c5d86386922919378d6
 
 The **Dapr CLI** window should contain these application log statements:
 
-```text
+```text,nocopy
 == APP - basic == Activity1: Received input: One.
 == APP - basic == Activity2: Received input: One Two.
 ```
 
-Now run the following curl command to start the workflow again. This time, the instance ID will be captured in an environment variable, `$INSTANCEID`, and this variable is used in subsequent calls to retrieve the workflow status in the next section without the need to manually copy/paste the instance ID:
+> [!IMPORTANT]
+> Now run the following curl command to start the workflow again. This time, the instance ID will be captured in an environment variable, `$INSTANCEID`, and this variable is used in subsequent calls to retrieve the workflow status in the next section without the need to manually copy/paste the instance ID:
 
 ```curl,run
 INSTANCEID=$(curl -s --request POST --url http://localhost:5254/start/One \
@@ -192,8 +193,8 @@ echo $INSTANCEID
 
 Inspect the Dapr output in the **Dapr CLI** window. It should contain a message that the workflow has been completed successfully.
 
-```text
-Workflow Actor '<INSTANCEID>': workflow completed with status 'ORCHESTRATION_STATUS_COMPLETED' workflowName 'BasicWorkflow' 
+```text,nocopy
+Workflow Actor '<INSTANCEID>': workflow completed with status 'ORCHESTRATION_STATUS_COMPLETED' workflowName 'BasicWorkflow'
 ```
 
 > [!NOTE]
@@ -219,7 +220,7 @@ Where `$INSTANCEID` is the environment variable that contains the workflow insta
 
 Expected output:
 
-```json
+```json,nocopy
 {
    "instanceID":"05f63e15a3724c5d86386922919378d6",
    "workflowName":"BasicWorkflow",
@@ -251,11 +252,11 @@ Dapr workflow uses durable execution, which means the workflow state is persiste
 
 This animation shows when workflow state is persisted and retrieved during workflow replays:
 
-![Workflow replay](images/dapr-uni-wf-replay.gif)
+<video src="https://play.instruqt.com/assets/tracks/gauq2r9sowaz/900f79071ad87ee1192c3e68989db1e6/assets/dapr-workflow-replay.mp4" controls></video>
 
-The state store component used by Dapr workflow in this example is defined in the `state_redis.yaml` file:
+The state store component used by Dapr workflow in this example is defined in the `state_redis.yaml` file. This file is not visible in the file explorer since it's located in a different folder.
 
-```yaml
+```yaml,nocopy
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
@@ -284,7 +285,7 @@ keys *basic||dapr.internal.default.basic.workflow*
 
 The expected output should be similar to this:
 
-```text
+```text,nocopy
  1) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000007"
  2) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||customStatus"
  3) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000003"
@@ -298,7 +299,7 @@ The expected output should be similar to this:
 11) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000004"
 ```
 
-> ![WARNING]
+> [!WARNING]
 > You should never edit the workflow state directly, to prevent corrupting the data of workflows that are still running. The Dapr Workflow Client is used to manage workflow instance data, and this is covered in the *Workflow Management* challenge later in this learning track.
 
 ---
