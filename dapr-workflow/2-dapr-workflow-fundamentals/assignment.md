@@ -103,7 +103,7 @@ The body of the `RunAsync` method in this example just does a `Console.WriteLine
 <details>
    <summary><b>Python activities</b></summary>
 
-Open the `basic_workflow.py` file located in the `basic` folder. This file contains the workflow and activity code.
+Open the `basic_workflow.py` file located in the `basic` folder. This file contains the activities below the workflow definition.
 
 Activities are defined as functions and decorated with the `@wf_runtime.activity(...)` decorator and contains the name of the activity.
 
@@ -139,7 +139,7 @@ The `start` method also contains the `DaprWorkflowClient` as an input argument. 
 </details>
 
 <details>
-   <summary><b>Python workflow runtime & endpoints</b></summary>
+   <summary><b>Python workflow runtime and endpoints</b></summary>
 
 > [!NOTE]
 > All Python demos in this learning track use the FastAPI framework.
@@ -197,7 +197,7 @@ dapr run -f .
 
 Use the **Dapr CLI** window to run the commands.
 
-Navigate to the *csharp/fundamentals* folder:
+Navigate to the *python/fundamentals/basic* folder:
 
 ```bash,run
 cd python/fundamentals/basic
@@ -209,7 +209,7 @@ Install the dependencies:
 pip3 install -r requirements.txt
 ```
 
-Run the application using the Dapr CLI:
+Move one folder up and run the application using the Dapr CLI:
 
 ```bash,run
 cd ..
