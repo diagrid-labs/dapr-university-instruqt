@@ -50,7 +50,7 @@ if (!status.IsReady)
 
 Open the `monitor_workflow.py` file located in the `monitor-pattern/monitor` folder. This file contains the workflow code.
 
-Note how the workflow uses the `WorkflowContext` to create a timer and to continue the workflow as a fresh instance.
+Note how the workflow uses the `DaprWorkflowContext` to create a timer and to continue the workflow as a fresh instance.
 
 ```python,nocopy
 if not status.is_ready:
