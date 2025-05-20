@@ -141,7 +141,8 @@ dapr run -f .
 
 ###
 
-Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
+> [!IMPORTANT]
+> Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
 
 ## 3. Start the workflow
 
