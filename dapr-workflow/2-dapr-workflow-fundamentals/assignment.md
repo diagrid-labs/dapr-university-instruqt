@@ -118,7 +118,7 @@ The body of the activity function in this example just does a `print` to echo th
 ###
 
 > [!IMPORTANT]
-> Typically, activities contain code that performs one specific task, such as calling an external service, storing data in a state store, performing a calculation, or publishing a message. A more realistic example is shown in the *Combined Patterns* challenge later in this learning track.
+> Typically, activities contain code that performs one specific task, such as calling an external service, storing data in a state store, performing a calculation, or publishing a message. A benefit of using Dapr is that you can combine Dapr workflow with other Dapr APIs in the activities. A more realistic example, that is using Dapr service invocation, state management, and pub/sub, is given in the *Combined Patterns* challenge later in this learning track.
 
 ### 2.4 Inspect the startup code
 
@@ -134,7 +134,7 @@ Locate the `Program.cs` file in the `Basic` folder. This file contains the code 
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow. It accepts a `string` as input, and this input is passed on to the workflow.
 
-The `start` method also contains the `DaprWorkflowClient` as an input argument. This is injected by the Dapr SDK. The `DaprWorkflowClient` is used to schedule a new workflow using the `ScheduleNewWorkflowAsync` method. The first input argument for this method is the name of the workflow; the second input argument is the input for the workflow. The `ScheduleNewWorkflowAsync` method return the instance ID of the workflow that is scheduled. The ID is used for other workflow operations that can be done with the `DaprWorkflowClient`. This will be covered in the *Workflow Management* challenge later in this learning track.
+The `start` method also contains the `DaprWorkflowClient` as an input argument. This is injected by the Dapr SDK. The `DaprWorkflowClient` is used to schedule a new workflow using the `ScheduleNewWorkflowAsync` method. The first input argument for this method is the name of the workflow; the second input argument is the input for the workflow. The `ScheduleNewWorkflowAsync` method returns the instance ID of the workflow that is scheduled. The ID is used for other workflow operations that can be done with the `DaprWorkflowClient`. This is covered in the *Workflow Management* challenge later in this learning track.
 
 </details>
 
@@ -158,7 +158,7 @@ async def lifespan(app: FastAPI):
 
 The `app.py` file also contains the `start` HTTP POST endpoint that is used to start the workflow. It accepts a `str` as input, and this input is passed on to the workflow.
 
-The `start` method uses the `DaprWorkflowClient` from the Dapr SDK. The `DaprWorkflowClient` is used to schedule a new workflow using the `schedule_new_workflow` method. The first input argument for this method is the name of the workflow; the second input argument is the input for the workflow. The `schedule_new_workflow` method return the instance ID of the workflow that is scheduled. The ID is used for other workflow operations that can be done with the `DaprWorkflowClient`. This will be covered in the *Workflow Management* challenge later in this learning track.
+The `start` method uses the `DaprWorkflowClient` from the Dapr SDK. The `DaprWorkflowClient` is used to schedule a new workflow using the `schedule_new_workflow` method. The first input argument for this method is the name of the workflow; the second input argument is the input for the workflow. The `schedule_new_workflow` method returns the instance ID of the workflow that is scheduled. The ID is used for other workflow operations that can be done with the `DaprWorkflowClient`. This is covered in the *Workflow Management* challenge later in this learning track.
 
 </details>
 
@@ -362,6 +362,37 @@ Use the **curl** window to make a GET request to get the status of a workflow in
 curl --request GET --url http://localhost:3554/v1.0/workflows/dapr/$INSTANCEID
 ```
 
+Where `$INSTANCEID` is the environment variable that contains the workflow instance ID that is captured from the `instanceId` field in the previous step.
+
+Expected output:
+
+```json,nocopy
+{
+   "instanceID":"05f63e15a3724c5d86386922919378d6",
+   "workflowName":"BasicWorkflow",
+   "createdAt":"2025-04-16T13:54:30.688455621Z",
+   "lastUpdatedAt":"2025-04-16T13:54:30.720682100Z",
+   "runtimeStatus":"COMPLETED",
+   "properties": {
+      "dapr.workflow.input":"\"One\"",
+      "dapr.workflow.output":"\"One Two Three\""
+   }
+}
+```
+
+The workflow status contains the workflow instance ID, the workflow name, the created and last updated timestamps, the runtime status (`COMPLETED`), and the input and output of the workflow.
+
+</details>
+
+<details>
+   <summary><b>Get the Python workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:3554/v1.0/workflows/dapr/$INSTANCEID
+```
+
 Where `$INSTANCEID` is the environment variable that contains the workflow instance ID that is captured from the `instance_id` field in the previous step.
 
 Expected output:
@@ -444,6 +475,9 @@ The expected output should be similar to this:
 10) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000000"
 11) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000004"
 ```
+
+> [!IMPORTANT]
+> The GUID in the key name is the workflow instance ID. It will be a different value each time a new workflow instance is started since it is created by Dapr in this example. You can provide a custom workflow instance ID when scheduling a workflow. This is covered in the External System Interaction challenge later in this learning track.
 
 > [!WARNING]
 > You should never edit the workflow state directly, to prevent corrupting the data of workflows that are still running. The Dapr Workflow Client is used to manage workflow instance data, and this is covered in the *Workflow Management* challenge later in this learning track.
