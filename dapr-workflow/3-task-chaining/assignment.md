@@ -62,10 +62,10 @@ The three activity definitions are located underneath the workflow in the `chain
 
 </details>
 
-### 1.4. Inspect the workflow & activity registration
+### 1.4. Inspect the startup code
 
 > [!NOTE]
-> Expand the language-specific instructions to learn more about workflow registration.
+> Expand the language-specific instructions to learn more about workflow registration, workflow runtime startup, and HTTP endpoints to start the workflow.
 
 <details>
    <summary><b>.NET registration and endpoints</b></summary>

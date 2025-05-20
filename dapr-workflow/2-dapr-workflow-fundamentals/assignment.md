@@ -120,10 +120,10 @@ The body of the activity function in this example just does a `print` to echo th
 > [!IMPORTANT]
 > Typically, activities contain code that performs one specific task, such as calling an external service, storing data in a state store, performing a calculation, or publishing a message. A more realistic example is shown in the *Combined Patterns* challenge later in this learning track.
 
-### 2.4 Inspect the workflow & activity registration
+### 2.4 Inspect the startup code
 
 > [!NOTE]
-> Expand the language-specific instructions to learn more about workflow registration.
+> Expand the language-specific instructions to learn more about workflow registration, workflow runtime startup, and HTTP endpoints to start the workflow.
 
 <details>
    <summary><b>.NET registration and endpoints</b></summary>
