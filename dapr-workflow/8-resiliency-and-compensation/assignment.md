@@ -57,6 +57,25 @@ The `defaultActivityRetryOptions` are passed as the third argument to the `CallA
 
 </details>
 
+<details>
+   <summary><b>Python workflow code</b></summary>
+
+Open the `resiliency_and_compensation_workflow.py` file located in the `resiliency_and_compensation` folder. This file contains the workflow code.
+
+```python,nocopy
+default_retry_policy = wf.RetryPolicy(max_number_of_attempts=3, first_retry_interval=timedelta(seconds=2))
+```
+
+This `RetryPolicy` defines a retry policy that retries activities up to 3 times with an initial delay of 2 seconds.
+
+```python,nocopy
+ result1 = yield ctx.call_activity(minus_one, input=wf_input, retry_policy=default_retry_policy)
+```
+
+The `default_retry_policy` is passed as the third argument to the `call_activity` methods in this workflow.
+
+</details>
+
 ### 1.3 Inspect the Activity code
 
 > [!NOTE]
@@ -65,14 +84,21 @@ The `defaultActivityRetryOptions` are passed as the third argument to the `CallA
 <details>
    <summary><b>.NET activity code</b></summary>
 
-The three activity definitions are located in the `ResiliencyAndCompensation/Activities` folder. The `MinusOne` and `PlusOne` activities, subtract and `1` to the numeric input.The `Division` activity divides `100` by the numeric input, and will result in an exception if the input is `0`.
+The three activity definitions are located in the `ResiliencyAndCompensation/Activities` folder. The `MinusOne` and `PlusOne` activities, subtract and add `1` to the numeric input.The `Division` activity divides `100` by the numeric input, and will result in an exception if the input is `0`.
 
 </details>
 
-### 1.4. Inspect the workflow & activity registration
+<details>
+   <summary><b>Python activity code</b></summary>
+
+The three activity definitions are located in the `resiliency_and_compensation_workflow.py` file below the workflow definition. The `minus_one` and `plus_one` activities, subtract and add `1` to the numeric input.The `division` activity divides `100` by the numeric input, and will result in an exception if the input is `0`.
+
+</details>
+
+### 1.4. Inspect the startup code
 
 > [!NOTE]
-> Expand the language-specific instructions to learn more about workflow registration.
+> Expand the language-specific instructions to learn more about workflow registration, workflow runtime startup, and HTTP endpoints to start the workflow.
 
 <details>
    <summary><b>.NET registration and endpoints</b></summary>
@@ -80,6 +106,13 @@ The three activity definitions are located in the `ResiliencyAndCompensation/Act
 Locate the `Program.cs` file in the `ResiliencyAndCompensation` folder. This file contains the code to register the workflows and activities using the `AddDaprWorkflow()` extension method.
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an integer as the input.
+
+</details>
+
+<details>
+   <summary><b>Python workflow runtime and endpoints</b></summary>
+
+Locate the `app.py` file in the `resiliency_and_compensation` folder.This file contains the code to start the workflow runtime and a `start` HTTP endpoint to start the workflow which accepts an integer as the input.
 
 </details>
 
@@ -113,7 +146,36 @@ dapr run -f .
 
 </details>
 
-Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
+<details>
+   <summary><b>Run the Python workflow application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *python/resiliency-and-compensation/resiliency_and_compensation* folder:
+
+```bash,run
+cd python/resiliency-and-compensation/resiliency_and_compensation
+```
+
+Install the dependencies:
+
+```bash,run
+pip3 install -r requirements.txt
+```
+
+Move one folder up and run the application using the Dapr CLI:
+
+```bash,run
+cd ..
+dapr run -f .
+```
+
+</details>
+
+###
+
+> [!IMPORTANT]
+> Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
 
 ## 3. Start the workflow
 
@@ -133,16 +195,6 @@ INSTANCEID=$(curl -s --request POST \
   -i | grep -i "^location:" | sed 's/^location: *//i' | tr -d '\r\n')
 ```
 
-Expected output:
-
-```text,nocopy
-HTTP/1.1 202 Accepted
-Content-Length: 0
-Date: Wed, 23 Apr 2025 09:37:58 GMT
-Server: Kestrel
-Location: da2351d19c874a79a3f66c709a98be61
-```
-
 The **Dapr CLI** window should contain these application log statements:
 
 ```text,nocopy
@@ -155,6 +207,32 @@ The **Dapr CLI** window should contain these application log statements:
 
 > [!NOTE]
 > The `Division` activity is retried 3 times due to the retry policy. The exception is caught in the workflow, and the `PlusOne` activity is called to compensate for `MinusOne` activity.
+
+</details>
+
+<details>
+   <summary><b>Start the Python workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
+
+```curl,run
+INSTANCEID=$(curl -s --request POST \
+  --url http://localhost:5264/start/1 \
+  -i | grep -o '"instance_id":"[^"]*"' \
+   | sed 's/"instance_id":"//;s/"//g' \
+   | tr -d '\r\n')
+```
+
+The **Dapr CLI** window should contain these application log statements:
+
+```text,nocopy
+== APP - resiliency == minus_one: Received input: 1.
+== APP - resiliency == division: Received divisor: 0.
+== APP - resiliency == plus_one: Received input: 0.
+```
+
+> [!NOTE]
+> The exception is caught in the workflow, and the `PlusOne` activity is called to compensate for `MinusOne` activity.
 
 </details>
 
@@ -180,7 +258,7 @@ Expected output:
 
 ```json,nocopy
 {
-   "instanceID":"da2351d19c874a79a3f66c709a98be61",
+   "instanceID":"<INSTANCE_ID>",
    "workflowName":"ResiliencyAndCompensationWorkflow",
    "createdAt":"2025-04-23T09:37:58.941845115Z",
    "lastUpdatedAt":"2025-04-23T09:38:03.049028901Z",
@@ -197,12 +275,46 @@ Expected output:
 
 </details>
 
+<details>
+   <summary><b>Get the Python workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:3564/v1.0/workflows/dapr/$INSTANCEID
+```
+
+Where `$INSTANCEID` is the environment variable containing the workflow instance ID captured in the previous step.
+
+Expected output:
+
+```json,nocopy
+{
+   "instanceID":"<INSTANCE_ID>",
+   "workflowName":"resiliency_and_compensation_workflow",
+   "createdAt":"2025-04-23T09:37:58.941845115Z",
+   "lastUpdatedAt":"2025-04-23T09:38:03.049028901Z",
+   "runtimeStatus":"COMPLETED",
+   "properties":{
+      "dapr.workflow.custom_status":"\"Compensated minus_one activity with plus_one activity.\"",
+      "dapr.workflow.input":"1","dapr.workflow.output":"1"
+   }
+}
+```
+
+> [!NOTE]
+> The `custom_status` field contains the message that is set in the workflow after the compensation action is called.
+
+</details>
+
 ## 5. Trying a different retry policy
 
-If you want, you can run some additional tests to explore different retry policies. Update the `WorkflowRetryPolicy` in the workflow. Use the language specific reference to see what options are available.
+If you want, you can run some additional tests to explore different retry policies. Update the `(Workflow)RetryPolicy` in the workflow. Use the language specific reference to see what options are available.
 
-- [.NET WorkflowRetryPolicy definition on GitHub](
+- [.NET `WorkflowRetryPolicy` definition on GitHub](
 https://github.com/dapr/dotnet-sdk/blob/master/src/Dapr.Workflow/WorkflowRetryPolicy.cs)
+- [Python `RetryPolicy` definition on GitHub](
+https://github.com/dapr/python-sdk/blob/main/ext/dapr-ext-workflow/dapr/ext/workflow/retry_policy.py) (Currently there is an issue with the `RetryPolicy` in the Python SDK, so you may not be able to test this.)
 
 ## 6. Stop the workflow application
 
