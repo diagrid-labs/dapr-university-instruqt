@@ -84,14 +84,14 @@ The `default_retry_policy` is passed as the third argument to the `call_activity
 <details>
    <summary><b>.NET activity code</b></summary>
 
-The three activity definitions are located in the `ResiliencyAndCompensation/Activities` folder. The `MinusOne` and `PlusOne` activities, subtract and add `1` to the numeric input.The `Division` activity divides `100` by the numeric input, and will result in an exception if the input is `0`.
+The three activity definitions are located in the `ResiliencyAndCompensation/Activities` folder. The `MinusOne` and `PlusOne` activities, subtract and add `1` to the numeric input respectively.The `Division` activity divides `100` by the numeric input, and will result in an exception if the input is `0`.
 
 </details>
 
 <details>
    <summary><b>Python activity code</b></summary>
 
-The three activity definitions are located in the `resiliency_and_compensation_workflow.py` file below the workflow definition. The `minus_one` and `plus_one` activities, subtract and add `1` to the numeric input.The `division` activity divides `100` by the numeric input, and will result in an exception if the input is `0`.
+The three activity definitions are located in the `resiliency_and_compensation_workflow.py` file below the workflow definition. The `minus_one` and `plus_one` activities, subtract and add `1` to the numeric input respectively.The `division` activity divides `100` by the numeric input, and will result in an exception if the input is `0`.
 
 </details>
 

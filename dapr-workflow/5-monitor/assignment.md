@@ -30,7 +30,7 @@ Use one of the language tabs to navigate to the monitor workflow example. Each l
 <details>
    <summary><b>.NET workflow code</b></summary>
 
-Open the `MonitorWorkflow.cs` file located in the `Monitor` folder. This file contains the workflow code.
+Open the `MonitorWorkflow.cs` file located in the `Monitor` folder. This file contains the workflow code. The workflow input is an integer, `counter`, which is used to keep track of the number of times the workflow has been executed as a new instance.
 
 Note how the workflow uses the `WorkflowContext` to create a timer and to continue the workflow as a fresh instance.
 
@@ -48,7 +48,7 @@ if (!status.IsReady)
 <details>
    <summary><b>Python workflow code</b></summary>
 
-Open the `monitor_workflow.py` file located in the `monitor-pattern/monitor` folder. This file contains the workflow code.
+Open the `monitor_workflow.py` file located in the `monitor-pattern/monitor` folder. This file contains the workflow code. The workflow input is an integer, `counter`, which is used to keep track of the number of times the workflow has been executed as a new instance.
 
 Note how the workflow uses the `DaprWorkflowContext` to create a timer and to continue the workflow as a fresh instance.
 
@@ -89,14 +89,14 @@ The workflow uses only one activity, `check_status`, and is located in the `moni
 
 Locate the `Program.cs` file in the `Monitor` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
-This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an array of strings as the input.
+This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an integer, `counter`, as the input.
 
 </details>
 
 <details>
    <summary><b>Python workflow runtime and endpoints</b></summary>
 
-Locate the `app.py` file in the `monitor` folder. This file contains the code to start the workflow runtime and a `start` HTTP endpoint to start the workflow.
+Locate the `app.py` file in the `monitor` folder. This file contains the code to start the workflow runtime and a `start` HTTP endpoint to start the workflow.The endpoint accepts an integer, `counter`, as the input.
 
 </details>
 

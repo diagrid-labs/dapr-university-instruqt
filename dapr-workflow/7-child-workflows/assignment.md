@@ -93,7 +93,7 @@ This application also has a `start` HTTP POST endpoint that is used to start the
 <details>
    <summary><b>Python workflow runtime and endpoints</b></summary>
 
-Locate the `app.py` file in the `child_workflows` folder. This file contains the code to start the workflow runtime and a `start` HTTP endpoint to start the workflow.
+Locate the `app.py` file in the `child_workflows` folder. This file contains the code to start the workflow runtime and a `start` HTTP endpoint to start the workflow. The `start` endpoint accepts a list of strings as the input.
 
 </details>
 

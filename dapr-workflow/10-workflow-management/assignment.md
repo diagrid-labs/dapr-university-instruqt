@@ -9,6 +9,9 @@ The operations you'll be testing in this challenge besides starting a workflow a
 - Terminate a workflow instance
 - Purge a workflow instance
 
+> [!NOTE]
+> This challenge uses the Dapr SDK to access the workflow management API. You can also use the Dapr HTTP API to make requests to the workflow management API without using an SDK. More information about the workflow management API can be found in the [Dapr docs](https://docs.dapr.io/reference/api/workflow_api/).
+
 The workflow used in this challenge is called `NeverEndingWorkflow` and it runs indefinitely. The workflow:
 
 - Is started with an integer input named `counter` with value `0`.
@@ -151,9 +154,10 @@ Install the dependencies:
 pip3 install -r requirements.txt
 ```
 
-Run the application using the Dapr CLI:
+Move one folder up and run the application using the Dapr CLI:
 
 ```bash,run
+cd ..
 dapr run -f .
 ```
 
@@ -240,13 +244,15 @@ Where `$INSTANCEID` is the environment variable containing the workflow instance
 Expected output:
 
 ```json,nocopy
+{
    "exists":true,
    "isWorkflowRunning":true,
    "isWorkflowCompleted":false,
    "createdAt":"2025-04-23T15:51:43.0005152+00:00",
    "lastUpdatedAt":"2025-04-23T15:51:43.0114001+00:00",
    "runtimeStatus":0,
-   "failureDetails":null}
+   "failureDetails":null
+}
 ```
 
 </details>

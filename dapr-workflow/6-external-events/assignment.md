@@ -121,7 +121,7 @@ var instanceId = await workflowClient.ScheduleNewWorkflowAsync(
 <details>
    <summary><b>Python workflow runtime and endpoints</b></summary>
 
-Locate the `app.py` file in the `external_events` folder. This file contains the code to start the workflow runtime and a `start` HTTP endpoint to start the workflow.
+Locate the `app.py` file in the `external_events` folder. This file contains the code to start the workflow runtime and a `start` HTTP endpoint to start the workflow. The `start` endpoint accepts an `Order` object as the input.
 
 Note that this time an instance ID is provided to the `schedule_new_workflow` method:
 
@@ -330,6 +330,7 @@ Content-Length: 2
 The application log in the **Dapr CLI** window should contain these log statements:
 
 ```text,nocopy
+== APP - externalevents == request_approval: Request approval for order: b7dd836b-e913-4446-9912-d400befebec5.
 == APP - externalevents == process_order: Processed order: b7dd836b-e913-4446-9912-d400befebec5.
 == APP - externalevents == send_notification: Order b7dd836b-e913-4446-9912-d400befebec5 has been approved.
 ```
