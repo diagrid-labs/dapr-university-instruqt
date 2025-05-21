@@ -30,7 +30,7 @@ Use one of the language tabs to navigate to the monitor workflow example. Each l
 <details>
    <summary><b>.NET workflow code</b></summary>
 
-Open the `MonitorWorkflow.cs` file located in the `Monitor` folder. This file contains the workflow code.
+Open the `MonitorWorkflow.cs` file located in the `Monitor` folder. This file contains the workflow code. The workflow input is an integer, `counter`, which is used to keep track of the number of times the workflow has been executed as a new instance.
 
 Note how the workflow uses the `WorkflowContext` to create a timer and to continue the workflow as a fresh instance.
 
@@ -41,6 +41,21 @@ if (!status.IsReady)
    counter++;
    context.ContinueAsNew(counter);
 }
+```
+
+</details>
+
+<details>
+   <summary><b>Python workflow code</b></summary>
+
+Open the `monitor_workflow.py` file located in the `monitor-pattern/monitor` folder. This file contains the workflow code. The workflow input is an integer, `counter`, which is used to keep track of the number of times the workflow has been executed as a new instance.
+
+Note how the workflow uses the `DaprWorkflowContext` to create a timer and to continue the workflow as a fresh instance.
+
+```python,nocopy
+if not status.is_ready:
+   yield ctx.create_timer(fire_at=timedelta(seconds=2))
+   yield ctx.continue_as_new(counter + 1)
 ```
 
 </details>
@@ -57,17 +72,31 @@ The workflow uses only one activity, `CheckStatus`, and is located in the `Monit
 
 </details>
 
-### 1.4. Inspect the workflow & activity registration
+<details>
+   <summary><b>Python activity code</b></summary>
+
+The workflow uses only one activity, `check_status`, and is located in the `monitor_workflow.py` file below the workflow definition. It uses a random number generator to simulate the status of a fictional external resource.
+
+</details>
+
+### 1.4. Inspect the startup code
 
 > [!NOTE]
-> Expand the language-specific instructions to learn more about workflow registration.
+> Expand the language-specific instructions to learn more about workflow registration, workflow runtime startup, and HTTP endpoints to start the workflow.
 
 <details>
    <summary><b>.NET registration and endpoints</b></summary>
 
 Locate the `Program.cs` file in the `Monitor` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
-This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an array of strings as the input.
+This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an integer, `counter`, as the input.
+
+</details>
+
+<details>
+   <summary><b>Python workflow runtime and endpoints</b></summary>
+
+Locate the `app.py` file in the `monitor` folder. This file contains the code to start the workflow runtime and a `start` HTTP endpoint to start the workflow.The endpoint accepts an integer, `counter`, as the input.
 
 </details>
 
@@ -101,7 +130,36 @@ dapr run -f .
 
 </details>
 
-Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
+<details>
+   <summary><b>Run the Python application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *python/monitor-pattern/monitor* folder:
+
+```bash,run
+cd python/monitor-pattern/monitor
+```
+
+Install the dependencies:
+
+```bash,run
+pip3 install -r requirements.txt
+```
+
+Move one folder up and run the application using the Dapr CLI:
+
+```bash,run
+cd ..
+dapr run -f .
+```
+
+</details>
+
+###
+
+> [!IMPORTANT]
+> Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
 
 ## 3. Start the workflow
 
@@ -121,16 +179,6 @@ INSTANCEID=$(curl -s --request POST \
   -i | grep -i "^location:" | sed 's/^location: *//i' | tr -d '\r\n')
 ```
 
-Expected output:
-
-```text,nocopy
-HTTP/1.1 202 Accepted
-Content-Length: 0
-Date: Thu, 17 Apr 2025 13:41:03 GMT
-Server: Kestrel
-Location: 402bc03326e94ea9af5e400b1a718b8b
-```
-
 In the **Dapr CLI** window you should see application logs with the incremented counter value:
 
 ```text,nocopy
@@ -142,6 +190,33 @@ In the **Dapr CLI** window you should see application logs with the incremented 
 
 >[!NOTE]
 > The exact number of log statements can vary based on the random number generator in the `CheckStatus` activity.
+
+</details>
+
+<details>
+   <summary><b>Start the Python workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
+
+```curl,run
+INSTANCEID=$(curl -s --request POST \
+  --url http://localhost:5257/start/0 \
+  -i | grep -o '"instance_id":"[^"]*"' \
+   | sed 's/"instance_id":"//;s/"//g' \
+   | tr -d '\r\n')
+```
+
+In the **Dapr CLI** window you should see application logs with the incremented counter value:
+
+```text,nocopy
+== APP - monitor == check_status: Received input: 0.
+== APP - monitor == check_status: Received input: 1.
+== APP - monitor == check_status: Received input: 2.
+...
+```
+
+>[!NOTE]
+> The exact number of log statements can vary based on the random number generator in the `check_status` activity.
 
 </details>
 
@@ -167,7 +242,7 @@ Expected output:
 
 ```json,nocopy
 {
-   "instanceID":"47e1e4db2ef84bc2b9719d6ba44893e8",
+   "instanceID":"<INSTANCE_ID>",
    "workflowName":"MonitorWorkflow",
    "createdAt":"2025-04-17T14:45:18.000956270Z",
    "lastUpdatedAt":"2025-04-17T14:45:18.012774986Z",
@@ -180,6 +255,37 @@ Expected output:
 ```
 
 > The actual number of the counter can vary based on the random number generator in the `CheckStatus` activity.
+
+</details>
+
+<details>
+   <summary><b>Get the Python workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:3557/v1.0/workflows/dapr/$INSTANCEID
+```
+
+Where `$INSTANCEID` is the environment variable containing the workflow instance ID captured in the previous step.
+
+Expected output:
+
+```json,nocopy
+{
+   "instanceID":"<INSTANCE_ID>",
+   "workflowName":"monitor_workflow",
+   "createdAt":"2025-04-17T14:45:18.000956270Z",
+   "lastUpdatedAt":"2025-04-17T14:45:18.012774986Z",
+   "runtimeStatus":"COMPLETED",
+   "properties":{
+      "dapr.workflow.input":"7",
+      "dapr.workflow.output":"\"Status is healthy after checking 7 times.\""
+   }
+}
+```
+
+> The actual number of the counter can vary based on the random number generator in the `check_status` activity.
 
 </details>
 

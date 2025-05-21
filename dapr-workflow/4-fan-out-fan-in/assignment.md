@@ -29,7 +29,7 @@ Use one of the language tabs to navigate to the fan-out/fan-in workflow example.
 
 Open the `FanOutFanInWorkflow.cs` file located in the `FanOutFanIn` folder. This file contains the workflow code.
 
-Notice that has an `input` of type `string[]`.  The workflow uses a `foreach` loop to iterate over the input array and create a task for each word in the array. Instead of awaiting each task inside the `foreach` loop, the tasks are added to a list of tasks, which is then passed to the `Task.WhenAll()` method outside the loop. At this moment the the workflow engine will schedule all the activities (fan-out), and the workflow will wait until all activities have been completed (fan-in).
+Notice that the workflow has an `input` of type `string[]`. The workflow uses a `foreach` loop to iterate over the input array and create a task for each word in the array. Instead of awaiting each task inside the `foreach` loop, the tasks are added to a list of tasks, which is then passed to the `Task.WhenAll()` method outside the loop. At this moment the the workflow engine will schedule all the activities (fan-out), and the workflow will wait until all activities have been completed (fan-in).
 
 ```csharp,nocopy
 // This list will contain the tasks that will be executed by the Dapr Workflow engine.
@@ -49,6 +49,25 @@ var allWordLengths = await Task.WhenAll(tasks);
 
 </details>
 
+<details>
+   <summary><b>Python workflow code</b></summary>
+
+Open the `fanoutfanin_workflow.py` file located in the `fan_out_fan_in` folder. This file contains the workflow code.
+
+Notice that the workflow has an input argument `words` of type `List[str]`. The workflow uses a `for in` loop to iterate over the words in the list and create a task for each word. Instead of yielding each task inside the `for in` loop, the tasks are added to a list of tasks, which is then passed to the `wf.when_all()` method outside the `for in`. At this moment the the workflow engine will schedule all the activities (fan-out), and the workflow will wait until all activities have been completed (fan-in).
+
+```python,nocopy
+// This list will contain the tasks that will be executed by the Dapr Workflow engine.
+tasks = [
+   ctx.call_activity(get_word_length, input=word) for word in words
+]
+
+// The Dapr Workflow engine will schedule all the tasks and wait for all tasks to complete before continuing.
+all_word_lengths = yield wf.when_all(tasks)
+```
+
+</details>
+
 ### 1.3. Inspect the Activity code
 
 > [!NOTE]
@@ -61,10 +80,17 @@ The workflow uses only one activity, `GetWordLength`, and is located in the `Fan
 
 </details>
 
-### 1.4. Inspect the workflow & activity registration
+<details>
+   <summary><b>Python activity code</b></summary>
+
+The workflow uses only one activity, `get_word_length`, and is located in the `fanoutfanin_workflow.py` file below the workflow definition.
+
+</details>
+
+### 1.4. Inspect the startup code
 
 > [!NOTE]
-> Expand the language-specific instructions to learn more about workflow registration.
+> Expand the language-specific instructions to learn more about workflow registration, workflow runtime startup, and HTTP endpoints to start the workflow.
 
 <details>
    <summary><b>.NET registration and endpoints</b></summary>
@@ -72,6 +98,13 @@ The workflow uses only one activity, `GetWordLength`, and is located in the `Fan
 Locate the `Program.cs` file in the `FanOutFanIn` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an array of strings as the input.
+
+</details>
+
+<details>
+   <summary><b>Python workflow runtime and endpoints</b></summary>
+
+Locate the `app.py` file in the `fan_out_fan_in` folder. This file contains the code to start the workflow runtime and a `start` HTTP endpoint to start the workflow.
 
 </details>
 
@@ -85,7 +118,7 @@ This application also has a `start` HTTP POST endpoint that is used to start the
 
 Use the **Dapr CLI** window to run the commands.
 
-Navigate to the *csharp/fan-out-fan-in* folder:
+Navigate to the *csharp/fan-out-fan-in/* folder:
 
 ```bash,run
 cd csharp/fan-out-fan-in
@@ -105,7 +138,36 @@ dapr run -f .
 
 </details>
 
-Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
+<details>
+   <summary><b>Run the Python application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *python/fan-out-fan-in/fan_out_fan_in* folder:
+
+```bash,run
+cd python/fan-out-fan-in/fan_out_fan_in
+```
+
+Install the dependencies:
+
+```bash,run
+pip3 install -r requirements.txt
+```
+
+Move one folder up and run the application using the Dapr CLI:
+
+```bash,run
+cd ..
+dapr run -f .
+```
+
+</details>
+
+###
+
+> [!IMPORTANT]
+> Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
 
 ## 3. Start the workflow
 
@@ -127,16 +189,6 @@ INSTANCEID=$(curl -s --request POST \
   -i | grep -i "^location:" | sed 's/^location: *//i' | tr -d '\r\n')
 ```
 
-Expected output:
-
-```text,nocopy
-HTTP/1.1 202 Accepted
-Content-Length: 0
-Date: Thu, 17 Apr 2025 13:41:03 GMT
-Server: Kestrel
-Location: 402bc03326e94ea9af5e400b1a718b8b
-```
-
 The **Dapr CLI** window should contain these application log statements:
 
 ```text,nocopy
@@ -145,6 +197,36 @@ The **Dapr CLI** window should contain these application log statements:
 == APP - fanoutfanin == GetWordLength: Received input: the.
 == APP - fanoutfanin == GetWordLength: Received input: shortest.
 == APP - fanoutfanin == GetWordLength: Received input: word.
+```
+
+> [!NOTE]
+> The order of the log statements may vary, as the activities are executed in parallel.
+
+</details>
+
+<details>
+   <summary><b>Start the Python workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
+
+```curl,run
+INSTANCEID=$(curl -s --request POST \
+  --url http://localhost:5256/start \
+  --header 'content-type: application/json' \
+  --data '["which","word","is","the","shortest"]' \
+  -i | grep -o '"instance_id":"[^"]*"' \
+   | sed 's/"instance_id":"//;s/"//g' \
+   | tr -d '\r\n')
+```
+
+The **Dapr CLI** window should contain these application log statements:
+
+```text,nocopy
+== APP - fanoutfanin == get_word_length: Received input: is.
+== APP - fanoutfanin == get_word_length: Received input: which.
+== APP - fanoutfanin == get_word_length: Received input: the.
+== APP - fanoutfanin == get_word_length: Received input: shortest.
+== APP - fanoutfanin == get_word_length: Received input: word.
 ```
 
 > [!NOTE]
@@ -174,8 +256,37 @@ Expected output:
 
 ```json,nocopy
 {
-   "instanceID":"402bc03326e94ea9af5e400b1a718b8b",
+   "instanceID":"<INSTANCE_ID>",
    "workflowName":"FanOutFanInWorkflow",
+   "createdAt":"2025-04-17T13:41:04.035237868Z",
+   "lastUpdatedAt":"2025-04-17T13:41:04.083785576Z",
+   "runtimeStatus":"COMPLETED",
+   "properties":{
+      "dapr.workflow.input":"[\"which\",\"word\",\"is\",\"the\",\"shortest\"]",
+      "dapr.workflow.output":"\"is\""
+   }
+}
+```
+
+</details>
+
+<details>
+   <summary><b>Get the Python workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:3556/v1.0/workflows/dapr/$INSTANCEID
+```
+
+Where `$INSTANCEID` is the environment variable containing the workflow instance ID captured in the previous step.
+
+Expected output:
+
+```json,nocopy
+{
+   "instanceID":"<INSTANCE_ID>",
+   "workflowName":"fanoutfanin_workflow",
    "createdAt":"2025-04-17T13:41:04.035237868Z",
    "lastUpdatedAt":"2025-04-17T13:41:04.083785576Z",
    "runtimeStatus":"COMPLETED",

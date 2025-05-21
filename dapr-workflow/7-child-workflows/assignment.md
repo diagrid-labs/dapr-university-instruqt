@@ -42,6 +42,21 @@ foreach (string item in input)
 
 </details>
 
+<details>
+   <summary><b>Python parent workflow</b></summary>
+
+Open the `parent_child_workflow.py` file located in the `child_workflows` folder. This file contains the code for the `parent_workflow`.
+
+The `call_child_workflow` method on the `DaprWorkflowContext` is used to call the `child_workflow`. The first argument is the name of the child workflow, and the second argument is the input for the child workflow.
+
+```python,nocopy
+child_wf_tasks = [
+        ctx.call_child_workflow(child_workflow, input=item) for item in items
+    ]
+```
+
+</details>
+
 ### 1.3 Inspect the child workflow code
 
 > [!NOTE]
@@ -54,10 +69,17 @@ Open the `ChildWorkflow.cs` file located in the `ChildWorkflows` folder. This fi
 
 </details>
 
-### 1.4. Inspect the workflow & activity registration
+<details>
+   <summary><b>Python child workflow</b></summary>
+
+Open the `parent_child_workflow.py` file located in the `child_workflows` folder. This file contains the code for the `child_workflow` located below the `parent_workflow`. This workflow uses task chaining to call two activities, `activity1` and `activity2`, in sequence.
+
+</details>
+
+### 1.4. Inspect the startup code
 
 > [!NOTE]
-> Expand the language-specific instructions to learn more about workflow registration.
+> Expand the language-specific instructions to learn more about workflow registration, workflow runtime startup, and HTTP endpoints to start the workflow.
 
 <details>
    <summary><b>.NET registration and endpoints</b></summary>
@@ -65,6 +87,13 @@ Open the `ChildWorkflow.cs` file located in the `ChildWorkflows` folder. This fi
 Locate the `Program.cs` file in the `ChildWorkflows` folder. This file contains the code to register the workflows and activities using the `AddDaprWorkflow()` extension method.
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an array of string as the input.
+
+</details>
+
+<details>
+   <summary><b>Python workflow runtime and endpoints</b></summary>
+
+Locate the `app.py` file in the `child_workflows` folder. This file contains the code to start the workflow runtime and a `start` HTTP endpoint to start the workflow. The `start` endpoint accepts a list of strings as the input.
 
 </details>
 
@@ -98,7 +127,36 @@ dapr run -f .
 
 </details>
 
-Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
+<details>
+   <summary><b>Run the Python application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *python/child-workflows/child_workflows* folder:
+
+```bash,run
+cd python/child-workflows/child_workflows
+```
+
+Install the dependencies:
+
+```bash,run
+pip3 install -r requirements.txt
+```
+
+Move one folder up and run the application using the Dapr CLI:
+
+```bash,run
+cd ..
+dapr run -f .
+```
+
+</details>
+
+###
+
+> [!IMPORTANT]
+> Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
 
 ## 3. Start the workflow
 
@@ -120,16 +178,6 @@ INSTANCEID=$(curl -s --request POST \
   -i | grep -i "^location:" | sed 's/^location: *//i' | tr -d '\r\n')
 ```
 
-Expected output:
-
-```text,nocopy
-HTTP/1.1 202 Accepted
-Content-Length: 0
-Date: Thu, 17 Apr 2025 15:37:51 GMT
-Server: Kestrel
-Location: b7dd836b-e913-4446-9912-d400befebec5
-```
-
 The **Dapr CLI** window should contain these application log statements:
 
 ```text,nocopy
@@ -137,6 +185,35 @@ The **Dapr CLI** window should contain these application log statements:
 == APP - childworkflows == Activity1: Received input: Item 1.
 == APP - childworkflows == Activity2: Received input: Item 1 is processed.
 == APP - childworkflows == Activity2: Received input: Item 2 is processed.
+```
+
+> [!NOTE]
+> The order of the log statements may vary, as the child workflows are executed in parallel.
+
+</details>
+
+<details>
+   <summary><b>Start the Python workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
+
+```curl,run
+INSTANCEID=$(curl -s --request POST \
+  --url http://localhost:5259/start \
+  --header 'content-type: application/json' \
+  --data '["Item 1","Item 2"]' \
+  -i | grep -o '"instance_id":"[^"]*"' \
+   | sed 's/"instance_id":"//;s/"//g' \
+   | tr -d '\r\n')
+```
+
+The **Dapr CLI** window should contain these application log statements:
+
+```text,nocopy
+== APP - childworkflows == activity1: Received input: Item 2.
+== APP - childworkflows == activity1: Received input: Item 1.
+== APP - childworkflows == activity2: Received input: Item 1 is processed.
+== APP - childworkflows == activity2: Received input: Item 2 is processed.
 ```
 
 > [!NOTE]
@@ -165,7 +242,46 @@ Where `$INSTANCEID` is the environment variable containing the workflow instance
 Expected output:
 
 ```json,nocopy
-{"instanceID":"0be522fda3db4963b6be9e8828c85938","workflowName":"ParentWorkflow","createdAt":"2025-04-22T13:39:06.694524219Z","lastUpdatedAt":"2025-04-22T13:39:06.994152799Z","runtimeStatus":"COMPLETED","properties":{"dapr.workflow.input":"[\"Item 1\",\"Item 2\"]","dapr.workflow.output":"[\"Item 1 is processed as a child workflow.\",\"Item 2 is processed as a child workflow.\"]"}}
+{
+   "instanceID":"<INSTANCE_ID>",
+   "workflowName":"ParentWorkflow",
+   "createdAt":"2025-04-22T13:39:06.694524219Z",
+   "lastUpdatedAt":"2025-04-22T13:39:06.994152799Z",
+   "runtimeStatus":"COMPLETED",
+   "properties":{
+      "dapr.workflow.input":"[\"Item 1\",\"Item 2\"]",
+      "dapr.workflow.output":"[\"Item 1 is processed as a child workflow.\",\"Item 2 is processed as a child workflow.\"]"
+   }
+}
+```
+
+</details>
+
+<details>
+   <summary><b>Get the Python workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:3559/v1.0/workflows/dapr/$INSTANCEID
+```
+
+Where `$INSTANCEID` is the environment variable containing the workflow instance ID captured in the previous step.
+
+Expected output:
+
+```json,nocopy
+{
+   "instanceID":"<INSTANCE_ID>",
+   "workflowName":"parent_workflow",
+   "createdAt":"2025-04-22T13:39:06.694524219Z",
+   "lastUpdatedAt":"2025-04-22T13:39:06.994152799Z",
+   "runtimeStatus":"COMPLETED",
+   "properties":{
+      "dapr.workflow.input":"[\"Item 1\",\"Item 2\"]",
+      "dapr.workflow.output":"[\"Item 1 is processed as a child workflow.\",\"Item 2 is processed as a child workflow.\"]"
+   }
+}
 ```
 
 </details>

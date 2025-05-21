@@ -39,6 +39,28 @@ var replaySafeDateTime = context.CurrentUtcDateTime;
 
 </details>
 
+<details>
+   <summary><b>Python</b></summary>
+
+Navigate to the `deterministic_workflow.py` file. It contains two workflows: `non_deterministic_workflow` and `deterministic_workflow`. The `non_deterministic_workflow` uses unsafe code that is not deterministic. The `deterministic_workflow` uses the `DaprWorkflowContext` to create a `datetime` and is safe.
+
+> [!WARNING]
+> Do not create GUIDs, random numbers, or `datetime.now()` objects in the workflow code.
+
+Wrap any non-deterministic code in an activity. For example, if you need to create a GUID, use the `uuid` library in Python and wrap it in an activity.
+
+```python
+order_id = yield ctx.call_activity(create_order_id, input=wf_input)
+```
+
+The `DaprWorkflowContext` contains a helper method to create `datetime`s that is safe for replay:
+
+```python
+order_date = ctx.current_utc_datetime
+```
+
+</details>
+
 ### 1.3. Idempotent activities
 
 Dapr Workflow guarantees at-least-once execution of activities, so activities might be executed more than once in case an activity is not run to completion successfully. Always check your activity code if it's safe to be executed multiple times without unwanted side effects. If the activity can be executed multiple times without side effects, it is idempotent.
@@ -64,6 +86,13 @@ Navigate to the `VersioningWorkflow.cs` file. It contains two workflows: `Versio
 
 </details>
 
+<details>
+   <summary><b>Python</b></summary>
+
+Navigate to the `versioning_workflow.py` file. It contains two workflows: `versioning_workflow_1` and `versioning_workflow_2`. Inspect these workflows and note the breaking change due to the input arguments for the activities.
+
+</details>
+
 ### 1.5. Payload size
 
 The Dapr Workflow engine is continuously interacting with both the workflow application and the state store to pass input and output data back and forth. It is important to keep the input and output of workflows and especially activities small to prevent serializing/deserializing many large objects, which can degrade performance.
@@ -80,6 +109,13 @@ When a workflow is using task chaining for many activities and the output of one
    <summary><b>.NET</b></summary>
 
 Navigate to the `PayloadSizeWorkflow.cs` file. It contains two workflows: `LargePayloadSizeWorkflow` and `SmallPayloadSizeWorkflow`. Inspect these workflows and note the difference in activity usage.
+
+</details>
+
+<details>
+   <summary><b>Python</b></summary>
+
+Navigate to the `payload_size_workflow.py` file. It contains two workflows: `large_payload_size_workflow` and `small_payload_size_workflow`. Inspect these workflows and note the difference in activity usage.
 
 </details>
 
