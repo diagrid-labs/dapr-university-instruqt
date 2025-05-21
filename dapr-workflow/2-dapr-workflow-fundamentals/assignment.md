@@ -68,6 +68,11 @@ import dapr.ext.workflow as wf
 
 A new `WorkflowRuntime` instance is created: `wf_runtime = wf.WorkflowRuntime()`. This instance is used to decorate the `basic_workflow` function as a Dapr workflow.
 
+```python,nocopy
+@wf_runtime.workflow(name='basic_workflow')
+def basic_workflow(ctx: wf.DaprWorkflowContext, wf_input: str):
+```
+
 The `wf.DaprWorkflowContext` input argument is provided by the Dapr Workflow SDK. This object contains properties and methods of the workflow instance. The second input argument is the input argument for the workflow.
 
 You can use any type of input and output for the workflow, as long as they are serializable.
@@ -203,6 +208,13 @@ Navigate to the *python/fundamentals/basic* folder:
 cd python/fundamentals/basic
 ```
 
+Create a virtual environment and activate it:
+
+```bash,run
+python3 -m venv venv
+source venv/bin/activate
+```
+
 Install the dependencies:
 
 ```bash,run
@@ -220,7 +232,12 @@ dapr run -f .
 
 ###
 
-Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
+> [!IMPORTANT]
+> Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing. The logs should contain an INFO messages related to the Dapr Placement Service:
+> 
+> `INFO[0020] Connected to placement` ...
+> 
+> `INFO[0022] Placement tables updated` ...
 
 ## 4. Start the Basic workflow
 
@@ -239,7 +256,7 @@ curl -i --request POST http://localhost:5254/start/One
 ```
 
 >[!WARNING]
-> You might see a warning in the Dapr CLI log window about `Error processing operation DaprBuiltInActorNotFoundRetries.`. Don't worry, this is a transient error, the Dapr process is trying to communicate to the actor that is responsible for scheduling the workflow. You'll see this frequently since the sandbox environment is quite slow.
+> You might see a warning in the Dapr CLI log window about `Error processing operation DaprBuiltInActorNotFoundRetries.`. Don't worry, this is a transient error, the Dapr process is trying to communicate to the actor that is responsible for scheduling the workflow. 
 
 Expected output:
 
@@ -290,7 +307,7 @@ curl -i --request POST http://localhost:5254/start/One
 ```
 
 >[!WARNING]
-> You might see a warning in the Dapr CLI log window about `Error processing operation DaprBuiltInActorNotFoundRetries.`. Don't worry, this is a transient error, the Dapr process is trying to communicate to the actor that is responsible for scheduling the workflow. You'll see this frequently since the sandbox environment is quite slow.
+> You might see a warning in the Dapr CLI log window about `Error processing operation DaprBuiltInActorNotFoundRetries.`. Don't worry, this is a transient error that occurs when the Placement tables have not yet been updated by Dapr (due to the low performance of this sandbox environment). The Dapr process is trying to communicate to the internal workflow actors that are responsible for scheduling the workflow. Dapr's built-in retry mechanism will handle this error and the workflow will be scheduled successfully.
 
 Expected output:
 

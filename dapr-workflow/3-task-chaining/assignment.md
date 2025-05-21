@@ -124,6 +124,13 @@ Navigate to the *python/task-chaining/task_chaining* folder:
 cd python/task-chaining/task_chaining
 ```
 
+Create a virtual environment and activate it:
+
+```bash,run
+python3 -m venv venv
+source venv/bin/activate
+```
+
 Install the dependencies:
 
 ```bash,run

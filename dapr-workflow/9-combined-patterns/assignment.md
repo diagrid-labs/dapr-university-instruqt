@@ -174,6 +174,13 @@ Navigate to the *python/combined-patterns* folder:
 cd python/combined-patterns
 ```
 
+Create a virtual environment and activate it:
+
+```bash,run
+python3 -m venv venv
+source venv/bin/activate
+```
+
 Install the dependencies for the workflow_app:
 
 ```bash,run
