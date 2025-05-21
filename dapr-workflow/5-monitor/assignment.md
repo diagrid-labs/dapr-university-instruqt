@@ -141,6 +141,13 @@ Navigate to the *python/monitor-pattern/monitor* folder:
 cd python/monitor-pattern/monitor
 ```
 
+Create a virtual environment and activate it:
+
+```bash,run
+python3 -m venv venv
+source venv/bin/activate
+```
+
 Install the dependencies:
 
 ```bash,run

@@ -148,6 +148,13 @@ Navigate to the *python/workflow-management/workflow_management* folder:
 cd python/workflow-management/workflow_management
 ```
 
+Create a virtual environment and activate it:
+
+```bash,run
+python3 -m venv venv
+source venv/bin/activate
+```
+
 Install the dependencies:
 
 ```bash,run

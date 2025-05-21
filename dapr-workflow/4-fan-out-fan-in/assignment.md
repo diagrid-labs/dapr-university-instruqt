@@ -149,6 +149,13 @@ Navigate to the *python/fan-out-fan-in/fan_out_fan_in* folder:
 cd python/fan-out-fan-in/fan_out_fan_in
 ```
 
+Create a virtual environment and activate it:
+
+```bash,run
+python3 -m venv venv
+source venv/bin/activate
+```
+
 Install the dependencies:
 
 ```bash,run

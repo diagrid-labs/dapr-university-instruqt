@@ -176,6 +176,13 @@ Navigate to the *python/external-system-interaction/external_events* folder:
 cd python/external-system-interaction/external_events
 ```
 
+Create a virtual environment and activate it:
+
+```bash,run
+python3 -m venv venv
+source venv/bin/activate
+```
+
 Install the dependencies:
 
 ```bash,run

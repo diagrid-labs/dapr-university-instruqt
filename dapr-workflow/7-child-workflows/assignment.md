@@ -138,6 +138,13 @@ Navigate to the *python/child-workflows/child_workflows* folder:
 cd python/child-workflows/child_workflows
 ```
 
+Create a virtual environment and activate it:
+
+```bash,run
+python3 -m venv venv
+source venv/bin/activate
+```
+
 Install the dependencies:
 
 ```bash,run

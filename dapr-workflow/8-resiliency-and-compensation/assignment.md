@@ -157,6 +157,13 @@ Navigate to the *python/resiliency-and-compensation/resiliency_and_compensation*
 cd python/resiliency-and-compensation/resiliency_and_compensation
 ```
 
+Create a virtual environment and activate it:
+
+```bash,run
+python3 -m venv venv
+source venv/bin/activate
+```
+
 Install the dependencies:
 
 ```bash,run
