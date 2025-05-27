@@ -6,6 +6,8 @@ In this challenge, you'll explore how to use Dapr Agents to interact with Large 
 
 To work with LLMs, you first need to sign up with an LLM provider and obtain an API key. Throughout this tutorial, we'll be using OpenAI's models, but Dapr Agents supports multiple providers. If you wish to use a different provider, you can explore the configuration options in the Dapr Agents quickstarts.
 
+You can get an OpenAI API key by signing up at [OpenAI](https://platform.openai.com/signup).
+
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and update the `OPENAI_API_KEY` value with your actual OpenAI API key.
 
@@ -15,8 +17,7 @@ The API key is required for the examples to communicate with OpenAI's services.
 
 ### 2.1. Inspect the text completion code
 
-> [!NOTE]
-> Open the `text_completion.py` file in the current folder.
+Open the `text_completion.py` file in the current folder.
 
 This file demonstrates different ways to interact with an LLM:
 
@@ -28,17 +29,30 @@ The `OpenAIChatClient` handles the details of communicating with OpenAI's API, i
 
 ### 2.2. Run the text completion example
 
+Use the **terminal** window to run create a virtual environment:
+
+```bash,run
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Use the **terminal** window to install the dependencies:
+
+```bash,run
+pip install -r requirements.txt
+```
+
 Use the **terminal** window to run the text completion example:
 
 ```bash,run
-python text_completion.py
+python3 text_completion.py
 ```
 
 ### 2.3. Expected output
 
 You should see output similar to this:
 
-```
+```text,nocopy
 Response: Lassie is a famous dog known for her intelligence and heroism in the long-running TV series and films. Other famous dogs include Rin Tin Tin, Hachiko, and Balto.
 
 Response with prompty: My name is Claude. I'm an AI assistant created by Anthropic to be helpful, harmless, and honest.
@@ -52,8 +66,7 @@ The exact responses may vary, but you should see three different responses to th
 
 ### 3.1. Inspect the structured completion code
 
-> [!NOTE]
-> Open the `structured_completion.py` file in the current folder.
+Open the `structured_completion.py` file in the current folder.
 
 This file demonstrates a powerful capability of modern LLMs - generating structured data according to a schema:
 
@@ -68,14 +81,14 @@ This approach solves one of the major challenges in working with LLMs: getting c
 Use the **terminal** window to run the structured completion example:
 
 ```bash,run
-python structured_completion.py
+python3 structured_completion.py
 ```
 
 ### 3.3. Expected output
 
 You should see a structured JSON response similar to this:
 
-```json
+```json,nocopy
 {
   "name": "Hachiko",
   "breed": "Akita",
@@ -85,4 +98,6 @@ You should see a structured JSON response similar to this:
 
 Your specific output may feature a different famous dog, but it will follow the structure defined in the `Dog` model with name, breed, and reason fields. This demonstrates how you can get reliably structured data from an LLM, making it much easier to integrate LLM outputs into your applications and systems.
 
-In the next challenge, you'll learn how to use Dapr's Conversation API for LLM calls.
+---
+
+You've now learned how to make LLM basic calls with Dapr Agents and use a structured response format. In the next challenge, you'll learn how to use Dapr's Conversation API for LLM calls.

@@ -8,10 +8,9 @@ It's important to understand that the `DaprChatClient` is a client-side wrapper 
 
 ## 1. Understanding the Environment Configuration
 
-First, let's examine the environment configuration to see which LLM component we'll be using:
+First, let's examine the environment configuration to see which LLM component we'll be using.
 
-> [!NOTE]
-> Open the `.env` file in the current folder.
+Open the `.env` file in the current folder.
 
 The `DAPR_LLM_COMPONENT_DEFAULT` setting is already configured to use the `openai` component. This environment variable tells the `DaprChatClient` which Dapr component to use for LLM interactions. The value must match the `name` field in the metadata section of a component file in the `components` folder (for example, `components/openai.yaml` has `metadata.name: openai`). By changing just this variable, you can switch your application to use a completely different LLM provider.
 
@@ -19,8 +18,7 @@ The `DAPR_LLM_COMPONENT_DEFAULT` setting is already configured to use the `opena
 
 Now we need to configure the OpenAI component with your API key:
 
-> [!IMPORTANT]
-> Open the `components/openai.yaml` file in the current folder.
+Open the `components/openai.yaml` file in the current folder.
 
 This file contains the Dapr component configuration for OpenAI. Update the `apiKey` value with your actual OpenAI API key, then save the file.
 
@@ -28,8 +26,7 @@ The component configuration tells Dapr how to connect to OpenAI, which model to 
 
 ## 3. Inspect the DaprChatClient Code
 
-> [!NOTE]
-> Open the `text_completion.py` file in the current folder.
+Open the `text_completion.py` file in the current folder.
 
 This file demonstrates:
 
@@ -41,6 +38,7 @@ This file demonstrates:
 The key difference from the previous example is that this client doesn't communicate directly with OpenAI. Instead, it sends requests to your Dapr sidecar, which then handles the communication with the LLM provider based on your component configuration.
 
 The architecture works as follows:
+
 1. The `DaprChatClient` sends requests to the Dapr sidecar using the Dapr Conversation API
 2. The Dapr sidecar processes these requests using the appropriate conversation component (e.g., `openai`, `echo`, etc.)
 3. The conversation component handles the specifics of communicating with the LLM provider
@@ -50,13 +48,27 @@ This abstraction layer allows you to switch between different LLM providers by s
 
 ## 4. Run the Dapr Chat Client Example
 
+Use the **terminal** window to create a virtual environment:
+
+```bash,run
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Use the **terminal** window to install the dependencies:
+
+```bash,run
+pip install -r requirements.txt
+```
+
 Use the **terminal** window to run the text completion example with Dapr:
 
 ```bash,run
-dapr run --app-id dapr-llm --resources-path ./components -- python text_completion.py
+dapr run --app-id dapr-llm --resources-path ./components -- python3 text_completion.py
 ```
 
 Notice that the command includes:
+
 - `--app-id`: Identifies your application to Dapr
 - `--resources-path`: Tells Dapr where to find your component configurations
 - The Python file to execute
@@ -65,7 +77,7 @@ Notice that the command includes:
 
 You should see output similar to this:
 
-```
+```text,nocopy
 == APP == Response:  Lassie is one of the most famous dogs in popular culture. She was a fictional Rough Collie character that first appeared in a 1940 novel and later in multiple films and TV series. Lassie was known for her intelligence, loyalty, and her ability to save humans from various dangers.
 
 == APP == Response with prompty:  My name is Claude, an AI assistant created by Anthropic.
