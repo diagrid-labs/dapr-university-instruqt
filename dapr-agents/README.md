@@ -35,7 +35,7 @@ If your session is idle for more than 7 minutes the session will stop and you'll
 
 ### Time out idle users (minutes)
 
-7
+10
 
 ### Extra time (minutes)
 

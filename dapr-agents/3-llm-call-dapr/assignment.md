@@ -1,6 +1,6 @@
 # Using DaprChatClient for LLM Interactions
 
-In this challenge, you'll explore how to use the Dapr Conversation API to interact with Large Language Models through the `DaprChatClient`. Unlike the previous example where we used OpenAI's client directly, we'll now use Dapr's provider-agnostic approach, which allows your code to work with any supported LLM without application modification. 
+In this challenge, you'll explore how to use the Dapr Conversation API to interact with Large Language Models through the `DaprChatClient`. Unlike the previous example where we used OpenAI's client directly, we'll now use Dapr's provider-agnostic approach, which allows your code to work with any supported LLM without application modification.
 
 ![Dapr Conversation API Concept](https://docs.dapr.io/images/conversation-overview.png)
 
@@ -107,20 +107,22 @@ Using the Dapr Conversation API instead of calling LLMs directly offers several 
 
 If you want to see the provider flexibility in action, you can try using the Echo component instead:
 
-1. Create a new `.env` file with the following content:
+1. Update the `.env` file to be `DAPR_LLM_COMPONENT_DEFAULT=echo`:
 
-```bash,run
-cat > .env << EOF
-DAPR_LLM_COMPONENT_DEFAULT=echo
-EOF
-```
+    ```bash,run
+    cat > .env << EOF
+    DAPR_LLM_COMPONENT_DEFAULT=echo
+    EOF
+    ```
 
-3. Run the application again:
+2. Run the application again:
 
-```bash,run
-dapr run --app-id dapr-llm --resources-path ./components -- python text_completion.py
-```
+    ```bash,run
+    dapr run --app-id dapr-llm --resources-path ./components -- python text_completion.py
+    ```
 
 With the echo component, you'll see that your prompts are simply echoed back, demonstrating how you can test your application without a real LLM call or code changes.
 
-In the next challenge, you'll learn how to create agents that can call tools to interact with external systems. 
+---
+
+You've now used the `DaprChatClient` which is a wrapper around the Dapr Conversation API to interact with LLMs. In the next challenge, you'll learn how to create agents that can call tools to interact with external systems.

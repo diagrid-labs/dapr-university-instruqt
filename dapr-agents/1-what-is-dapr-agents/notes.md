@@ -3,6 +3,9 @@ Click the *Start* button to setup the sandbox environment for this training, thi
 There are 9 challenges to complete. If your session is idle for more than 10 minutes, the session will stop and you'll need to restart the learning track. Tracks can be started up to 5 times and you can skip challenges via the *Progress* button to continue with the challenges you didn't finish previously.
 
 ---
+
+## Challenge 1: Introduction to Dapr Agents
+
 In this first challenge, you'll learn:
 
 - What Dapr Agents is and how it helps build production-grade resilient AI agent systems at scale
