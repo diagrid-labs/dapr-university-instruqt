@@ -39,8 +39,8 @@ Unlike standard tool calling agents that hide their reasoning process, ReAct age
 
 While tool calling agents are ideal for simple, direct tasks, ReAct agents shine when tackling problems that require multiple steps and careful reasoning.
 
-
 ### Prerequisite
+
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
 

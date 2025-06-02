@@ -1,6 +1,6 @@
 # Name
 
-Dapr Agents - Building LLM-powered intelligent applications with tools and workflows
+Dapr Agents - Build LLM-powered intelligent applications with tools and workflows
 
 ## Url
 

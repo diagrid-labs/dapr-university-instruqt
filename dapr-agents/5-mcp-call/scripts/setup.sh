@@ -1,0 +1,1 @@
+cd 07-agent-mcp-client-stdio/

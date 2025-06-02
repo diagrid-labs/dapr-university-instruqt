@@ -23,6 +23,7 @@ Before diving into the code, let's cover the key concepts:
 In this example, you'll use **STDIO** transport, which means the agent will launch a local MCP server as a subprocess and communicate with it over the command line.
 
 ### Prerequisite
+
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
 
