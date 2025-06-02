@@ -1,5 +1,3 @@
-# Building Agents with ReAct Pattern
-
 In this tutorial, you'll learn how to create AI agents using the ReAct pattern in Dapr Agents. You'll explore how this pattern combines reasoning and action to solve complex tasks through an explicit, step-by-step problem-solving approach.
 
 ## Understanding Agents
@@ -25,8 +23,7 @@ Unlike standard tool calling agents that hide their reasoning process, ReAct age
 
 ## Comparing Tool Calling and ReAct Agents
 
-> [!NOTE]
-> Let's understand how ReAct agents differ from standard tool calling agents:
+Let's understand how ReAct agents differ from standard tool calling agents:
 
 | **Aspect**           | **ToolCallAgent**                   | **ReActAgent**                            |
 | -------------------- | ----------------------------------- | ----------------------------------------- |
@@ -44,15 +41,15 @@ While tool calling agents are ideal for simple, direct tasks, ReAct agents shine
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
 
-The API key is required for the examples to communicate with OpenAI's services.
+The `OPENAI_API_KEY` is required for the examples to communicate with OpenAI's services.
 
-## Exploring the ReAct Example
+## Explore the ReAct Example
 
 Let's explore the example file to understand how a ReAct agent works in practice.
 
-Open the `reason_act.py` file to see a simple implementation of a ReAct agent:
+Open the `03_reason_act.py` file in the **Editor** window to see a simple implementation of a ReAct agent:
 
-```python
+```python,nocopy
 import asyncio
 from dapr_agents import tool, ReActAgent
 from dotenv import load_dotenv
@@ -89,7 +86,8 @@ if __name__ == "__main__":
 
 Notice how this agent is created using the `ReActAgent` class, which implements the ReAct pattern. Alternatively we could use `Agent` factory class and explicitly set the `pattern` field to `react`.
 
-## Understanding the ReAct Implementation
+## Understand the ReAct Implementation
+
 While this is a simple example, behind the scenes, the ReAct agent uses a sophisticated implementation:
 
 1. The agent constructs a system prompt that guides the LLM to follow the ReAct format
@@ -100,26 +98,51 @@ While this is a simple example, behind the scenes, the ReAct agent uses a sophis
 
 This structured approach enables the agent to transparently work through problems step by step.
 
-## Running the ReAct Agent
+## Run the ReAct Agent
 
 Let's run the ReAct agent to see it in action.
 
-```bash
-python reason_act.py
+Use the **Terminal** window to create a virtual environment:
+
+```bash,run
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Use the **Terminal** window to install the dependencies:
+
+```bash,run
+pip install -r requirements.txt
+```
+
+Use the **Terminal** window to run the ReAct agent:
+
+```bash,run
+python3 03_reason_act.py
 ```
 
 You should see output similar to:
-```
+
+```text,nocopy
 user:
 What should I do in London today?
-Thought: I need to check the weather in London to suggest appropriate activities.
-Action: {"name": "search_weather", "arguments": {"city": "London"}}
+
+--------------------------------------------------------------------------------
+
+Thought: To suggest activities in London, I need to check the current weather conditions there first as this will influence the types of activities recommended.
+Action: {"name": "SearchWeather", "arguments": {"city": "London"}}
 Observation: rainy
-Thought: Now that I know it's rainy in London, I can suggest appropriate activities.
-Action: {"name": "get_activities", "arguments": {"weather": "rainy"}}
+Thought: With the weather in London being rainy, I should suggest activities that are suitable for rainy weather.
+Action: {"name": "GetActivities", "arguments": {"weather": "rainy"}}
 Observation: Visit museums
-Thought: I now have the information needed to provide a recommendation.
-Answer: Since it's rainy in London today, I recommend visiting museums. London has many world-class museums like the British Museum, National Gallery, and Tate Modern that are perfect for a rainy day.
+Thought: I now have sufficient information to answer the question. 
+Answer: Considering the rainy weather in London today, it would be a great opportunity to visit some of the city's renowned museums. Enjoy your day!
+
+--------------------------------------------------------------------------------
+
+assistant:
+Considering the rainy weather in London today, it would be a great opportunity to visit some of the city's renowned museums. Enjoy your day!
+Result: Considering the rainy weather in London today, it would be a great opportunity to visit some of the city's renowned museums. Enjoy your day!
 ```
 
 Notice how the agent:
@@ -143,8 +166,7 @@ This approach enables complex reasoning while maintaining traceability.
 
 ## Benefits of the ReAct Pattern
 
-> [!NOTE]
-> The ReAct pattern offers several key advantages:
+The ReAct pattern offers several key advantages:
 
 1. **Transparency**: The agent's reasoning is visible, making it easier to understand and debug
 2. **Multi-step reasoning**: Ideal for problems that require breaking down into multiple steps

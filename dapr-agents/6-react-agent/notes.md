@@ -2,7 +2,7 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 ---
 
-## Challenge 6: Building Agents with ReAct Pattern
+## Challenge 6: Build Agents using the ReAct Pattern
 
 In this challenge, you'll learn:
 

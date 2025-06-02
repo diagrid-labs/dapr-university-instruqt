@@ -98,28 +98,56 @@ dapr run --app-id weatheragent --resources-path ./components -- python3 weather_
 
 ## 5. Observe the Tool Calling Process
 
-Examine the output in your terminal. You should see:
+Examine the output in the **Terminal** window. You should see something similar to this:
 
 ```text,nocopy
-user:
-What is the weather in Virginia, New York and Washington DC?
-assistant:
-Function name: GetWeather (Call Id: 1)
-Arguments: {"location": "Virginia"}
-GetWeather(tool)
-Virginia
-GetWeather(tool)
-New York
-GetWeather(tool)
-Washington DC
-I'll check the weather for you in Virginia, New York, and Washington DC.
-
-Here's the current weather information:
-- Virginia: 72F
-- New York: 67F
-- Washington DC: 75F
-
-Let me know if you need weather information for any other locations!
+== APP == user:
+== APP == What is the weather in Virginia, New York and Washington DC?
+== APP == 
+== APP == --------------------------------------------------------------------------------
+== APP == 
+== APP == assistant:
+== APP == Function name: GetWeather (Call Id: call_GCzCg1lVgdt1UGCKpCkQxqk8)
+== APP == Arguments: {"location": "Virginia"}
+== APP == 
+== APP == --------------------------------------------------------------------------------
+== APP == 
+== APP == assistant:
+== APP == Function name: GetWeather (Call Id: call_LZiV6s0kPiuIiUkKA6joCjnS)
+== APP == Arguments: {"location": "New York"}
+== APP == 
+== APP == --------------------------------------------------------------------------------
+== APP == 
+== APP == assistant:
+== APP == Function name: GetWeather (Call Id: call_zcvdD8rPmNE2Fxh8XBaxkIm7)
+== APP == Arguments: {"location": "Washington DC"}
+== APP == 
+== APP == --------------------------------------------------------------------------------
+== APP == 
+== APP == GetWeather(tool) (Id: call_GCzCg1lVgdt1UGCKpCkQxqk8):
+== APP == Virginia: 74F.
+== APP == 
+== APP == --------------------------------------------------------------------------------
+== APP == 
+== APP == GetWeather(tool) (Id: call_LZiV6s0kPiuIiUkKA6joCjnS):
+== APP == New York: 68F.
+== APP == 
+== APP == --------------------------------------------------------------------------------
+== APP == 
+== APP == GetWeather(tool) (Id: call_zcvdD8rPmNE2Fxh8XBaxkIm7):
+== APP == Washington DC: 68F.
+== APP == 
+== APP == --------------------------------------------------------------------------------
+== APP == 
+== APP == assistant:
+== APP == The current weather is as follows:
+== APP == - **Virginia:** 74°F
+== APP == - **New York:** 68°F
+== APP == - **Washington DC:** 68°F
+== APP == 
+== APP == If you need anything else, feel free to ask!
+== APP == 
+== APP == --------------------------------------------------------------------------------
 ```
 
 Notice how the agent:

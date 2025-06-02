@@ -1,5 +1,3 @@
-# Connecting Agents to External Tools with Model Context Protocol (MCP)
-
 In this tutorial, you'll learn how to connect your agent to external systems using the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction). You'll see how agents can use MCP to access tools running in separate processes, such as scripts, databases, or APIs, and how to use the STDIO transport for local development.
 
 ## What is MCP?
@@ -27,15 +25,13 @@ In this example, you'll use **STDIO** transport, which means the agent will laun
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
 
-The API key is required for the examples to communicate with OpenAI's services.
+The `OPENAI_API_KEY` key is required for the examples to communicate with OpenAI's services.
 
+## Step 1: Explore MCP Tools (tools.py)
 
-## Step 1: Creating MCP Tools (tools.py)
+Open the `tools.py` file in the **Editor** window to see how to define an MCP server using FastMCP.
 
-> [!NOTE]
-> Open the `tools.py` file to see how to define an MCP server using FastMCP.
-
-```python
+```python,nocopy
 from mcp.server.fastmcp import FastMCP
 import random
 
@@ -72,12 +68,11 @@ MCP supports different types of capabilities that can be exposed to agents:
 - When you run this file directly, it starts the MCP server using STDIO transport, allowing the agent to communicate with the tools as a subprocess over standard input/output.
 - The function's docstring (like `"""Get weather information for a specific location."""`) serves as the tool description that helps the LLM understand what the tool does and when to use it. The agent uses this description along with the function signature to determine which tool is appropriate for a given task and how to call it with the correct parameters.
 
-## Step 2: Creating the MCP Client and Agent (agent.py)
+## Step 2: Explore the MCP Client and Agent (agent.py)
 
-> [!NOTE]
-> Open the `agent.py` file to see how to connect to the MCP server and use its tools in an agent.
+Open the `agent.py` file in the **Editor** window to see how to connect to the MCP server and use its tools in an agent.
 
-```python
+```python,nocopy
 import asyncio
 import logging
 import sys
@@ -131,26 +126,54 @@ if __name__ == "__main__":
 - It discovers all available capabilities and exposes them to the agent as regular tools we saw in the previous example.
 - The agent can now use these tools as if they were built-in Python functions.
 
-## Step 3: Running the Example
+## Step 3: Run the Example
 
-> [!NOTE]
-> To run the example, use the following command:
+Use the **Terminal** window to run create a virtual environment:
 
-```bash
-python agent.py
+```bash,run
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Use the **Terminal** window to install the dependencies:
+
+```bash,run
+pip install -r requirements.txt
+```
+
+To run the example, use the following command in the **Terminal** window:
+
+```bash,run
+python3 agent.py
 ```
 
 You should see output similar to:
-```
-🔧 Available tools: ['get_weather', 'jump']
+
+```text, nocopy
+ Available tools: ['LocalGetWeather', 'LocalJump']
 user:
 What is the weather in New York?
+
+--------------------------------------------------------------------------------
+
 assistant:
-Function name: get_weather (Call Id: ...)
-Arguments: {"location": "New York"}
-get_weather(tool)
-New York
+Function name: LocalGetWeather (Call Id: call_mvCDq5TIJhAKXEVy9enfjSkf)
+Arguments: {"location":"New York"}
+
+--------------------------------------------------------------------------------
+
+INFO     Processing request of type CallToolRequest                server.py:556
+LocalGetWeather(tool) (Id: call_mvCDq5TIJhAKXEVy9enfjSkf):
 New York: 75F.
+
+--------------------------------------------------------------------------------
+
+assistant:
+The current temperature in New York is 75°F.
+
+--------------------------------------------------------------------------------
+
+The current temperature in New York is 75°F.
 ```
 
 ## How It Works
@@ -168,7 +191,7 @@ New York: 75F.
 
 When connecting to an external MCP server using SSE, only the connection code differs:
 
-```python
+```python,nocopy
 # Instead of connect_stdio, use connect_sse for network-based MCP servers
 await client.connect_sse("local", url="http://localhost:8000/sse")
 ```
