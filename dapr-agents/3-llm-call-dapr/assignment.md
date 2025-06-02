@@ -1,5 +1,3 @@
-# Using DaprChatClient for LLM Interactions
-
 In this challenge, you'll explore how to use the Dapr Conversation API to interact with Large Language Models through the `DaprChatClient`. Unlike the previous example where we used OpenAI's client directly, we'll now use Dapr's provider-agnostic approach, which allows your code to work with any supported LLM without application modification.
 
 ![Dapr Conversation API Concept](https://docs.dapr.io/images/conversation-overview.png)
@@ -10,7 +8,7 @@ It's important to understand that the `DaprChatClient` is a client-side wrapper 
 
 First, let's examine the environment configuration to see which LLM component we'll be using.
 
-Open the `.env` file in the current folder.
+Open the `.env` file in the **Editor** window.
 
 The `DAPR_LLM_COMPONENT_DEFAULT` setting is already configured to use the `openai` component. This environment variable tells the `DaprChatClient` which Dapr component to use for LLM interactions. The value must match the `name` field in the metadata section of a component file in the `components` folder (for example, `components/openai.yaml` has `metadata.name: openai`). By changing just this variable, you can switch your application to use a completely different LLM provider.
 
@@ -18,15 +16,15 @@ The `DAPR_LLM_COMPONENT_DEFAULT` setting is already configured to use the `opena
 
 Now we need to configure the OpenAI component with your API key:
 
-Open the `components/openai.yaml` file in the current folder.
+Open the `components/openai.yaml` file in **Editor** window.
 
-This file contains the Dapr component configuration for OpenAI. Update the `apiKey` value with your actual OpenAI API key, then save the file.
+This file contains the Dapr component configuration for OpenAI. Update the `key` value with your actual OpenAI API key, then save the file.
 
 The component configuration tells Dapr how to connect to OpenAI, which model to use, and other provider-specific settings.
 
 ## 3. Inspect the DaprChatClient Code
 
-Open the `text_completion.py` file in the current folder.
+Open the `text_completion.py` file in the **Editor** window.
 
 This file demonstrates:
 
@@ -48,20 +46,20 @@ This abstraction layer allows you to switch between different LLM providers by s
 
 ## 4. Run the Dapr Chat Client Example
 
-Use the **terminal** window to create a virtual environment:
+Use the **Terminal** window to create a virtual environment:
 
 ```bash,run
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Use the **terminal** window to install the dependencies:
+Use the **Terminal** window to install the dependencies:
 
 ```bash,run
 pip install -r requirements.txt
 ```
 
-Use the **terminal** window to run the text completion example with Dapr:
+Use the **Terminal** window to run the text completion example with Dapr:
 
 ```bash,run
 dapr run --app-id dapr-llm --resources-path ./components -- python3 text_completion.py
@@ -78,11 +76,9 @@ Notice that the command includes:
 You should see output similar to this:
 
 ```text,nocopy
-== APP == Response:  Lassie is one of the most famous dogs in popular culture. She was a fictional Rough Collie character that first appeared in a 1940 novel and later in multiple films and TV series. Lassie was known for her intelligence, loyalty, and her ability to save humans from various dangers.
-
-== APP == Response with prompty:  My name is Claude, an AI assistant created by Anthropic.
-
-== APP == Response with user input:  Hello! How can I help you today?
+== APP == Response:  One famous dog is Lassie, a Rough Collie known for her role in the television series "Lassie," which originally aired from 1954 to 1973. Lassie became an iconic figure representing loyalty and bravery.
+== APP == Response with prompty:  I don't have a personal name, but you can call me Assistant. How can I help you today?
+== APP == Response with user input:  Hello! How can I assist you today?
 ```
 
 The exact responses may vary, but you should see three different responses similar to the direct OpenAI client example.
@@ -108,12 +104,6 @@ Using the Dapr Conversation API instead of calling LLMs directly offers several 
 If you want to see the provider flexibility in action, you can try using the Echo component instead:
 
 1. Update the `.env` file to be `DAPR_LLM_COMPONENT_DEFAULT=echo`:
-
-    ```bash,run
-    cat > .env << EOF
-    DAPR_LLM_COMPONENT_DEFAULT=echo
-    EOF
-    ```
 
 2. Run the application again:
 

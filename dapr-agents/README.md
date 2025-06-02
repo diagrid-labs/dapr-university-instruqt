@@ -31,7 +31,7 @@ You'll need an OpenAI API key to complete the challenges in this track. You can 
 
 This track consists of 9 challenges, you'll probably need around 60 minutes to complete all of them.
 
-If your session is idle for more than 7 minutes the session will stop and you'll need to restart the learning track. Tracks can be started up to 5 times and you can skip challenges to continue with the challenges you didn't finish previously.
+If your session is idle for more than 10 minutes the session will stop and you'll need to restart the learning track. Tracks can be started up to 5 times and you can skip challenges to continue with the challenges you didn't finish previously.
 
 ### Time out idle users (minutes)
 
