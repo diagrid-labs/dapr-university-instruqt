@@ -3,6 +3,7 @@
 In this tutorial, you'll learn how to create durable AI agents that can survive failures and maintain state across sessions using Dapr Agents. You'll explore how the AssistantAgent class leverages internally Dapr's Workflow building block to provide persistence, resilience, and stateful behavior.
 
 ### Prerequisite
+
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
 
@@ -24,7 +25,7 @@ This makes the AssistantAgent ideal for mission-critical applications that need 
 
 Let's examine the durable agent implementation in the `assistant_agent.py` file:
 
-```python
+```python,nocopy
 import asyncio
 import logging
 from typing import List
@@ -84,33 +85,28 @@ async def main():
 ```
 
 In contrast to ToolCallAgent and ReActAgent, which do not persist execution state (beyond chat memory), AssistantAgent is designed to support durable, coordinated workflows. It enables:
+
 - **Persistent workflow state tracking**
-Configured with state_store_name and state_key to retain execution state across restarts and failures
-
+Configured with `state_store_name` and `state_key` to retain execution state across restarts and failures
 - **Execution continuation across turns**
-Managed with internal state (AssistantWorkflowState) to support multi-step task handling without reprocessing
-
+Managed with internal state (`AssistantWorkflowState`) to support multi-step task handling without reprocessing
 - **Message-based orchestration**
 Uses message_bus_name to integrate with Dapr pub/sub for asynchronous communication between agents and services
-
 - **Agent instance registry**
-Configured with agents_registry_store_name and agents_registry_key to store metadata such as instance IDs and task sources
-
+Configured with `agents_registry_store_name` and `agents_registry_key` to store metadata such as instance IDs and task sources
 - **Service-mode execution**
-Enabled through as_service(...) and start() to run the agent as a long-lived, REST-accessible background service
-
+Enabled through `as_service(...)` and `start()` to run the agent as a long-lived, REST-accessible background service
 
 ## Behind the Scenes: The AssistantAgent's Workflow Engine
-
 
 1. **Manages Workflow State**: Each conversation becomes a workflow instance with its own state
 2. **Orchestrates Tool Execution**: Workflows break down complex tasks into steps that can be retried
 3. **Handles Failures Gracefully**: If a failure occurs, the workflow can resume from its last checkpoint
 4. **Routes Messages**: Uses message routing to communicate between agents and external systems 
 5. **The workflow engine provides:**
-- **Activity checkpointing**: Each significant operation is persisted before execution
-- **Automatic retry logic**: Failed operations can be retried 
-- **Workflow continuity**: Workflows can be continued even after the process restarts
+   - **Activity checkpointing**: Each significant operation is persisted before execution
+   - **Automatic retry logic**: Failed operations can be retried 
+   - **Workflow continuity**: Workflows can be continued even after the process restarts
 
 ## Key Components of Durable Agents
 
@@ -118,7 +114,7 @@ Let's explore the key components that enable durability in the AssistantAgent:
 
 ### 1. Persistent Memory
 
-```python
+```python,nocopy
 memory=ConversationDaprStateMemory(
     store_name="conversationstore", 
     session_id="my-unique-id"
@@ -129,7 +125,7 @@ This configures the agent to store its conversation history in a Dapr state stor
 
 ### 2. State Stores for Workflow Orchestration
 
-```python
+```python,nocopy
 state_store_name="workflowstatestore",
 state_key="workflow_state",
 ```
@@ -137,7 +133,8 @@ state_key="workflow_state",
 These parameters configure where the agent stores its execution state for workflows. This enables the agent to resume execution from where it left off if interrupted.
 
 **Component Configuration (workflowstatestore.yaml)**:
-```yaml
+
+```yaml,nocopy
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
@@ -156,7 +153,7 @@ spec:
 
 ### 3. Agent Registry
 
-```python
+```python,nocopy
 agents_registry_store_name="registrystatestore",
 agents_registry_key="agents_registry",
 ```
@@ -165,14 +162,15 @@ The agent registry stores metadata about available agents, their capabilities, a
 
 ### 4. Message Bus
 
-```python
+```python,nocopy
 message_bus_name="messagepubsub",
 ```
 
 The message bus provides reliable asynchronous communication, ensuring messages are not lost even if components fail temporarily.
 
 **Component Configuration (messagepubsub.yaml)**:
-```yaml
+
+```yaml,nocopy
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
@@ -189,7 +187,7 @@ spec:
 
 ### 5. Service Exposure
 
-```python
+```python,nocopy
 travel_planner.as_service(port=8001)
 ```
 
@@ -197,14 +195,14 @@ This exposes the agent as a REST service, allowing other systems to interact wit
 
 ## Running the Durable Agent
 
-> [!NOTE]
-> To run the durable agent with Dapr:
+Run the durable agent with Dapr by running this command in the **Terminal** window:
 
-```bash
+```bash,run
 dapr run --app-id assistant-agent --app-port 8001 --resources-path ./components -- python assistant_agent.py
 ```
 
 This command:
+
 1. Starts Dapr with the specified application ID
 2. Configures the port for the REST API
 3. Sets the path to the component configurations
@@ -216,7 +214,9 @@ Unlike simpler agents, durable agents provide REST APIs for interaction. Here's 
 
 ### Starting a Workflow
 
-```bash
+Run this command in the **cURL** window to start a new workflow:
+
+```bash,run
 curl -i -X POST http://localhost:8001/start-workflow \
   -H "Content-Type: application/json" \
   -d '{"task": "I want to find flights to Paris"}'
@@ -226,7 +226,7 @@ This initiates a new workflow for finding flights to Paris. You'll receive a wor
 
 ### Checking Workflow Status
 
-```bash
+```bash,run
 # Replace WORKFLOW_ID with the ID from the previous response
 curl -i -X GET http://localhost:3500/v1.0/workflows/durableTaskHub/WORKFLOW_ID
 ```
