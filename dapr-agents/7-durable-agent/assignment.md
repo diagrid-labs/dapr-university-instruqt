@@ -23,7 +23,7 @@ This makes the AssistantAgent ideal for mission-critical applications that need 
 
 ## Exploring the AssistantAgent
 
-Let's examine the durable agent implementation in the `assistant_agent.py` file:
+Use the **Editor** window to examine the durable agent implementation in the `assistant_agent.py` file:
 
 ```python,nocopy
 import asyncio
