@@ -2,7 +2,7 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 ---
 
-## Challenge 8: Orchestrating AI Tasks with Dapr Workflows
+## Challenge 8: Orchestrate AI Tasks with Dapr Workflows
 
 In this challenge, you'll learn:
 

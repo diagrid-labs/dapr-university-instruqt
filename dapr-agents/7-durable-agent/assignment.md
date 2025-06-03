@@ -1,5 +1,3 @@
-# Building Stateful and Resilient Agents
-
 In this tutorial, you'll learn how to create durable AI agents that can survive failures and maintain state across sessions using Dapr Agents. You'll explore how the AssistantAgent class leverages internally Dapr's Workflow building block to provide persistence, resilience, and stateful behavior.
 
 ### Prerequisite
@@ -7,7 +5,7 @@ In this tutorial, you'll learn how to create durable AI agents that can survive 
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
 
-The API key is required for the examples to communicate with OpenAI's services.
+The `OPENAI_API_KEY` is required for the examples to communicate with OpenAI's services.
 
 ## Why Use AssistantAgent?
 

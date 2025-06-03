@@ -1,12 +1,9 @@
-# Building Collaborative Multi-Agent Systems
-
 In this tutorial, you'll learn how to create and orchestrate event-driven workflows with multiple autonomous agents using Dapr Agents. You'll explore how agents can collaborate to solve complex problems through pub/sub messaging and different orchestration strategies.
 
-
 ### Prerequisite
+
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
-
 
 ## Understanding Multi-Agent Systems
 
@@ -23,7 +20,7 @@ This approach enables powerful collaborative problem-solving, parallel processin
 
 In a multi-agent system, each agent is specialized for a particular role. Let's examine how agents with different specializations are defined:
 
-```python
+```python,nocopy
 from dapr_agents import AssistantAgent
 from dotenv import load_dotenv
 import asyncio
@@ -63,7 +60,7 @@ A crucial component of multi-agent systems is the orchestrator that coordinates 
 
 The Random orchestrator selects agents randomly to respond to queries:
 
-```python
+```python,nocopy
 from dapr_agents import RandomOrchestrator
 from dotenv import load_dotenv
 import asyncio
@@ -86,6 +83,7 @@ async def main():
 ```
 
 This approach is useful for:
+
 - Load balancing across agents
 - Creating more diverse conversations
 - Testing and debugging multi-agent interactions
@@ -94,7 +92,7 @@ This approach is useful for:
 
 The RoundRobin orchestrator cycles through agents in a predetermined sequence:
 
-```python
+```python,nocopy
 from dapr_agents import RoundRobinOrchestrator
 # Similar configuration as the RandomOrchestrator
 ```
@@ -108,7 +106,7 @@ This approach ensures:
 
 The LLM-based orchestrator uses an LLM to intelligently select the most appropriate agent for each query:
 
-```python
+```python,nocopy
 from dapr_agents import LLMOrchestrator
 # Similar configuration as the RandomOrchestrator
 ```
@@ -133,7 +131,7 @@ The communication is configured through Dapr's pub/sub component, which can use 
 
 To run a complete multi-agent system with Dapr, we use a multi-app run configuration. Here's an example from `dapr-llm.yaml`:
 
-```yaml
+```yaml,nocopy
 version: 1
 common:
   resourcesPath: ./components
@@ -164,7 +162,7 @@ apps:
   command: ["python3", "http_client.py"]
 ```
 
-To run this configuration, use:
+To use this configuration, run the following command in the **Terminal** window:
 
 ```bash
 dapr run -f dapr-llm.yaml
@@ -195,6 +193,7 @@ A complete multi-agent system includes several key components:
 ### 1. Agent Services
 
 Each agent runs as an independent service with its own lifecycle. This enables:
+
 - Independent scaling of agents based on demand
 - Resilience through service isolation
 - Clear separation of responsibilities
@@ -202,6 +201,7 @@ Each agent runs as an independent service with its own lifecycle. This enables:
 ### 2. Pub/Sub Messaging
 
 The pub/sub component facilitates message exchange between agents:
+
 - Topics for different types of messages
 - Subscriptions for specific message types
 - Message persistence for reliability
@@ -209,13 +209,15 @@ The pub/sub component facilitates message exchange between agents:
 ### 3. State Stores
 
 Multiple state stores maintain different types of state:
+
 - Conversation state for ongoing interactions
 - Agent registry for discovering available agents
 - Workflow state for orchestration progress
 
 ### 4. Client Interface
 
-A client application or API provides an interface for users to interact with the multi-agent system:
+A client application or API provides an interface for users to interact with the multi-agent system
+
 - Submitting queries
 - Receiving responses
 - Monitoring conversation progress

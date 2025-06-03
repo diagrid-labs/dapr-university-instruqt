@@ -2,7 +2,6 @@
 
 In this challenge, you'll build a Lord of the Rings themed workflow that chains together multiple AI tasks to generate creative content.
 
-
 ## 1. Introduction to Workflows
 
 Workflows are structured processes where LLMs and tools collaborate in a predefined sequence to accomplish complex tasks. Unlike fully autonomous agents that make all decisions independently, Workflows provide a balance of:
@@ -24,18 +23,16 @@ This approach is particularly suitable for business-critical applications where 
 | Complexity | Simpler to reason about | Harder to debug and understand |
 | Use Cases | Business processes, regulated domains | Open-ended research, creative tasks |
 
-
 ### Prerequisite
+
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
 
-
-
 ## 3. Examine the Workflow Code
 
-Open the `workflow_dapr_agent.py` file:
+Open the `workflow_dapr_agent.py` file in the **Editor** window:
 
-```python
+```python,nocopy
 from dapr_agents.workflow import WorkflowApp, workflow, task
 from dapr.ext.workflow import DaprWorkflowContext
 from dotenv import load_dotenv
@@ -75,6 +72,7 @@ if __name__ == "__main__":
 ```
 
 Notice that this workflow:
+
 1. First calls the `get_character` task to generate a Lord of the Rings character
 2. Then passes that character to the `get_line` task to create a famous quote
 3. Finally returns the generated line as the workflow result
@@ -86,17 +84,15 @@ The workflow uses two AI-powered tasks:
 1. `get_character`: Generates a random Lord of the Rings character
     - Has a description that guides the LLM
     - Returns a string with just the character name
-
 2. `get_line`: Creates a famous quote for the character
     - Receives the character name as input
     - Uses the character to generate an appropriate quote
 
 Notice that the task implementations are empty (`pass`). The LLM provides the actual implementation at runtime based on the description.
 
-
 ## 3. Run the Workflow
 
-Run the workflow with Dapr:
+Run the workflow with Dapr by using the **Terminal** window:
 
 ```bash,run
 dapr run --app-id dapr-agent-wf --resources-path components/ -- python workflow_dapr_agent.py
@@ -114,10 +110,10 @@ Watch the output in your terminal. You should see something like:
 ```
 
 The workflow:
+
 1. First generates a character name
 2. Then creates a famous quote for that character
 3. Finally returns the completed quote
-
 
 ## 5. Task Types in Workflows
 
@@ -127,7 +123,7 @@ Dapr Agents supports different types of tasks within workflows allowing you to c
 
 Tasks created from a prompt that use LLM's reasoning capabilities (as in the current example)
 
-```python
+```python,nocopy
 @task(
     description="""
     Pick a random character from The Lord of the Rings\n
@@ -141,7 +137,7 @@ def get_character() -> str:
 
 Tasks that are based on agents with or without tools giving more flexibility what a task can do:
 
-```python
+```python,nocopy
 @task(agent=custom_agent, description="Retrieve stock data for {ticker}")
 def get_stock_data(ticker: str) -> dict:
     """Uses tools to get real data"""
@@ -158,7 +154,7 @@ Here are a few common patterns and code extracts. To see full working pattern ex
 
 Tasks execute one after another:
 
-```python
+```python,nocopy
 @workflow(name='sequential_workflow')
 def sequential_process(ctx: DaprWorkflowContext, input_data: str):
     result1 = yield ctx.call_activity(task1, input=input_data)
@@ -170,7 +166,7 @@ def sequential_process(ctx: DaprWorkflowContext, input_data: str):
 
 Multiple tasks execute simultaneously:
 
-```python
+```python,nocopy
 @workflow(name='parallel_workflow')
 def parallel_process(ctx: DaprWorkflowContext, input_data: str):
     # Execute tasks in parallel
@@ -189,7 +185,7 @@ def parallel_process(ctx: DaprWorkflowContext, input_data: str):
 
 Decision points in the workflow:
 
-```python
+```python,nocopy
 @workflow(name='conditional_workflow')
 def approval_process(ctx: DaprWorkflowContext, request: dict):
     # Analyze the request
@@ -209,7 +205,7 @@ def approval_process(ctx: DaprWorkflowContext, request: dict):
 ### Human-in-the-Loop (HITL) and Timeout
 A human approval step with a 24-hour timeout before continuing the workflow:
 
-```python
+```python,nocopy
 @workflow(name='sequential_workflow')
 def sequential_process(ctx: DaprWorkflowContext, input_data: str):
     result1 = yield ctx.call_activity(task1, input=input_data)

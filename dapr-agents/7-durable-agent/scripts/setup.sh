@@ -1,1 +1,1 @@
-cd 01-hello-world/
+cd dapr-agents/quickstarts/01-hello-world

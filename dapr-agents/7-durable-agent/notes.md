@@ -2,7 +2,7 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 ---
 
-## Challenge 7: Building Stateful and Resilient Agents
+## Challenge 7: Build Stateful and Resilient Agents
 
 In this challenge, you'll learn:
 
