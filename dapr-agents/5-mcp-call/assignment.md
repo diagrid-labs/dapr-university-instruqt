@@ -1,6 +1,13 @@
 In this tutorial, you'll learn how to connect your agent to external systems using the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction). You'll see how agents can use MCP to access tools running in separate processes, such as scripts, databases, or APIs, and how to use the STDIO transport for local development.
 
-## What is MCP?
+### Prerequisite
+
+> [!IMPORTANT]
+> Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update it with your actual OpenAI API key.
+
+The `OPENAI_API_KEY` key is required for the examples to communicate with OpenAI's services.
+
+## 1. What is MCP?
 
 The **Model Context Protocol (MCP)** is a standard for connecting AI agents to external tools and systems. MCP allows agents to:
 - Discover and use tools provided by other processes or services
@@ -9,23 +16,17 @@ The **Model Context Protocol (MCP)** is a standard for connecting AI agents to e
 
 With MCP, agents can go beyond built-in Python functions and interact with a wide range of external capabilities, all exposed as tools.
 
-## Key Concepts
+### Key Concepts
 Before diving into the code, let's cover the key concepts:
 
 - **MCP Server**: A process that exposes tools using the MCP protocol. This could be a script, a database connector, or any service that implements MCP.
-- **MCP Client**: A component that connects to an MCP server, discovers its tools, and makes them available to agents.
+- **MCP Client**: A component that connects to an MCP server, discovers its tools and makes them available to agents.
 - **Transports**: MCP supports multiple ways to connect:
   - **STDIO**: Communicates over standard input/output (local subprocess, no network needed). Great for local development and testing.
   - **SSE (Server-Sent Events)**: Communicates over HTTP for distributed or networked tools.
 
 In this example, you'll use **STDIO** transport, which means the agent will launch a local MCP server as a subprocess and communicate with it over the command line.
 
-### Prerequisite
-
-> [!IMPORTANT]
-> Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
-
-The `OPENAI_API_KEY` key is required for the examples to communicate with OpenAI's services.
 
 ## Step 1: Explore MCP Tools (tools.py)
 
@@ -53,7 +54,7 @@ if __name__ == "__main__":
     mcp.run("stdio")
 ```
 
-## Understanding MCP Capabilities
+## 2. Understanding MCP Capabilities
 
 MCP supports different types of capabilities that can be exposed to agents:
 
@@ -68,7 +69,7 @@ MCP supports different types of capabilities that can be exposed to agents:
 - When you run this file directly, it starts the MCP server using STDIO transport, allowing the agent to communicate with the tools as a subprocess over standard input/output.
 - The function's docstring (like `"""Get weather information for a specific location."""`) serves as the tool description that helps the LLM understand what the tool does and when to use it. The agent uses this description along with the function signature to determine which tool is appropriate for a given task and how to call it with the correct parameters.
 
-## Step 2: Explore the MCP Client and Agent (agent.py)
+## 3. Explore the MCP Client and Agent (agent.py)
 
 Open the `agent.py` file in the **Editor** window to see how to connect to the MCP server and use its tools in an agent.
 
@@ -126,7 +127,7 @@ if __name__ == "__main__":
 - It discovers all available capabilities and exposes them to the agent as regular tools we saw in the previous example.
 - The agent can now use these tools as if they were built-in Python functions.
 
-## Step 3: Run the Example
+## 4. Run the Example
 
 Use the **Terminal** window to run create a virtual environment:
 
@@ -176,7 +177,7 @@ The current temperature in New York is 75°F.
 The current temperature in New York is 75°F.
 ```
 
-## How It Works
+## 5. How It Works
 
 - The agent launches the tools.py script as a subprocess.
 - The MCP client connects to the subprocess using STDIO.

@@ -1,13 +1,15 @@
-In this tutorial, you'll learn how to create and orchestrate event-driven workflows with multiple autonomous agents using Dapr Agents. You'll explore how agents can collaborate to solve complex problems through pub/sub messaging and different orchestration strategies.
+In this tutorial, you'll learn how to create multi-agent systems that communicate using event-driven workflows with Dapr Agents. You'll explore how agents can collaborate to solve complex problems through pub/sub messaging and different orchestration strategies.
 
 ### Prerequisite
 
 > [!IMPORTANT]
-> Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
+> Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update it with your actual OpenAI API key.
 
-## Understanding Multi-Agent Systems
+The `OPENAI_API_KEY` is required for the examples to communicate with OpenAI's services.
 
-Multi-agent systems consist of multiple specialized AI agents that collaborate to solve complex tasks that might be difficult for a single agent to handle. Key characteristics include:
+## 1. Understanding Multi-Agent Systems
+
+Multi-agent systems consist of multiple specialized AI agents that collaborate to solve complex tasks that might be difficult for a single agent to handle. Key characteristics of such a system in Dapr Agents include:
 
 1. **Specialized Agents**: Each agent has a specific role, personality, and set of skills
 2. **Event-Driven Communication**: Agents communicate via messages through a pub/sub system
@@ -16,9 +18,51 @@ Multi-agent systems consist of multiple specialized AI agents that collaborate t
 
 This approach enables powerful collaborative problem-solving, parallel processing, and division of responsibilities among specialized agents.
 
-## Exploring Agent Specialization
+### Core Participants
 
-In a multi-agent system, each agent is specialized for a particular role. Let's examine how agents with different specializations are defined:
+To implement such a collaborative system, requires the following key participants that work together:
+
+#### Agent Services
+
+Each agent runs as an independent service with its own lifecycle. This enables:
+
+- Independent scaling of agents based on demand
+- Resilience through service isolation
+- Clear separation of responsibilities
+
+#### Orchestrator
+
+The orchestrator coordinates interactions between agents and manages the flow of the conversation:
+
+- Selects which agent should respond to queries
+- Manages the sequence of agent interactions
+- Tracks conversation progress and completion
+- Implements different coordination strategies (Random, RoundRobin, LLM-based)
+
+#### Client Application
+
+A client application or API provides an interface for users to interact with the multi-agent system:
+
+- Submitting queries
+- Receiving responses
+- Monitoring conversation progress
+
+#### Backing Infrastructure
+
+The underlying infrastructure components that enable reliable communication and state management:
+
+- **Pub/Sub Messaging**: Facilitates message exchange between agents with topics for different message types, subscriptions for specific message types, and message persistence for reliability.
+
+- **State Stores**: Multiple state stores maintain different types of state including conversation state for ongoing interactions, agent registry for discovering available agents, and workflow state for orchestration progress.
+
+These participants work together to create a robust, scalable foundation for multi-agent collaboration, ensuring that agents can communicate effectively while maintaining their independence and specialization.
+
+
+## 2. Exploring Agent Specialization
+
+In a multi-agent system, each agent is specialized for a particular role. Each agent has its own service implementation that defines its unique characteristics, personality, and capabilities.
+Use the **Editor** window to examine the Hobbit agent implementation in the services/hobbit/app.py file:
+
 
 ```python,nocopy
 from dapr_agents import AssistantAgent
@@ -50,13 +94,28 @@ async def main():
         print(f"Error starting service: {e}")
 ```
 
-In this example, we're creating a "Frodo" agent with specific personality traits, goals, and instructions that shape its behavior. Similar agents can be created for other roles, like "Gandalf" (the wizard) or "Legolas" (the elf), each with their own unique characteristics.
+You'll notice how the "Frodo" agent is defined with specific personality traits, goals, and instructions that shape its behavior. The agent is configured with:
 
-## Orchestration Strategies
+- A clear role and name
+- A specific goal that drives its actions
+- Detailed instructions that define its personality and response style
+- Integration with the message bus and state stores for collaboration
+
+Next, use the **Editor** window to explore the wizard agent in the `services/wizard/app.py` file:
+
+Compare how "Gandalf" differs from "Frodo" - you'll see different goals, instructions, and personality traits that make this agent behave as a wise advisor rather than a determined ring-bearer.
+
+Finally, examine the elf agent implementation in the `services/elf/app.py` file:
+Notice how "Legolas" has yet another distinct personality and set of capabilities, emphasizing keen observation, precision, and scouting abilities.
+
+Each agent follows the same structural pattern but with unique characteristics that make them suitable for different aspects of problem-solving. This specialization allows the multi-agent system to tackle complex tasks by leveraging the diverse strengths of each participant.
+
+
+## 3. Orchestration Strategies
 
 A crucial component of multi-agent systems is the orchestrator that coordinates interactions between agents. Dapr Agents supports three orchestration strategies:
 
-### 1. Random Orchestrator
+### Random Orchestrator
 
 The Random orchestrator selects agents randomly to respond to queries:
 
@@ -88,7 +147,7 @@ This approach is useful for:
 - Creating more diverse conversations
 - Testing and debugging multi-agent interactions
 
-### 2. RoundRobin Orchestrator
+### RoundRobin Orchestrator
 
 The RoundRobin orchestrator cycles through agents in a predetermined sequence:
 
@@ -102,7 +161,7 @@ This approach ensures:
 - Predictable turn-taking behavior
 - Fair distribution of tasks
 
-### 3. LLM-Based Orchestrator
+### LLM-Based Orchestrator
 
 The LLM-based orchestrator uses an LLM to intelligently select the most appropriate agent for each query:
 
@@ -127,9 +186,22 @@ Agents in a multi-agent system communicate with each other through an event-driv
 
 The communication is configured through Dapr's pub/sub component, which can use various backends (Redis, Kafka, RabbitMQ, etc.) for message delivery.
 
-## Running a Multi-Agent System
+## 4. Client Application
 
-To run a complete multi-agent system with Dapr, we use a multi-app run configuration. Here's an example from `dapr-llm.yaml`:
+The client application serves as the entry point for users to interact with the multi-agent system. It handles user input and initiates conversations with the orchestrator.
+
+Use the **Editor** window to examine the HTTP client implementation in the `services/client/http_client.py` file. This client demonstrates how to interact with the multi-agent system through HTTP requests. It sends queries to the orchestrator and receives responses from the collaborative agent system.
+
+Next, explore the pub/sub client in the `services/client/pubsub_client.py` file. This alternative client shows how to interact with the system through message publishing, demonstrating the event-driven communication approach where the client publishes messages to trigger agent workflows.
+
+
+## 5. Running a Multi-Agent System
+
+The Dapr CLI provides a [multi-app run](https://docs.dapr.io/developing-applications/local-development/multi-app-dapr-run/multi-app-overview/) feature that allows you to start multiple applications with their Dapr sidecars using a single command. This is essential for running multi-agent systems where several services need to work together.
+
+This tutorial includes three multi-app run configurations that are nearly identical, with the only difference being which orchestrator they use.
+
+Use the **Editor** window to examine the `dapr-llm.yaml` configuration file:
 
 ```yaml,nocopy
 version: 1
@@ -162,15 +234,38 @@ apps:
   command: ["python3", "http_client.py"]
 ```
 
+This configuration runs all the participants we discussed earlier:
+
+- **Agent Services**: Three specialized agents (Hobbit, Wizard, Elf) that handle different aspects of problem-solving
+- **Orchestrator**: The workflow service that coordinates agent interactions (in this case, the LLM-based orchestrator)
+- **Client Application**: The HTTP client that allows users to submit queries and receive responses
+
+Each service runs independently with its own Dapr sidecar, enabling them to communicate through the pub/sub messaging system and maintain state through the configured state stores.
+
+### Run the multi-app run configuration
+
+Use the **Terminal** window to create a virtual environment:
+
+```bash,run
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Use the **Terminal** window to install the dependencies:
+
+```bash,run
+pip install -r requirements.txt
+```
+
 To use this configuration, run the following command in the **Terminal** window:
 
-```bash
+```bash,run
 dapr run -f dapr-llm.yaml
 ```
 
 This will start all the agents, the orchestrator, and a client application for interacting with the system. The agents will then collaborate to respond to user queries.
 
-## How Multi-Agent Collaboration Works
+## 6. How Multi-Agent Collaboration Works
 
 Let's explore how the collaboration works in a typical multi-agent interaction:
 
@@ -185,42 +280,7 @@ Let's explore how the collaboration works in a typical multi-agent interaction:
 9. **Client Receives Response**: The final response is sent back to the client
 
 This cycle can continue for multiple iterations until the task is complete or a maximum number of iterations is reached.
-
-## Multi-Agent System Components
-
-A complete multi-agent system includes several key components:
-
-### 1. Agent Services
-
-Each agent runs as an independent service with its own lifecycle. This enables:
-
-- Independent scaling of agents based on demand
-- Resilience through service isolation
-- Clear separation of responsibilities
-
-### 2. Pub/Sub Messaging
-
-The pub/sub component facilitates message exchange between agents:
-
-- Topics for different types of messages
-- Subscriptions for specific message types
-- Message persistence for reliability
-
-### 3. State Stores
-
-Multiple state stores maintain different types of state:
-
-- Conversation state for ongoing interactions
-- Agent registry for discovering available agents
-- Workflow state for orchestration progress
-
-### 4. Client Interface
-
-A client application or API provides an interface for users to interact with the multi-agent system
-
-- Submitting queries
-- Receiving responses
-- Monitoring conversation progress
+ 
 
 ## When to Use Multi-Agent Systems
 

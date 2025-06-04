@@ -8,7 +8,7 @@ dapr-agents
 
 ## Teaser
 
-You'll learn how to call various LLMs, build reliable agents that can invoke tools and MCP servers, create agentic workflows to orchestrate complex processes, and design multi-agent systems that collaborate to solve complex problems.
+You will learn how to create LLM-powered agentic applications that autonomously take actions to achieve a goal. To get there, you will learn how to call various LLMs, build reliable agents that can invoke tools and MCP servers, create agentic workflows to orchestrate complex processes, and design multi-agent systems that collaborate to solve complex problems.
 
 ## Time limit (minutes)
 
@@ -19,9 +19,9 @@ You'll learn how to call various LLMs, build reliable agents that can invoke too
 In this self-paced track, you'll learn:
 
 - What Dapr Agents is and how it simplifies AI application development.
-- How to use different LLM clients through the provider-agnostic Dapr Conversation API.
-- How to build agents with custom tools and capabilities for intelligent interactions.
-- How to integrate with databases through Model Context Protocol (MCP).
+- How to use different LLM clients and the provider-agnostic Dapr Conversation API.
+- How to build agents with custom tool calls for external interactions.
+- How to integrate with 3rd party systems through Model Context Protocol (MCP).
 - How to implement the ReAct (Reasoning and Action) pattern for complex problem-solving.
 - How to achieve durability and resilience in AI applications.
 - How to create agentic workflows for orchestrating multi-step AI processes.

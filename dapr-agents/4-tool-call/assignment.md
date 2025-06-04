@@ -9,7 +9,7 @@ The `OPENAI_API_KEY` is required for the examples to communicate with OpenAI's s
 
 ## 1. Examine Tool Definitions
 
-1. Open the `weather_tools.py` file in the **Editor** window and note:
+Open the `weather_tools.py` file in the **Editor** window and note:
    - The `@tool` decorator that marks a function as a tool
    - The Pydantic model (`GetWeatherSchema`) that defines input parameters
    - The function that implements the weather lookup logic

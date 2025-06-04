@@ -4,7 +4,7 @@
 
 Dapr Agents is a developer framework designed to build resilient AI agent systems that operate at scale. Built on top of the battle-tested Dapr project, it enables software developers to create AI agents that reason, act, and collaborate using Large Language Models (LLMs), while leveraging built-in observability and stateful workflow execution to guarantee agentic workflows complete successfully, no matter how complex.
 
-![Dapr Agents Concept](https://dapr.github.io/dapr-agents/img/concepts-agents.png)
+![Dapr Agents Concept](https://diagrid.ws/dapr-agents-docs/img/concepts-agents.png)
 
 Dapr Agents provides a structured way to build, deploy, and orchestrate applications that use LLMs like OpenAI's GPT models, without getting bogged down in implementation details. The primary goal is to make AI development more accessible by abstracting away the complexities of working with LLMs, tools, memory management, and distributed systems, allowing developers to focus on the business logic of their AI applications.
 
@@ -21,7 +21,7 @@ The framework includes multiple LLM clients for different providers and modaliti
 - **OpenAIChatClient**: Full spectrum support for OpenAI models including chat, embeddings, and audio
 - **HFHubChatClient**: For Hugging Face models supporting both chat and embeddings
 - **NVIDIAChatClient**: For NVIDIA AI Foundation models supporting local inference and chat
-- **11 Labs**: Support for speech and voice capabilities
+- **ElevenLabs**: Support for speech and voice capabilities
 - **DaprChatClient**: Unified API for LLM interactions via Dapr's Conversation API with built-in security (scopes, secrets, PII obfuscation), resiliency (timeouts, retries, circuit breakers), and observability via OpenTelemetry & Prometheus
 
 ### Memory
@@ -36,7 +36,7 @@ Dapr Agents includes built-in support for the Model Context Protocol (MCP), enab
 
 ### Agents
 
-An agent is a  self-contained execution unit that can think, plan, and act on its own, using tools and collaborating with other agents to achieve defined objectives. Dapr agents offers the following types of agents:
+An agent is a  self-contained execution unit that can think, plan, and act on its own, using tools and collaborating with other agents to achieve defined objectives. Dapr Agents offers the following types of agents:
 
 - **ToolCallAgent**: Stateless agent that manages conversation and executes tools based on LLM-generated tool calls. Best for lightweight, reactive tasks requiring direct tool invocation.
 - **ReActAgent**: Implements the ReAct pattern (reasoning, action, and observation) in iterative steps. Ideal for complex reasoning tasks where the agent explains its thinking and tool usage.
@@ -57,11 +57,11 @@ Dapr Agents supports both deterministic and event-driven workflows to manage mul
 ### Actor-Based Architecture
 
 - **Stateful & Efficient**: Agents process one task at a time, avoiding concurrency issues while maintaining state
-- **Cost-Effective Scaling**: Reliably runs thousands of agents on a single core with ability to scale to zero when idle
+- **Cost-Effective Scaling**: Reliably runs thousands of agents on a single core with the ability to scale to zero when idle
 
 ### Workflow-Oriented Design
 
-- **Execution Guarantees**: Ensures each agent task completes successfully despite failures or interruptions
+- **Execution Guarantees**: Ensures each agent task is completed successfully despite failures or interruptions
 - **Versatile Interactions**: Supports both deterministic workflows and event-driven, message-based communication
 - **Business-Critical Operations**: Built for durable, long-running processes on top of the actor model
 
@@ -80,14 +80,14 @@ Dapr Agents supports both deterministic and event-driven workflows to manage mul
 
 Dapr Agents is built on top of Dapr, leveraging its distributed application capabilities:
 
-- **Dapr Building Blocks**: Dapr provides core infrastructure patterns like state management, pub/sub messaging, service invocation, and virtual actors
-- **Dapr PubSub**: Enables event-driven communication between agents, facilitating multi-agent coordination and collaboration in distributed systems
-- **Workflows**: Dapr Agents uses Dapr's Workflow API for orchestrating complex multi-step agentic workflows
-- **Dapr Conversation API**: Provides a unified interface for LLM interactions with built-in security, resiliency, and observability features
-- **LLM-Specific Extensions**: Dapr Agents adds LLM capabilities including prompt templating, schema-based structured outputs, and memory management for consistent, predictable agent interactions
+- **Dapr Building Blocks**: Dapr provides core infrastructure patterns like state management, pub/sub messaging, service invocation, and virtual actors.
+- **Dapr PubSub**: Enables event-driven communication between agents, facilitating multi-agent coordination and collaboration in distributed systems.
+- **Workflows**: Dapr Agents uses Dapr's Workflow API for orchestrating complex multi-step agentic workflows.
+- **Dapr Conversation API**: Provides a unified interface for LLM interactions with built-in security, resiliency, and observability features.
+- **LLM-Specific Extensions**: Dapr Agents adds LLM capabilities including prompt templating, schema-based structured outputs, and memory management for consistent, predictable agent interactions.
 
 Together, they create a powerful duo for building distributed, scalable, and resilient AI applications.
 
 ---
 
-You now know that Dapr Agents is a developer framework designed to build resilient AI agent systems that operate at scale, and is built on open source Dapr. Let's continue and take a look at a basic LLM call via Dapr Agents.
+You now know that Dapr Agents is a developer framework designed to build resilient AI agent systems that operate at scale and is built on open source Dapr. Let's continue and take a look at a basic LLM call via Dapr Agents.

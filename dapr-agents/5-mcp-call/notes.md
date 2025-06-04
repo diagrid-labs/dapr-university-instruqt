@@ -2,7 +2,7 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 ---
 
-## Challenge 5: Connecting Agents to External Tools with Model Context Protocol (MCP)
+## Challenge 5: Connecting Agents to External Tools with MCP
 
 In this challenge, you'll learn:
 
@@ -11,4 +11,4 @@ In this challenge, you'll learn:
 - How to build an MCP client that connects to an MCP server and exposes tools to an agent
 - How to use different MCP transports (STDIO and SSE) for local and networked tool integration
 
-If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://dapr.github.io/dapr-agents/). If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://diagrid.ws/dapr-agents-docs/). If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).

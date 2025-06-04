@@ -13,7 +13,7 @@ Open the `.env` file in the **Editor** window.
 The `DAPR_LLM_COMPONENT_DEFAULT` setting is already configured to use the `openai` component. This environment variable tells the `DaprChatClient` which Dapr component to use for LLM interactions. The value must match the `name` field in the metadata section of a component file in the `components` folder (for example, `components/openai.yaml` has `metadata.name: openai`). By changing just this variable, you can switch your application to use a completely different LLM provider.
 
 ## 2. Configure the OpenAI Component
-
+ 
 Now we need to configure the OpenAI component with your API key:
 
 Open the `components/openai.yaml` file in **Editor** window.
@@ -93,11 +93,11 @@ Using the Dapr Conversation API instead of calling LLMs directly offers several 
 
 3. **PII Obfuscation**: Personal identifiable information (such as phone number, email address, social security number, etc) can be automatically removed from prompts and responses.
 
-4. **Resiliency**: Built-in or custom defined retry policies, timeouts, and circuit breakers make your applications more robust against LLM service outages.
+4. **Resiliency**: Built-in or custom-defined retry policies, timeouts, and circuit breakers make your applications more robust against LLM service outages.
 
 5. **Tracing**: Dapr's observability features help you monitor and debug LLM interactions.
 
-6. **Secret Management**: API keys can be securely retrieved through Dapr's secret store rather than in application code.
+6. **Secret Management**: API keys can be securely retrieved through Dapr's secret store rather than in the application or component code.
 
 ## 7. Try a Different Component (Optional)
 

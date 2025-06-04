@@ -1,6 +1,14 @@
 # Orchestrating AI Tasks with Dapr Workflows
 
-In this challenge, you'll build a Lord of the Rings themed workflow that chains together multiple AI tasks to generate creative content.
+In this challenge, you'll build a Lord of the Rings-themed workflow that chains together multiple AI tasks to generate creative content.
+
+### Prerequisite
+
+> [!IMPORTANT]
+> Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update it with your actual OpenAI API key.
+
+The `OPENAI_API_KEY` is required for the examples to communicate with OpenAI's services.
+
 
 ## 1. Introduction to Workflows
 
@@ -12,7 +20,7 @@ Workflows are structured processes where LLMs and tools collaborate in a predefi
 
 This approach is particularly suitable for business-critical applications where you need both the intelligence of LLMs and the reliability of traditional software.
 
-## 2. Workflows vs. Autonomous Agents
+## Workflows vs. Autonomous Agents
 
 | Aspect | Workflows | Fully Autonomous Agents |
 |--------|-------------------|-------------------------|
@@ -23,12 +31,7 @@ This approach is particularly suitable for business-critical applications where 
 | Complexity | Simpler to reason about | Harder to debug and understand |
 | Use Cases | Business processes, regulated domains | Open-ended research, creative tasks |
 
-### Prerequisite
-
-> [!IMPORTANT]
-> Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
-
-## 3. Examine the Workflow Code
+## 2. Examine the Workflow Code
 
 Open the `workflow_dapr_agent.py` file in the **Editor** window:
 
@@ -77,7 +80,7 @@ Notice that this workflow:
 2. Then passes that character to the `get_line` task to create a famous quote
 3. Finally returns the generated line as the workflow result
 
-## 2. Understand the Task Definitions
+## Understand the Task Definitions
 
 The workflow uses two AI-powered tasks:
 
@@ -91,6 +94,18 @@ The workflow uses two AI-powered tasks:
 Notice that the task implementations are empty (`pass`). The LLM provides the actual implementation at runtime based on the description.
 
 ## 3. Run the Workflow
+
+Use the **Terminal** window to create a virtual environment:
+
+```bash,run
+python3 -m venv .venv
+source .venv/bin/activate
+```
+Use the **Terminal** window to install the dependencies:
+
+```bash,run
+pip install -r requirements.txt
+```
 
 Run the workflow with Dapr by using the **Terminal** window:
 
@@ -135,7 +150,7 @@ def get_character() -> str:
 
 ### Agent Tasks
 
-Tasks that are based on agents with or without tools giving more flexibility what a task can do:
+Tasks that are based on agents with or without tools giving more flexibility on what a task can do:
 
 ```python,nocopy
 @task(agent=custom_agent, description="Retrieve stock data for {ticker}")

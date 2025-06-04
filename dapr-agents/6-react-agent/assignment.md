@@ -1,6 +1,13 @@
 In this tutorial, you'll learn how to create AI agents using the ReAct pattern in Dapr Agents. You'll explore how this pattern combines reasoning and action to solve complex tasks through an explicit, step-by-step problem-solving approach.
 
-## Understanding Agents
+### Prerequisite
+
+> [!IMPORTANT]
+> Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
+
+The `OPENAI_API_KEY` is required for the examples to communicate with OpenAI's services.
+
+## 1. Understanding Agents
 As we've seen in previous tutorials, agents in Dapr Agents combine three key components:
 
 1. **Instructions**: Guidance that shapes the agent's behavior and responses
@@ -11,7 +18,7 @@ The ReAct pattern introduces a fourth critical element:
 
 4. **Reasoning Process**: An explicit, transparent thought process that guides decision-making
 
-## Introduction to ReAct Agents
+## 2. Introduction to ReAct Agents
 The ReAct (Reasoning + Action) pattern is an approach that enables agents to solve complex problems by making their thinking process explicit. A ReAct agent follows this cycle:
 
 1. **Thought**: The agent reasons about the problem and decides what to do next
@@ -36,14 +43,7 @@ Let's understand how ReAct agents differ from standard tool calling agents:
 
 While tool calling agents are ideal for simple, direct tasks, ReAct agents shine when tackling problems that require multiple steps and careful reasoning.
 
-### Prerequisite
-
-> [!IMPORTANT]
-> Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
-
-The `OPENAI_API_KEY` is required for the examples to communicate with OpenAI's services.
-
-## Explore the ReAct Example
+## 3. Explore the ReAct Example
 
 Let's explore the example file to understand how a ReAct agent works in practice.
 
@@ -98,7 +98,7 @@ While this is a simple example, behind the scenes, the ReAct agent uses a sophis
 
 This structured approach enables the agent to transparently work through problems step by step.
 
-## Run the ReAct Agent
+## 4. Run the ReAct Agent
 
 Let's run the ReAct agent to see it in action.
 
@@ -154,7 +154,7 @@ Notice how the agent:
 
 This explicit reasoning chain makes it easy to follow the agent's decision-making process.
 
-## How ReAct Works Behind the Scenes
+## 5. How ReAct Works Behind the Scenes
 
 1. **Prompt Engineering**: The system prompt instructs the LLM to generate Thought, Action, and Observation statements
 2. **Response Parsing**: The agent parses these components from the LLM's response
@@ -187,4 +187,4 @@ ReAct agents are particularly valuable for:
 - Problems that benefit from a chain of reasoning
 - Situations where explaining the reasoning process is important
 
-For simpler tasks where a direct answer is sufficient, the standard tool calling agent may be more efficient.
+For simpler tasks where a direct answer is sufficient, the standard ToolCallAgent may be more efficient.

@@ -8,9 +8,9 @@ There are 9 challenges to complete. If your session is idle for more than 10 min
 
 In this first challenge, you'll learn:
 
-- What Dapr Agents is and how it helps build production-grade resilient AI agent systems at scale
+- What Dapr Agents is and how it helps build resilient AI agent systems at scale
 - The key components of the Dapr Agents framework, including LLM integration, memory management, tool selection, and agent types
 - How Dapr Agents enables AI workflows and agent collaboration through Pub/Sub messaging
 - The benefits of using Dapr Agents and how it extends Dapr with AI-specific capabilities
 
-If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://dapr.github.io/dapr-agents/). If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://diagrid.ws/dapr-agents-docs). If you have any questions or feedback about this track, let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).

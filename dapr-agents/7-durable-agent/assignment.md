@@ -3,11 +3,11 @@ In this tutorial, you'll learn how to create durable AI agents that can survive 
 ### Prerequisite
 
 > [!IMPORTANT]
-> Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
+> Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update it with your actual OpenAI API key.
 
 The `OPENAI_API_KEY` is required for the examples to communicate with OpenAI's services.
 
-## Why Use AssistantAgent?
+## 1.  Why Use AssistantAgent?
 
 The AssistantAgent is Dapr Agents' most powerful and resilient agent type, designed for production-level AI applications. Unlike the previously explored agent type, the AssistantAgent:
 
@@ -19,7 +19,7 @@ The AssistantAgent is Dapr Agents' most powerful and resilient agent type, desig
 
 This makes the AssistantAgent ideal for mission-critical applications that need to remain functional even when facing system failures, network issues, or process restarts.
 
-## Exploring the AssistantAgent
+## 2.  Exploring the AssistantAgent
 
 Use the **Editor** window to examine the durable agent implementation in the `assistant_agent.py` file:
 
@@ -106,7 +106,7 @@ Enabled through `as_service(...)` and `start()` to run the agent as a long-lived
    - **Automatic retry logic**: Failed operations can be retried 
    - **Workflow continuity**: Workflows can be continued even after the process restarts
 
-## Key Components of Durable Agents
+## 3. Key Components of AssistantAgent
 
 Let's explore the key components that enable durability in the AssistantAgent:
 
@@ -191,12 +191,12 @@ travel_planner.as_service(port=8001)
 
 This exposes the agent as a REST service, allowing other systems to interact with it through standard HTTP requests.
 
-## Running the Durable Agent
+## 4. Running the Durable Agent
 
 Run the durable agent with Dapr by running this command in the **Terminal** window:
 
 ```bash,run
-dapr run --app-id assistant-agent --app-port 8001 --resources-path ./components -- python assistant_agent.py
+dapr run --app-id assistant-agent --app-port 8001 --dapr-http-port 3500 --resources-path ./components -- python 04_assistant_agent.py
 ```
 
 This command:
@@ -206,7 +206,7 @@ This command:
 3. Sets the path to the component configurations
 4. Launches the agent application
 
-## Interacting with the Durable Agent
+## 5. Interacting with the Durable Agent
 
 Unlike simpler agents, durable agents provide REST APIs for interaction. Here's how to use them:
 
@@ -231,7 +231,7 @@ curl -i -X GET http://localhost:3500/v1.0/workflows/durableTaskHub/WORKFLOW_ID
 
 This allows you to track the progress of long-running tasks.
 
-## Benefits of Durable Agents
+## 6. Benefits of Durable Agents
 
 1. **Resiliency**: Agents can survive process crashes, network issues, and other failures
 2. **Stateful Conversations**: Maintain conversation context even across system restarts
