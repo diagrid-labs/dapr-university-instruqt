@@ -1,11 +1,9 @@
-In this tutorial, you'll learn how to connect your agent to external systems using the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction). You'll see how agents can use MCP to access tools running in separate processes, such as scripts, databases, or APIs, and how to use the STDIO transport for local development.
+In this challenge, you'll learn how to connect your agent to external systems using the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction). You'll see how agents can use MCP to access tools running in separate processes, such as scripts, databases, or APIs, and how to use the STDIO transport for local development.
 
 ### Prerequisite
 
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update it with your actual OpenAI API key.
-
-The `OPENAI_API_KEY` key is required for the examples to communicate with OpenAI's services.
 
 ## 1. What is MCP?
 
@@ -199,4 +197,6 @@ await client.connect_sse("local", url="http://localhost:8000/sse")
 
 The rest of your agent code remains exactly the same! Once connected, the agent interacts with remote tools just like local ones.
 
-To try out an SSE MCP server example, check out the [MCP with SSE Transport quickstart](https://github.com/dapr/dapr-agents/tree/main/quickstarts) in the Dapr Agents quickstarts directory. This example demonstrates running an MCP server as a web service that agents can connect to over HTTP.
+---
+
+ You've now learned how to connect your agent to external tools using the Model Context Protocol (MCP). Let's move on to the next challenge, where you learn to create AI agents using the ReAct pattern.

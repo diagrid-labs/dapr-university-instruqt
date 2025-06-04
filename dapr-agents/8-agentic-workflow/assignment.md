@@ -1,14 +1,9 @@
-# Orchestrating AI Tasks with Dapr Workflows
-
 In this challenge, you'll build a Lord of the Rings-themed workflow that chains together multiple AI tasks to generate creative content.
 
 ### Prerequisite
 
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update it with your actual OpenAI API key.
-
-The `OPENAI_API_KEY` is required for the examples to communicate with OpenAI's services.
-
 
 ## 1. Introduction to Workflows
 
@@ -218,6 +213,7 @@ def approval_process(ctx: DaprWorkflowContext, request: dict):
 ```
 
 ### Human-in-the-Loop (HITL) and Timeout
+
 A human approval step with a 24-hour timeout before continuing the workflow:
 
 ```python,nocopy
@@ -232,10 +228,12 @@ def sequential_process(ctx: DaprWorkflowContext, input_data: str):
     if winner == timeout_event:
         return "Cancelled"
     
-    # Continiue as normal
+    # Continue as normal
     return = yield ctx.call_activity(task2, input=result1)
 ```
 
 These patterns, combined with error handling, compensation, and APIs for monitoring and managing workflows are essential for long-running workflows.
 
-In the next challenge, you'll learn how to build systems with multiple collaborating agents. 
+---
+
+In this challenge you've learned how to use a workflow to chain together multiple AI tasks. In the next challenge, you'll learn how to build systems with multiple collaborating agents.

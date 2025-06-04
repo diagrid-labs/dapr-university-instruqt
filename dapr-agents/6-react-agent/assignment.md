@@ -1,14 +1,13 @@
-In this tutorial, you'll learn how to create AI agents using the ReAct pattern in Dapr Agents. You'll explore how this pattern combines reasoning and action to solve complex tasks through an explicit, step-by-step problem-solving approach.
+In this challenge, you'll learn how to create AI agents using the ReAct pattern in Dapr Agents. You'll explore how this pattern combines reasoning and action to solve complex tasks through an explicit, step-by-step problem-solving approach.
 
 ### Prerequisite
 
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
 
-The `OPENAI_API_KEY` is required for the examples to communicate with OpenAI's services.
-
 ## 1. Understanding Agents
-As we've seen in previous tutorials, agents in Dapr Agents combine three key components:
+
+As we've seen in previous challenges, agents in Dapr Agents combine three key components:
 
 1. **Instructions**: Guidance that shapes the agent's behavior and responses
 2. **Tools**: Functions that extend the agent's capabilities beyond conversation
@@ -176,7 +175,6 @@ The ReAct pattern offers several key advantages:
 
 These advantages make ReAct agents particularly valuable for tasks that require careful reasoning, fact-checking, or multi-stage problem-solving.
 
-
 ## When to Use ReAct Agents
 
 ReAct agents are particularly valuable for:
@@ -188,3 +186,7 @@ ReAct agents are particularly valuable for:
 - Situations where explaining the reasoning process is important
 
 For simpler tasks where a direct answer is sufficient, the standard ToolCallAgent may be more efficient.
+
+---
+
+You've now learned that the ReAct pattern combines reasoning and action to solve complex tasks, and how to use it to create AI agents. Let's move on to the next challenge, where you learn about durable AI agents.

@@ -4,7 +4,7 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 ## Challenge 9: Build Collaborative Multi-Agent Systems
 
-In this challenge, you'll learn:
+In this final challenge, you'll learn:
 
 - How to create multi-agent systems with specialized agents that collaborate on complex tasks
 - Different orchestration strategies, including Random, RoundRobin, and LLM-based orchestrators

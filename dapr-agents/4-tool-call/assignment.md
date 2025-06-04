@@ -1,11 +1,9 @@
-In this challenge, you'll create a ToolCallAgent—a stateless AI agent that can respond to user questions by directly invoking custom tools, such as retrieving weather information for different locations. This agent is ideal for lightweight, reactive tasks that require quick and direct tool execution.
+In this challenge, you'll create a ToolCallAgent; a stateless AI agent that can respond to user questions by directly invoking custom tools, such as retrieving weather information for different locations. This agent is ideal for lightweight, reactive tasks that require quick and direct tool execution.
 
 ### Prerequisite
 
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update with your actual OpenAI API key.
-
-The `OPENAI_API_KEY` is required for the examples to communicate with OpenAI's services.
 
 ## 1. Examine Tool Definitions
 
@@ -156,4 +154,5 @@ Notice how the agent:
 2. Calls the `get_weather` tool multiple times with different parameters
 3. Combines the results into a coherent response
 
-In the next challenge, you'll learn how to build agents that can call external services through Model Context Protocol (MCP).
+---
+You've now learned how to use a ToolCallAgent; a stateless AI agent that can respond to user questions by directly invoking custom tools. In the next challenge, you'll learn how to build agents that can call external services through Model Context Protocol (MCP).

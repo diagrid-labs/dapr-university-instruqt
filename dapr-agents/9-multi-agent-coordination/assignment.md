@@ -1,11 +1,9 @@
-In this tutorial, you'll learn how to create multi-agent systems that communicate using event-driven workflows with Dapr Agents. You'll explore how agents can collaborate to solve complex problems through pub/sub messaging and different orchestration strategies.
+In this final challenge, you'll learn how to create multi-agent systems that communicate using event-driven workflows with Dapr Agents. You'll explore how agents can collaborate to solve complex problems through pub/sub messaging and different orchestration strategies.
 
 ### Prerequisite
 
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update it with your actual OpenAI API key.
-
-The `OPENAI_API_KEY` is required for the examples to communicate with OpenAI's services.
 
 ## 1. Understanding Multi-Agent Systems
 
@@ -57,12 +55,10 @@ The underlying infrastructure components that enable reliable communication and 
 
 These participants work together to create a robust, scalable foundation for multi-agent collaboration, ensuring that agents can communicate effectively while maintaining their independence and specialization.
 
-
 ## 2. Exploring Agent Specialization
 
 In a multi-agent system, each agent is specialized for a particular role. Each agent has its own service implementation that defines its unique characteristics, personality, and capabilities.
 Use the **Editor** window to examine the Hobbit agent implementation in the services/hobbit/app.py file:
-
 
 ```python,nocopy
 from dapr_agents import AssistantAgent
@@ -109,7 +105,6 @@ Finally, examine the elf agent implementation in the `services/elf/app.py` file:
 Notice how "Legolas" has yet another distinct personality and set of capabilities, emphasizing keen observation, precision, and scouting abilities.
 
 Each agent follows the same structural pattern but with unique characteristics that make them suitable for different aspects of problem-solving. This specialization allows the multi-agent system to tackle complex tasks by leveraging the diverse strengths of each participant.
-
 
 ## 3. Orchestration Strategies
 
@@ -194,12 +189,11 @@ Use the **Editor** window to examine the HTTP client implementation in the `serv
 
 Next, explore the pub/sub client in the `services/client/pubsub_client.py` file. This alternative client shows how to interact with the system through message publishing, demonstrating the event-driven communication approach where the client publishes messages to trigger agent workflows.
 
-
-## 5. Running a Multi-Agent System
+## 5. Run a Multi-Agent System
 
 The Dapr CLI provides a [multi-app run](https://docs.dapr.io/developing-applications/local-development/multi-app-dapr-run/multi-app-overview/) feature that allows you to start multiple applications with their Dapr sidecars using a single command. This is essential for running multi-agent systems where several services need to work together.
 
-This tutorial includes three multi-app run configurations that are nearly identical, with the only difference being which orchestrator they use.
+This example includes three multi-app run configurations that are nearly identical, with the only difference being which orchestrator they use.
 
 Use the **Editor** window to examine the `dapr-llm.yaml` configuration file:
 
@@ -281,7 +275,6 @@ Let's explore how the collaboration works in a typical multi-agent interaction:
 
 This cycle can continue for multiple iterations until the task is complete or a maximum number of iterations is reached.
  
-
 ## When to Use Multi-Agent Systems
 
 Multi-agent systems are particularly well-suited for:
@@ -293,3 +286,11 @@ Multi-agent systems are particularly well-suited for:
 - **Distributed Processing**: Breaking down large tasks into parallel operations
 
 By leveraging multiple specialized agents, you can create AI systems that tackle problems too complex for a single agent to handle effectively.
+
+## Feedback & Discord
+
+Congratulations! 🎉 You've completed the Dapr University Dapr Agents learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training 🚀.
+
+All code samples shown in this Dapr University track are available in the [Dapr Agents](https://github.com/dapr/dapr-agents/) repository in the `quickstarts` folder. Give this repo a star and clone it locally to use it as reference material for building your next workflow project.
+
+If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).

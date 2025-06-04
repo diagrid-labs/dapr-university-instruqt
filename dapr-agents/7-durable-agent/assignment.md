@@ -1,11 +1,9 @@
-In this tutorial, you'll learn how to create durable AI agents that can survive failures and maintain state across sessions using Dapr Agents. You'll explore how the AssistantAgent class leverages internally Dapr's Workflow building block to provide persistence, resilience, and stateful behavior.
+In this challenge, you'll learn how to create durable AI agents that can survive failures and maintain state across sessions using Dapr Agents. You'll explore how the AssistantAgent class leverages internally Dapr's Workflow building block to provide persistence, resilience, and stateful behavior.
 
 ### Prerequisite
 
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update it with your actual OpenAI API key.
-
-The `OPENAI_API_KEY` is required for the examples to communicate with OpenAI's services.
 
 ## 1.  Why Use AssistantAgent?
 
@@ -19,7 +17,7 @@ The AssistantAgent is Dapr Agents' most powerful and resilient agent type, desig
 
 This makes the AssistantAgent ideal for mission-critical applications that need to remain functional even when facing system failures, network issues, or process restarts.
 
-## 2.  Exploring the AssistantAgent
+## 2.  Explore the AssistantAgent
 
 Use the **Editor** window to examine the durable agent implementation in the `assistant_agent.py` file:
 
@@ -191,7 +189,7 @@ travel_planner.as_service(port=8001)
 
 This exposes the agent as a REST service, allowing other systems to interact with it through standard HTTP requests.
 
-## 4. Running the Durable Agent
+## 4. Run the Durable Agent
 
 Run the durable agent with Dapr by running this command in the **Terminal** window:
 
@@ -206,11 +204,11 @@ This command:
 3. Sets the path to the component configurations
 4. Launches the agent application
 
-## 5. Interacting with the Durable Agent
+## 5. Interact with the Durable Agent
 
 Unlike simpler agents, durable agents provide REST APIs for interaction. Here's how to use them:
 
-### Starting a Workflow
+### Start a Workflow
 
 Run this command in the **cURL** window to start a new workflow:
 
@@ -222,7 +220,7 @@ curl -i -X POST http://localhost:8001/start-workflow \
 
 This initiates a new workflow for finding flights to Paris. You'll receive a workflow ID in response.
 
-### Checking Workflow Status
+### Check the Workflow Status
 
 ```bash,run
 # Replace WORKFLOW_ID with the ID from the previous response
@@ -254,3 +252,7 @@ Durable agents are particularly valuable for:
 - Production deployments where reliability is a key requirement
 
 For simple prototypes or quick experiments, simpler agent types might be sufficient, but for production use, durable agents provide the reliability you need.
+
+---
+
+You've now learned about using durable AI agents that can survive failures and maintain state across sessions. Let's move on to the next challenge where you'll use a workflow that chains together multiple AI tasks.

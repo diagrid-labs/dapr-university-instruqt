@@ -2,11 +2,12 @@ In this challenge, you'll explore how to use Dapr Agents to interact with Large 
 
 ## 1. Configure your OpenAI API key
 
-To work with LLMs, you first need to sign up with an LLM provider and obtain an API key. Throughout this tutorial, we'll be using OpenAI's models, but Dapr Agents supports multiple providers. If you wish to use a different provider, you can explore the configuration options in the Dapr Agents' quickstarts folder.
+To work with LLMs, you first need to sign up with an LLM provider and obtain an API key. Throughout this challenge, we'll be using OpenAI's models, but Dapr Agents supports multiple providers. If you wish to use a different provider, you can explore the configuration options in the Dapr Agents' quickstarts folder.
 
 You can get an OpenAI API key by signing up at [OpenAI](https://platform.openai.com/signup).
 
 ### Prerequisite
+
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and update the `OPENAI_API_KEY` value with your actual OpenAI API key.
 
