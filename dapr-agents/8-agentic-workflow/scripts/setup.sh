@@ -1,1 +1,1 @@
-cd 04-agentic-workflow/
+cd dapr-agents/quickstarts/04-agentic-workflow

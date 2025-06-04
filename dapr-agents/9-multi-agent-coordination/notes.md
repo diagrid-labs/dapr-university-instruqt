@@ -2,7 +2,7 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 ---
 
-## Challenge 9: MBuilding Collaborative Multi-Agent Systems
+## Challenge 9: Build Collaborative Multi-Agent Systems
 
 In this challenge, you'll learn:
 

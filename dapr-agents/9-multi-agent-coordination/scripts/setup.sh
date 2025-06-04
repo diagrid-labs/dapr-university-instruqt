@@ -1,1 +1,1 @@
-cd 05-multi-agent-workflow-dapr-workflows/
+cd dapr-agents/quickstarts/05-multi-agent-workflow-dapr-workflows
