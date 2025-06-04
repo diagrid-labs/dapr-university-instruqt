@@ -1,6 +1,5 @@
 In this challenge, you'll explore how to use Dapr Agents to interact with Large Language Models.  ability to communicate with LLMs is foundational for intelligent agents, enabling them to process natural language, reason about information, and generate human-like responses. Dapr Agents provides templating capabilities and structured schema interactions that allow your agents to work with different LLM providers without major code changes.
 
- 
 ## 1. Configure your OpenAI API key
 
 To work with LLMs, you first need to sign up with an LLM provider and obtain an API key. Throughout this tutorial, we'll be using OpenAI's models, but Dapr Agents supports multiple providers. If you wish to use a different provider, you can explore the configuration options in the Dapr Agents' quickstarts folder.

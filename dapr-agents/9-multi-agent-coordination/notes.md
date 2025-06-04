@@ -1,4 +1,4 @@
-The sandbox for this challenge is being prepared. Once it's ready, click the *Start* button.
+The sandbox for this challenge is being prepared. Once it's ready, click the *Start* button. You can skip challenges via the *Progress* button in the top right, and select another challenge that you want to continue with.
 
 ---
 
