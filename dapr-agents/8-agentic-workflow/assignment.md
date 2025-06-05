@@ -112,7 +112,7 @@ dapr run --app-id dapr-agent-wf --resources-path components/ -- python workflow_
 
 Watch the output in your terminal. You should see something like:
 
-```
+```text,nocopy
 == APP == Character: Gandalf
 == APP == Character: Gandalf
 == APP == Line: "A wizard is never late, nor is he early. He arrives precisely when he means to."
@@ -158,11 +158,13 @@ def get_stock_data(ticker: str) -> dict:
 
 ## 6. Workflow Patterns to Explore
 
-Here are a few common patterns and code extracts. To see full working pattern examples, check out this repo: [https://github.com/diagrid-labs/building-effective-dapr-agents](https://github.com/diagrid-labs/building-effective-dapr-agents)
+Here are a few common workflow patterns and code extracts.
 
 ### Sequential Workflows
 
-Tasks execute one after another:
+Tasks execute one after another. The order of the tasks is important and the output of one task can be the input to the next.
+
+Inspect the `sequential_workflow.py` file in the **Editor** window:
 
 ```python,nocopy
 @workflow(name='sequential_workflow')
@@ -174,7 +176,9 @@ def sequential_process(ctx: DaprWorkflowContext, input_data: str):
 
 ### Parallel Workflows
 
-Multiple tasks execute simultaneously:
+Multiple tasks execute simultaneously. There is no dependency between the tasks, and they can run concurrently to speed up processing.
+
+Inspect the `parallel_workflow.py` file in the **Editor** window:
 
 ```python,nocopy
 @workflow(name='parallel_workflow')
@@ -193,7 +197,7 @@ def parallel_process(ctx: DaprWorkflowContext, input_data: str):
 
 ### Conditional Workflows
 
-Decision points in the workflow:
+Decision points in the workflow based on the results of previous tasks. This allows for branching logic where different paths can be taken based on conditions:
 
 ```python,nocopy
 @workflow(name='conditional_workflow')
