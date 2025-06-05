@@ -19,7 +19,7 @@ This makes the AssistantAgent ideal for mission-critical applications that need 
 
 ## 2.  Explore the AssistantAgent
 
-Use the **Editor** window to examine the durable agent implementation in the `assistant_agent.py` file:
+Use the **Editor** window to examine the durable agent implementation in the `04_assistant_agent.py` file:
 
 ```python,nocopy
 import asyncio
@@ -191,6 +191,19 @@ This exposes the agent as a REST service, allowing other systems to interact wit
 
 ## 4. Run the Durable Agent
 
+Use the **Terminal** window to create a virtual environment:
+
+```bash,run
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Use the **Terminal** window to install the dependencies:
+
+```bash,run
+pip install -r requirements.txt
+```
+
 Run the durable agent with Dapr by running this command in the **Terminal** window:
 
 ```bash,run
@@ -213,18 +226,24 @@ Unlike simpler agents, durable agents provide REST APIs for interaction. Here's 
 Run this command in the **cURL** window to start a new workflow:
 
 ```bash,run
-curl -i -X POST http://localhost:8001/start-workflow \
+INSTANCEID=$(curl -s -X POST http://localhost:8001/start-workflow \
+  -i \
   -H "Content-Type: application/json" \
-  -d '{"task": "I want to find flights to Paris"}'
+  -d '{"task": "I want to find flights to Paris"}' | \
+  grep -o '"workflow_instance_id":"[^"]*"' | \
+  sed 's/"workflow_instance_id":"//;s/"//g' | \
+  tr -d '\r\n')
 ```
 
 This initiates a new workflow for finding flights to Paris. You'll receive a workflow ID in response.
 
 ### Check the Workflow Status
 
+Run this command in the **cURL** window to check the status of the workflow:
+
 ```bash,run
 # Replace WORKFLOW_ID with the ID from the previous response
-curl -i -X GET http://localhost:3500/v1.0/workflows/durableTaskHub/WORKFLOW_ID
+curl -i -X GET http://localhost:3500/v1.0/workflows/dapr/$INSTANCEID
 ```
 
 This allows you to track the progress of long-running tasks.
