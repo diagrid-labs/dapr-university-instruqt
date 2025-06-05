@@ -58,7 +58,7 @@ These participants work together to create a robust, scalable foundation for mul
 ## 2. Exploring Agent Specialization
 
 In a multi-agent system, each agent is specialized for a particular role. Each agent has its own service implementation that defines its unique characteristics, personality, and capabilities.
-Use the **Editor** window to examine the Hobbit agent implementation in the services/hobbit/app.py file:
+Use the **Editor** window to examine the Hobbit agent implementation in the `services/hobbit/app.py` file:
 
 ```python,nocopy
 from dapr_agents import AssistantAgent
@@ -112,7 +112,7 @@ A crucial component of multi-agent systems is the orchestrator that coordinates 
 
 ### Random Orchestrator
 
-The Random orchestrator selects agents randomly to respond to queries:
+The Random orchestrator selects agents randomly to respond to queries. Open the `services/workflow-random/app.py` file in the **Editor** window to see how it is implemented.
 
 ```python,nocopy
 from dapr_agents import RandomOrchestrator
@@ -144,7 +144,7 @@ This approach is useful for:
 
 ### RoundRobin Orchestrator
 
-The RoundRobin orchestrator cycles through agents in a predetermined sequence:
+The RoundRobin orchestrator cycles through agents in a predetermined sequence. Open the `services/workflow-roundrobin/app.py` file in the **Editor** window to see how it is implemented.
 
 ```python,nocopy
 from dapr_agents import RoundRobinOrchestrator
@@ -152,13 +152,14 @@ from dapr_agents import RoundRobinOrchestrator
 ```
 
 This approach ensures:
+
 - Equal participation from all agents
 - Predictable turn-taking behavior
 - Fair distribution of tasks
 
 ### LLM-Based Orchestrator
 
-The LLM-based orchestrator uses an LLM to intelligently select the most appropriate agent for each query:
+The LLM-based orchestrator uses an LLM to intelligently select the most appropriate agent for each query. Open the `services/workflow-llm/app.py` file in the **Editor** window to see how it is implemented.
 
 ```python,nocopy
 from dapr_agents import LLMOrchestrator
@@ -166,6 +167,7 @@ from dapr_agents import LLMOrchestrator
 ```
 
 This approach provides:
+
 - Context-aware agent selection
 - Dynamic adaptation to conversation flow
 - More natural multi-agent interactions
