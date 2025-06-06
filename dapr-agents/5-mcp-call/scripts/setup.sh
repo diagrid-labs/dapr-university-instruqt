@@ -1,0 +1,1 @@
+cd dapr-agents/quickstarts/07-agent-mcp-client-stdio
