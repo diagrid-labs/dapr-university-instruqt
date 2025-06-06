@@ -34,6 +34,15 @@ The workflow has an `input` of type `string`. This input is used as the input fo
 
 </details>
 
+<details>
+   <summary><b>.Python workflow code</b></summary>
+
+Open the `chaining_workflow.py` file located in the `task_chaining` folder. This file contains the workflow code.
+
+The workflow has an `wf_input` of type `str`. This `wf_input` is used as the input for the first activity. Each activity output is used as the input for the next activity. The output of the last activity is returned as the workflow output.
+
+</details>
+
 ### 1.3. Inspect the Activity code
 
 > [!NOTE]
@@ -46,10 +55,17 @@ The three activity definitions are located in the `TaskChaining/Activities` fold
 
 </details>
 
-### 1.4. Inspect the workflow & activity registration
+<details>
+   <summary><b>Python activity code</b></summary>
+
+The three activity definitions are located underneath the workflow in the `chaining_workflow.py` file. All activities append a word to the input.
+
+</details>
+
+### 1.4. Inspect the startup code
 
 > [!NOTE]
-> Expand the language-specific instructions to learn more about workflow registration.
+> Expand the language-specific instructions to learn more about workflow registration, workflow runtime startup, and HTTP endpoints to start the workflow.
 
 <details>
    <summary><b>.NET registration and endpoints</b></summary>
@@ -57,6 +73,13 @@ The three activity definitions are located in the `TaskChaining/Activities` fold
 Locate the `Program.cs` file in the `TaskChaining` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow.
+
+</details>
+
+<details>
+   <summary><b>Python workflow runtime and endpoints</b></summary>
+
+Locate the `app.py` file in the `task_chaining` folder. This file contains the code to start the workflow runtime and a `start` HTTP endpoint to start the workflow.
 
 </details>
 
@@ -90,7 +113,43 @@ dapr run -f .
 
 </details>
 
-Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
+<details>
+   <summary><b>Run the Python application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *python/task-chaining/task_chaining* folder:
+
+```bash,run
+cd python/task-chaining/task_chaining
+```
+
+Create a virtual environment and activate it:
+
+```bash,run
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Install the dependencies:
+
+```bash,run
+pip3 install -r requirements.txt
+```
+
+Move one folder up and run the application using the Dapr CLI:
+
+```bash,run
+cd ..
+dapr run -f .
+```
+
+</details>
+
+###
+
+> [!IMPORTANT]
+> Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
 
 ## 3. Start the workflow
 
@@ -110,14 +169,26 @@ INSTANCEID=$(curl -s --request POST \
   -i | grep -i "^location:" | sed 's/^location: *//i' | tr -d '\r\n')
 ```
 
-Expected output:
+The **Dapr CLI** window should contain these application log statements:
 
 ```text,nocopy
-HTTP/1.1 202 Accepted
-Content-Length: 0
-Date: Thu, 17 Apr 2025 12:04:53 GMT
-Server: Kestrel
-Location: 67b4526c1c3a49fca2c4801869869016
+== APP - chaining == activity1: Received input: This.
+== APP - chaining == activity2: Received input: This is.
+== APP - chaining == activity3: Received input: This is task.
+```
+
+</details>
+
+<details>
+   <summary><b>Start the Python workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
+
+```curl,run
+INSTANCEID=$(curl -s --request POST --url http://localhost:5255/start \
+  -i | grep -o '"instance_id":"[^"]*"' \
+   | sed 's/"instance_id":"//;s/"//g' \
+   | tr -d '\r\n')
 ```
 
 The **Dapr CLI** window should contain these application log statements:
@@ -152,8 +223,37 @@ Expected output:
 
 ```json,nocopy
 {
-   "instanceID":"67b4526c1c3a49fca2c4801869869016",
+   "instanceID":"<INSTANCE_ID>",
    "workflowName":"ChainingWorkflow",
+   "createdAt":"2025-04-17T12:04:53.094038635Z",
+   "lastUpdatedAt":"2025-04-17T12:04:53.380547765Z",
+   "runtimeStatus":"COMPLETED",
+   "properties": {
+      "dapr.workflow.input":"\"This\"",
+      "dapr.workflow.output":"\"This is task chaining\""
+   }
+}
+```
+
+</details>
+
+<details>
+   <summary><b>Get the Python workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:3555/v1.0/workflows/dapr/$INSTANCEID
+```
+
+Where `$INSTANCEID` is the environment variable containing the workflow instance ID captured in the previous step.
+
+Expected output:
+
+```json,nocopy
+{
+   "instanceID":"<INSTANCE_ID>",
+   "workflowName":"chaining_workflow",
    "createdAt":"2025-04-17T12:04:53.094038635Z",
    "lastUpdatedAt":"2025-04-17T12:04:53.380547765Z",
    "runtimeStatus":"COMPLETED",

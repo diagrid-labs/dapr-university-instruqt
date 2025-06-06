@@ -29,7 +29,7 @@ The workflow in this challenge consists of two activities that are called in seq
 
 ### 2.1 Choose a language tab
 
-Use one of the language tabs to navigate to the basic workflow example. Each language tab contains a workflow application and a Multi-App Run `dapr.yaml` file.
+Use one of the language tabs to navigate to the basic workflow example. Each language tab contains a workflow application and a Dapr Multi-App Run `dapr.yaml` file that is used to start the application with a Dapr sidecar.
 
 ### 2.2 Inspect the Workflow code
 
@@ -55,6 +55,32 @@ The body of the `RunAsync` method in this example contains two calls to activiti
 
 </details>
 
+<details>
+   <summary><b>Python workflow</b></summary>
+
+Open the `basic_workflow.py` file located in the `basic` folder. This file contains the workflow code.
+
+The Dapr workflow SDK is imported and aliased as `wf`.
+
+```python,nocopy
+import dapr.ext.workflow as wf
+```
+
+A new `WorkflowRuntime` instance is created: `wf_runtime = wf.WorkflowRuntime()`. This instance is used to decorate the `basic_workflow` function as a Dapr workflow.
+
+```python,nocopy
+@wf_runtime.workflow(name='basic_workflow')
+def basic_workflow(ctx: wf.DaprWorkflowContext, wf_input: str):
+```
+
+The `wf.DaprWorkflowContext` input argument is provided by the Dapr Workflow SDK. This object contains properties and methods of the workflow instance. The second input argument is the input argument for the workflow.
+
+You can use any type of input and output for the workflow, as long as they are serializable.
+
+The body of the `basic_workflow` function in this example contains two calls to activities using the `call_activity` method. The first input argument is the name of the activity function; the second input argument is the input for the activity.
+
+</details>
+
 ### 2.3 Inspect the Activity code
 
 > [!NOTE]
@@ -77,25 +103,67 @@ You can use any type of input and output for the activity, as long as they are s
 
 The body of the `RunAsync` method in this example just does a `Console.WriteLine` to echo the input and returns a string concatenation of the input and "Two".
 
-Typically, activities contain code that performs one specific task, such as calling an external service, storing data in a state store, performing a calculation, or publishing a message. A more realistic example is shown in the *Combined Patterns* challenge later in this learning track.
+</details>
+
+<details>
+   <summary><b>Python activities</b></summary>
+
+Open the `basic_workflow.py` file located in the `basic` folder. This file contains the activities below the workflow definition.
+
+Activities are defined as functions and decorated with the `@wf_runtime.activity(...)` decorator and contains the name of the activity.
+
+The `WorkflowActivityContext` input argument is provided by the Dapr Workflow SDK. This type contains the instance ID of workflow. The second input argument is the input argument for the workflow.
+
+You can use any type of input and output for the activity, as long as they are serializable.
+
+The body of the activity function in this example just does a `print` to echo the input and returns a string concatenation of the input and "Two".
 
 </details>
 
-### 2.4 Inspect the workflow & activity registration
+###
 
-Workflows and activities need to be registered in the workflow application. This is to ensure that Dapr can find the workflow and activities when they are scheduled.
+> [!IMPORTANT]
+> Typically, activities contain code that performs one specific task, such as calling an external service, storing data in a state store, performing a calculation, or publishing a message. A benefit of using Dapr is that you can combine Dapr workflow with other Dapr APIs in the activities. A more realistic example, that is using Dapr service invocation, state management, and pub/sub, is given in the *Combined Patterns* challenge later in this learning track.
+
+### 2.4 Inspect the startup code
 
 > [!NOTE]
-> Expand the language-specific instructions to learn more about workflow registration.
+> Expand the language-specific instructions to learn more about workflow registration, workflow runtime startup, and HTTP endpoints to start the workflow.
 
 <details>
    <summary><b>.NET registration and endpoints</b></summary>
+
+Workflows and activities need to be registered in the workflow application. This is to ensure that Dapr can find the workflow and activities when they are scheduled.
 
 Locate the `Program.cs` file in the `Basic` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow. It accepts a `string` as input, and this input is passed on to the workflow.
 
-The `start` method also contains the `DaprWorkflowClient` as an input argument. This is injected by the Dapr SDK. The `DaprWorkflowClient` is used to schedule a new workflow using the `ScheduleNewWorkflowAsync` method. The first input argument for this method is the name of the workflow; the second input argument is the input for the workflow. The `ScheduleNewWorkflowAsync` method return the instance ID of the workflow that is scheduled. The ID is used for other workflow operations that can be done with the `DaprWorkflowClient`. This will be covered in the *Workflow Management* challenge later in this learning track.
+The `start` method also contains the `DaprWorkflowClient` as an input argument. This is injected by the Dapr SDK. The `DaprWorkflowClient` is used to schedule a new workflow using the `ScheduleNewWorkflowAsync` method. The first input argument for this method is the name of the workflow; the second input argument is the input for the workflow. The `ScheduleNewWorkflowAsync` method returns the instance ID of the workflow that is scheduled. The ID is used for other workflow operations that can be done with the `DaprWorkflowClient`. This is covered in the *Workflow Management* challenge later in this learning track.
+
+</details>
+
+<details>
+   <summary><b>Python workflow runtime and endpoints</b></summary>
+
+> [!NOTE]
+> All Python demos in this learning track use the FastAPI framework.
+
+Locate the `app.py` file in the `basic` folder. This file contains the code to start the workflow runtime and an HTTP endpoint to start the workflow.
+
+The FastAPI lifespan is used to start the workflow runtime when the application starts and shutdown the workflow runtime when the application stops:
+
+```python,nocopy
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    wf_runtime.start()
+    yield
+    wf_runtime.shutdown()
+```
+
+The `app.py` file also contains the `start` HTTP POST endpoint that is used to start the workflow. It accepts a `str` as input, and this input is passed on to the workflow.
+
+The `start` method uses the `DaprWorkflowClient` from the Dapr SDK. The `DaprWorkflowClient` is used to schedule a new workflow using the `schedule_new_workflow` method. The first input argument for this method is the name of the workflow; the second input argument is the input for the workflow. The `schedule_new_workflow` method returns the instance ID of the workflow that is scheduled. The ID is used for other workflow operations that can be done with the `DaprWorkflowClient`. This is covered in the *Workflow Management* challenge later in this learning track.
 
 </details>
 
@@ -129,7 +197,47 @@ dapr run -f .
 
 </details>
 
-Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing.
+<details>
+   <summary><b>Run the Python application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *python/fundamentals/basic* folder:
+
+```bash,run
+cd python/fundamentals/basic
+```
+
+Create a virtual environment and activate it:
+
+```bash,run
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Install the dependencies:
+
+```bash,run
+pip3 install -r requirements.txt
+```
+
+Move one folder up and run the application using the Dapr CLI:
+
+```bash,run
+cd ..
+dapr run -f .
+```
+
+</details>
+
+###
+
+> [!IMPORTANT]
+> Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing. The logs should contain an INFO messages related to the Dapr Placement Service:
+> 
+> `INFO[0020] Connected to placement` ...
+> 
+> `INFO[0022] Placement tables updated` ...
 
 ## 4. Start the Basic workflow
 
@@ -148,7 +256,7 @@ curl -i --request POST http://localhost:5254/start/One
 ```
 
 >[!WARNING]
-> You might see a warning in the Dapr CLI log window about `Error processing operation DaprBuiltInActorNotFoundRetries.`. Don't worry, this is a transient error, the Dapr process is trying to communicate to the actor that is responsible for scheduling the workflow. You'll see this frequently since the sandbox environment is quite slow.
+> You might see a warning in the Dapr CLI log window about `Error processing operation DaprBuiltInActorNotFoundRetries.`. Don't worry, this is a transient error, the Dapr process is trying to communicate to the actor that is responsible for scheduling the workflow. 
 
 Expected output:
 
@@ -189,6 +297,61 @@ echo $INSTANCEID
 
 </details>
 
+<details>
+   <summary><b>Start the Python workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow:
+
+```curl,run
+curl -i --request POST http://localhost:5254/start/One
+```
+
+>[!WARNING]
+> You might see a warning in the Dapr CLI log window about `Error processing operation DaprBuiltInActorNotFoundRetries.`. Don't worry, this is a transient error that occurs when the Placement tables have not yet been updated by Dapr (due to the low performance of this sandbox environment). The Dapr process is trying to communicate to the internal workflow actors that are responsible for scheduling the workflow. Dapr's built-in retry mechanism will handle this error and the workflow will be scheduled successfully.
+
+Expected output:
+
+```text,nocopy
+HTTP/1.1 202 Accepted
+date: Mon, 19 May 2025 12:40:15 GMT
+server: uvicorn
+content-length: 50
+content-type: application/json
+
+{"instance_id":"<INSTANCE_ID>"}
+```
+
+>[!IMPORTANT]
+> Starting a workflow is an asynchronous operation. The workflow engine will return a `202 Accepted` response immediately, even if the workflow has not yet started executing. The workflow engine will schedule the workflow in the background and the workflow application will run the workflow and the activities. Since the workflow could be running for a long time or even indefinitely, the workflow engine will not wait for the workflow to complete before returning a response.
+
+> [!NOTE]
+> The `instance_id` field in the response contains the workflow instance ID. You can use this ID to get the status of the workflow instance you just started.
+
+The **Dapr CLI** window should contain these application log statements:
+
+```text,nocopy
+== APP - basic == activity1: Received input: One.
+== APP - basic == activity2: Received input: One Two.
+```
+
+> [!IMPORTANT]
+> Now run the following curl command to start the workflow again. This time, the instance ID will be captured in an environment variable, `$INSTANCEID`, and this variable is used in subsequent calls to retrieve the workflow status in the next section without the need to manually copy/paste the instance ID:
+
+```curl,run
+INSTANCEID=$(curl -s --request POST --url http://localhost:5254/start/One \
+  -i | grep -o '"instance_id":"[^"]*"' \
+   | sed 's/"instance_id":"//;s/"//g' \
+   | tr -d '\r\n')
+```
+
+You can verify the value of the `$INSTANCEID` variable by running the following command in the **curl** window:
+
+```bash,run
+echo $INSTANCEID
+```
+
+</details>
+
 ## 5. Get the workflow status
 
 Inspect the Dapr output in the **Dapr CLI** window. It should contain a message that the workflow has been completed successfully.
@@ -216,7 +379,7 @@ Use the **curl** window to make a GET request to get the status of a workflow in
 curl --request GET --url http://localhost:3554/v1.0/workflows/dapr/$INSTANCEID
 ```
 
-Where `$INSTANCEID` is the environment variable that contains the workflow instance ID that is captured from the `Location` header in the previous step.
+Where `$INSTANCEID` is the environment variable that contains the workflow instance ID that is captured from the `instanceId` field in the previous step.
 
 Expected output:
 
@@ -224,6 +387,37 @@ Expected output:
 {
    "instanceID":"05f63e15a3724c5d86386922919378d6",
    "workflowName":"BasicWorkflow",
+   "createdAt":"2025-04-16T13:54:30.688455621Z",
+   "lastUpdatedAt":"2025-04-16T13:54:30.720682100Z",
+   "runtimeStatus":"COMPLETED",
+   "properties": {
+      "dapr.workflow.input":"\"One\"",
+      "dapr.workflow.output":"\"One Two Three\""
+   }
+}
+```
+
+The workflow status contains the workflow instance ID, the workflow name, the created and last updated timestamps, the runtime status (`COMPLETED`), and the input and output of the workflow.
+
+</details>
+
+<details>
+   <summary><b>Get the Python workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:3554/v1.0/workflows/dapr/$INSTANCEID
+```
+
+Where `$INSTANCEID` is the environment variable that contains the workflow instance ID that is captured from the `instance_id` field in the previous step.
+
+Expected output:
+
+```json,nocopy
+{
+   "instanceID":"05f63e15a3724c5d86386922919378d6",
+   "workflowName":"basic_workflow",
    "createdAt":"2025-04-16T13:54:30.688455621Z",
    "lastUpdatedAt":"2025-04-16T13:54:30.720682100Z",
    "runtimeStatus":"COMPLETED",
@@ -298,6 +492,9 @@ The expected output should be similar to this:
 10) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000000"
 11) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000004"
 ```
+
+> [!IMPORTANT]
+> The GUID in the key name is the workflow instance ID. It will be a different value each time a new workflow instance is started since it is created by Dapr in this example. You can provide a custom workflow instance ID when scheduling a workflow. This is covered in the External System Interaction challenge later in this learning track.
 
 > [!WARNING]
 > You should never edit the workflow state directly, to prevent corrupting the data of workflows that are still running. The Dapr Workflow Client is used to manage workflow instance data, and this is covered in the *Workflow Management* challenge later in this learning track.
