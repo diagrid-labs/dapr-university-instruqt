@@ -89,7 +89,7 @@ Managed with internal state (`AssistantWorkflowState`) to support multi-step tas
 - **Message-based orchestration**
 Uses message_bus_name to integrate with Dapr pub/sub for asynchronous communication between agents and services
 - **Agent instance registry**
-Configured with `agents_registry_store_name` and `agents_registry_key` to store metadata such as instance IDs and task sources
+Configured with `agents_registry_store_name`, which contains agent metadata, and `agents_registry_key`, which contains the agent identifier. This is used to retrieve all available agents and their roles inside agentic workflows
 - **Service-mode execution**
 Enabled through `as_service(...)` and `start()` to run the agent as a long-lived, REST-accessible background service
 
@@ -247,6 +247,21 @@ curl -i -X GET http://localhost:3500/v1.0/workflows/dapr/$INSTANCEID
 ```
 
 This allows you to track the progress of long-running tasks.
+
+The result will show the workflow status, including whether the workflow is running, completed, or failed, and the input and output of the workflow:
+
+```text,nocopy
+{
+  "instanceID":"af000757dc9d4cabb3129f91ae14b1d5",
+  "workflowName":"ToolCallingWorkflow",
+  "createdAt":"2025-06-06T10:20:29.032878914Z",
+  "lastUpdatedAt":"2025-06-06T10:20:31.134089963Z",
+  "runtimeStatus":"COMPLETED",
+  "properties":{
+    "dapr.workflow.input":"{\"task\": null, \"iteration\": 1, \"workflow_instance_id\": null}",
+    "dapr.workflow.output":"{\"content\": \"Here are some flight options to Paris:\\n\\n1. **Airline**: SkyHighAir\\n   - **Price**: $450.00\\n\\n2. **Airline**: GlobalWings\\n   - **Price**: $375.50\\n\\nIf you need more information or have any preferences to consider, feel free to let me know!\", \"role\": \"assistant\"}"
+  }
+```
 
 ## 6. Benefits of Durable Agents
 

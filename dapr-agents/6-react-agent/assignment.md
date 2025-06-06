@@ -85,6 +85,8 @@ if __name__ == "__main__":
 
 Notice how this agent is created using the `ReActAgent` class, which implements the ReAct pattern. Alternatively we could use `Agent` factory class and explicitly set the `pattern` field to `react`.
 
+The `instructions` argument is an array of tasks we want the `ReactAgent` to perform, guiding it to first check the weather and then suggest activities based on that weather.
+
 ## Understand the ReAct Implementation
 
 While this is a simple example, behind the scenes, the ReAct agent uses a sophisticated implementation:

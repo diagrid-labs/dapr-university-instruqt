@@ -2,7 +2,7 @@ Click the *Start* button to setup the sandbox environment for this training, thi
 
 - You'll need an OpenAI API key to complete challenges 2-9 in this track. You can get an OpenAI API key by signing up at [OpenAI](https://platform.openai.com/signup). We recommend you get an OpenAI API key before you start this track.
 
-- There are 9 challenges to complete. If your session is idle for more than 10 minutes, the session will stop.You'll then need to restart the learning track, and add your OpenAI API key again in challenge 2.
+- There are 9 challenges to complete. If your session is idle for more than 10 minutes, the session will stop. You'll then need to restart the learning track, and add your OpenAI API key again in challenge 2.
 
 - Tracks can be started up to 5 times, and you can select which challenge you want to run via the *Progress* button in the top right, if you don't want to run them all in order.
 
