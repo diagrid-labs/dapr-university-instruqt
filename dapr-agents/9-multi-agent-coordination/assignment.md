@@ -312,10 +312,14 @@ Multi-agent systems are particularly well-suited for:
 
 By leveraging multiple specialized agents, you can create AI systems that tackle problems too complex for a single agent to handle effectively.
 
-## Feedback & Discord
+## Collect your badge & provide feedback
 
 Congratulations! 🎉 You've completed the Dapr University Dapr Agents learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training 🚀.
 
 All code samples shown in this Dapr University track are available in the [Dapr Agents](https://github.com/dapr/dapr-agents/) repository in the `quickstarts` folder. Give this repo a star and clone it locally to use it as reference material for building your next workflow project.
+
+Collect the [Dapr University badge](https://holopin.io/collect/cmcnbixyg090907l820ki10nd) for this track by clicking on the badge image below. You'll need a GitHub account to claim the badge.
+
+[![Dapr University Dapr Agents badge](Diagrid-Dapr-Uni-Agents_x500.png)](https://holopin.io/collect/cmcnbixyg090907l820ki10nd)
 
 If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
