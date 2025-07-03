@@ -1,10 +1,17 @@
 Click the *Start* button to setup the sandbox environment for this training, this may take up to 1 min. Once the environment ready, click the *Start* button again.
 
-In this challenge, you'll learn what Dapr is, why organizations use Dapr, and get an introduction to the most important features of Dapr.
+- There are 5 challenges to complete. If your session is idle for more than 10 minutes, the session will stop, and you'll need to restart the track.
+
+- Tracks can be started up to 5 times, and you can select which challenge you want to run via the *Progress* button in the top right, if you don't want to run them all in order.
+
+- If you complete all 5 challenges in this track you can claim the Dapr 101 badge.
+![Dapr University Dapr 101 badge](https://raw.githubusercontent.com/diagrid-labs/dapr-university-instruqt/refs/heads/main/dapr-101/5-pubsub-api/Diagrid-Dapr-Uni-101_x500.png)
 
 If you need more information about Dapr during (or after) the challenge, visit the [Dapr Docs](https://docs.dapr.io/concepts/overview/). If you have any questions or feedback about this track, you can let us know in the *#university* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
 
 ---
+
+In this challenge, you'll learn what Dapr is, why organizations use Dapr, and get an introduction to the most important features of Dapr.
 
 Dapr is a portable, event-driven runtime that makes it easy for any developer to build resilient, stateless, and stateful applications that run on the cloud and edge and embraces the diversity of languages and developer frameworks.
 

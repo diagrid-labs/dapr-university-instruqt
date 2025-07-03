@@ -320,6 +320,6 @@ All code samples shown in this Dapr University track are available in the [Dapr 
 
 Collect the [Dapr University badge](https://holopin.io/collect/cmcnbixyg090907l820ki10nd) for this track by clicking on the badge image below. You'll need a GitHub account to claim the badge.
 
-[![Dapr University Dapr Agents badge](Diagrid-Dapr-Uni-Agents_x500.png)](https://holopin.io/collect/cmcnbixyg090907l820ki10nd)
+[![Dapr University Dapr Agents badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-agents/9-multi-agent-coordination/Diagrid-Dapr-Uni-Agents_x500.png?raw=true)](https://holopin.io/collect/cmcnbixyg090907l820ki10nd)
 
 If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
