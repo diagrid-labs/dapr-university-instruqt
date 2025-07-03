@@ -316,9 +316,9 @@ By leveraging multiple specialized agents, you can create AI systems that tackle
 
 Congratulations! 🎉 You've completed the Dapr University Dapr Agents learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training 🚀.
 
-All code samples shown in this Dapr University track are available in the [Dapr Agents](https://github.com/dapr/dapr-agents/) repository in the `quickstarts` folder. Give this repo a star and clone it locally to use it as reference material for building your next workflow project.
+All code samples shown in this Dapr University track are available in the [Dapr Agents](https://github.com/dapr/dapr-agents/) repository in the `quickstarts` folder. Give this repo a star and clone it locally to use it as reference material for building your next Dapr Agents project.
 
-Collect the [Dapr University badge](https://holopin.io/collect/cmcnbixyg090907l820ki10nd) for this track by clicking on the badge image below. You'll need a GitHub account to claim the badge.
+Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmcnbixyg090907l820ki10nd). You'll need a GitHub account to claim the badge.
 
 [![Dapr University Dapr Agents badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-agents/9-multi-agent-coordination/Diagrid-Dapr-Uni-Agents_x500.png?raw=true)](https://holopin.io/collect/cmcnbixyg090907l820ki10nd)
 

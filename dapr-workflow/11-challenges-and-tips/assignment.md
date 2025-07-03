@@ -129,7 +129,8 @@ Congratulations! 🎉 You've completed the Dapr University workflow learning tra
 
 All code samples shown in this Dapr University track are available in the [Dapr QuickStarts](https://github.com/dapr/quickstarts/) repository in the `tutorials/workflow` folder. Give this repo a star and clone it locally to use it as reference material for building your next workflow project.
 
-Collect the [Dapr University badge](https://holopin.io/collect/cmcnbo8lt1386107js9fyxc2zu) for this track by clicking on the badge image below. You'll need a GitHub account to claim the badge.
+Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmcnbo8lt1386107js9fyxc2zu). You'll need a GitHub account to claim the badge.
+
 [![Dapr University Dapr Workflow badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/11-challenges-and-tips/Diagrid-Dapr-Uni-Workflow_x500.png?raw=true)](https://holopin.io/collect/cmcnbo8lt1386107js9fyxc2zu)
 
 If you want to quickly build workflows based on a workflow diagram, take a look at [Diagrid Workflow Composer](https://diagrid.ws/workflows). You can upload a workflow image, select the language, and this tool will generate a scaffolded Dapr workflow project that you can download and use as a starting point.
