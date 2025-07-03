@@ -123,11 +123,14 @@ Navigate to the `payload_size_workflow.py` file. It contains two workflows: `lar
 
 You now know the limitations of workflows as code and how to deal with them.
 
-## Feedback & Dapr Discord
+## Collect your badge & provide feedback
 
 Congratulations! 🎉 You've completed the Dapr University workflow learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training 🚀.
 
 All code samples shown in this Dapr University track are available in the [Dapr QuickStarts](https://github.com/dapr/quickstarts/) repository in the `tutorials/workflow` folder. Give this repo a star and clone it locally to use it as reference material for building your next workflow project.
+
+Collect the [Dapr University badge](https://holopin.io/collect/cmcnbo8lt1386107js9fyxc2zu) for this track by clicking on the badge image below. You'll need a GitHub account to claim the badge.
+[![Dapr University Dapr Workflow badge](Diagrid-Dapr-Uni-Workflow_x500.png)](https://holopin.io/collect/cmcnbo8lt1386107js9fyxc2zu)
 
 If you want to quickly build workflows based on a workflow diagram, take a look at [Diagrid Workflow Composer](https://diagrid.ws/workflows). You can upload a workflow image, select the language, and this tool will generate a scaffolded Dapr workflow project that you can download and use as a starting point.
 
