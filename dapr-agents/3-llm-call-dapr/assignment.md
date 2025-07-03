@@ -103,7 +103,7 @@ Using the Dapr Conversation API instead of calling LLMs directly offers several 
 
 If you want to see the provider flexibility in action, you can try using the Echo component instead:
 
-1. Update the `.env` file to be `DAPR_LLM_COMPONENT_DEFAULT=echo`:
+1. Update the `.env` file to be `DAPR_LLM_COMPONENT_DEFAULT=echo`.
 
 2. Run the application again:
 
