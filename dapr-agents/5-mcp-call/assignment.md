@@ -199,4 +199,4 @@ The rest of your agent code remains exactly the same! Once connected, the agent 
 
 ---
 
- You've now learned how to connect your agent to external tools using the Model Context Protocol (MCP). Let's move on to the next challenge, where you learn to create AI agents using the ReAct pattern.
+ You've now learned how to connect your agent to external tools using the Model Context Protocol (MCP). Let's move on to the next challenge, where you learn to create durable agents for critical tasks.

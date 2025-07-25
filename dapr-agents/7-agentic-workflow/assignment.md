@@ -28,7 +28,7 @@ This approach is particularly suitable for business-critical applications where 
 
 ## 2. Examine the Workflow Code
 
-Open the `workflow_dapr_agent.py` file in the **Editor** window:
+Open the `sequential_workflow.py` file in the **Editor** window:
 
 ```python,nocopy
 from dapr_agents.workflow import WorkflowApp, workflow, task
@@ -38,14 +38,14 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+
 # Define Workflow logic
 @workflow(name="task_chain_workflow")
 def task_chain_workflow(ctx: DaprWorkflowContext):
-    character = yield ctx.call_activity(get_character)
-    print(f"Character: {character}")
-    line = yield ctx.call_activity(get_line, input={"character": character})
-    print(f"Line: {line}")
-    return line
+    result1 = yield ctx.call_activity(get_character)
+    result2 = yield ctx.call_activity(get_line, input={"character": result1})
+    return result2
+
 
 @task(
     description="""
@@ -56,17 +56,19 @@ def task_chain_workflow(ctx: DaprWorkflowContext):
 def get_character() -> str:
     pass
 
+
 @task(
     description="What is a famous line by {character}",
 )
 def get_line(character: str) -> str:
-    print(f"Character: {character}")
     pass
+
 
 if __name__ == "__main__":
     wfapp = WorkflowApp()
+
     results = wfapp.run_and_monitor_workflow_sync(task_chain_workflow)
-    print(f"Results: {results}")
+    print(f"Famous Line: {results}")
 ```
 
 Notice that this workflow:
@@ -105,7 +107,7 @@ pip install -r requirements.txt
 Run the workflow with Dapr by using the **Terminal** window:
 
 ```bash,run
-dapr run --app-id dapr-agent-wf --resources-path components/ -- python workflow_dapr_agent.py
+dapr run --app-id dapr-agent-wf --resources-path components/ -- python sequential_workflow.py
 ```
 
 ## 4. Observe the Workflow Execution

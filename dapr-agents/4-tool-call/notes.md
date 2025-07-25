@@ -6,7 +6,6 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 In this challenge, you'll learn:
 
-- How to pick different agent types (`ToolCallAgent`, `ReActAgent`, `OpenAPIReActAgent`) that serve distinct purposes
 - How to create custom tools with the `@tool` decorator and Pydantic schemas for input validation
 - How to configure agents with instructions, tools, and persistent memory using Dapr state stores
 - How to run agents with Dapr sidecars and observe the tool-calling process in action

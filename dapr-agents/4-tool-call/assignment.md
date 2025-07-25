@@ -1,4 +1,4 @@
-In this challenge, you'll create a ToolCallAgent; a stateless AI agent that can respond to user questions by directly invoking custom tools, such as retrieving weather information for different locations. This agent is ideal for lightweight, reactive tasks that require quick and direct tool execution.
+In this challenge, you'll create an Agent; a stateless AI agent that can respond to user questions by directly invoking custom tools, such as retrieving weather information for different locations. This agent is ideal for lightweight, reactive tasks that require quick and direct tool execution.
 
 ### Prerequisite
 
@@ -37,19 +37,15 @@ AIAgent = Agent(
         "From time to time, you can also jump after answering the weather question.",
     ],
     memory=ConversationDaprStateMemory(store_name="historystore", session_id="some-id"),
-    pattern="toolcalling",
     tools=tools
 )
 ```
-
-The Agent class acts as a factory that can create different types of agents depending on the pattern you specify. While the ToolCallAgent is the default, here we explicitly set the pattern to `toolcalling` to make it clear that we want an agent specialized in handling tool calls for tasks like retrieving weather information.
 
 Notice how we:
 
 - Give the agent a name, role, and goal
 - Provide specific instructions
 - Configure persistent memory using Dapr state
-- Set the agent pattern to "toolcalling"
 - Provide our custom tools
 
 ## 3. Configure the Dapr State Store
@@ -73,7 +69,7 @@ spec:
 
 This configuration tells Dapr to use Redis as the state store for agent conversation memory.
 
-## 4. Run the Tool Calling Agent
+## 4. Run the Agent
 
 Use the **Terminal** window to run create a virtual environment:
 
@@ -155,4 +151,4 @@ Notice how the agent:
 3. Combines the results into a coherent response
 
 ---
-You've now learned how to use a ToolCallAgent; a stateless AI agent that can respond to user questions by directly invoking custom tools. In the next challenge, you'll learn how to build agents that can call external services through Model Context Protocol (MCP).
+You've now learned how to use an Agent; a stateless AI agent that can respond to user questions by directly invoking custom tools. In the next challenge, you'll learn how to build agents that can call external services through Model Context Protocol (MCP).

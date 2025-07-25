@@ -1,13 +1,13 @@
-In this challenge, you'll learn how to create durable AI agents that can survive failures and maintain state across sessions using Dapr Agents. You'll explore how the AssistantAgent class leverages internally Dapr's Workflow building block to provide persistence, resilience, and stateful behavior.
+In this challenge, you'll learn how to create durable AI agents that can survive failures and maintain state across sessions using Dapr Agents. You'll explore how the DurableAgent class leverages internally Dapr's Workflow building block to provide persistence, resilience, and stateful behavior.
 
 ### Prerequisite
 
 > [!IMPORTANT]
 > Open the `.env` file in the current folder and validate the `OPENAI_API_KEY` value is present. If it is not present, update it with your actual OpenAI API key.
 
-## 1.  Why Use AssistantAgent?
+## 1.  Why Use DurableAgent?
 
-The AssistantAgent is Dapr Agents' most powerful and resilient agent type, designed for production-level AI applications. Unlike the previously explored agent type, the AssistantAgent:
+The DurableAgent is Dapr Agents' most powerful and resilient agent type, designed for production-level AI applications. Unlike the previously explored agent type, the DurableAgent:
 
 1. **Implements the Workflow Pattern**: Uses Dapr's workflow engine to execute tasks in a durable, recoverable manner
 2. **Preserves State Across Failures**: Stores all conversation state and execution progress in persistent storage
@@ -15,18 +15,18 @@ The AssistantAgent is Dapr Agents' most powerful and resilient agent type, desig
 4. **Supports Multi-Agent Communication**: Can broadcast messages to other agents and receive responses
 5. **Exposes Service APIs**: Provides REST endpoints to trigger workflows and check their status
 
-This makes the AssistantAgent ideal for mission-critical applications that need to remain functional even when facing system failures, network issues, or process restarts.
+This makes the DurableAgent ideal for mission-critical applications that need to remain functional even when facing system failures, network issues, or process restarts.
 
-## 2.  Explore the AssistantAgent
+## 2.  Explore the DurableAgent
 
-Use the **Editor** window to examine the durable agent implementation in the `04_assistant_agent.py` file:
+Use the **Editor** window to examine the durable agent implementation in the `03_durable_agent.py` file:
 
 ```python,nocopy
 import asyncio
 import logging
 from typing import List
 from pydantic import BaseModel, Field
-from dapr_agents import tool, AssistantAgent
+from dapr_agents import tool, DurableAgent
 from dapr_agents.memory import ConversationDaprStateMemory
 from dotenv import load_dotenv
 
@@ -46,20 +46,20 @@ def search_flights(destination: str) -> List[FlightOption]:
     # Mock flight data (would be an external API call in a real app)
     return [
         FlightOption(airline="SkyHighAir", price=450.00),
-        FlightOption(airline="GlobalWings", price=375.50)
+        FlightOption(airline="GlobalWings", price=375.50),
     ]
 
 async def main():
     try:
         # Initialize TravelBuddy agent
-        travel_planner = AssistantAgent(
+        travel_planner = DurableAgent(
             name="TravelBuddy",
             role="Travel Planner",
             goal="Help users find flights and remember preferences",
             instructions=[
                 "Find flights to destinations",
                 "Remember user preferences",
-                "Provide clear flight info"
+                "Provide clear flight info",
             ],
             tools=[search_flights],
             message_bus_name="messagepubsub",
@@ -69,7 +69,7 @@ async def main():
             agents_registry_key="agents_registry",
             memory=ConversationDaprStateMemory(
                 store_name="conversationstore", session_id="my-unique-id"
-            )
+            ),
         )
 
         travel_planner.as_service(port=8001)
@@ -78,14 +78,19 @@ async def main():
 
     except Exception as e:
         print(f"Error starting service: {e}")
+
+if __name__ == "__main__":
+    load_dotenv()
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(main())
 ```
 
-In contrast to ToolCallAgent and ReActAgent, which do not persist execution state (beyond chat memory), AssistantAgent is designed to support durable, coordinated workflows. It enables:
+In contrast to Agent, which does not persist execution state (beyond chat memory), DurableAgent is designed to support durable, coordinated workflows. It enables:
 
 - **Persistent workflow state tracking**
 Configured with `state_store_name` and `state_key` to retain execution state across restarts and failures
 - **Execution continuation across turns**
-Managed with internal state (`AssistantWorkflowState`) to support multi-step task handling without reprocessing
+Managed with internal state to support multi-step task handling without reprocessing
 - **Message-based orchestration**
 Uses message_bus_name to integrate with Dapr pub/sub for asynchronous communication between agents and services
 - **Agent instance registry**
@@ -93,7 +98,7 @@ Configured with `agents_registry_store_name`, which contains agent metadata, and
 - **Service-mode execution**
 Enabled through `as_service(...)` and `start()` to run the agent as a long-lived, REST-accessible background service
 
-## Behind the Scenes: The AssistantAgent's Workflow Engine
+## Behind the Scenes: The DurableAgent's Workflow Engine
 
 1. **Manages Workflow State**: Each conversation becomes a workflow instance with its own state
 2. **Orchestrates Tool Execution**: Workflows break down complex tasks into steps that can be retried
@@ -104,9 +109,9 @@ Enabled through `as_service(...)` and `start()` to run the agent as a long-lived
    - **Automatic retry logic**: Failed operations can be retried 
    - **Workflow continuity**: Workflows can be continued even after the process restarts
 
-## 3. Key Components of AssistantAgent
+## 3. Key Components of DurableAgent
 
-Let's explore the key components that enable durability in the AssistantAgent:
+Let's explore the key components that enable durability in the DurableAgent:
 
 ### 1. Persistent Memory
 
@@ -207,7 +212,7 @@ pip install -r requirements.txt
 Run the durable agent with Dapr by running this command in the **Terminal** window:
 
 ```bash,run
-dapr run --app-id assistant-agent --app-port 8001 --dapr-http-port 3500 --resources-path ./components -- python 04_assistant_agent.py
+dapr run --app-id durable-agent --app-port 8001 --dapr-http-port 3500 --resources-path ./components -- python 03_durable_agent.py
 ```
 
 This command:

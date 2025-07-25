@@ -61,14 +61,14 @@ In a multi-agent system, each agent is specialized for a particular role. Each a
 Use the **Editor** window to examine the Hobbit agent implementation in the `services/hobbit/app.py` file:
 
 ```python,nocopy
-from dapr_agents import AssistantAgent
+from dapr_agents import DurableAgent
 from dotenv import load_dotenv
 import asyncio
 import logging
 
 async def main():
     try:
-        hobbit_service = AssistantAgent(
+        hobbit_service = DurableAgent(
           name="Frodo",
           role="Hobbit",
           goal="Carry the One Ring to Mount Doom, resisting its corruptive power while navigating danger and uncertainty.",

@@ -6,7 +6,7 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 In this challenge, you'll learn:
 
-- How the `AssistantAgent` class provides durability and resilience through workflow orchestration
+- How the `DurableAgent` class provides durability and resilience through workflow orchestration
 - How to configure persistent memory, state stores, agent registry, and message bus components
 - How durable agents expose REST APIs for interaction and management of long-running workflows
 - When to use durable agents versus simpler agent types based on reliability requirements
