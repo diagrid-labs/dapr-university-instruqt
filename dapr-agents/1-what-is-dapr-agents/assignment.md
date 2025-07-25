@@ -36,10 +36,8 @@ Dapr Agents includes built-in support for the Model Context Protocol (MCP), enab
 
 An agent is a  self-contained execution unit that can think, plan, and act on its own, using tools and collaborating with other agents to achieve defined objectives. Dapr Agents offers the following types of agents:
 
-- **ToolCallAgent**: Stateless agent that manages conversation and executes tools based on LLM-generated tool calls. Best for lightweight, reactive tasks requiring direct tool invocation.
-- **ReActAgent**: Implements the ReAct pattern (reasoning, action, and observation) in iterative steps. Ideal for complex reasoning tasks where the agent explains its thinking and tool usage.
-- **OpenAPIReActAgent**: Specialized agent for working with OpenAPI specifications and API integrations
-- **AssistantAgent**: Workflow-native agent for coordinating multi-turn conversations and tool execution. Designed for stateful, resilient, and routable agent workflows with built-in durability.
+- **Agent**: Stateless agent that manages conversation and executes tools based on LLM-generated tool calls. Best for lightweight, reactive tasks requiring direct tool invocation.
+- **DurableAgent**: Workflow-native agent for coordinating multi-turn conversations and tool execution. Designed for stateful, resilient, and routable agent workflows with built-in durability.
 
 ### Workflows for Agentic Orchestration
 

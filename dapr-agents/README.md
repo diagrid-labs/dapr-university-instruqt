@@ -22,7 +22,6 @@ In this self-paced track, you'll learn:
 - How to use different LLM clients and the provider-agnostic Dapr Conversation API.
 - How to build agents with custom tool calls for external interactions.
 - How to integrate with 3rd party systems through Model Context Protocol (MCP).
-- How to implement the ReAct (Reasoning and Action) pattern for complex problem-solving.
 - How to achieve durability and resilience in AI applications.
 - How to create agentic workflows for orchestrating multi-step AI processes.
 - How to build multi-agent systems that collaborate to solve complex tasks.
