@@ -1,13 +1,13 @@
 Click the *Start* button to setup the sandbox environment for this training, this may take up to 1 min 30 sec. Once the environment is ready, click the *Start* button again.
 
-- You'll need an OpenAI API key to complete challenges 2-9 in this track. You can get an OpenAI API key by signing up at [OpenAI](https://platform.openai.com/signup). We recommend you get an OpenAI API key before you start this track.
+- You'll need an OpenAI API key to complete challenges 2-8 in this track. You can get an OpenAI API key by signing up at [OpenAI](https://platform.openai.com/signup). We recommend you get an OpenAI API key before you start this track.
 
-- There are 9 challenges to complete. If your session is idle for more than 10 minutes, the session will stop. You'll then need to restart the learning track, and add your OpenAI API key again in challenge 2.
+- There are 8 challenges to complete. If your session is idle for more than 10 minutes, the session will stop. You'll then need to restart the learning track, and add your OpenAI API key again in challenge 2.
 
 - Tracks can be started up to 5 times, and you can select which challenge you want to run via the *Progress* button in the top right, if you don't want to run them all in order.
 
-- If you complete all 9 challenges in this track you can claim the Dapr Agents badge.
-![Dapr University Dapr Agents badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-agents/9-multi-agent-coordination/Diagrid-Dapr-Uni-Agents_x500.png?raw=true)
+- If you complete all 8 challenges in this track you can claim the Dapr Agents badge.
+![Dapr University Dapr Agents badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-agents/8-multi-agent-coordination/Diagrid-Dapr-Uni-Agents_x500.png?raw=true)
 
 ---
 

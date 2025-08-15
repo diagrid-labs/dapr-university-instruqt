@@ -71,17 +71,23 @@ This configuration tells Dapr to use Redis as the state store for agent conversa
 
 ## 4. Run the Agent
 
-Use the **Terminal** window to run create a virtual environment:
+Use the **Terminal** window to create and activate a virtual environment:
 
 ```bash,run
-python3 -m venv .venv
+uv venv --allow-existing
 source .venv/bin/activate
+```
+
+Use the **Terminal** window to navigate to the 03-agent-tool-call folder:
+
+```bash,run
+cd 03-agent-tool-call
 ```
 
 Use the **Terminal** window to install the dependencies:
 
 ```bash,run
-pip install -r requirements.txt
+uv sync --active
 ```
 
 Use the **Terminal** window to run the agent with Dapr as a sidecar:
@@ -97,50 +103,50 @@ Examine the output in the **Terminal** window. You should see something similar 
 ```text,nocopy
 == APP == user:
 == APP == What is the weather in Virginia, New York and Washington DC?
-== APP == 
+== APP ==
 == APP == --------------------------------------------------------------------------------
-== APP == 
+== APP ==
 == APP == assistant:
 == APP == Function name: GetWeather (Call Id: call_GCzCg1lVgdt1UGCKpCkQxqk8)
 == APP == Arguments: {"location": "Virginia"}
-== APP == 
+== APP ==
 == APP == --------------------------------------------------------------------------------
-== APP == 
+== APP ==
 == APP == assistant:
 == APP == Function name: GetWeather (Call Id: call_LZiV6s0kPiuIiUkKA6joCjnS)
 == APP == Arguments: {"location": "New York"}
-== APP == 
+== APP ==
 == APP == --------------------------------------------------------------------------------
-== APP == 
+== APP ==
 == APP == assistant:
 == APP == Function name: GetWeather (Call Id: call_zcvdD8rPmNE2Fxh8XBaxkIm7)
 == APP == Arguments: {"location": "Washington DC"}
-== APP == 
+== APP ==
 == APP == --------------------------------------------------------------------------------
-== APP == 
+== APP ==
 == APP == GetWeather(tool) (Id: call_GCzCg1lVgdt1UGCKpCkQxqk8):
 == APP == Virginia: 74F.
-== APP == 
+== APP ==
 == APP == --------------------------------------------------------------------------------
-== APP == 
+== APP ==
 == APP == GetWeather(tool) (Id: call_LZiV6s0kPiuIiUkKA6joCjnS):
 == APP == New York: 68F.
-== APP == 
+== APP ==
 == APP == --------------------------------------------------------------------------------
-== APP == 
+== APP ==
 == APP == GetWeather(tool) (Id: call_zcvdD8rPmNE2Fxh8XBaxkIm7):
 == APP == Washington DC: 68F.
-== APP == 
+== APP ==
 == APP == --------------------------------------------------------------------------------
-== APP == 
+== APP ==
 == APP == assistant:
 == APP == The current weather is as follows:
 == APP == - **Virginia:** 74°F
 == APP == - **New York:** 68°F
 == APP == - **Washington DC:** 68°F
-== APP == 
+== APP ==
 == APP == If you need anything else, feel free to ask!
-== APP == 
+== APP ==
 == APP == --------------------------------------------------------------------------------
 ```
 

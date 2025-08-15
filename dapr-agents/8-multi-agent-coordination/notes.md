@@ -2,7 +2,7 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 ---
 
-## Challenge 9: Build Collaborative Multi-Agent Systems
+## Challenge 8: Build Collaborative Multi-Agent Systems
 
 In this final challenge, you'll learn:
 
@@ -11,4 +11,7 @@ In this final challenge, you'll learn:
 - How event-driven communication works between agents using Dapr's pub/sub messaging
 - The key components of a multi-agent system, including agent services, pub/sub messaging, and state stores
 
-If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://diagrid.ws/dapr-agents-docs/). If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+At the end of this challenge you can claim the Dapr Agents badge.
+![Dapr University Dapr Agents badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-agents/8-multi-agent-coordination/Diagrid-Dapr-Uni-Agents_x500.png?raw=true)
+
+If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://v1-16.docs.dapr.io/developing-applications/dapr-agents/). If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).

@@ -56,8 +56,8 @@ if __name__ == "__main__":
 
 MCP supports different types of capabilities that can be exposed to agents:
 
-- **Tools**: Executable functions that allow LLMs to perform actions like calling APIs, making calculations, or executing code. 
-- **Resources**: Similar to tools but designed for read-only access to data sources like files, databases, or configuration. 
+- **Tools**: Executable functions that allow LLMs to perform actions like calling APIs, making calculations, or executing code.
+- **Resources**: Similar to tools but designed for read-only access to data sources like files, databases, or configuration.
 - **Other capabilities**: MCP can also expose prompts, sampling configurations, and other specialized capabilities depending on the implementation.
 
 ## How Tools Work
@@ -127,17 +127,23 @@ if __name__ == "__main__":
 
 ## 4. Run the Example
 
-Use the **Terminal** window to run create a virtual environment:
+Use the **Terminal** window to create and activate a virtual environment:
 
 ```bash,run
-python3 -m venv .venv
+uv venv --allow-existing
 source .venv/bin/activate
+```
+
+Use the **Terminal** window to navigate to the 07-agent-mcp-client-stdio folder:
+
+```bash,run
+cd 07-agent-mcp-client-stdio
 ```
 
 Use the **Terminal** window to install the dependencies:
 
 ```bash,run
-pip install -r requirements.txt
+uv sync --active
 ```
 
 To run the example, use the following command in the **Terminal** window:
@@ -199,4 +205,4 @@ The rest of your agent code remains exactly the same! Once connected, the agent 
 
 ---
 
- You've now learned how to connect your agent to external tools using the Model Context Protocol (MCP). Let's move on to the next challenge, where you learn to create durable agents for critical tasks.
+You've now learned how to connect your agent to external tools using the Model Context Protocol (MCP). Let's move on to the next challenge, where you learn to create durable agents for critical tasks.

@@ -29,17 +29,23 @@ The `OpenAIChatClient` handles the details of communicating with OpenAI's API, i
 
 ### 2.2. Run the text completion example
 
-Use the **Terminal** window to run create a virtual environment:
+Use the **Terminal** window to create and activate a virtual environment:
 
 ```bash,run
-python3 -m venv .venv
+uv venv --allow-existing
 source .venv/bin/activate
+```
+
+Use the **Terminal** window to navigate to the 02_llm_call_open_ai folder:
+
+```bash,run
+cd 02_llm_call_open_ai
 ```
 
 Use the **Terminal** window to install the dependencies:
 
 ```bash,run
-pip install -r requirements.txt
+uv sync --active
 ```
 
 Use the **Terminal** window to run the text completion example:

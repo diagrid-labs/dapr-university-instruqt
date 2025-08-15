@@ -103,10 +103,10 @@ Enabled through `as_service(...)` and `start()` to run the agent as a long-lived
 1. **Manages Workflow State**: Each conversation becomes a workflow instance with its own state
 2. **Orchestrates Tool Execution**: Workflows break down complex tasks into steps that can be retried
 3. **Handles Failures Gracefully**: If a failure occurs, the workflow can resume from its last checkpoint
-4. **Routes Messages**: Uses message routing to communicate between agents and external systems 
+4. **Routes Messages**: Uses message routing to communicate between agents and external systems
 5. **The workflow engine provides:**
    - **Activity checkpointing**: Each significant operation is persisted before execution
-   - **Automatic retry logic**: Failed operations can be retried 
+   - **Automatic retry logic**: Failed operations can be retried
    - **Workflow continuity**: Workflows can be continued even after the process restarts
 
 ## 3. Key Components of DurableAgent
@@ -117,7 +117,7 @@ Let's explore the key components that enable durability in the DurableAgent:
 
 ```python,nocopy
 memory=ConversationDaprStateMemory(
-    store_name="conversationstore", 
+    store_name="conversationstore",
     session_id="my-unique-id"
 )
 ```
@@ -199,20 +199,26 @@ This exposes the agent as a REST service, allowing other systems to interact wit
 Use the **Terminal** window to create a virtual environment:
 
 ```bash,run
-python3 -m venv .venv
+uv venv --allow-existing
 source .venv/bin/activate
+```
+
+Use the **Terminal** window to navigate to the 01-hello-world folder:
+
+```bash,run
+cd 01-hello-world
 ```
 
 Use the **Terminal** window to install the dependencies:
 
 ```bash,run
-pip install -r requirements.txt
+uv sync --active
 ```
 
 Run the durable agent with Dapr by running this command in the **Terminal** window:
 
 ```bash,run
-dapr run --app-id durable-agent --app-port 8001 --dapr-http-port 3500 --resources-path ./components -- python 03_durable_agent.py
+dapr run --app-id durable-agent --app-port 8001 --dapr-http-port 3500 --resources-path ./components -- python3 03_durable_agent.py
 ```
 
 This command:
@@ -252,21 +258,6 @@ curl -i -X GET http://localhost:3500/v1.0/workflows/dapr/$INSTANCEID
 ```
 
 This allows you to track the progress of long-running tasks.
-
-The result will show the workflow status, including whether the workflow is running, completed, or failed, and the input and output of the workflow:
-
-```text,nocopy
-{
-  "instanceID":"af000757dc9d4cabb3129f91ae14b1d5",
-  "workflowName":"ToolCallingWorkflow",
-  "createdAt":"2025-06-06T10:20:29.032878914Z",
-  "lastUpdatedAt":"2025-06-06T10:20:31.134089963Z",
-  "runtimeStatus":"COMPLETED",
-  "properties":{
-    "dapr.workflow.input":"{\"task\": null, \"iteration\": 1, \"workflow_instance_id\": null}",
-    "dapr.workflow.output":"{\"content\": \"Here are some flight options to Paris:\\n\\n1. **Airline**: SkyHighAir\\n   - **Price**: $450.00\\n\\n2. **Airline**: GlobalWings\\n   - **Price**: $375.50\\n\\nIf you need more information or have any preferences to consider, feel free to let me know!\", \"role\": \"assistant\"}"
-  }
-```
 
 ## 6. Benefits of Durable Agents
 

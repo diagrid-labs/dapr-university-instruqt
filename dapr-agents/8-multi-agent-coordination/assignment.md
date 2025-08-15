@@ -82,7 +82,7 @@ async def main():
           state_store_name="workflowstatestore",
           state_key="workflow_state",
           agents_registry_store_name="agentstatestore",
-          agents_registry_key="agents_registry", 
+          agents_registry_key="agents_registry",
         )
 
         await hobbit_service.start()
@@ -243,14 +243,20 @@ Each service runs independently with its own Dapr sidecar, enabling them to comm
 Use the **Terminal** window to create a virtual environment:
 
 ```bash,run
-python3 -m venv .venv
+uv venv --allow-existing
 source .venv/bin/activate
+```
+
+Use the **Terminal** window to navigate to the 05-multi-agent-workflows folder:
+
+```bash,run
+cd 05-multi-agent-workflows
 ```
 
 Use the **Terminal** window to install the dependencies:
 
 ```bash,run
-pip install -r requirements.txt
+uv sync --active
 ```
 
 To use this configuration, run the following command in the **Terminal** window:
@@ -320,6 +326,6 @@ All code samples shown in this Dapr University track are available in the [Dapr 
 
 Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmcnbixyg090907l820ki10nd). You'll need a GitHub account to claim the badge.
 
-[![Dapr University Dapr Agents badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-agents/9-multi-agent-coordination/Diagrid-Dapr-Uni-Agents_x500.png?raw=true)](https://holopin.io/collect/cmcnbixyg090907l820ki10nd)
+[![Dapr University Dapr Agents badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-agents/8-multi-agent-coordination/Diagrid-Dapr-Uni-Agents_x500.png?raw=true)](https://holopin.io/collect/cmcnbixyg090907l820ki10nd)
 
 If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).

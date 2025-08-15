@@ -38,13 +38,12 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-
 # Define Workflow logic
 @workflow(name="task_chain_workflow")
 def task_chain_workflow(ctx: DaprWorkflowContext):
-    result1 = yield ctx.call_activity(get_character)
-    result2 = yield ctx.call_activity(get_line, input={"character": result1})
-    return result2
+       result1 = yield ctx.call_activity(get_character)
+      result2 = yield ctx.call_activity(get_line, input={"character": result1})
+      return result2
 
 
 @task(
@@ -56,13 +55,11 @@ def task_chain_workflow(ctx: DaprWorkflowContext):
 def get_character() -> str:
     pass
 
-
 @task(
     description="What is a famous line by {character}",
 )
 def get_line(character: str) -> str:
     pass
-
 
 if __name__ == "__main__":
     wfapp = WorkflowApp()
@@ -92,22 +89,29 @@ Notice that the task implementations are empty (`pass`). The LLM provides the ac
 
 ## 3. Run the Workflow
 
-Use the **Terminal** window to create a virtual environment:
+Use the **Terminal** window to create and activate a virtual environment:
 
 ```bash,run
-python3 -m venv .venv
+uv venv --allow-existing
 source .venv/bin/activate
 ```
+
+Use the **Terminal** window to navigate to the 04-llm-based-workflows folder:
+
+```bash,run
+cd 04-llm-based-workflows
+```
+
 Use the **Terminal** window to install the dependencies:
 
 ```bash,run
-pip install -r requirements.txt
+uv sync --active
 ```
 
 Run the workflow with Dapr by using the **Terminal** window:
 
 ```bash,run
-dapr run --app-id dapr-agent-wf --resources-path components/ -- python sequential_workflow.py
+dapr run --app-id dapr-agent-wf --resources-path components/ -- python3 sequential_workflow.py
 ```
 
 ## 4. Observe the Workflow Execution
@@ -188,10 +192,10 @@ def parallel_process(ctx: DaprWorkflowContext, input_data: str):
     # Execute tasks in parallel
     task1_result = ctx.call_activity(task1, input=input_data)
     task2_result = ctx.call_activity(task2, input=input_data)
-    
+
     # Wait for all tasks to complete
     results = yield ctx.when_all([task1_result, task2_result])
-    
+
     # Process the combined results
     final_result = yield ctx.call_activity(combine_results, input=results)
     return final_result
@@ -206,7 +210,7 @@ Decision points in the workflow based on the results of previous tasks. This all
 def approval_process(ctx: DaprWorkflowContext, request: dict):
     # Analyze the request
     analysis = yield ctx.call_activity(analyze_request, input=request)
-    
+
     # Make a decision based on the analysis
     if analysis["risk_score"] < 50:
         # Low risk - automatic approval
@@ -214,7 +218,7 @@ def approval_process(ctx: DaprWorkflowContext, request: dict):
     else:
         # High risk - human review
         result = yield ctx.call_activity(human_review, input=request)
-    
+
     return result
 ```
 
@@ -226,14 +230,14 @@ A human approval step with a 24-hour timeout before continuing the workflow:
 @workflow(name='sequential_workflow')
 def sequential_process(ctx: DaprWorkflowContext, input_data: str):
     result1 = yield ctx.call_activity(task1, input=input_data)
-    
+
     # Wait for human approval or timeout
     approval_event = yield ctx.wait_for_external_event("approval_received")
     timeout_event = yield ctx.create_timer(timedelta(hours=24))
     winner = yield ctx.when_any([approval_event, timeout_event])
     if winner == timeout_event:
         return "Cancelled"
-    
+
     # Continue as normal
     return = yield ctx.call_activity(task2, input=result1)
 ```

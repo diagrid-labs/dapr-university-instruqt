@@ -2,7 +2,7 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 ---
 
-## Challenge 8: Orchestrate AI Tasks with Dapr Workflows
+## Challenge 7: Orchestrate AI Tasks with Dapr Workflows
 
 In this challenge, you'll learn:
 
@@ -11,4 +11,4 @@ In this challenge, you'll learn:
 - How to implement common workflow patterns including sequential, parallel, and conditional flows
 - How to handle errors and implement compensation logic in your workflows
 
-If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://diagrid.ws/dapr-agents-docs/). If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://v1-16.docs.dapr.io/developing-applications/dapr-agents/). If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
