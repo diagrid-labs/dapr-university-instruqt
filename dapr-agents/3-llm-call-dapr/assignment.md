@@ -13,7 +13,7 @@ Open the `.env` file in the **Editor** window.
 The `DAPR_LLM_COMPONENT_DEFAULT` setting is already configured to use the `openai` component. This environment variable tells the `DaprChatClient` which Dapr component to use for LLM interactions. The value must match the `name` field in the metadata section of a component file in the `components` folder (for example, `components/openai.yaml` has `metadata.name: openai`). By changing just this variable, you can switch your application to use a completely different LLM provider.
 
 ## 2. Configure the OpenAI Component
- 
+
 Now we need to configure the OpenAI component with your API key:
 
 Open the `components/openai.yaml` file in **Editor** window.
@@ -46,17 +46,23 @@ This abstraction layer allows you to switch between different LLM providers by s
 
 ## 4. Run the Dapr Chat Client Example
 
-Use the **Terminal** window to create a virtual environment:
+Use the **Terminal** window to create and activate a virtual environment:
 
 ```bash,run
-python3 -m venv .venv
+uv venv --allow-existing
 source .venv/bin/activate
+```
+
+Use the **Terminal** window to navigate to the 02_llm_call_dapr folder:
+
+```bash,run
+cd 02_llm_call_dapr
 ```
 
 Use the **Terminal** window to install the dependencies:
 
 ```bash,run
-pip install -r requirements.txt
+uv sync --active
 ```
 
 Use the **Terminal** window to run the text completion example with Dapr:
@@ -103,7 +109,7 @@ Using the Dapr Conversation API instead of calling LLMs directly offers several 
 
 If you want to see the provider flexibility in action, you can try using the Echo component instead:
 
-1. Update the `.env` file to be `DAPR_LLM_COMPONENT_DEFAULT=echo`.
+1. Update the `.env` file to be `DAPR_LLM_COMPONENT_DEFAULT=echo`
 
 2. Run the application again:
 

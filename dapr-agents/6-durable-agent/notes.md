@@ -2,7 +2,7 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 ---
 
-## Challenge 7: Build Stateful and Resilient Agents
+## Challenge 6: Build Stateful and Resilient Agents
 
 In this challenge, you'll learn:
 
@@ -11,4 +11,4 @@ In this challenge, you'll learn:
 - How durable agents expose REST APIs for interaction and management of long-running workflows
 - When to use durable agents versus simpler agent types based on reliability requirements
 
-If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://diagrid.ws/dapr-agents-docs/). If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://v1-16.docs.dapr.io/developing-applications/dapr-agents/). If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).

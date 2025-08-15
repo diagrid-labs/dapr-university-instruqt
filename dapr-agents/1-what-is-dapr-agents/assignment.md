@@ -10,7 +10,7 @@ Dapr Agents provides a structured way to build, deploy, and orchestrate applicat
 
 ### LLM Integration
 
-Dapr Agents provides a unified interface to connect with LLM inference APIs. This abstraction allows developers to seamlessly integrate their agents with cutting-edge language models for reasoning and decision-making, without being locked into a specific provider. 
+Dapr Agents provides a unified interface to connect with LLM inference APIs. This abstraction allows developers to seamlessly integrate their agents with cutting-edge language models for reasoning and decision-making, without being locked into a specific provider.
 
 Agents in Dapr Agents leverage structured output capabilities, such as OpenAI's Function Calling, to generate predictable and reliable results. These outputs follow JSON Schema and OpenAPI Specification standards, enabling easy interoperability and tool integration.
 
