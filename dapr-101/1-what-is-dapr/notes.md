@@ -1,4 +1,4 @@
-Click the *Start* button to setup the sandbox environment for this training, this may take up to 1 min. Once the environment ready, click the *Start* button again.
+Click the *Start* button to setup the sandbox environment for this training, this may take up to 2 minutes. Once the environment ready, click the *Start* button again.
 
 - There are 5 challenges to complete. If your session is idle for more than 10 minutes, the session will stop, and you'll need to restart the track.
 
