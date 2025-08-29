@@ -35,6 +35,15 @@ The workflow has an `input` of type `string`. This input is used as the input fo
 </details>
 
 <details>
+   <summary><b>Java workflow code</b></summary>
+
+Open the `ChainingWorkflow.java` file located in the `/src/main/java/io/dapr/springboot/examples/chain/` folder. This file contains the workflow code.
+
+The workflow has an `input` of type `String`. This input is used as the input for the first activity. Each activity output is used as the input for the next activity. The output of the last activity is returned as the workflow output.
+
+</details>
+
+<details>
    <summary><b>.Python workflow code</b></summary>
 
 Open the `chaining_workflow.py` file located in the `task_chaining` folder. This file contains the workflow code.
@@ -56,6 +65,13 @@ The three activity definitions are located in the `TaskChaining/Activities` fold
 </details>
 
 <details>
+   <summary><b>Java activity code</b></summary>
+
+The three activity definitions are located in the `src/main/java/io/dapr/springboot/examples/chain/` folder. All activities append a word to the input.
+
+</details>
+
+<details>
    <summary><b>Python activity code</b></summary>
 
 The three activity definitions are located underneath the workflow in the `chaining_workflow.py` file. All activities append a word to the input.
@@ -73,6 +89,16 @@ The three activity definitions are located underneath the workflow in the `chain
 Locate the `Program.cs` file in the `TaskChaining` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow.
+
+</details>
+
+<details>
+   <summary><b>Java endpoints</b></summary>
+
+Locate the `TaskChainingRestController.java` file in the `/src/main/java/io/dapr/springboot/examples` folder. This file contains two HTTP endpoints:
+
+- A `start` HTTP POST endpoint that is used to schedule the workflow.
+- A `output` HTTP GET endpoint that is used to check the status of the workflow.
 
 </details>
 
@@ -109,6 +135,25 @@ Run the application using the Dapr CLI:
 
 ```bash,run
 dapr run -f .
+```
+
+</details>
+
+<details>
+   <summary><b>Run the Java application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *java/task-chaining* folder:
+
+```bash,run
+cd java/task-chaining
+```
+
+Build and run the application using Maven:
+
+```bash,run
+mvn spring-boot:test-run
 ```
 
 </details>
@@ -180,6 +225,26 @@ The **Dapr CLI** window should contain these application log statements:
 </details>
 
 <details>
+   <summary><b>Start the Java workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow:
+
+```curl,run
+curl -i --request POST http://localhost:8080/start
+```
+
+The **Dapr CLI** window should contain these application log statements:
+
+```text,nocopy
+io.dapr.workflows.WorkflowContext        : Starting Workflow: io.dapr.springboot.examples.chain.ChainingWorkflow
+i.d.springboot.examples.chain.Activity1  : io.dapr.springboot.examples.chain.Activity1 : Received input: This
+i.d.springboot.examples.chain.Activity2  : io.dapr.springboot.examples.chain.Activity2 : Received input: This is
+i.d.springboot.examples.chain.Activity3  : io.dapr.springboot.examples.chain.Activity3 : Received input: This is task
+```
+
+</details>
+
+<details>
    <summary><b>Start the Python workflow</b></summary>
 
 In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
@@ -233,6 +298,23 @@ Expected output:
       "dapr.workflow.output":"\"This is task chaining\""
    }
 }
+```
+
+</details>
+
+<details>
+   <summary><b>Get the Java workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:8080/output
+```
+
+Expected output:
+
+```text
+This is task chaining
 ```
 
 </details>

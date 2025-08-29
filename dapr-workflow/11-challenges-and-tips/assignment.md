@@ -25,7 +25,7 @@ Workflow code should only consist of activity calls and control logic such as if
 <details>
    <summary><b>.NET</b></summary>
 
-Navigate to the `DeterministicWorkflow.cs` file. It contains two workflows: `NonDeterministicWorkflow` and `DeterministicWorkflow`. The `NonDeterministicWorkflow` uses unsafe code that is not deterministic. The `DeterministicWorkflow` uses the `WorkflowContext` to create a GUID and a `DateTime` and is safe.
+Navigate to the `DeterministicWorkflow.cs` file. It contains two workflows: `NonDeterministicWorkflow` and `DeterministicWorkflow`. The `NonDeterministicWorkflow` uses unsafe code that is not deterministic. The `DeterministicWorkflow` uses the `WorkflowContext` to create a GUID and a `DateTime` and are safe.
 
 > [!WARNING]
 > Do not create GUIDs, random numbers, or `DateTime` objects in the workflow code.
@@ -40,9 +40,26 @@ var replaySafeDateTime = context.CurrentUtcDateTime;
 </details>
 
 <details>
+   <summary><b>Java</b></summary>
+
+Navigate to the `DeterministicWorkflow.java` file. It contains two workflows: `NonDeterministicWorkflow` and `DeterministicWorkflow`. The `NonDeterministicWorkflow` uses unsafe code that is not deterministic. The `DeterministicWorkflow` uses the `WorkflowContext` to create a UUID and an `Instant` and are safe.
+
+> [!WARNING]
+> Do not create UUIDs, random numbers, or `Instant` objects in the workflow code.
+
+The `WorkflowContext` contains helper methods to create new GUIDs and `Instant`s that are safe for replay:
+
+```java
+var orderId = ctx.newUuid();;
+var orderDate = ctx.getCurrentInstant();
+```
+
+</details>
+
+<details>
    <summary><b>Python</b></summary>
 
-Navigate to the `deterministic_workflow.py` file. It contains two workflows: `non_deterministic_workflow` and `deterministic_workflow`. The `non_deterministic_workflow` uses unsafe code that is not deterministic. The `deterministic_workflow` uses the `DaprWorkflowContext` to create a `datetime` and is safe.
+Navigate to the `deterministic_workflow.py` file. It contains two workflows: `non_deterministic_workflow` and `deterministic_workflow`. The `non_deterministic_workflow` uses unsafe code that is not deterministic. The `deterministic_workflow` uses the `DaprWorkflowContext` to create a `datetime` and are safe.
 
 > [!WARNING]
 > Do not create GUIDs, random numbers, or `datetime.now()` objects in the workflow code.
@@ -87,6 +104,13 @@ Navigate to the `VersioningWorkflow.cs` file. It contains two workflows: `Versio
 </details>
 
 <details>
+   <summary><b>Java</b></summary>
+
+Navigate to the `VersioningWorkflow.java` file. It contains two workflows: `VersioningWorkflow1` and `VersioningWorkflow2`. Inspect these workflows and note the breaking change due to the input arguments for the activities.
+
+</details>
+
+<details>
    <summary><b>Python</b></summary>
 
 Navigate to the `versioning_workflow.py` file. It contains two workflows: `versioning_workflow_1` and `versioning_workflow_2`. Inspect these workflows and note the breaking change due to the input arguments for the activities.
@@ -109,6 +133,13 @@ When a workflow is using task chaining for many activities and the output of one
    <summary><b>.NET</b></summary>
 
 Navigate to the `PayloadSizeWorkflow.cs` file. It contains two workflows: `LargePayloadSizeWorkflow` and `SmallPayloadSizeWorkflow`. Inspect these workflows and note the difference in activity usage.
+
+</details>
+
+<details>
+   <summary><b>Java</b></summary>
+
+Navigate to the `PayloadSizeWorkflow.java` file. It contains two workflows: `LargePayloadSizeWorkflow` and `SmallPayloadSizeWorkflow`. Inspect these workflows and note the difference in activity usage.
 
 </details>
 

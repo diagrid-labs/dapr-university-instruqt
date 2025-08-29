@@ -53,6 +53,25 @@ catch (TaskCanceledException)
 </details>
 
 <details>
+   <summary><b>Java workflow code</b></summary>
+
+Open the `ExternalEventsWorkflow.java` file located in the `src/main/java/io/dapr/springboot/examples/external` folder. This file contains the workflow code.
+
+Note how the workflow uses the `WorkflowContext` to to wait for an external event.
+
+```java,nocopy
+try{
+   approvalStatus = ctx.waitForExternalEvent("approval-event", Duration.ofSeconds(120), ApprovalStatus.class).await();
+} catch (TaskCanceledException tce){
+   var notification = "Approval request for order " + order.id() + " timed out.";
+   ctx.callActivity(SendNotificationActivity.class.getName(), notification).await();
+   ctx.complete(notification);
+}
+```
+
+</details>
+
+<details>
    <summary><b>Python workflow code</b></summary>
 
 Open the `external_events_workflow.py` file located in the `external_events` folder. This file contains the workflow code.
@@ -89,6 +108,13 @@ The workflow uses two activities, `SendNotification` and `ProcessOrder`, these a
 </details>
 
 <details>
+   <summary><b>Java activity code</b></summary>
+
+The workflow uses three activities, `RequestApprovalActivity`, `SendNotificationActivity` and `ProcessOrderActivity`, these are located in the `/src/main/java/io/dapr/springboot/examples/external/activities` folder. The activities are placeholders and do not contain any real logic related to sending notifications or processing orders.
+
+</details>
+
+<details>
    <summary><b>Python activity code</b></summary>
 
 The workflow uses three activities, `request_approval`, `send_notification` and `process_order`, these are located in the `external_events_workflow.py` file below the workflow definition. The activities are placeholders and do not contain any real logic related to sending notifications or processing orders.
@@ -114,6 +140,26 @@ var instanceId = await workflowClient.ScheduleNewWorkflowAsync(
    name: nameof(ExternalEventsWorkflow),
    instanceId: order.Id,
    input: order);
+```
+
+</details>
+
+<details>
+   <summary><b>Java endpoints</b></summary>
+
+Locate the `ExternalEventsRestController.java` file in the `/src/main/java/io/dapr/springboot/examples` folder. This file contains three HTTP endpoints:
+
+- A `start` HTTP POST endpoint that is used to schedule the workflow. This method accepts an `Order` object as the input.
+- An `event` HTTP POST endpoint that is used to send external events to the workflow. This method accepts an `ApprovalStatus` object as the input.
+- A `status` HTTP GET endpoint that is used to check the status of the workflow.
+
+Note that this time an instance ID is provided to the `scheduleNewWorkflowAsync` method:
+
+```java,nocopy
+instanceId = daprWorkflowClient.scheduleNewWorkflow(
+   ExternalEventsWorkflow.class,
+   order,
+   order.id());
 ```
 
 </details>
@@ -161,6 +207,25 @@ Run the application using the Dapr CLI:
 
 ```bash,run
 dapr run -f .
+```
+
+</details>
+
+<details>
+   <summary><b>Run the Java application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *java/external-system-interactions* folder:
+
+```bash,run
+cd java/external-system-interactions
+```
+
+Build and run the application using Maven:
+
+```bash,run
+mvn spring-boot:test-run
 ```
 
 </details>
@@ -244,6 +309,30 @@ The application log in the **Dapr CLI** window should contain this log statement
 </details>
 
 <details>
+   <summary><b>Start the Java workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow:
+
+```curl,run
+curl -i --request POST \
+   --url http://localhost:8080/start \
+   --header 'content-type: application/json' \
+   --data '{"id": "b7dd836b-e913-4446-9912-d400befebec5","description": "Rubber ducks","quantity": 100,"totalPrice": 500}'
+```
+
+> [!NOTE]
+> The `id` field in the request body is used as the workflow instance ID. All further requests will use this ID.
+
+The application log in the **Dapr CLI** window should contain these log statements:
+
+```text,nocopy
+io.dapr.workflows.WorkflowContext        : Starting Workflow: io.dapr.springboot.examples.external.ExternalEventsWorkflow
+i.d.s.e.e.a.RequestApprovalActivity      : io.dapr.springboot.examples.external.activities.RequestApprovalActivity : Request Approval for Order: b7dd836b-e913-4446-9912-d400befebec5
+```
+
+</details>
+
+<details>
    <summary><b>Start the Python workflow</b></summary>
 
 In the **curl** window, run the following command to start the workflow:
@@ -313,6 +402,27 @@ The application log in the **Dapr CLI** window should contain these log statemen
 </details>
 
 <details>
+   <summary><b>Send an event to the Java workflow</b></summary>
+
+In the **curl** window, run the following command to send an `approval-event` to the running workflow instance:
+
+```curl,run
+curl -i --request POST \
+   --url http://localhost:8080/event \
+   --header 'content-type: application/json' \
+   --data '{"orderId": "b7dd836b-e913-4446-9912-d400befebec5","isApproved": true}'
+```
+
+The application log in the **Dapr CLI** window should contain these log statements:
+
+```text,nocopy
+io.dapr.springboot.examples.external.activities.ProcessOrderActivity : Processed Order: b7dd836b-e913-4446-9912-d400befebec5
+io.dapr.springboot.examples.external.activities.SendNotificationActivity : Sending Notification: Order b7dd836b-e913-4446-9912-d400befebec5 has been approved.
+```
+
+</details>
+
+<details>
    <summary><b>Send an event to the Python workflow</b></summary>
 
 In the **curl** window, run the following command to send an `approval-event` to the running workflow instance:
@@ -374,6 +484,24 @@ Expected output:
       "dapr.workflow.output":"\"Order b7dd836b-e913-4446-9912-d400befebec5 has been approved.\""
    }
 }
+```
+
+</details>
+
+<details>
+   <summary><b>Get the Java workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:8080/status
+```
+
+Expected output:
+
+```txt
+"Workflow Instance (b7dd836b-e913-4446-9912-d400befebec5) Status: COMPLETED
+Output: Order b7dd836b-e913-4446-9912-d400befebec5 has been approved."
 ```
 
 </details>

@@ -46,6 +46,23 @@ if (!status.IsReady)
 </details>
 
 <details>
+   <summary><b>Java workflow code</b></summary>
+
+Open the `MonitorWorkflow.java` file located in the `/src/main/java/io/dapr/springboot/examples/monitor` folder. This file contains the workflow code. The workflow input is an integer, `counter`, which is used to keep track of the number of times the workflow has been executed as a new instance.
+
+Note how the workflow uses the `WorkflowContext` to create a timer and to continue the workflow as a fresh instance.
+
+```java,nocopy
+if(!status.isReady()){
+   ctx.createTimer(Duration.ofSeconds(1)).await();
+   counter++;
+   ctx.continueAsNew(counter);
+}
+```
+
+</details>
+
+<details>
    <summary><b>Python workflow code</b></summary>
 
 Open the `monitor_workflow.py` file located in the `monitor-pattern/monitor` folder. This file contains the workflow code. The workflow input is an integer, `counter`, which is used to keep track of the number of times the workflow has been executed as a new instance.
@@ -73,6 +90,13 @@ The workflow uses only one activity, `CheckStatus`, and is located in the `Monit
 </details>
 
 <details>
+   <summary><b>Java activity code</b></summary>
+
+The workflow uses only one activity, `CheckStatusActivity`, and is located in the `/src/main/java/io/dapr/springboot/examples/monitor` folder. It uses a random number generator to simulate the status of a fictional external resource.
+
+</details>
+
+<details>
    <summary><b>Python activity code</b></summary>
 
 The workflow uses only one activity, `check_status`, and is located in the `monitor_workflow.py` file below the workflow definition. It uses a random number generator to simulate the status of a fictional external resource.
@@ -90,6 +114,16 @@ The workflow uses only one activity, `check_status`, and is located in the `moni
 Locate the `Program.cs` file in the `Monitor` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an integer, `counter`, as the input.
+
+</details>
+
+<details>
+   <summary><b>Java endpoints</b></summary>
+
+Locate the `MonitorRestController.java` file in the `/src/main/java/io/dapr/springboot/examples` folder. This file contains two HTTP endpoints:
+
+- A `start` HTTP POST endpoint that is used to schedule the workflow. This method accepts an integer as the input.
+- A `output` HTTP GET endpoint that is used to check the status of the workflow.
 
 </details>
 
@@ -126,6 +160,25 @@ Run the application using the Dapr CLI:
 
 ```bash,run
 dapr run -f .
+```
+
+</details>
+
+<details>
+   <summary><b>Run the Java application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *java/monitor-pattern* folder:
+
+```bash,run
+cd java/monitor-pattern
+```
+
+Build and run the application using Maven:
+
+```bash,run
+mvn spring-boot:test-run
 ```
 
 </details>
@@ -201,6 +254,28 @@ In the **Dapr CLI** window you should see application logs with the incremented 
 </details>
 
 <details>
+   <summary><b>Start the Java workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow:
+
+```curl,run
+curl -i --request POST http://localhost:8080/start/0
+```
+
+The **Dapr CLI** window should contain these application log statements:
+
+```text,nocopy
+[monitor-pattern]  io.dapr.springboot.examples.monitor.CheckStatusActivity : Received input: 0
+[monitor-pattern]  io.dapr.springboot.examples.monitor.CheckStatusActivity : Received input: 1
+[monitor-pattern]  io.dapr.springboot.examples.monitor.CheckStatusActivity : Received input: 2
+```
+
+>[!NOTE]
+> The exact number of log statements can vary based on the random number generator in the `CheckStatusActivity`.
+
+</details>
+
+<details>
    <summary><b>Start the Python workflow</b></summary>
 
 In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
@@ -262,6 +337,25 @@ Expected output:
 ```
 
 > The actual number of the counter can vary based on the random number generator in the `CheckStatus` activity.
+
+</details>
+
+<details>
+   <summary><b>Get the Java workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:8080/output
+```
+
+Expected output:
+
+```txt
+"Status is healthy after checking 2 times."
+```
+
+> The actual number of the counter can vary based on the random number generator in the `CheckStatusActivity`.
 
 </details>
 

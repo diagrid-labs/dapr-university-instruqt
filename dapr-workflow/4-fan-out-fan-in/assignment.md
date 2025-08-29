@@ -50,6 +50,26 @@ var allWordLengths = await Task.WhenAll(tasks);
 </details>
 
 <details>
+   <summary><b>Java workflow code</b></summary>
+
+Open the `FanOutFanInWorkflow.java` file located in the `/src/main/java/io/dapr/springboot/examples/fanoutfanin/` folder. This file contains the workflow code.
+
+Notice that the workflow input is of type `List<String>`. A `map` function is used to iterate over the individual items in the input to create a task for each one to call the `GetWordLengthActivity`. Note that these activity calls are not awaited so the call is not yet made.
+Once `ctx.allOf(tasks).await()` is called, the the workflow engine will schedule all the activities (fan-out), and the workflow will wait until all activities have been completed (fan-in).
+
+```java,nocopy
+// This list will contain the tasks that will be executed by the Dapr Workflow engine.
+List<Task<WordLength>> tasks = inputs.stream()
+   .map(input -> ctx.callActivity(GetWordLengthActivity.class.getName(), input, WordLength.class))
+   .collect(Collectors.toList());
+
+// The Dapr Workflow engine will schedule all the tasks and wait for all tasks to complete before continuing.
+List<WordLength> allWordLengths = ctx.allOf(tasks).await();
+```
+
+</details>
+
+<details>
    <summary><b>Python workflow code</b></summary>
 
 Open the `fanoutfanin_workflow.py` file located in the `fan_out_fan_in` folder. This file contains the workflow code.
@@ -81,6 +101,13 @@ The workflow uses only one activity, `GetWordLength`, and is located in the `Fan
 </details>
 
 <details>
+   <summary><b>Java activity code</b></summary>
+
+The workflow uses only one activity, `GetWordLengthActivity`, and is located in the `/src/main/java/io/dapr/springboot/examples/fanoutfanin` folder.
+
+</details>
+
+<details>
    <summary><b>Python activity code</b></summary>
 
 The workflow uses only one activity, `get_word_length`, and is located in the `fanoutfanin_workflow.py` file below the workflow definition.
@@ -98,6 +125,16 @@ The workflow uses only one activity, `get_word_length`, and is located in the `f
 Locate the `Program.cs` file in the `FanOutFanIn` folder. This file contains the code to register the workflow and activities using the `AddDaprWorkflow()` extension method.
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an array of strings as the input.
+
+</details>
+
+<details>
+   <summary><b>Java endpoints</b></summary>
+
+Locate the `FanOutFanInRestController.java` file in the `/src/main/java/io/dapr/springboot/examples` folder. This file contains two HTTP endpoints:
+
+- A `start` HTTP POST endpoint that is used to schedule the workflow. This method accepts a list of strings as the input.
+- A `output` HTTP GET endpoint that is used to check the status of the workflow.
 
 </details>
 
@@ -134,6 +171,25 @@ Run the application using the Dapr CLI:
 
 ```bash,run
 dapr run -f .
+```
+
+</details>
+
+<details>
+   <summary><b>Run the Java application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *java/fan-out-fan-in* folder:
+
+```bash,run
+cd java/fan-out-fan-in
+```
+
+Build and run the application using Maven:
+
+```bash,run
+mvn spring-boot:test-run
 ```
 
 </details>
@@ -212,6 +268,34 @@ The **Dapr CLI** window should contain these application log statements:
 </details>
 
 <details>
+   <summary><b>Start the Java workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow:
+
+```curl,run
+curl -i --request POST \
+  --url http://localhost:8080/start \
+  --header 'content-type: application/json' \
+  --data '["which","word","is","the","shortest"]'
+```
+
+The **Dapr CLI** window should contain these application log statements:
+
+```text,nocopy
+io.dapr.workflows.WorkflowContext        : Starting Workflow: io.dapr.springboot.examples.fanoutfanin.FanOutFanInWorkflow
+i.d.s.e.f.GetWordLengthActivity          : io.dapr.springboot.examples.fanoutfanin.GetWordLengthActivity : Received input: which
+i.d.s.e.f.GetWordLengthActivity          : io.dapr.springboot.examples.fanoutfanin.GetWordLengthActivity : Received input: the
+i.d.s.e.f.GetWordLengthActivity          : io.dapr.springboot.examples.fanoutfanin.GetWordLengthActivity : Received input: shortest
+i.d.s.e.f.GetWordLengthActivity          : io.dapr.springboot.examples.fanoutfanin.GetWordLengthActivity : Received input: word
+i.d.s.e.f.GetWordLengthActivity          : io.dapr.springboot.examples.fanoutfanin.GetWordLengthActivity : Received input: is
+```
+
+> [!NOTE]
+> The order of the log statements may vary, as the activities are executed in parallel.
+
+</details>
+
+<details>
    <summary><b>Start the Python workflow</b></summary>
 
 In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
@@ -273,6 +357,23 @@ Expected output:
       "dapr.workflow.output":"\"is\""
    }
 }
+```
+
+</details>
+
+<details>
+   <summary><b>Get the Java workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:8080/output
+```
+
+Expected output:
+
+```text,nocopy
+is
 ```
 
 </details>

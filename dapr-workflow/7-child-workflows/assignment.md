@@ -43,6 +43,21 @@ foreach (string item in input)
 </details>
 
 <details>
+   <summary><b>Java parent workflow</b></summary>
+
+Open the `ParentWorkflow.java` file located in the `/src/main/java/io/dapr/springboot/examples/child` folder. This file contains the code for the parent workflow.
+
+The `callChildWorkflow` method is used to call the child workflow. The first argument is the name of the child workflow, the second argument is the input for the child workflow, the third argument is the expected return type.
+
+```java,nocopy
+List<Task<String>> tasks = inputs.stream()
+   .map(input -> ctx.callChildWorkflow(ChildWorkflow.class.getName(), input, String.class))
+   .collect(Collectors.toList());
+```
+
+</details>
+
+<details>
    <summary><b>Python parent workflow</b></summary>
 
 Open the `parent_child_workflow.py` file located in the `child_workflows` folder. This file contains the code for the `parent_workflow`.
@@ -70,6 +85,13 @@ Open the `ChildWorkflow.cs` file located in the `ChildWorkflows` folder. This fi
 </details>
 
 <details>
+   <summary><b>Java child workflow</b></summary>
+
+Open the `ChildWorkflow.java` file located in the `/src/main/java/io/dapr/springboot/examples/child` folder. This file contains the code for the child workflow. This workflow uses task chaining to call two activities, `Activity1` and `Activity2`, in sequence.
+
+</details>
+
+<details>
    <summary><b>Python child workflow</b></summary>
 
 Open the `parent_child_workflow.py` file located in the `child_workflows` folder. This file contains the code for the `child_workflow` located below the `parent_workflow`. This workflow uses task chaining to call two activities, `activity1` and `activity2`, in sequence.
@@ -87,6 +109,16 @@ Open the `parent_child_workflow.py` file located in the `child_workflows` folder
 Locate the `Program.cs` file in the `ChildWorkflows` folder. This file contains the code to register the workflows and activities using the `AddDaprWorkflow()` extension method.
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an array of string as the input.
+
+</details>
+
+<details>
+   <summary><b>Java endpoints</b></summary>
+
+Locate the `ChildWorkflowsRestController.java` file in the `/src/main/java/io/dapr/springboot/examples` folder. This file contains two HTTP endpoints:
+
+- A `start` HTTP POST endpoint that is used to schedule the workflow. This method accepts a list of strings as the input.
+- A `output` HTTP GET endpoint that is used to check the status of the workflow.
 
 </details>
 
@@ -123,6 +155,25 @@ Run the application using the Dapr CLI:
 
 ```bash,run
 dapr run -f .
+```
+
+</details>
+
+<details>
+   <summary><b>Run the Java application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *java/child-workflows* folder:
+
+```bash,run
+cd java/child-workflows
+```
+
+Build and run the application using Maven:
+
+```bash,run
+mvn spring-boot:test-run
 ```
 
 </details>
@@ -200,6 +251,32 @@ The **Dapr CLI** window should contain these application log statements:
 </details>
 
 <details>
+   <summary><b>Start the Java workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow:
+
+```curl,run
+curl -i --request POST \
+   --url http://localhost:8080/start \
+   --header 'content-type: application/json' \
+   --data '["Item 1","Item 2"]'
+```
+
+The **Dapr CLI** window should contain these application log statements:
+
+```text,nocopy
+i.d.springboot.examples.child.Activity1  : io.dapr.springboot.examples.child.Activity1 : Received input: Item 2.
+i.d.springboot.examples.child.Activity1  : io.dapr.springboot.examples.child.Activity1 : Received input: Item 1.
+i.d.springboot.examples.child.Activity2  : io.dapr.springboot.examples.child.Activity2 : Received input: Item 2  is processed.
+i.d.springboot.examples.child.Activity2  : io.dapr.springboot.examples.child.Activity2 : Received input: Item 1  is processed.
+```
+
+>[!NOTE]
+> The order of the log statements may vary, as the child workflows are executed in parallel.
+
+</details>
+
+<details>
    <summary><b>Start the Python workflow</b></summary>
 
 In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
@@ -260,6 +337,23 @@ Expected output:
       "dapr.workflow.output":"[\"Item 1 is processed as a child workflow.\",\"Item 2 is processed as a child workflow.\"]"
    }
 }
+```
+
+</details>
+
+<details>
+   <summary><b>Get the Java workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:8080/output
+```
+
+Expected output:
+
+```txt
+["Item 1  is processed as a child workflow.","Item 2  is processed as a child workflow."]
 ```
 
 </details>

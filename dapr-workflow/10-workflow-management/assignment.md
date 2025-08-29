@@ -41,6 +41,15 @@ The input for this workflow is an integer, and gets incremented by `1` every sec
 </details>
 
 <details>
+   <summary><b>Java workflow code</b></summary>
+
+Open the `NeverEndingWorkflow.java` file located in the `/src/main/java/io/dapr/springboot/examples/mgmt` folder. This file contains the workflow code.
+
+The input for this workflow is an integer, and gets incremented by `1` every second. The workflow will run indefinitely.
+
+</details>
+
+<details>
    <summary><b>Python workflow code</b></summary>
 
 Open the `never_ending_workflow.py` file located in the `workflow_management` folder. This file contains the workflow code.
@@ -62,6 +71,13 @@ Open the `SendNotification.cs` file located in the `WorkflowManagement/Activitie
 </details>
 
 <details>
+   <summary><b>Java activity code</b></summary>
+
+Open the `SendNotificationActivity.java` file located in the `/src/main/java/io/dapr/springboot/examples/mgmt` folder. This activity only logs the activity input (the counter) and returns true.
+
+</details>
+
+<details>
    <summary><b>Python activity code</b></summary>
 
 Open the `never_ending_workflow.py` file located in the `workflow_management` folder. The `send_notification` activity function can be found below the workflow definition. The activity only prints the activity input value.
@@ -79,6 +95,22 @@ Open the `never_ending_workflow.py` file located in the `workflow_management` fo
 Locate the `Program.cs` file in the `WorkflowManagement` folder. This file contains the code to register the workflows and activities using the `AddDaprWorkflow()` extension method.
 
 The application has the following HTTP endpoints:
+
+- `start/{counter}`, a POST endpoint that is used to start the workflow, and accepts an integer as the input.
+- `status/{instanceId}`, a GET endpoint that is used to get the status of the workflow instance, and accepts a workflow instance ID as the input.
+- `suspend/{instanceId}`, a POST endpoint that is used to suspend the workflow instance, and accepts a workflow instance ID as the input.
+- `resume/{instanceId}`, a POST endpoint that is used to resume a suspended workflow instance, and accepts a workflow instance ID as the input.
+- `terminate/{instanceId}`, a POST endpoint that is used to terminate the workflow instance, and accepts a workflow instance ID as the input.
+- `purge/{instanceId}`, a DELETE endpoint that is used to delete the workflow instance, and accepts a workflow instance ID as the input.
+
+All methods use the `DaprWorklowClient` to perform the workflow management operations.
+
+</details>
+
+<details>
+   <summary><b>Java endpoints</b></summary>
+
+Locate the `WorkflowManagementRestController.java` file in the `/src/main/java/io/dapr/springboot/examples` folder. This file contains the following HTTP endpoints:
 
 - `start/{counter}`, a POST endpoint that is used to start the workflow, and accepts an integer as the input.
 - `status/{instanceId}`, a GET endpoint that is used to get the status of the workflow instance, and accepts a workflow instance ID as the input.
@@ -133,6 +165,25 @@ Run the application using the Dapr CLI:
 
 ```bash,run
 dapr run -f .
+```
+
+</details>
+
+<details>
+   <summary><b>Run the Java application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *java/workflow-management* folder:
+
+```bash,run
+cd java/workflow-management
+```
+
+Build and run the application using Maven:
+
+```bash,run
+mvn spring-boot:test-run
 ```
 
 </details>
@@ -206,6 +257,27 @@ The **Dapr CLI** window should contain these application log statements:
 </details>
 
 <details>
+   <summary><b>Start the Java workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
+
+```curl,run
+INSTANCEID=$(curl -s --request POST --url http://localhost:8080/start/0)
+```
+
+The **Dapr CLI** window should contain these application log statements:
+
+```text,nocopy
+i.d.s.e.mgmt.SendNotificationActivity    : io.dapr.springboot.examples.mgmt.SendNotificationActivity : Sending Notification: 0
+i.d.s.e.mgmt.SendNotificationActivity    : io.dapr.springboot.examples.mgmt.SendNotificationActivity : Sending Notification: 1
+i.d.s.e.mgmt.SendNotificationActivity    : io.dapr.springboot.examples.mgmt.SendNotificationActivity : Sending Notification: 2
+i.d.s.e.mgmt.SendNotificationActivity    : io.dapr.springboot.examples.mgmt.SendNotificationActivity : Sending Notification: 3
+...
+```
+
+</details>
+
+<details>
    <summary><b>Start the Python workflow</b></summary>
 
 In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
@@ -265,12 +337,39 @@ Expected output:
 </details>
 
 <details>
+   <summary><b>Get the Java workflow status</b></summary>
+
+Use the **curl** window to perform a GET request to the `status` endpoint of the application to retrieve the workflow status:
+
+```curl,run
+curl --request GET  --url http://localhost:8080/status/$INSTANCEID
+```
+
+Where `$INSTANCEID` is the environment variable containing the workflow instance ID captured in the previous step.
+
+Expected output:
+
+```json,nocopy
+[
+   Name: 'io.dapr.springboot.examples.mgmt.NeverEndingWorkflow',
+   ID: '<INSTANCEID>',
+   RuntimeStatus: RUNNING,
+   CreatedAt: 2025-08-29T11:30:11.003Z,
+   LastUpdatedAt: 2025-08-29T11:30:11.024Z,
+   Input: '<COUNTER>',
+   Output: ''
+]
+```
+
+</details>
+
+<details>
    <summary><b>Get the Python workflow status</b></summary>
 
 Use the **curl** window to perform a GET request to the `status` endpoint of the application to retrieve the workflow status:
 
 ```curl,run
-curl --request GET  --url http://localhost:5262/status/$INSTANCEID
+curl --request GET --url http://localhost:5262/status/$INSTANCEID
 ```
 
 Where `$INSTANCEID` is the environment variable containing the workflow instance ID captured in the previous step.
@@ -320,6 +419,29 @@ HTTP/1.1 202 Accepted
 Content-Length: 0
 Date: Wed, 23 Apr 2025 15:54:08 GMT
 Server: Kestrel
+```
+
+> [!NOTE]
+> The workflow instance has stopped executing. The **Dapr CLI** window should not show any new log statements.
+
+</details>
+
+<details>
+   <summary><b>Suspend the Java workflow</b></summary>
+
+Use the **curl** window to make a POST request to the `suspend` endpoint of the application to suspend the workflow instance:
+
+```curl,run
+curl -i --request POST \
+  --url http://localhost:8080/suspend/$INSTANCEID
+```
+
+Expected output:
+
+```json,nocopy
+HTTP/1.1 200
+Content-Length: 0
+Date: Wed, 23 Apr 2025 15:54:08 GMT
 ```
 
 > [!NOTE]
@@ -381,6 +503,26 @@ Server: Kestrel
 </details>
 
 <details>
+   <summary><b>Resume the Java workflow</b></summary>
+
+Use the **curl** window to make a POST request to the `resume` endpoint of the application to resume the suspended the workflow instance:
+
+```curl,run
+curl -i --request POST \
+  --url http://localhost:8080/resume/$INSTANCEID
+```
+
+Expected output:
+
+```json,nocopy
+HTTP/1.1 200
+Content-Length: 0
+Date: Wed, 23 Apr 2025 15:59:17 GMT
+```
+
+</details>
+
+<details>
    <summary><b>Resume the Python workflow</b></summary>
 
 Use the **curl** window to make a POST request to the `resume` endpoint of the application to resume the suspended the workflow instance:
@@ -437,6 +579,26 @@ Workflow Actor <INSTANCEID>: workflow completed with status 'ORCHESTRATION_STATU
 </details>
 
 <details>
+   <summary><b>Terminate the Java workflow</b></summary>
+
+Use the **curl** window to make a POST request to the `terminate` endpoint of the application to terminate the running workflow instance:
+
+```curl,run
+curl -i --request POST \
+  --url http://localhost:8080/terminate/$INSTANCEID
+```
+
+Expected output:
+
+```json,nocopy
+HTTP/1.1 200
+Content-Length: 0
+Date: Wed, 23 Apr 2025 15:59:17 GMT
+```
+
+</details>
+
+<details>
    <summary><b>Terminate the Python workflow</b></summary>
 
 Use the **curl** window to make a POST request to the `terminate` endpoint of the application to terminate the running workflow instance:
@@ -488,6 +650,29 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Date: Wed, 23 Apr 2025 16:04:08 GMT
 Server: Kestrel
+Transfer-Encoding: chunked
+
+true
+```
+
+</details>
+
+<details>
+   <summary><b>Purge the Java workflow</b></summary>
+
+Use the **curl** window to make a DELETE request to the `purge` endpoint of the application to purge workflow instance from the state store:
+
+```curl,run
+curl -i --request DELETE \
+  --url http://localhost:8080/purge/$INSTANCEID
+```
+
+Expected output:
+
+```json,nocopy
+HTTP/1.1 200
+Content-Type: application/json; charset=utf-8
+Date: Wed, 23 Apr 2025 16:04:08 GMT
 Transfer-Encoding: chunked
 
 true
