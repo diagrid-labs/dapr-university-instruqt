@@ -242,7 +242,7 @@ Use the **curl** window to make a POST request to the `start` endpoint of the wo
 <details>
    <summary><b>Start the .NET workflow</b></summary>
 
-In the **curl** window, run the following command to start the workflow:
+In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
 
 ```curl,run
 INSTANCEID=$(curl -s --request POST \
@@ -270,7 +270,7 @@ The **Dapr CLI** window should contain these application log statements:
 <details>
    <summary><b>Start the Java workflow</b></summary>
 
-In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
+In the **curl** window, run the following command to start the workflow:
 
 ```curl,run
 curl -i --request POST \
