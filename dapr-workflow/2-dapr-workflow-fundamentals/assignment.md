@@ -694,8 +694,8 @@ The expected output should be similar to this:
  7) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||metadata"
  8) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000005"
  9) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000002"
-1)  "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000000"
-2)  "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000004"
+10)  "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000000"
+11)  "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000004"
 ```
 
 > [!IMPORTANT]
