@@ -56,6 +56,27 @@ The body of the `RunAsync` method in this example contains two calls to activiti
 </details>
 
 <details>
+   <summary><b>Java workflow</b></summary>
+
+Open the `BasicWorkflow.java` file located in the `src/main/java/io/dapr/springboot/examples/basic` folder. This file contains the workflow code.
+
+The `BasicWorkflow` class implements the `Workflow` class provided by the Dapr Workflow SDK.
+
+The `BasicWorkflow` class overrides the `create` method from the base class. This method is the entry point of the workflow.
+
+Workflows are asynchronous and do not return a result directly. The `ctx` (`WorkflowContext`) return type is provided by the Dapr Workflow SDK and contains properties and methods of the workflow instance.:
+
+- `ctx.getLogger` returns a replay-safe logger.
+- `ctx.getInput` returns the input of the workflow instance.
+- `ctx.complete` signals the completion of the workflow and captures the output.
+
+You can use any type of input and output for the workflow, as long as they are serializable.
+
+The body of the `create` method in this example contains two calls to activities using the `callActivity` method. The first argument defines the name of the activity that will be called. The second argument is the input for the activity, the third argument is the output type of the activity.
+
+</details>
+
+<details>
    <summary><b>Python workflow</b></summary>
 
 Open the `basic_workflow.py` file located in the `basic` folder. This file contains the workflow code.
@@ -106,6 +127,25 @@ The body of the `RunAsync` method in this example just does a `Console.WriteLine
 </details>
 
 <details>
+   <summary><b>Java activities</b></summary>
+
+Open the `Activity1.java` file located in the `src/main/java/io/dapr/springboot/examples/basic/activities` folder. This file contains the code for Activity1.
+
+The `Activity1` class implements the `WorkflowActivity` class provided by the Dapr Workflow SDK.
+
+The `Activity1` class overrides the `run` method from the base class. This method is the entry point of the activity.
+
+Activities are asynchronous and return an `Object` type.
+
+The `WorkflowActivityContext` input argument is provided by the Dapr Workflow package and contains the instance ID of workflow. It also contains the `getInput` method to retrieve the input argument for the activity.
+
+You can use any type of input and output for the activity, as long as they are serializable.
+
+The body of the `run` method in this example retrieves the input argument via the `WorkflowActivityContext`, logs this to the `logger`, and appends "Two" to the input string and returns the result.
+
+</details>
+
+<details>
    <summary><b>Python activities</b></summary>
 
 Open the `basic_workflow.py` file located in the `basic` folder. This file contains the activities below the workflow definition.
@@ -140,6 +180,20 @@ Locate the `Program.cs` file in the `Basic` folder. This file contains the code 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow. It accepts a `string` as input, and this input is passed on to the workflow.
 
 The `start` method also contains the `DaprWorkflowClient` as an input argument. This is injected by the Dapr SDK. The `DaprWorkflowClient` is used to schedule a new workflow using the `ScheduleNewWorkflowAsync` method. The first input argument for this method is the name of the workflow; the second input argument is the input for the workflow. The `ScheduleNewWorkflowAsync` method returns the instance ID of the workflow that is scheduled. The ID is used for other workflow operations that can be done with the `DaprWorkflowClient`. This is covered in the *Workflow Management* challenge later in this learning track.
+
+</details>
+
+<details>
+   <summary><b>Java registration and endpoints</b></summary>
+
+Locate the `BasicRestController.java` file in the `src/main/java/io/dapr/springboot/examples` folder. The `@EnableDaprWorkflows` decorator is used on the controller class so the `DaprWorkflowClient` can be used in the methods. This file also contains the HTTP endpoints to start a workflow and retrieve the results.
+
+The `start` method uses the `DaprWorkflowClient`from the Dapr Workflow SDK to schedule a new workflow using the `scheduleNewWorkflow` method. The first input argument for this method is the name of the workflow; the second input argument is the input for the workflow. The method returns the instance ID of the workflow that is scheduled. This ID is used for other workflow operations that can be done with the `DaprWorkflowClient`. This is covered in the *Workflow Management* challenge later in this learning track.
+
+> [!NOTE]
+> The instanceId in many of the Java demos in this University track are stored as a private field in the controller class. This is not a recommended practice for production code, as these controllers are stateless. The private `instanceId` field in these examples serve as a quick way to obtain the workflow result without storing it permanently in a state store.
+
+The `output` method uses the `getInstanceState` method on the `DaprWorkflowClient` to retrieve the state of the workflow instance.
 
 </details>
 
@@ -198,6 +252,25 @@ dapr run -f .
 </details>
 
 <details>
+   <summary><b>Run the Java application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *java/fundamentals* folder:
+
+```bash,run
+cd java/fundamentals
+```
+
+Build and run the application using Maven:
+
+```bash,run
+mvn spring-boot:test-run
+```
+
+</details>
+
+<details>
    <summary><b>Run the Python application</b></summary>
 
 Use the **Dapr CLI** window to run the commands.
@@ -234,9 +307,9 @@ dapr run -f .
 
 > [!IMPORTANT]
 > Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing. The logs should contain an INFO messages related to the Dapr Placement Service:
-> 
+>
 > `INFO[0020] Connected to placement` ...
-> 
+>
 > `INFO[0022] Placement tables updated` ...
 
 ## 4. Start the Basic workflow
@@ -256,7 +329,7 @@ curl -i --request POST http://localhost:5254/start/One
 ```
 
 >[!WARNING]
-> You might see a warning in the Dapr CLI log window about `Error processing operation DaprBuiltInActorNotFoundRetries.`. Don't worry, this is a transient error, the Dapr process is trying to communicate to the actor that is responsible for scheduling the workflow. 
+> You might see a warning in the Dapr CLI log window about `Error processing operation DaprBuiltInActorNotFoundRetries.`. Don't worry, this is a transient error, the Dapr process is trying to communicate to the actor that is responsible for scheduling the workflow.
 
 Expected output:
 
@@ -293,6 +366,40 @@ You can verify the value of the `$INSTANCEID` variable by running the following 
 
 ```bash,run
 echo $INSTANCEID
+```
+
+</details>
+
+<details>
+   <summary><b>Start the Java workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow:
+
+```curl,run
+curl -i --request POST "http://localhost:8080/start?input=One"
+```
+
+>[!WARNING]
+> You might see a warning in the Dapr CLI log window about `Error processing operation DaprBuiltInActorNotFoundRetries.`. Don't worry, this is a transient error, the Dapr process is trying to communicate to the actor that is responsible for scheduling the workflow.
+
+Expected output:
+
+```text,nocopy
+HTTP/1.1 200 OK
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 36
+...
+
+<INSTANCE_ID>
+```
+
+The INSTANCE_ID in the body of the response is the workflow instance ID that you just scheduled.
+
+The **Dapr CLI** window should contain these application log statements:
+
+```text,nocopy
+io.dapr.springboot.examples.basic.activities.Activity1 : Received input: One
+io.dapr.springboot.examples.basic.activities.Activity2 : Received input: One Two
 ```
 
 </details>
@@ -398,6 +505,25 @@ Expected output:
 ```
 
 The workflow status contains the workflow instance ID, the workflow name, the created and last updated timestamps, the runtime status (`COMPLETED`), and the input and output of the workflow.
+
+</details>
+
+<details>
+   <summary><b>Get the Java workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:8080/output
+```
+
+The instance ID is not required in the request since it's captured as a private field in the controller.
+
+Expected output:
+
+```text,nocopy
+One Two Three
+```
 
 </details>
 

@@ -37,6 +37,13 @@ Open the `OrderWorkflow.cs` file located in the `WorkflowApp` folder. This file 
 </details>
 
 <details>
+   <summary><b>Java workflow code</b></summary>
+
+Open the `OrderWorkflow.java` file located in the `/workflow-app/src/main/java/io/dapr/springboot/workflowapp/workflow` folder. This file contains the workflow code.
+
+</details>
+
+<details>
    <summary><b>Python workflow code</b></summary>
 
 Open the `order_workflow.py` file located in the `workflow_app` folder. This file contains the workflow code.
@@ -59,6 +66,20 @@ The activity definitions are located in the `WorkflowApp/Activities` folder. The
 - `UpdateInventory`: updates the inventory. This activity uses the Dapr state management API to update inventory.
 - `RegisterShipment`: registers the shipment with the Shipping App. This activity uses the Dapr pub/sub API to publish a message to the `shipment-registration-events` topic.
 - `ReimburseCustomer`: simulates a reimbursement for the customer. This activity only logs the input and returns a success message.
+
+</details>
+
+<details>
+   <summary><b>Java activity code</b></summary>
+
+The activity definitions are located in the `/workflow-app/src/main/java/io/dapr/springboot/workflowapp/workflow/activities` folder. The activities are:
+
+- `CheckInventoryActivity`: checks if the item is in stock. This activity uses the Dapr state management API to check the inventory.
+- `CheckShippingDestinationActivity`: checks if the item can be shipped to the destination. This activity uses the Dapr service invocation API to call the `checkDestination` method on the Shipping App.
+- `ProcessPaymentActivity`: simulates a payment process. This activity only logs the input and returns a success message.
+- `UpdateInventoryActivity`: updates the inventory. This activity uses the Dapr state management API to update inventory.
+- `RegisterShipmentActivity`: registers the shipment with the Shipping App. This activity uses the Dapr pub/sub API to publish a message to the `shipment-registration-events` topic.
+- `ReimburseCustomerActivity`: simulates a reimbursement for the customer. This activity only logs the input and returns a success message.
 
 </details>
 
@@ -94,6 +115,17 @@ Th WorkflowApp has the following HTTP endpoints:
 </details>
 
 <details>
+   <summary><b>Java endpoints</b></summary>
+
+Locate the `WorkflowAppRestController.java` file in the `/workflow-app/src/main/java/io/dapr/springboot/workflowapp` folder. This file contains three HTTP endpoints:
+
+- A `start` HTTP POST endpoint that is used to schedule the workflow. This method accepts an `Order` object as the input.
+- `shipmentRegistered`, a POST endpoint that is used to receive the shipment registration event from the Shipping App sent via pub/sub messaging. This endpoint uses the `DaprWorkflowClient` to raise an external event to the workflow instance with the shipment registration status.
+- An `output` HTTP GET endpoint that is used to check the status of the workflow.
+
+</details>
+
+<details>
    <summary><b>Python workflow runtime and endpoints</b></summary>
 
 Locate the `app.py` file in the `workflow_app` folder. This file contains the code to start the workflow runtime and two HTTP endpoints:
@@ -119,6 +151,16 @@ Locate the `Program.cs` file in the `ShippingApp` folder. This file contains the
 </details>
 
 <details>
+   <summary><b>Java shipping app</b></summary>
+
+Locate the `ShippingAppRestController.java` file in the `/shipping-app/src/main/java/io/dapr/springboot/examples` folder. This file contains the following HTTP endpoints:
+
+- `checkDestination`, a POST endpoint that that simulates a check if the shipper can ship to the destination. This endpoint is called by the `CheckShippingDestinationActivity` activity via service invocation. This method always returns a success message.
+- `registerShipment`, a POST endpoint that is used to simulate the registration of a new shipment. This endpoint is handling messages for the subscription of the `shipment-registration-events` topic (published by the WorkflowApp). The method publishes a success status message to the `shipment-registration-confirmed-events` topic as long the order ID is not empty. This is because the order ID is used as the workflow instance ID, and the subscriber to this topic (`shipmentRegistered` method in the WorkflowApp) needs the workflow instance ID to raise an event to that workflow instance.
+
+</details>
+
+<details>
    <summary><b>Python shipping app</b></summary>
 
 Locate the `app.py` file in the `shipping_app` folder. This file contains the following HTTP endpoints:
@@ -138,7 +180,7 @@ Since the Dapr applications in the challenge use the Dapr pub/sub API, they also
 > Expand the language specific instructions to start the combined patterns workflow.
 
 <details>
-   <summary><b>Run the .NET application</b></summary>
+   <summary><b>Run the .NET applications</b></summary>
 
 Use the **Dapr CLI** window to run the commands.
 
@@ -164,7 +206,26 @@ dapr run -f .
 </details>
 
 <details>
-   <summary><b>Run the Python application</b></summary>
+   <summary><b>Run the Java applications</b></summary>
+
+Use the **Dapr CLI** window to navigate to the *java/combined-patterns/workflow-app* folder and build and run the workflow-app application using Maven:
+
+```bash,run
+cd java/combined-patterns/workflow-app
+mvn clean -Dspring-boot.run.arguments="--reuse=true" spring-boot:test-run
+```
+
+Use the **Maven CLI** window to navigate to the *java/combined-patterns/shipping-app* folder and build and run the shipping-app application using Maven:
+
+```bash,run
+cd java/combined-patterns/shipping-app
+mvn clean -Dspring-boot.run.arguments="--reuse=true" spring-boot:test-run
+```
+
+</details>
+
+<details>
+   <summary><b>Run the Python applications</b></summary>
 
 Use the **Dapr CLI** window to run the commands.
 
@@ -255,6 +316,32 @@ The **Dapr CLI** window should contain these application log statements:
 </details>
 
 <details>
+   <summary><b>Start the Java workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow:
+
+```curl,run
+curl -i --request POST \
+   --url http://localhost:8080/start \
+   --header 'content-type: application/json' \
+   --data '{"id": "b0d38481-5547-411e-ae7b-255761cce17a","orderItem" : {"productId": "RBD001","productName": "Rubber Duck","quantity": 10,"totalPrice": 15.00},"customerInfo" : {"id" : "Customer1","country" : "The Netherlands"}}'
+```
+
+The **Dapr CLI** window should contain these application log statements:
+
+```text,nocopy
+i.d.s.w.WorkflowAppRestController        : Received order: Order[id=b0d38481-5547-411e-ae7b-255761cce17a, orderItem=OrderItem[productId=RBD001, productName=Rubber Duck, quantity=10, totalPrice=15.00], customerInfo=CustomerInfo[id=Customer1, country=The Netherlands]]
+s.w.w.a.CheckShippingDestinationActivity : io.dapr.springboot.workflowapp.workflow.activities.CheckShippingDestinationActivity : Checking Shipping Destination for Order: b0d38481-5547-411e-ae7b-255761cce17a
+i.d.s.w.w.a.CheckInventoryActivity       : io.dapr.springboot.workflowapp.workflow.activities.CheckInventoryActivity : Received input: OrderItem[productId=RBD001, productName=Rubber Duck, quantity=10, totalPrice=15.00]
+i.d.s.w.w.a.ProcessPaymentActivity       : io.dapr.springboot.workflowapp.workflow.activities.ProcessPaymentActivity : Process Order Item Payment: OrderItem[productId=RBD001, productName=Rubber Duck, quantity=10, totalPrice=15.00]
+i.d.s.w.w.a.UpdateInventoryActivity      : io.dapr.springboot.workflowapp.workflow.activities.UpdateInventoryActivity : Received input: OrderItem[productId=RBD001, productName=Rubber Duck, quantity=10, totalPrice=15.00]
+i.d.s.w.w.a.RegisterShipmentActivity     : io.dapr.springboot.workflowapp.workflow.activities.RegisterShipmentActivity : RegisterShipmentActivity for OrderItem: Order[id=b0d38481-5547-411e-ae7b-255761cce17a, orderItem=OrderItem[productId=RBD001, productName=Rubber Duck, quantity=10, totalPrice=15.00], customerInfo=CustomerInfo[id=Customer1, country=The Netherlands]]
+i.d.s.w.WorkflowAppRestController        : Shipment registered for order ShipmentRegistrationStatus[orderId=b0d38481-5547-411e-ae7b-255761cce17a, isSuccess=true, message=]
+```
+
+</details>
+
+<details>
    <summary><b>Start the Python workflow</b></summary>
 
 In the **curl** window, run the following command to start the workflow:
@@ -330,6 +417,23 @@ Expected output:
       "dapr.workflow.output":"{\"IsSuccess\":true,\"Message\":\"Order b0d38481-5547-411e-ae7b-255761cce17a processed successfully.\"}"
    }
 }
+```
+
+</details>
+
+<details>
+   <summary><b>Get the Java workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url "http://localhost:8080/output?instanceId=b0d38481-5547-411e-ae7b-255761cce17a"
+```
+
+Expected output:
+
+```json,nocopy
+{"isSuccess":true,"message":"Order b0d38481-5547-411e-ae7b-255761cce17a processed successfully."}
 ```
 
 </details>

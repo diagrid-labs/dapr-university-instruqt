@@ -58,6 +58,41 @@ The `defaultActivityRetryOptions` are passed as the third argument to the `CallA
 </details>
 
 <details>
+   <summary><b>Java workflow code</b></summary>
+
+Open the `ResiliencyAndCompensationWorkflow.java` file located in the `/src/main/java/io/dapr/springboot/examples/resiliency` folder. This file contains the workflow code.
+
+```java,nocopy
+WorkflowTaskRetryPolicy workflowTaskRetryPolicy = new WorkflowTaskRetryPolicy(3,
+   Duration.ofSeconds(2),
+   1.0,
+   Duration.ofSeconds(10),
+   Duration.ofSeconds(15));
+```
+
+This `WorkflowTaskRetryPolicy` defines a retry policy with the following specification:
+
+- retries activities up to 3 times
+- an initial delay of 2 seconds
+- a backoff coefficient of 1
+- a max retry interval of 10 seconds
+- a retry timeout of 15 seconds
+
+```csharp,nocopy
+WorkflowTaskOptions defaultActivityRetryOptions = new WorkflowTaskOptions(workflowTaskRetryPolicy);
+
+Integer result1 = ctx.callActivity(
+   MinusOneActivity.class.getName(),
+   counter,
+   defaultActivityRetryOptions,
+   Integer.class).await();
+```
+
+The `WorkflowTaskRetryPolicy` is wrapped in a `WorkflowTaskOptions` object and passed as the third argument to the `callActivity` methods in this workflow.
+
+</details>
+
+<details>
    <summary><b>Python workflow code</b></summary>
 
 Open the `resiliency_and_compensation_workflow.py` file located in the `resiliency_and_compensation` folder. This file contains the workflow code.
@@ -89,6 +124,13 @@ The three activity definitions are located in the `ResiliencyAndCompensation/Act
 </details>
 
 <details>
+   <summary><b>Java activity code</b></summary>
+
+The three activity definitions are located in the `/src/main/java/io/dapr/springboot/examples/resiliency` folder. The `MinusOneActivity` and `PlusOneActivity` activities, subtract and add `1` to the numeric input respectively.The `DivisionActivity` activity divides `100` by the numeric input, and will result in an exception if the input is `0`.
+
+</details>
+
+<details>
    <summary><b>Python activity code</b></summary>
 
 The three activity definitions are located in the `resiliency_and_compensation_workflow.py` file below the workflow definition. The `minus_one` and `plus_one` activities, subtract and add `1` to the numeric input respectively.The `division` activity divides `100` by the numeric input, and will result in an exception if the input is `0`.
@@ -106,6 +148,16 @@ The three activity definitions are located in the `resiliency_and_compensation_w
 Locate the `Program.cs` file in the `ResiliencyAndCompensation` folder. This file contains the code to register the workflows and activities using the `AddDaprWorkflow()` extension method.
 
 This application also has a `start` HTTP POST endpoint that is used to start the workflow, and accepts an integer as the input.
+
+</details>
+
+<details>
+   <summary><b>Java endpoints</b></summary>
+
+Locate the `ResiliencyAndCompensationRestController.java` file in the `/src/main/java/io/dapr/springboot/examples` folder. This file contains two HTTP endpoints:
+
+- A `start` HTTP POST endpoint that is used to schedule the workflow. This method accepts an integer as the input.
+- A `output` HTTP GET endpoint that is used to check the status of the workflow.
 
 </details>
 
@@ -142,6 +194,25 @@ Run the application using the Dapr CLI:
 
 ```bash,run
 dapr run -f .
+```
+
+</details>
+
+<details>
+   <summary><b>Run the Java application</b></summary>
+
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *java/resiliency-and-compensation* folder:
+
+```bash,run
+cd java/resiliency-and-compensation
+```
+
+Build and run the application using Maven:
+
+```bash,run
+mvn spring-boot:test-run
 ```
 
 </details>
@@ -218,6 +289,28 @@ The **Dapr CLI** window should contain these application log statements:
 </details>
 
 <details>
+   <summary><b>Start the Java workflow</b></summary>
+
+In the **curl** window, run the following command to start the workflow:
+
+```curl,run
+curl -i --request POST \
+   --url http://localhost:8080/start/1
+```
+
+The application log in the **Dapr CLI** window should contain these log statements:
+
+```text,nocopy
+i.d.s.e.resiliency.MinusOneActivity      : io.dapr.springboot.examples.resiliency.MinusOneActivity: Received input:  1
+i.d.s.e.resiliency.DivisionActivity      : io.dapr.springboot.examples.resiliency.DivisionActivity : Received divisor: 0
+i.d.s.e.resiliency.DivisionActivity      : io.dapr.springboot.examples.resiliency.DivisionActivity : Received divisor: 0
+i.d.s.e.resiliency.DivisionActivity      : io.dapr.springboot.examples.resiliency.DivisionActivity : Received divisor: 0
+i.d.s.e.resiliency.PlusOneActivity       : io.dapr.springboot.examples.resiliency.PlusOneActivity: Received input:  0
+```
+
+</details>
+
+<details>
    <summary><b>Start the Python workflow</b></summary>
 
 In the **curl** window, run the following command to start the workflow and capture the workflow instance ID:
@@ -283,6 +376,23 @@ Expected output:
 </details>
 
 <details>
+   <summary><b>Get the Java workflow status</b></summary>
+
+Use the **curl** window to make a GET request to get the status of a workflow instance:
+
+```curl,run
+curl --request GET --url http://localhost:8080/output
+```
+
+Expected output:
+
+```txt
+1
+```
+
+</details>
+
+<details>
    <summary><b>Get the Python workflow status</b></summary>
 
 Use the **curl** window to make a GET request to get the status of a workflow instance:
@@ -320,6 +430,8 @@ If you want, you can run some additional tests to explore different retry polici
 
 - [.NET `WorkflowRetryPolicy` definition on GitHub](
 https://github.com/dapr/dotnet-sdk/blob/master/src/Dapr.Workflow/WorkflowRetryPolicy.cs)
+- [.Java `WorkflowRetryPolicy` definition on GitHub](
+https://github.com/dapr/java-sdk/blob/master/sdk-workflows/src/main/java/io/dapr/workflows/WorkflowTaskRetryPolicy.java)
 - [Python `RetryPolicy` definition on GitHub](
 https://github.com/dapr/python-sdk/blob/main/ext/dapr-ext-workflow/dapr/ext/workflow/retry_policy.py) (Currently there is an issue with the `RetryPolicy` in the Python SDK, so you may not be able to test this.)
 
