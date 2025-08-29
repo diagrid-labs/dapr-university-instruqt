@@ -336,6 +336,7 @@ Expected output:
 }
 ```
 
+>[!NOTE]
 > The actual number of the counter can vary based on the random number generator in the `CheckStatus` activity.
 
 </details>
@@ -355,6 +356,7 @@ Expected output:
 "Status is healthy after checking 2 times."
 ```
 
+>[!NOTE]
 > The actual number of the counter can vary based on the random number generator in the `CheckStatusActivity`.
 
 </details>
@@ -386,6 +388,7 @@ Expected output:
 }
 ```
 
+>[!NOTE]
 > The actual number of the counter can vary based on the random number generator in the `check_status` activity.
 
 </details>
