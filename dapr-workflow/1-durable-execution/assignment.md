@@ -30,7 +30,7 @@ Authoring workflows in code allows developers to use the same tools and processe
 - Go
 
 > [!IMPORTANT]
-> This Dapr University track currently offers .NET & Python example applications. Other languages (Java, Go, & JavaScript) will be added in the next couple of weeks.
+> This Dapr University track currently offers .NET, Java & Python example applications. Other languages (Go, & JavaScript) will be added in the next couple of months.
 
 Your application that contains the workflow code communicates with the Dapr workflow engine via the Dapr API. The Dapr workflow engine is responsible for scheduling the workflow and its activities, managing the state of the workflow, and handling errors and retries.
 
