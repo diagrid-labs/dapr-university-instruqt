@@ -648,31 +648,6 @@ public DaprContainer daprContainer() {
 > [!IMPORTANT]
 > The `actorStateStore` metadata property is set to `true` to enable the use of this state store for Dapr actors. This is required since Dapr Workflow uses Actors internally.
 
-Use the **Redis** window and use the following command to list all the keys in the Redis container that belong to the `basic` workflow you've just executed:
-
-```bash,run
-keys *basic||dapr.internal.default.basic.workflow*
-```
-
-The expected output should be similar to this:
-
-```text,nocopy
- 1) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000007"
- 2) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||customStatus"
- 3) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000003"
- 4) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000008"
- 5) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000006"
- 6) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000001"
- 7) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||metadata"
- 8) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000005"
- 9) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000002"
-1)  "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000000"
-2)  "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000004"
-```
-
-> [!IMPORTANT]
-> The GUID in the key name is the workflow instance ID. It will be a different value each time a new workflow instance is started since it is created by Dapr in this example. You can provide a custom workflow instance ID when scheduling a workflow. This is covered in the External System Interaction challenge later in this learning track.
-
 </details>
 
 <details>
@@ -719,8 +694,8 @@ The expected output should be similar to this:
  7) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||metadata"
  8) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000005"
  9) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000002"
-10) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000000"
-11) "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000004"
+1)  "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000000"
+2)  "basic||dapr.internal.default.basic.workflow||05f63e15a3724c5d86386922919378d6||history-000004"
 ```
 
 > [!IMPORTANT]
