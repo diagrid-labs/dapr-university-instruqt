@@ -1,7 +1,6 @@
 ## 1. Why Diagrid Catalyst?
 
 
-
 ## 2. Developing with Catalyst
 
 

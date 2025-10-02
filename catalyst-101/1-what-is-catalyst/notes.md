@@ -1,6 +1,6 @@
 Click the *Start* button to setup the sandbox environment for this training, this may take up to 2 minutes. Once the environment ready, click the *Start* button again.
 
-- There are 5 challenges to complete. If your session is idle for more than 10 minutes, the session will stop, and you'll need to restart the track.
+- There are 5 challenges to complete. If your session is idle for more than 15 minutes, the session will stop, and you'll need to restart the track.
 
 - Tracks can be started up to 5 times, and you can select which challenge you want to run via the *Progress* button in the top right, if you don't want to run them all in order.
 

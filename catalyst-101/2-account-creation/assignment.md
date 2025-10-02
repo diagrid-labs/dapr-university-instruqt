@@ -11,7 +11,7 @@ If you already have an account, you can skip this step and proceed with installi
 
 The Diagrid CLI is a command line tool that allows you to create and manage Catalyst resources and run Dapr applications on Catalyst.
 
-Select the **Terminal** tab and run the following command to download the Diagrid CLI:
+Run the following command in the **Terminal** tab to download the Diagrid CLI:
 
 ```bash,run
 curl -o- https://downloads.diagrid.io/cli/install.sh | bash
@@ -55,7 +55,7 @@ Code confirmed? (Y/N)
 1. Click on the link provided in the output to open a new browser tab.
 2. You'll need to login to your Catalyst account in this browser window if you haven't already.
 3. Verify that the code in the browser matches the code in the terminal, click the *Confirm* button and come back to this sandbox environment.
-4. Enter `Y` in the **Terminal** tab to confirm.
+4. Press `Y` followed by the `Enter` key in the **Terminal** tab to confirm.
 
 The CLI is now logged in to your Catalyst account and should show a message like this:
 
