@@ -1,13 +1,12 @@
-## 1. Why Diagrid Catalyst?
+## 1. What is Diagrid Catalyst?
+TODO
 
-
-## 2. Developing with Catalyst
-
+## 2. Why Use Diagrid Catalyst?
+TODO
 
 ## 3. Catalyst features
-
-
+TODO
 
 ---
 
-This Catalyst 101 learning track covers the Dapr State Management, Pub/Sub, and Workflow APIs.
+Now that you know what Catalyst is and why organizations use it, let's continue to the next challenge where you'll create a free Catalyst account, install the Diagrid CLI, and login to your Catalyst account using the Diagrid CLI.

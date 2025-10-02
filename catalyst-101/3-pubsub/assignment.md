@@ -32,6 +32,7 @@ diagrid dev run -f dev-csharp-pubsub.yaml
 4. In the **curl** tab, run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
 ```bash,run
+TODO
 ```
 
 </details>
@@ -55,6 +56,7 @@ diagrid dev run -f dev-java-pubsub.yaml
 4. In the **curl** tab, run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
 ```bash,run
+TODO
 ```
 
 </details>
@@ -78,6 +80,7 @@ diagrid dev run -f dev-python-pubsub.yaml
 4. In the **curl** tab, run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
 ```bash,run
+TODO
 ```
 
 </details>
@@ -101,5 +104,11 @@ diagrid dev run -f dev-javascript-pubsub.yaml
 4. In the **curl** tab, run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
 ```bash,run
+TODO
 ```
+
 </details>
+
+## 4. Use the Catalyst portal
+
+TODO
