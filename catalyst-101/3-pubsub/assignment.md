@@ -9,9 +9,14 @@ Catalyst comes with a built-in pub/sub service that you can use in your Dapr app
 Choose one of the language tabs to explore the code. For each language, there are two applications:
 
 - *publisher*: This application publishes messages to a topic using Dapr's pub/sub API.
-- subscriber*: This application subscribes to the topic and processes the messages. The subscriber application uses a declarative subscription, this means the definition of the subscription is configured in a *yaml* file.
+- *subscriber*: This application subscribes to the topic and processes the messages. The subscriber application uses a declarative subscription, this means the definition of the subscription is configured in a *yaml* file.
+
+> [!IMPORTANT]
+> Each language has a Dapr Multi-App run file (*dev-<language>-pubsub.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet.
 
 ## 3. Run the Dapr Pub/Sub applications
+
+Now run the applications using the Diagrid CLI. Choose one of the instructions below to run the applications in that language.
 
 <details>
    <summary><b>Run the .NET apps</b></summary>
@@ -32,7 +37,7 @@ diagrid dev run -f dev-csharp-pubsub.yaml
 4. In the **curl** tab, run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
 ```bash,run
-TODO
+curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
 ```
 
 </details>
@@ -56,7 +61,7 @@ diagrid dev run -f dev-java-pubsub.yaml
 4. In the **curl** tab, run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
 ```bash,run
-TODO
+curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
 ```
 
 </details>
@@ -80,7 +85,7 @@ diagrid dev run -f dev-python-pubsub.yaml
 4. In the **curl** tab, run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
 ```bash,run
-TODO
+curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
 ```
 
 </details>
@@ -104,7 +109,7 @@ diagrid dev run -f dev-javascript-pubsub.yaml
 4. In the **curl** tab, run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
 ```bash,run
-TODO
+curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
 ```
 
 </details>
