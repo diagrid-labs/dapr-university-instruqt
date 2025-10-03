@@ -1,18 +1,24 @@
-Catalyst comes with a built-in pub/sub service that you can use in your Dapr applications. In this challenge you'll run two Dapr applications that communicate via this built-in message broker.
+Catalyst comes with a built-in pub/sub service that you can use in your Dapr applications. In this challenge, you'll run two Dapr applications that communicate via this built-in message broker.
 
 ## 1. View the Diagrid Pub/Sub service
 
-// TODO
+1. Use the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Expand the menu item to show list of services.
+2. Select the Diagrid Pub/Sub service to view the details of the service.
+3. Select the *pubsub* name to drill down into the Pub/Sub service details. Currently there Dapr Pub/Sub components or topics configured. But this will change once you run the applications in the next steps.
 
 ## 2. Explore the Pub/Sub applications
 
 Choose one of the language tabs to explore the code. For each language, there are two applications:
 
 - *publisher*: This application publishes messages to a topic using Dapr's pub/sub API.
-- *subscriber*: This application subscribes to the topic and processes the messages. The subscriber application uses a declarative subscription, this means the definition of the subscription is configured in a *yaml* file.
+- *subscriber*: This application subscribes to the topic and processes the messages. 
+
+Both applications use a *pubsub.yaml* component file that specifies that Redis is used as the message broker. The *subscriber* application uses a declarative subscription, this means the definition of the subscription is configured in a *yaml* file.
 
 > [!IMPORTANT]
-> Each language has a Dapr Multi-App run file (*dev-<language>-pubsub.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet.
+> When you use Catalyst and the Diagrid CLI to run the Dapr applications, you don't need to have Dapr running locally, nor do you need to have a Redis instance running since Catalyst provides the message broker.
+
+Each demo in this challenge has a Dapr Multi-App run file (*dev-<language>-pubsub.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet. In this case, Catalyst will inspect the component *pubsub.yaml* and *subscription.yaml* files, and create a pub/sub component, a topic, and a subscription in Catalyst.
 
 ## 3. Run the Dapr Pub/Sub applications
 
@@ -114,6 +120,7 @@ curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://lo
 
 </details>
 
-## 4. Use the Catalyst portal
+## 4. View the Diagrid Pub/Sub service
 
-TODO
+1. Go back to the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Locate the *pubsub* service again and drill down into the details.
+2. Now you'll see that there is a Pub/Sub component configured and the *Topic Explorer* contains details about the topic the applications are using to publish and subscribe to.
