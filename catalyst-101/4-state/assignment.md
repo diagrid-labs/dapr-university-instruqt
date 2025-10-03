@@ -1,0 +1,177 @@
+Catalyst comes with a built-in key value (KV) store that you can use in your Dapr applications. In this challenge, you'll run a Dapr application that uses the state management API to interact with this KV Store.
+
+## 1. View the Diagrid KV Store service
+
+1. Use the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Expand the menu item to show list of services.
+2. Select the *Diagrid KV Store* service to view the details of the service.
+3. Select the *kvstore* name to drill down into the KV Store service details. Currently there are no Dapr state store components configured. But this will change once you run the applications in the next steps.
+
+## 2. Explore the State applications
+
+Choose one of the language tabs to explore the code. For each language, there is one application:
+
+- *order-app*: This application uses the Dapr state management API to store and retrieve key value pairs to and from the state store.
+
+The application uses a *statestore.yaml* component file that specifies that Redis is used as the KV Store.
+
+> [!IMPORTANT]
+> When you use Catalyst and the Diagrid CLI to run the Dapr applications, you don't need to have Dapr running locally, nor do you need to have a Redis instance running since Catalyst provides the KV state store.
+
+Each demo in this challenge has a Dapr Multi-App run file (*dev-<language>-state.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet. In this case, Catalyst will inspect the component *statestore.yaml* file, and create a statestore component in Catalyst.
+
+## 3. Run the Dapr State Management applications
+
+Now run the applications using the Diagrid CLI. Choose one of the instructions below to run the applications in that language.
+
+<details>
+   <summary><b>Run the .NET apps</b></summary>
+
+1. Select the **Terminal** tab and run the following command to navigate to the .NET apps:
+
+```bash,run
+cd csharp
+```
+
+2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+
+```bash,run
+diagrid dev run -f dev-csharp-state.yaml
+```
+
+3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+5. Wait until the the two applications are connected to Catalyst.
+
+> [!IMPORTANT]
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-app" to ...` in the **Terminal** tab logs before you continue.
+
+6. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
+
+```bash,run
+curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+```
+
+The expected output should look like this:
+
+```json
+{"id":4,"message":"Order created successfully"}
+```
+
+</details>
+
+<details>
+   <summary><b>Run the Java apps</b></summary>
+
+1. Use the **Terminal** tab to navigate to the Java apps:
+
+```bash,run
+cd java
+```
+
+2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+
+```bash,run
+diagrid dev run -f dev-java-state.yaml
+```
+
+3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+5. Wait until the the two applications are connected to Catalyst.
+
+> [!IMPORTANT]
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-app" to ...` in the **Terminal** tab logs before you continue.
+
+6. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
+
+```bash,run
+curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+```
+
+The expected output should look like this:
+
+```json
+{"id":4,"message":"Order created successfully"}
+```
+
+</details>
+
+<details>
+   <summary><b>Run the Python apps</b></summary>
+
+1. Use the **Terminal** tab to navigate to the Python apps:
+
+```bash,run
+cd python
+```
+
+2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+
+```bash,run
+diagrid dev run -f dev-python-state.yaml
+```
+
+3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+5. Wait until the the two applications are connected to Catalyst.
+
+> [!IMPORTANT]
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-app" to ...` in the **Terminal** tab logs before you continue.
+
+6. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
+
+```bash,run
+curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+```
+
+The expected output should look like this:
+
+```json
+{"id":4,"message":"Order created successfully"}
+```
+
+</details>
+
+<details>
+   <summary><b>Run the JavaScript apps</b></summary>
+
+1. Use the **Terminal** tab to navigate to the JavaScript apps:
+
+```bash,run
+cd javascript
+```
+
+2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+
+```bash,run
+diagrid dev run -f dev-javascript-state.yaml
+```
+
+3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+5. Wait until the the two applications are connected to Catalyst.
+
+> [!IMPORTANT]
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-app" to ...` in the **Terminal** tab logs before you continue.
+
+6. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
+
+```bash,run
+curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+```
+
+The expected output should look like this:
+
+```json
+{"id":4,"message":"Order created successfully"}
+```
+
+</details>
+
+## 4. View the Diagrid KV Store service
+
+1. Go back to the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Locate the *kvstore* service again and drill down into the details.
+2. Now you'll see that there is a `kvstore` component configured and the *Data Explorer* contains details about the key value pairs which are stored.
+
+---
+
+Now that you have used the built-in VK Store service in Catalyst let's continue with the next challenge where you'll learn how to use the managed workflow engine Catalyst.

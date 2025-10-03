@@ -3,8 +3,8 @@ Catalyst comes with a built-in pub/sub service that you can use in your Dapr app
 ## 1. View the Diagrid Pub/Sub service
 
 1. Use the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Expand the menu item to show list of services.
-2. Select the Diagrid Pub/Sub service to view the details of the service.
-3. Select the *pubsub* name to drill down into the Pub/Sub service details. Currently there Dapr Pub/Sub components or topics configured. But this will change once you run the applications in the next steps.
+2. Select the *Diagrid Pub/Sub* service to view the details of the service.
+3. Select the *pubsub* name to drill down into the Pub/Sub service details. Currently there are no Dapr Pub/Sub components or topics configured. But this will change once you run the applications in the next steps.
 
 ## 2. Explore the Pub/Sub applications
 
