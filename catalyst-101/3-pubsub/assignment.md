@@ -18,7 +18,7 @@ Both applications use a *pubsub.yaml* component file that specifies that Redis i
 > [!IMPORTANT]
 > When you use Catalyst and the Diagrid CLI to run the Dapr applications, you don't need to have Dapr running locally, nor do you need to have a Redis instance running since Catalyst provides the message broker.
 
-Each demo in this challenge has a Dapr Multi-App run file (*dev-<language>-pubsub.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet. In this case, Catalyst will inspect the component *pubsub.yaml* and *subscription.yaml* files, and create a pub/sub component, a topic, and a subscription in Catalyst.
+Each demo in this challenge has a Dapr Multi-App run file (*dev-language-pubsub.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet. In this case, the CLI will inspect the component *pubsub.yaml* and *subscription.yaml* files, and create a pub/sub component, a topic, and a subscription in Catalyst. The CLI will also create a Catalyst *App ID* for each application. *App IDs* are representations of the applications that you're running locally in this sandbox environment.
 
 ## 3. Run the Dapr Pub/Sub applications
 

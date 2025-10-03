@@ -15,7 +15,7 @@ The application uses a *statestore.yaml* component file that specifies Redis is 
 > [!IMPORTANT]
 > When you use Catalyst and the Diagrid CLI to run the Dapr applications, you don't need to have Dapr running locally, nor do you need to have a Redis instance running since Catalyst provides the KV state store.
 
-Each demo in this challenge has a Dapr Multi-App run file (*dev-<language>-state.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet. In this case, Catalyst will inspect the component *statestore.yaml* file, and create a *kvstore* component in Catalyst to use the built-in KV Store service.
+Each demo in this challenge has a Dapr Multi-App run file (*dev-language-state.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet. In this case, Catalyst will inspect the component *statestore.yaml* file, and create a *kvstore* component in Catalyst to use the built-in KV Store service.
 
 ## 3. Run the Dapr State Management applications
 
