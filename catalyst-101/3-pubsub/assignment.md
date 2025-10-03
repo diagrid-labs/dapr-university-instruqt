@@ -27,7 +27,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 <details>
    <summary><b>Run the .NET apps</b></summary>
 
-1. Use the **Terminal** tab to navigate to the .NET apps:
+1. Select the **Terminal** tab and run the following command to navigate to the .NET apps:
 
 ```bash,run
 cd csharp
@@ -39,11 +39,23 @@ cd csharp
 diagrid dev run -f dev-csharp-pubsub.yaml
 ```
 
-3. Wait until the the two applications are connected to Catalyst.
-4. In the **curl** tab, run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
+3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+5. Wait until the the two applications are connected to Catalyst.
+
+> [!IMPORTANT]
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
+
+6. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
 ```bash,run
 curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+```
+
+The expected output should look like this:
+
+```json
+{"id":1,"message":"Message published successfully","topic":"orders"}
 ```
 
 </details>
@@ -63,11 +75,23 @@ cd java
 diagrid dev run -f dev-java-pubsub.yaml
 ```
 
-3. Wait until the the two applications are connected to Catalyst.
-4. In the **curl** tab, run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
+3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+5. Wait until the the two applications are connected to Catalyst.
+
+> [!IMPORTANT]
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
+
+6. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
 ```bash,run
 curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+```
+
+The expected output should look like this:
+
+```json
+{"id":1,"message":"Message published successfully","topic":"orders"}
 ```
 
 </details>
@@ -87,11 +111,23 @@ cd python
 diagrid dev run -f dev-python-pubsub.yaml
 ```
 
-3. Wait until the the two applications are connected to Catalyst.
-4. In the **curl** tab, run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
+3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+5. Wait until the the two applications are connected to Catalyst.
+
+> [!IMPORTANT]
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
+
+6. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
 ```bash,run
 curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+```
+
+The expected output should look like this:
+
+```json
+{"id":1,"message":"Message published successfully","topic":"orders"}
 ```
 
 </details>
@@ -111,11 +147,23 @@ cd javascript
 diagrid dev run -f dev-javascript-pubsub.yaml
 ```
 
-3. Wait until the the two applications are connected to Catalyst.
-4. In the **curl** tab, run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
+3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+5. Wait until the the two applications are connected to Catalyst.
+
+> [!IMPORTANT]
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
+
+6. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
 ```bash,run
 curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+```
+
+The expected output should look like this:
+
+```json
+{"id":1,"message":"Message published successfully","topic":"orders"}
 ```
 
 </details>
@@ -123,4 +171,8 @@ curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://lo
 ## 4. View the Diagrid Pub/Sub service
 
 1. Go back to the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Locate the *pubsub* service again and drill down into the details.
-2. Now you'll see that there is a Pub/Sub component configured and the *Topic Explorer* contains details about the topic the applications are using to publish and subscribe to.
+2. Now you'll see that there is a `pubsub` component configured and the *Topic Explorer* contains details about the topic the applications are using to publish and subscribe to.
+
+---
+
+Now that you have used the built-in Pub/Sub service in Catalyst let's continue with the next challenge where you'll learn how to use the built-in Key-Value store in Catalyst.

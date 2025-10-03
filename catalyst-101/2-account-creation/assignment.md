@@ -5,7 +5,7 @@ Let's start by creating a free Diagrid Catalyst account by using the **Catalyst*
 > [!NOTE]
 > Alternatively you can use another browser tab and visit [https://catalyst.diagrid.io/signup](https://catalyst.diagrid.io/signup) to sign up for Diagrid Catalyst.
 
-If you already have an account, you can skip this step and proceed with installing the Diagrid CLI.
+If you already have an account, you can skip this step and proceed with downloading the Diagrid CLI.
 
 ## 2. Download & install the Diagrid CLI
 
@@ -78,6 +78,23 @@ User: <USER_NAME> (<EMAIL>)
 API: https://api.diagrid.io
 ```
 
+## 4. Create a Catalyst project
+
+Applications in Catalyst are grouped in projects. Each project can contain multiple applications and resources like Pub/Sub components, topics, KV stores, etc.
+
+Let's create a new Catalyst project, either by running the following command in the **Terminal** tab:
+
+```bash,run
+diagrid project create catalyst-uni-demo --deploy-managed-pubsub --deploy-managed-kv --enable-managed-workflow
+```
+
+Or use the **Catalyst** tab to create a new project by clicking the *Create* button in the portal:
+
+- Enter a project name, e.g. `catalyst-uni-demo`.
+- Leave the region as is.
+- Leave the *Use API QuickStart* option as `No`.
+- Ensure that the *Diagrid Services* for the Pub/Sub, KV Store, and managed workflow are all selected.
+
 ---
 
-Now that you have a Catalyst account and the Diagrid CLI installed and configured, you're ready to proceed to the next challenge where you'll use the Diagrid CLI to run two Dapr applications that communicate via a message broker that is built into Diagrid Catalyst.
+Now that you have a Catalyst account and the Diagrid CLI installed and configured, you're ready to proceed to the next challenge where you'll use the Diagrid CLI to run two Dapr applications that communicate via a Pub/Sub service that is built into Catalyst.
