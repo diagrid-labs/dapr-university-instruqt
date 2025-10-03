@@ -171,7 +171,7 @@ The expected output should look like this:
 ## 4. View the Diagrid Pub/Sub service
 
 1. Go back to the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Locate the *pubsub* service again and drill down into the details.
-2. Now you'll see that there is a `pubsub` component configured and the *Topic Explorer* contains details about the topic the applications are using to publish and subscribe to.
+2. Now, you'll see that there is a `pubsub` component configured and the *Topic Explorer* contains details about the topic the applications are using to publish and subscribe to.
 
 ## 5. Inspect the Call Graph
 

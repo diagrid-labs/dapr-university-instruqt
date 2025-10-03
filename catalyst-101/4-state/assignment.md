@@ -4,7 +4,7 @@ Catalyst comes with a built-in key value (KV) store that you can use in your Dap
 
 1. Use the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Expand the menu item to show list of services.
 2. Select the *Diagrid KV Store* service to view the details of the service.
-3. Select the *kvstore* name to drill down into the KV Store service details. Currently there are no Dapr state store components configured. But this will change once you run the applications in the next steps.
+3. Select the *kvstore* name to drill down into the KV Store service details. Currently the Data Explorer is empty but this will change once you run the application in the next steps.
 
 ## 2. Explore the State Management application
 
@@ -66,7 +66,7 @@ curl http://localhost:5001/order/4
 The expected output should look like this:
 
 ```json,nocopy
-{"orderId":4}
+{"data": {"orderId":4}}
 ```
 
 </details>
@@ -116,7 +116,7 @@ curl http://localhost:5001/order/4
 The expected output should look like this:
 
 ```json,nocopy
-{"orderId":4}
+{"data": {"orderId":4}}
 ```
 
 </details>
@@ -166,7 +166,7 @@ curl http://localhost:5001/order/4
 The expected output should look like this:
 
 ```json,nocopy
-{"orderId":4}
+{"data": {"orderId":4}}
 ```
 
 </details>
@@ -216,7 +216,7 @@ curl http://localhost:5001/order/4
 The expected output should look like this:
 
 ```json,nocopy
-{"orderId":4}
+{"data": {"orderId":4}}
 ```
 
 </details>
@@ -224,7 +224,18 @@ The expected output should look like this:
 ## 4. View the Diagrid KV Store service
 
 1. Go back to the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Locate the *kvstore* service again and drill down into the details.
-2. Now you'll see that there is a `kvstore` component configured and the *Data Explorer* contains the key value pairs which have been created earlier.
+2. Now, you'll see that there is a `kvstore` component configured and the *Data Explorer* contains the key value pairs which have been created earlier. You might need to refresh the *Data Explorer* to see the latest data.
+
+## 5. Inspect the Call Graph
+
+Catalyst provides a call graph that shows how the applications interact with each other and with other services such as message brokers and state stores.
+
+1. Use the **Catalyst** tab and navigate to the *Call Graph* menu in the left sidebar.
+2. You should see a graph that contains three nodes, two nodes, *publisher* and *subscriber*, related to the previous challenge. And a new node named *order-app*.
+3. Click on the *order-app* node and select *Isolate*. The graph changes and will now also show the KV Store service. In addition, the arrow to the KV Store service contains an icon where metrics can be viewed.
+
+> [!NOTE]
+> You need to send a couple of requests in order for metrics to be shown in the call graph.
 
 ---
 
