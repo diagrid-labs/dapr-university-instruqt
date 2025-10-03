@@ -54,7 +54,7 @@ curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://lo
 
 The expected output should look like this:
 
-```json
+```json,nocopy
 {"id":1,"message":"Message published successfully","topic":"orders"}
 ```
 
@@ -63,7 +63,7 @@ The expected output should look like this:
 <details>
    <summary><b>Run the Java apps</b></summary>
 
-1. Use the **Terminal** tab to navigate to the Java apps:
+1. Select the **Terminal** tab and run the following command to navigate to the Java apps:
 
 ```bash,run
 cd java
@@ -90,7 +90,7 @@ curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://lo
 
 The expected output should look like this:
 
-```json
+```json,nocopy
 {"id":1,"message":"Message published successfully","topic":"orders"}
 ```
 
@@ -99,7 +99,7 @@ The expected output should look like this:
 <details>
    <summary><b>Run the Python apps</b></summary>
 
-1. Use the **Terminal** tab to navigate to the Python apps:
+1. Select the **Terminal** tab and run the following command to navigate to the Python apps:
 
 ```bash,run
 cd python
@@ -126,7 +126,7 @@ curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://lo
 
 The expected output should look like this:
 
-```json
+```json,nocopy
 {"id":1,"message":"Message published successfully","topic":"orders"}
 ```
 
@@ -135,7 +135,7 @@ The expected output should look like this:
 <details>
    <summary><b>Run the JavaScript apps</b></summary>
 
-1. Use the **Terminal** tab to navigate to the JavaScript apps:
+1. Select the **Terminal** tab and run the following command to navigate to the JavaScript apps:
 
 ```bash,run
 cd javascript
@@ -162,7 +162,7 @@ curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://lo
 
 The expected output should look like this:
 
-```json
+```json,nocopy
 {"id":1,"message":"Message published successfully","topic":"orders"}
 ```
 
@@ -172,6 +172,17 @@ The expected output should look like this:
 
 1. Go back to the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Locate the *pubsub* service again and drill down into the details.
 2. Now you'll see that there is a `pubsub` component configured and the *Topic Explorer* contains details about the topic the applications are using to publish and subscribe to.
+
+## 5. Inspect the Call Graph
+
+Catalyst provides a call graph that shows how the applications interact with each other and with other services such as message brokers and state stores.
+
+1. Use the **Catalyst** tab and navigate to the *Call Graph* menu in the left sidebar.
+2. You should the a graph that contains two nodes, one for the *publisher* application and one for the *subscriber* application. The arrow between the two applications indicates the direction of communication.
+3. Click on the *publisher* node and select *Isolate*. The graph changes and will now also show the Pub/Sub service. In addition the arrow to and from the Pub/Sub service contain an icon where metrics can be viewed.
+
+> [!NOTE]
+> You need to publish a couple of messages in order for metrics to be shown in the call graph.
 
 ---
 

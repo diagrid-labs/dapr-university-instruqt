@@ -6,18 +6,16 @@ Catalyst comes with a built-in key value (KV) store that you can use in your Dap
 2. Select the *Diagrid KV Store* service to view the details of the service.
 3. Select the *kvstore* name to drill down into the KV Store service details. Currently there are no Dapr state store components configured. But this will change once you run the applications in the next steps.
 
-## 2. Explore the State applications
+## 2. Explore the State Management application
 
-Choose one of the language tabs to explore the code. For each language, there is one application:
+Choose one of the language tabs to explore the code. For each language, there is one application that uses the Dapr state management API to store, retrieve, and delete key value pairs.
 
-- *order-app*: This application uses the Dapr state management API to store and retrieve key value pairs to and from the state store.
-
-The application uses a *statestore.yaml* component file that specifies that Redis is used as the KV Store.
+The application uses a *statestore.yaml* component file that specifies Redis is used as the KV Store.
 
 > [!IMPORTANT]
 > When you use Catalyst and the Diagrid CLI to run the Dapr applications, you don't need to have Dapr running locally, nor do you need to have a Redis instance running since Catalyst provides the KV state store.
 
-Each demo in this challenge has a Dapr Multi-App run file (*dev-<language>-state.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet. In this case, Catalyst will inspect the component *statestore.yaml* file, and create a statestore component in Catalyst.
+Each demo in this challenge has a Dapr Multi-App run file (*dev-<language>-state.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet. In this case, Catalyst will inspect the component *statestore.yaml* file, and create a *kvstore* component in Catalyst to use the built-in KV Store service.
 
 ## 3. Run the Dapr State Management applications
 
@@ -48,13 +46,27 @@ diagrid dev run -f dev-csharp-state.yaml
 6. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
 
 ```bash,run
-curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 4 }' http://localhost:5001/order
 ```
 
 The expected output should look like this:
 
-```json
+```json,nocopy
 {"id":4,"message":"Order created successfully"}
+```
+
+A new KV pair has been created in the Catalyst KV Store. You can verify this in the last step of this challenge.
+
+7. To retrieve the new KV pair, select the **curl** tab again, and run the following command to make a `GET` request to the `order/{orderId}` endpoint of the `order-app` application:
+
+```bash,run
+curl http://localhost:5001/order/4
+```
+
+The expected output should look like this:
+
+```json,nocopy
+{"orderId":4}
 ```
 
 </details>
@@ -89,8 +101,22 @@ curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://lo
 
 The expected output should look like this:
 
-```json
+```json,nocopy
 {"id":4,"message":"Order created successfully"}
+```
+
+A new KV pair has been created in the Catalyst KV Store. You can verify this in the last step of this challenge.
+
+7. To retrieve the new KV pair, select the **curl** tab again, and run the following command to make a `GET` request to the `order/{orderId}` endpoint of the `order-app` application:
+
+```bash,run
+curl http://localhost:5001/order/4
+```
+
+The expected output should look like this:
+
+```json,nocopy
+{"orderId":4}
 ```
 
 </details>
@@ -125,8 +151,22 @@ curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://lo
 
 The expected output should look like this:
 
-```json
+```json,nocopy
 {"id":4,"message":"Order created successfully"}
+```
+
+A new KV pair has been created in the Catalyst KV Store. You can verify this in the last step of this challenge.
+
+7. To retrieve the new KV pair, select the **curl** tab again, and run the following command to make a `GET` request to the `order/{orderId}` endpoint of the `order-app` application:
+
+```bash,run
+curl http://localhost:5001/order/4
+```
+
+The expected output should look like this:
+
+```json,nocopy
+{"orderId":4}
 ```
 
 </details>
@@ -161,8 +201,22 @@ curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://lo
 
 The expected output should look like this:
 
-```json
+```json,nocopy
 {"id":4,"message":"Order created successfully"}
+```
+
+A new KV pair has been created in the Catalyst KV Store. You can verify this in the last step of this challenge.
+
+7. To retrieve the new KV pair, select the **curl** tab again, and run the following command to make a `GET` request to the `order/{orderId}` endpoint of the `order-app` application:
+
+```bash,run
+curl http://localhost:5001/order/4
+```
+
+The expected output should look like this:
+
+```json,nocopy
+{"orderId":4}
 ```
 
 </details>
@@ -170,8 +224,8 @@ The expected output should look like this:
 ## 4. View the Diagrid KV Store service
 
 1. Go back to the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Locate the *kvstore* service again and drill down into the details.
-2. Now you'll see that there is a `kvstore` component configured and the *Data Explorer* contains details about the key value pairs which are stored.
+2. Now you'll see that there is a `kvstore` component configured and the *Data Explorer* contains the key value pairs which have been created earlier.
 
 ---
 
-Now that you have used the built-in VK Store service in Catalyst let's continue with the next challenge where you'll learn how to use the managed workflow engine Catalyst.
+Now that you have used the built-in KV Store service in Catalyst let's continue with the next challenge where you'll learn how to use the managed workflow engine Catalyst.
