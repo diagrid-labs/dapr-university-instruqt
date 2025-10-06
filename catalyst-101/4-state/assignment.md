@@ -2,7 +2,7 @@ Catalyst comes with a built-in key value (KV) store that you can use in your Dap
 
 ## 1. View the Diagrid KV Store service
 
-1. Use the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Expand the menu item to show list of services.
+1. Use the **Catalyst** tab and navigate to the *Diagrid Services* menu item in the left sidebar. Expand the menu item to show list of services.
 2. Select the *Diagrid KV Store* service to view the details of the service.
 3. Select the *kvstore* name to drill down into the KV Store service details. Currently the Data Explorer is empty but this will change once you run the application in the next steps.
 
@@ -36,7 +36,7 @@ cd csharp
 diagrid dev run -f dev-csharp-state.yaml
 ```
 
-3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 5. Wait until the the two applications are connected to Catalyst.
 

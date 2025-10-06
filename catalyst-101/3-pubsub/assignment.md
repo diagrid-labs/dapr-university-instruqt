@@ -2,7 +2,7 @@ Catalyst comes with a built-in pub/sub service that you can use in your Dapr app
 
 ## 1. View the Diagrid Pub/Sub service
 
-1. Use the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Expand the menu item to show list of services.
+1. Use the **Catalyst** tab and navigate to the *Diagrid Services* menu item in the left sidebar. Expand the menu item to show list of services.
 2. Select the *Diagrid Pub/Sub* service to view the details of the service.
 3. Select the *pubsub* name to drill down into the Pub/Sub service details. Currently there are no Dapr Pub/Sub components or topics configured. But this will change once you run the applications in the next steps.
 
@@ -39,7 +39,7 @@ cd csharp
 diagrid dev run -f dev-csharp-pubsub.yaml
 ```
 
-3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 5. Wait until the the two applications are connected to Catalyst.
 
