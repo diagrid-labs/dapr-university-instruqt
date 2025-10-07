@@ -95,6 +95,12 @@ Or use the **Catalyst** tab to create a new project by clicking the *Create* but
 - Leave the *Use API QuickStart* option as `No`.
 - Ensure that the *Diagrid Services* for the Pub/Sub, KV Store, and managed workflow are all selected.
 
+Finally, run the following command to list all the project and check that the status of your new project is `ready`:
+
+```bash,run
+diagrid project list
+```
+
 ---
 
 Now that you have a Catalyst account and the Diagrid CLI installed and configured, you're ready to proceed to the next challenge where you'll use the Diagrid CLI to run two Dapr applications that communicate via a Pub/Sub service that is built into Catalyst.
