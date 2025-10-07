@@ -192,8 +192,8 @@ Congratulations! 🎉 You've completed the Dapr University Running Dapr Applicat
 
 All code samples shown in this Dapr University track are available in the [Catalyst Quickstarts](https://github.com/diagridio/catalyst-quickstarts/) and [Dapr QuickStarts](https://github.com/dapr/quickstarts/) repositories.
 
-Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmcnbo8lt1386107js9fyxc2zu). You'll need a GitHub account to claim the badge.
+Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmggddbde003vlg04ubjknxvm). You'll need a GitHub account to claim the badge.
 
-[![Dapr University Catalyst 101 badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/Diagrid-Dapr-Uni-Catalyst-101_x500.png?raw=true)](https://holopin.io/collect/cmcnbo8lt1386107js9fyxc2zu)
+[![Dapr University Catalyst 101 badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/Diagrid-Dapr-Uni-Catalyst-101_x500.png?raw=true)](https://holopin.io/collect/cmggddbde003vlg04ubjknxvm)
 
  If you have any questions or feedback about this track, you can let us know in the [Diagrid Discord server](https://diagrid.ws/diagrid-discord).
