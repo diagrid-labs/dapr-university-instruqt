@@ -33,7 +33,13 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 cd csharp/fan-out-fan-in
 ```
 
-2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+2. Install the dependencies:
+
+```bash,run
+dotnet restore FanOutFanIn
+```
+
+3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
 diagrid dev run -f dapr.yaml
@@ -44,7 +50,7 @@ diagrid dev run -f dapr.yaml
 5. Wait until the the two applications are connected to Catalyst.
 
 > [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-app" to ...` in the **Terminal** tab logs before you continue.
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "fanoutfanin" to ...` in the **Terminal** tab logs before you continue.
 
 6. Select the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the `faninfanout` application:
 
@@ -127,14 +133,14 @@ cd python/fan-out-fan-in/fan_out_fan_in
 2. Create a virtual environment and activate it:
 
 ```bash,run
-python3 -m venv venv
-source venv/bin/activate
+uv venv --allow-existing
+source .venv/bin/activate
 ```
 
 3. Install the dependencies:
 
 ```bash,run
-pip3 install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 4. Move one folder up and use the Diagrid CLI to run the applications using the Multi-App Run file:
@@ -179,7 +185,7 @@ Now, let's check the execution of the workflow in Catalyst.
 1. Go back to the **Catalyst** tab and open the *Workflows* page.
 2. You should now see an entry for the *FanOutFanInWorkflow* with as successful status.
 3. Select the workflow instance to drill down into the details of the workflow. This leads to a page with some statistics about the workflow executions and a visual representation of the workflow.
-4. Select the workflow execution entry on the right side of the visual representation to drill down into the details of this workflow instance.
+4. Select the workflow execution entry on the right or bottom side of the visual representation to drill down into the details of this workflow instance.
 5. You'll now see the start- and end time of the workflow, the execution time, the instance ID, the input and output of the workflow, and an interactive visualization of the workflow execution.select some of the nodes in the graph to see the input and output of the activities.
 
 ---

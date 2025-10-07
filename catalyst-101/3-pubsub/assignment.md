@@ -33,7 +33,14 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 cd csharp
 ```
 
-2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+2. Install the dependencies:
+
+```bash,run
+dotnet restore publisher/publisher.csproj
+dotnet restore subscriber/subscriber.csproj
+```
+
+3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
 diagrid dev run -f dev-csharp-pubsub.yaml
@@ -75,7 +82,7 @@ cd java
 diagrid dev run -f dev-java-pubsub.yaml
 ```
 
-3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 5. Wait until the the two applications are connected to Catalyst.
 
@@ -105,13 +112,27 @@ The expected output should look like this:
 cd python
 ```
 
-2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+2. Create and activate a virtual environment:
+
+```bash,run
+uv venv --allow-existing
+source .venv/bin/activate
+```
+
+3. Install the dependencies:
+
+```bash,run
+uv pip install -r publisher/requirements.txt
+uv pip install -r subscriber/requirements.txt
+```
+
+4. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
 diagrid dev run -f dev-python-pubsub.yaml
 ```
 
-3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 5. Wait until the the two applications are connected to Catalyst.
 
@@ -147,7 +168,7 @@ cd javascript
 diagrid dev run -f dev-javascript-pubsub.yaml
 ```
 
-3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 5. Wait until the the two applications are connected to Catalyst.
 
@@ -183,6 +204,8 @@ Catalyst provides a call graph that shows how the applications interact with eac
 
 > [!NOTE]
 > You need to publish a couple of messages in order for metrics to be shown in the call graph.
+
+Select the **Terminal** tab and stop the running applications by pressing `Ctrl+C`.
 
 ---
 

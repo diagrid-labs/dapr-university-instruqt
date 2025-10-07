@@ -30,7 +30,13 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 cd csharp
 ```
 
-2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+2. Install the dependencies:
+
+```bash,run
+dotnet restore
+```
+
+3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
 diagrid dev run -f dev-csharp-state.yaml
@@ -86,7 +92,7 @@ cd java
 diagrid dev run -f dev-java-state.yaml
 ```
 
-3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 5. Wait until the the two applications are connected to Catalyst.
 
@@ -130,13 +136,26 @@ The expected output should look like this:
 cd python
 ```
 
-2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+2. Create and activate a virtual environment:
+
+```bash,run
+uv venv --allow-existing
+source .venv/bin/activate
+```
+
+3. Install the dependencies:
+
+```bash,run
+uv pip install -r requirements.txt
+```
+
+4. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
 diagrid dev run -f dev-python-state.yaml
 ```
 
-3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 5. Wait until the the two applications are connected to Catalyst.
 
@@ -146,7 +165,7 @@ diagrid dev run -f dev-python-state.yaml
 6. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
 
 ```bash,run
-curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 4 }' http://localhost:5001/order
 ```
 
 The expected output should look like this:
@@ -186,7 +205,7 @@ cd javascript
 diagrid dev run -f dev-javascript-state.yaml
 ```
 
-3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 5. Wait until the the two applications are connected to Catalyst.
 
@@ -236,6 +255,8 @@ Catalyst provides a call graph that shows how the applications interact with eac
 
 > [!NOTE]
 > You need to send a couple of requests in order for metrics to be shown in the call graph.
+
+Select the **Terminal** tab and stop the running applications by pressing `Ctrl+C`.
 
 ---
 
