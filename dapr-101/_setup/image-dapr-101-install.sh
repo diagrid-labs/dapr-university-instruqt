@@ -13,6 +13,7 @@ sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 sudo apt-get update
 sudo apt-get install dotnet-sdk-8.0 -y
+sudo apt-get install dotnet-sdk-9.0 -y
 
 # Java
 sudo apt install openjdk-17-jdk maven -y

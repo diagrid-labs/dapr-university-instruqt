@@ -2,9 +2,9 @@ Catalyst comes with a built-in pub/sub service that you can use in your Dapr app
 
 ## 1. View the Diagrid Pub/Sub service
 
-1. Use the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Expand the menu item to show list of services.
-2. Select the Diagrid Pub/Sub service to view the details of the service.
-3. Select the *pubsub* name to drill down into the Pub/Sub service details. Currently there Dapr Pub/Sub components or topics configured. But this will change once you run the applications in the next steps.
+1. Use the **Catalyst** tab and navigate to the *Diagrid Services* menu item in the left sidebar. Expand the menu item to show list of services.
+2. Select the *Diagrid Pub/Sub* service to view the details of the service.
+3. Select the *pubsub* name to drill down into the Pub/Sub service details. Currently there are no Dapr Pub/Sub components or topics configured. But this will change once you run the applications in the next steps.
 
 ## 2. Explore the Pub/Sub applications
 
@@ -18,7 +18,7 @@ Both applications use a *pubsub.yaml* component file that specifies that Redis i
 > [!IMPORTANT]
 > When you use Catalyst and the Diagrid CLI to run the Dapr applications, you don't need to have Dapr running locally, nor do you need to have a Redis instance running since Catalyst provides the message broker.
 
-Each demo in this challenge has a Dapr Multi-App run file (*dev-<language>-pubsub.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet. In this case, Catalyst will inspect the component *pubsub.yaml* and *subscription.yaml* files, and create a pub/sub component, a topic, and a subscription in Catalyst.
+Each demo in this challenge has a Dapr Multi-App run file (*dev-language-pubsub.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet. In this case, the CLI will inspect the component *pubsub.yaml* and *subscription.yaml* files, and create a pub/sub component, a topic, and a subscription in Catalyst. The CLI will also create a Catalyst *App ID* for each application. *App IDs* are representations of the applications that you're running locally in this sandbox environment.
 
 ## 3. Run the Dapr Pub/Sub applications
 
@@ -39,7 +39,7 @@ cd csharp
 diagrid dev run -f dev-csharp-pubsub.yaml
 ```
 
-3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
+3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 5. Wait until the the two applications are connected to Catalyst.
 
@@ -54,7 +54,7 @@ curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://lo
 
 The expected output should look like this:
 
-```json
+```json,nocopy
 {"id":1,"message":"Message published successfully","topic":"orders"}
 ```
 
@@ -63,7 +63,7 @@ The expected output should look like this:
 <details>
    <summary><b>Run the Java apps</b></summary>
 
-1. Use the **Terminal** tab to navigate to the Java apps:
+1. Select the **Terminal** tab and run the following command to navigate to the Java apps:
 
 ```bash,run
 cd java
@@ -90,7 +90,7 @@ curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://lo
 
 The expected output should look like this:
 
-```json
+```json,nocopy
 {"id":1,"message":"Message published successfully","topic":"orders"}
 ```
 
@@ -99,7 +99,7 @@ The expected output should look like this:
 <details>
    <summary><b>Run the Python apps</b></summary>
 
-1. Use the **Terminal** tab to navigate to the Python apps:
+1. Select the **Terminal** tab and run the following command to navigate to the Python apps:
 
 ```bash,run
 cd python
@@ -126,7 +126,7 @@ curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://lo
 
 The expected output should look like this:
 
-```json
+```json,nocopy
 {"id":1,"message":"Message published successfully","topic":"orders"}
 ```
 
@@ -135,7 +135,7 @@ The expected output should look like this:
 <details>
    <summary><b>Run the JavaScript apps</b></summary>
 
-1. Use the **Terminal** tab to navigate to the JavaScript apps:
+1. Select the **Terminal** tab and run the following command to navigate to the JavaScript apps:
 
 ```bash,run
 cd javascript
@@ -162,7 +162,7 @@ curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://lo
 
 The expected output should look like this:
 
-```json
+```json,nocopy
 {"id":1,"message":"Message published successfully","topic":"orders"}
 ```
 
@@ -171,7 +171,18 @@ The expected output should look like this:
 ## 4. View the Diagrid Pub/Sub service
 
 1. Go back to the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Locate the *pubsub* service again and drill down into the details.
-2. Now you'll see that there is a `pubsub` component configured and the *Topic Explorer* contains details about the topic the applications are using to publish and subscribe to.
+2. Now, you'll see that there is a `pubsub` component configured and the *Topic Explorer* contains details about the topic the applications are using to publish and subscribe to.
+
+## 5. Inspect the Call Graph
+
+Catalyst provides a call graph that shows how the applications interact with each other and with other services such as message brokers and state stores.
+
+1. Use the **Catalyst** tab and navigate to the *Call Graph* menu in the left sidebar.
+2. You should the a graph that contains two nodes, one for the *publisher* application and one for the *subscriber* application. The arrow between the two applications indicates the direction of communication.
+3. Click on the *publisher* node and select *Isolate*. The graph changes and will now also show the Pub/Sub service. In addition the arrow to and from the Pub/Sub service contain an icon where metrics can be viewed.
+
+> [!NOTE]
+> You need to publish a couple of messages in order for metrics to be shown in the call graph.
 
 ---
 
