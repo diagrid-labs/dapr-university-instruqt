@@ -39,7 +39,7 @@ dotnet restore
 3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
-diagrid dev run -f dev-csharp-state.yaml
+diagrid dev run -f dev-csharp-state.yaml --project catalyst-demo --aprove
 ```
 
 3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
@@ -55,11 +55,7 @@ diagrid dev run -f dev-csharp-state.yaml
 curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 4 }' http://localhost:5001/order
 ```
 
-The expected output should look like this:
-
-```json,nocopy
-{"id":4,"message":"Order created successfully"}
-```
+The expected output should contains the ID and a message.
 
 A new KV pair has been created in the Catalyst KV Store. You can verify this in the last step of this challenge.
 
@@ -89,7 +85,7 @@ cd java
 2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
-diagrid dev run -f dev-java-state.yaml
+diagrid dev run -f dev-java-state.yaml --project catalyst-demo --approve
 ```
 
 3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
@@ -102,14 +98,10 @@ diagrid dev run -f dev-java-state.yaml
 6. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
 
 ```bash,run
-curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 4 }' http://localhost:5001/order
 ```
 
-The expected output should look like this:
-
-```json,nocopy
-{"id":4,"message":"Order created successfully"}
-```
+The expected output should contains the ID and a message.
 
 A new KV pair has been created in the Catalyst KV Store. You can verify this in the last step of this challenge.
 
@@ -152,7 +144,7 @@ uv pip install -r requirements.txt
 4. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
-diagrid dev run -f dev-python-state.yaml
+diagrid dev run -f dev-python-state.yaml --project catalyst-demo --approve
 ```
 
 3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
@@ -168,11 +160,7 @@ diagrid dev run -f dev-python-state.yaml
 curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 4 }' http://localhost:5001/order
 ```
 
-The expected output should look like this:
-
-```json,nocopy
-{"id":4,"message":"Order created successfully"}
-```
+The expected output should contains the ID and a message.
 
 A new KV pair has been created in the Catalyst KV Store. You can verify this in the last step of this challenge.
 
@@ -202,7 +190,7 @@ cd javascript
 2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
-diagrid dev run -f dev-javascript-state.yaml
+diagrid dev run -f dev-javascript-state.yaml --project catalyst-demo --approve
 ```
 
 3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
@@ -215,14 +203,10 @@ diagrid dev run -f dev-javascript-state.yaml
 6. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
 
 ```bash,run
-curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 4 }' http://localhost:5001/order
 ```
 
-The expected output should look like this:
-
-```json,nocopy
-{"id":4,"message":"Order created successfully"}
-```
+The expected output should contains the ID and a message.
 
 A new KV pair has been created in the Catalyst KV Store. You can verify this in the last step of this challenge.
 

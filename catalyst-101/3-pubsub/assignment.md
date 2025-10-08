@@ -18,7 +18,7 @@ Both applications use a *pubsub.yaml* component file that specifies that Redis i
 > [!IMPORTANT]
 > When you use Catalyst and the Diagrid CLI to run the Dapr applications, you don't need to have Dapr running locally, nor do you need to have a Redis instance running since Catalyst provides the message broker.
 
-Each demo in this challenge has a Dapr Multi-App run file (*dev-language-pubsub.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet. In this case, the CLI will inspect the component *pubsub.yaml* and *subscription.yaml* files, and create a pub/sub component, a topic, and a subscription in Catalyst. The CLI will also create a Catalyst *App ID* for each application. *App IDs* are representations of the applications that you're running locally in this sandbox environment.
+Each demo in this challenge has a Dapr Multi-App run file (*dev-language-pubsub.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet. In this case, the CLI will create a Catalyst project, inspect the component *pubsub.yaml* and *subscription.yaml* files, and create a pub/sub component, a topic, and a subscription in Catalyst. The CLI will also create a Catalyst *App ID* for each application. *App IDs* are representations of the applications that you're running locally in this sandbox environment.
 
 ## 3. Run the Dapr Pub/Sub applications
 
@@ -43,7 +43,7 @@ dotnet restore subscriber/subscriber.csproj
 3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
-diagrid dev run -f dev-csharp-pubsub.yaml
+diagrid dev run -f dev-csharp-pubsub.yaml --project catalyst-demo --approve
 ```
 
 3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
@@ -59,11 +59,7 @@ diagrid dev run -f dev-csharp-pubsub.yaml
 curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
 ```
 
-The expected output should look like this:
-
-```json,nocopy
-{"id":1,"message":"Message published successfully","topic":"orders"}
-```
+The expected output should contain the ID and a message.
 
 </details>
 
@@ -79,7 +75,7 @@ cd java
 2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
-diagrid dev run -f dev-java-pubsub.yaml
+diagrid dev run -f dev-java-pubsub.yaml --project catalyst-demo --approve
 ```
 
 3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
@@ -95,11 +91,7 @@ diagrid dev run -f dev-java-pubsub.yaml
 curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
 ```
 
-The expected output should look like this:
-
-```json,nocopy
-{"id":1,"message":"Message published successfully","topic":"orders"}
-```
+The expected output should contain the ID and a message.
 
 </details>
 
@@ -129,7 +121,7 @@ uv pip install -r subscriber/requirements.txt
 4. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
-diagrid dev run -f dev-python-pubsub.yaml
+diagrid dev run -f dev-python-pubsub.yaml --project catalyst-demo --approve
 ```
 
 3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
@@ -145,11 +137,7 @@ diagrid dev run -f dev-python-pubsub.yaml
 curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
 ```
 
-The expected output should look like this:
-
-```json,nocopy
-{"id":1,"message":"Message published successfully","topic":"orders"}
-```
+The expected output should contain the ID and a message.
 
 </details>
 
@@ -165,7 +153,7 @@ cd javascript
 2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
-diagrid dev run -f dev-javascript-pubsub.yaml
+diagrid dev run -f dev-javascript-pubsub.yaml --project catalyst-demo --approve
 ```
 
 3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
@@ -181,11 +169,7 @@ diagrid dev run -f dev-javascript-pubsub.yaml
 curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
 ```
 
-The expected output should look like this:
-
-```json,nocopy
-{"id":1,"message":"Message published successfully","topic":"orders"}
-```
+The expected output should contain the ID and a message.
 
 </details>
 
