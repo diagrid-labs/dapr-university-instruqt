@@ -163,7 +163,7 @@ diagrid dev run -f dapr.yaml
 curl --request POST \
   --url http://localhost:5256/start \
   --header 'content-type: application/json' \
-  --data '["which","word","is","the","shortest"]
+  --data '["which","word","is","the","shortest"]'
 ```
 
 9. Switch to the **Terminal** tab to see the logs of the workflow application. The application log should contain output like this:
