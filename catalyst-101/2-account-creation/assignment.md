@@ -42,7 +42,7 @@ diagrid login --no-browser
 ```
 
 > [!NOTE]
-> When using The Diagrid CLI on your local machine, you'll mostly likely use `diagrid login` which opens a browser window to login. The `--no-browser` flag is only needed in this sandbox environment since it can't open a new browser window.
+> When using The Diagrid CLI on your local machine, you'll mostly likely use `diagrid login` which opens a browser tab to login. The `--no-browser` flag is only needed in this sandbox environment since it can't open a new browser tab.
 
 You'll see an output like this:
 
@@ -53,7 +53,7 @@ Code confirmed? (Y/N)
 ```
 
 1. Click on the link provided in the output to open a new browser tab.
-2. You'll need to login to your Catalyst account in this browser window if you haven't already.
+2. You'll need to login to your Catalyst account in this browser tab if you haven't already.
 3. Verify that the code in the browser matches the code in the terminal, click the *Confirm* button and come back to this sandbox environment.
 4. Press `Y` followed by the `Enter` key in the **Terminal** tab to confirm.
 

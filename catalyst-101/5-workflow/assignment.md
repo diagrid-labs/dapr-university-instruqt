@@ -1,24 +1,12 @@
 Catalyst has a managed Dapr workflow engine that is used to reliably run durable workflows. In this challenge, you'll run a Dapr workflow application using Catalyst and visualize the workflow with Catalyst.
 
-## 1. View the Catalyst Workflows page
+## 1. Explore the workflow application
 
-1. Select the **Catalyst** tab, use the left sidebar to navigate to the *Workflows* menu item and select it.
-2. You'll see a *Workflows* page that is currently empty. Once you run the workflow application in the next steps, this is where you can find workflow instance data and workflow visualizations.
+![Workflow demo](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/5-workflow/images/catalyst-101-workflow.png?raw=true)
 
-## 2. Explore the fan-out/fan-in workflow application
+The workflow in this challenge simulates a simplified order process. The workflow chains multiple activities together that sends notifications (log statements), checks the inventory and processes the payment. The activities in this application are not implemented to call real services, but they simulate the many steps that occur when ordering a product online.
 
-![Fan-out/Fan-in](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/4-fan-out-fan-in/images/dapr-uni-wf-pattern-fan-out-fan-in-v1.png?raw=true)
-
-The fan-out/fan-in pattern is used when there is no dependency between the activities in the workflow. The activities can be executed in parallel, the workflow will wait until all activities are completed and the results from the activities can be aggregated into a single result.
-
-The workflow in this challenge uses the fan-out/fan-in pattern to determine the shortest word in an array of words.
-
-- The workflow is started with an input of an array of words `["which","word","is","the","shortest"]`.
-- For each of the words in the array, an activity is created that determines the length of the word.
-- Once all the tasks are created, they are scheduled in parallel and the workflow waits until they are all completed.
-- The workflow then aggregates the results and returns the shortest word: `"is"`.
-
-Choose one of the language tabs to explore the code. For each language, there is one Dapr workflow application that uses the fan-out/fan-in pattern to orchestrate multiple activities.
+Choose one of the language tabs to explore the workflow and the activities.
 
 ## 3. Run the Dapr workflow application
 
@@ -30,46 +18,37 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 1. Select the **Terminal** tab and run the following command to navigate to the .NET apps:
 
 ```bash,run
-cd csharp/fan-out-fan-in
+cd csharp
 ```
 
 2. Install the dependencies:
 
 ```bash,run
-dotnet restore FanOutFanIn
+dotnet restore
 ```
 
 3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
-diagrid dev run -f dapr.yaml
+diagrid dev run -f dev-csharp-workflow.yaml --project catalyst-demo --approve
 ```
 
-3. You'll be asked to deploy to the project you just created. Select `Y` to proceed.
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 5. Wait until the the two applications are connected to Catalyst.
 
 > [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "fanoutfanin" to ...` in the **Terminal** tab logs before you continue.
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
 
-6. Select the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the `faninfanout` application:
+6. Select the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
 
 ```bash,run
 curl --request POST \
-  --url http://localhost:5256/start \
+  --url http://localhost:5001/start \
   --header 'content-type: application/json' \
-  --data '["which","word","is","the","shortest"]'
+  --data '{"name": "Car","quantity": 2}'
 ```
 
-7. Switch to the **Terminal** tab to see the logs of the workflow application. The application log should contain output like this:
-
-```text,nocopy
-== APP - fanoutfanin == GetWordLength: Received input: is.
-== APP - fanoutfanin == GetWordLength: Received input: which.
-== APP - fanoutfanin == GetWordLength: Received input: the.
-== APP - fanoutfanin == GetWordLength: Received input: shortest.
-== APP - fanoutfanin == GetWordLength: Received input: word.
-```
+7. Switch to the **Terminal** tab to see the logs of the workflow application. The application log should contain output of the notification activities.
 
 Now, let's check the execution of the workflow in Catalyst.
 
@@ -87,35 +66,25 @@ cd java
 2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
-diagrid dev run -f dapr.yaml
+diagrid dev run -f dev-java-workflow.yaml --project catalyst-demo --approve
 ```
 
-3. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
-4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-5. Wait until the the two applications are connected to Catalyst.
+3. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+4. Wait until the the two applications are connected to Catalyst.
 
 > [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "faninfanout" to ...` in the **Terminal** tab logs before you continue.
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
 
-6. Select the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the `faninfanout` application:
+6. Select the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
 
 ```bash,run
-curl -i --request POST \
-  --url http://localhost:8080/start \
+curl --request POST \
+  --url http://localhost:5001/start \
   --header 'content-type: application/json' \
-  --data '["which","word","is","the","shortest"]'
+  --data '{"name": "Car","quantity": 2}'
 ```
 
-Switch to the **Terminal** tab to see the logs of the workflow application. The application log should contain output like this:
-
-```text,nocopy
-io.dapr.workflows.WorkflowContext        : Starting Workflow: io.dapr.springboot.examples.fanoutfanin.FanOutFanInWorkflow
-i.d.s.e.f.GetWordLengthActivity          : io.dapr.springboot.examples.fanoutfanin.GetWordLengthActivity : Received input: which
-i.d.s.e.f.GetWordLengthActivity          : io.dapr.springboot.examples.fanoutfanin.GetWordLengthActivity : Received input: the
-i.d.s.e.f.GetWordLengthActivity          : io.dapr.springboot.examples.fanoutfanin.GetWordLengthActivity : Received input: shortest
-i.d.s.e.f.GetWordLengthActivity          : io.dapr.springboot.examples.fanoutfanin.GetWordLengthActivity : Received input: word
-i.d.s.e.f.GetWordLengthActivity          : io.dapr.springboot.examples.fanoutfanin.GetWordLengthActivity : Received input: is
-```
+Switch to the **Terminal** tab to see the logs of the workflow application. The application log should contain output of the notification activities.
 
 Now, let's check the execution of the workflow in Catalyst.
 
@@ -127,7 +96,7 @@ Now, let's check the execution of the workflow in Catalyst.
 1. Use the **Terminal** tab to navigate to the Python apps:
 
 ```bash,run
-cd python/fan-out-fan-in/fan_out_fan_in
+cd python
 ```
 
 2. Create a virtual environment and activate it:
@@ -143,38 +112,72 @@ source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
-4. Move one folder up and use the Diagrid CLI to run the applications using the Multi-App Run file:
+4. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
 ```bash,run
 cd ..
-diagrid dev run -f dapr.yaml
+diagrid dev run -f dev-python-workflow.yaml --project catalyst-demo --approve
 ```
 
-5. You'll be asked to deploy to the project you just created. Select `Y` and `Enter` to proceed.
-6. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-7. Wait until the the two applications are connected to Catalyst.
+5. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+6. Wait until the the two applications are connected to Catalyst.
 
 > [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "faninfanout" to ...` in the **Terminal** tab logs before you continue.
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
 
-8. Select the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the `faninfanout` application:
+8. Select the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
 
 ```bash,run
 curl --request POST \
-  --url http://localhost:5256/start \
+  --url http://localhost:5001/start \
   --header 'content-type: application/json' \
-  --data '["which","word","is","the","shortest"]'
+  --data '{"name": "Car","quantity": 2}'
 ```
 
-9. Switch to the **Terminal** tab to see the logs of the workflow application. The application log should contain output like this:
+9. Switch to the **Terminal** tab to see the logs of the workflow application. The application log should contain output of the notification activities.
 
-```text,nocopy
-== APP - fanoutfanin == get_word_length: Received input: is.
-== APP - fanoutfanin == get_word_length: Received input: which.
-== APP - fanoutfanin == get_word_length: Received input: the.
-== APP - fanoutfanin == get_word_length: Received input: shortest.
-== APP - fanoutfanin == get_word_length: Received input: word.
+Now, let's check the execution of the workflow in Catalyst.
+
+</details>
+
+<details>
+   <summary><b>Run the JavaScript workflow app</b></summary>
+
+1. Use the **Terminal** tab to navigate to the JavaScript app:
+
+```bash,run
+cd javascript
 ```
+
+2. Install the dependencies:
+
+```bash,run
+npm install
+```
+
+3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+
+```bash,run
+cd ..
+diagrid dev run -f dev-js-workflow.yaml --project catalyst-demo --approve
+```
+
+4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+5. Wait until the the two applications are connected to Catalyst.
+
+> [!IMPORTANT]
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
+
+8. Select the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
+
+```bash,run
+curl --request POST \
+  --url http://localhost:5001/start \
+  --header 'content-type: application/json' \
+  --data '{"name": "Car","quantity": 2}'
+```
+
+9. Switch to the **Terminal** tab to see the logs of the workflow application. The application log should contain output of the notification activities.
 
 Now, let's check the execution of the workflow in Catalyst.
 
@@ -182,8 +185,8 @@ Now, let's check the execution of the workflow in Catalyst.
 
 ## 4. View the Catalyst Workflows page
 
-1. Go back to the **Catalyst** tab and open the *Workflows* page.
-2. You should now see an entry for the *FanOutFanInWorkflow* with as successful status.
+1. Go to the **Catalyst** tab and open the *Workflows* page.
+2. You should now see an entry for the *OrderProcessingWorkflow* with as successful status.
 3. Select the workflow instance to drill down into the details of the workflow. This leads to a page with some statistics about the workflow executions and a visual representation of the workflow.
 4. Select the workflow execution entry on the right or bottom side of the visual representation to drill down into the details of this workflow instance.
 5. You'll now see the start- and end time of the workflow, the execution time, the instance ID, the input and output of the workflow, and an interactive visualization of the workflow execution.select some of the nodes in the graph to see the input and output of the activities.
