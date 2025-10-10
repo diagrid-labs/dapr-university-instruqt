@@ -1,6 +1,6 @@
 ## 1. What is Diagrid Catalyst?
 
-Catalyst is the enterprise Dapr platform for workflow orchestration, service discovery, and pub/sub. It provides a centralized control plane to manage Dapr applications and workflows across multiple environments, including Kubernetes, VMs, serverless, bare metal, and hybrid environments.
+Catalyst is the enterprise platform for workflow orchestration, service discovery, and pub/sub, powered by Dapr. It provides a centralized control plane to manage Dapr applications and workflows across multiple environments, including Kubernetes, VMs, serverless, bare metal, and hybrid environments.
 
 ![Diagrid Catalyst](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/1-what-is-catalyst/images/catalyst-diagram-horizontal.png?raw=true)
 
