@@ -15,7 +15,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 <details>
    <summary><b>Run the .NET apps</b></summary>
 
-1. Select the **Terminal** tab and run the following command to navigate to the .NET apps:
+1. Use the **Terminal** tab and run the following command to navigate to the .NET apps:
 
 ```bash,run
 cd csharp
@@ -39,11 +39,11 @@ diagrid dev run -f dev-csharp-workflow.yaml --project catalyst-demo --approve
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
 
-6. Select the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
+6. Use the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
 
 ```bash,run
 curl --request POST \
-  --url http://localhost:5001/start \
+  --url http://localhost:5001/workflow/start \
   --header 'content-type: application/json' \
   --data '{"name": "Car","quantity": 2}'
 ```
@@ -75,11 +75,11 @@ diagrid dev run -f dev-java-workflow.yaml --project catalyst-demo --approve
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
 
-6. Select the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
+6. Use the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
 
 ```bash,run
 curl --request POST \
-  --url http://localhost:5001/start \
+  --url http://localhost:5001/workflow/start \
   --header 'content-type: application/json' \
   --data '{"name": "Car","quantity": 2}'
 ```
@@ -125,11 +125,11 @@ diagrid dev run -f dev-python-workflow.yaml --project catalyst-demo --approve
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
 
-8. Select the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
+8. Use the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
 
 ```bash,run
 curl --request POST \
-  --url http://localhost:5001/start \
+  --url http://localhost:5001/workflow/start \
   --header 'content-type: application/json' \
   --data '{"name": "Car","quantity": 2}'
 ```
@@ -168,11 +168,11 @@ diagrid dev run -f dev-js-workflow.yaml --project catalyst-demo --approve
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
 
-8. Select the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
+8. Use the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
 
 ```bash,run
 curl --request POST \
-  --url http://localhost:5001/start \
+  --url http://localhost:5001/workflow/start \
   --header 'content-type: application/json' \
   --data '{"name": "Car","quantity": 2}'
 ```
@@ -190,6 +190,8 @@ Now, let's check the execution of the workflow in Catalyst.
 3. Select the workflow instance to drill down into the details of the workflow. This leads to a page with some statistics about the workflow executions and a visual representation of the workflow.
 4. Select the workflow execution entry on the right or bottom side of the visual representation to drill down into the details of this workflow instance.
 5. You'll now see the start- and end time of the workflow, the execution time, the instance ID, the input and output of the workflow, and an interactive visualization of the workflow execution.select some of the nodes in the graph to see the input and output of the activities.
+
+Use the **Terminal** tab and stop the running applications by pressing `Ctrl+C`.
 
 ---
 

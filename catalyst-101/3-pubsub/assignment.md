@@ -21,30 +21,30 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 <details>
    <summary><b>Run the .NET apps</b></summary>
 
-1. Select the **Terminal** tab and run the following command to navigate to the .NET apps:
+1. Use the **Terminal** tab and run the following command to navigate to the .NET apps:
 
-```bash,run
-cd csharp
-```
+   ```bash,run
+   cd csharp
+   ```
 
 2. Install the dependencies:
 
-```bash,run
-dotnet restore publisher/publisher.csproj
-dotnet restore subscriber/subscriber.csproj
-```
+   ```bash,run
+   dotnet restore publisher/publisher.csproj
+   dotnet restore subscriber/subscriber.csproj
+   ```
 
 3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
-```bash,run
-diagrid dev run -f dev-csharp-pubsub.yaml --project catalyst-demo --approve
-```
+   ```bash,run
+   diagrid dev run -f dev-csharp-pubsub.yaml --project catalyst-demo --approve
+   ```
 
-Now the CLI will:
+   Now the CLI will:
 
-- Create a Catalyst project named `catalyst-demo`.
-- Create two AppIDs (*publisher* and *subscriber*).
-- Configures the pub/sub component and creates the topic and subscription.
+   - Create a Catalyst project named `catalyst-demo`.
+   - Create two AppIDs (*publisher* and *subscriber*).
+   - Configures the pub/sub component and creates the topic and subscription.
 
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 5. Wait until the the two applications are connected to Catalyst.
@@ -52,36 +52,36 @@ Now the CLI will:
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
 
-6. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
+6. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
-```bash,run
-curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
-```
+   ```bash,run
+   curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+   ```
 
-The expected output should contain the ID and a message.
+   The expected output should contain the ID and a message.
 
 </details>
 
 <details>
    <summary><b>Run the Java apps</b></summary>
 
-1. Select the **Terminal** tab and run the following command to navigate to the Java apps:
+1. Use the **Terminal** tab and run the following command to navigate to the Java apps:
 
-```bash,run
-cd java
-```
+   ```bash,run
+   cd java
+   ```
 
 2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
-```bash,run
-diagrid dev run -f dev-java-pubsub.yaml --project catalyst-demo --approve
-```
+   ```bash,run
+   diagrid dev run -f dev-java-pubsub.yaml --project catalyst-demo --approve
+   ```
 
-Now the CLI will:
+   Now the CLI will:
 
-- Create a Catalyst project named `catalyst-demo`.
-- Create two AppIDs (*publisher* and *subscriber*).
-- Configures the pub/sub component and creates the topic and subscription.
+   - Create a Catalyst project named `catalyst-demo`.
+   - Create two AppIDs (*publisher* and *subscriber*).
+   - Configures the pub/sub component and creates the topic and subscription.
 
 3. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 4. Wait until the the two applications are connected to Catalyst.
@@ -89,50 +89,50 @@ Now the CLI will:
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
 
-5. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
+5. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
-```bash,run
-curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
-```
+   ```bash,run
+   curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+   ```
 
-The expected output should contain the ID and a message.
+   The expected output should contain the ID and a message.
 
 </details>
 
 <details>
    <summary><b>Run the Python apps</b></summary>
 
-1. Select the **Terminal** tab and run the following command to navigate to the Python apps:
+1. Use the **Terminal** tab and run the following command to navigate to the Python apps:
 
-```bash,run
-cd python
-```
+   ```bash,run
+   cd python
+   ```
 
 2. Create and activate a virtual environment:
 
-```bash,run
-uv venv --allow-existing
-source .venv/bin/activate
-```
+   ```bash,run
+   uv venv --allow-existing
+   source .venv/bin/activate
+   ```
 
 3. Install the dependencies:
 
-```bash,run
-uv pip install -r publisher/requirements.txt
-uv pip install -r subscriber/requirements.txt
-```
+   ```bash,run
+   uv pip install -r publisher/requirements.txt
+   uv pip install -r subscriber/requirements.txt
+   ```
 
 4. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
-```bash,run
-diagrid dev run -f dev-python-pubsub.yaml --project catalyst-demo --approve
-```
+   ```bash,run
+   diagrid dev run -f dev-python-pubsub.yaml --project catalyst-demo --approve
+   ```
 
-Now the CLI will:
+   Now the CLI will:
 
-- Create a Catalyst project named `catalyst-demo`.
-- Create two AppIDs (*publisher* and *subscriber*).
-- Configures the pub/sub component and creates the topic and subscription.
+   - Create a Catalyst project named `catalyst-demo`.
+   - Create two AppIDs (*publisher* and *subscriber*).
+   - Configures the pub/sub component and creates the topic and subscription.
 
 5. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 6. Wait until the the two applications are connected to Catalyst.
@@ -140,20 +140,20 @@ Now the CLI will:
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
 
-7. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
+7. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
-```bash,run
-curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
-```
+   ```bash,run
+   curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
+   ```
 
-The expected output should contain the ID and a message.
+   The expected output should contain the ID and a message.
 
 </details>
 
 <details>
    <summary><b>Run the JavaScript apps</b></summary>
 
-1. Select the **Terminal** tab and run the following command to navigate to the JavaScript apps:
+1. Use the **Terminal** tab and run the following command to navigate to the JavaScript apps:
 
    ```bash,run
    cd javascript
@@ -162,14 +162,14 @@ The expected output should contain the ID and a message.
 2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
    ```bash,run
-   diagrid dev run -f dev-javascript-pubsub.yaml --project catalyst-demo --approve
+   diagrid dev run -f dev-js-pubsub.yaml --project catalyst-demo --approve
    ```
 
-Now the CLI will:
+   Now the CLI will:
 
-- Create a Catalyst project named `catalyst-demo`.
-- Create two AppIDs (*publisher* and *subscriber*).
-- Configures the pub/sub component and creates the topic and subscription.
+   - Create a Catalyst project named `catalyst-demo`.
+   - Create two AppIDs (*publisher* and *subscriber*).
+   - Configures the pub/sub component and creates the topic and subscription.
 
 3. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 4. Wait until the the two applications are connected to Catalyst.
@@ -177,7 +177,7 @@ Now the CLI will:
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
 
-5. Select the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
+5. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
    ```bash,run
    curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
@@ -207,7 +207,7 @@ Catalyst provides a call graph that shows how the applications interact with eac
 > [!NOTE]
 > You need to publish a couple of messages in order for metrics to be shown in the call graph.
 
-Select the **Terminal** tab and stop the running applications by pressing `Ctrl+C`.
+Use the **Terminal** tab and stop the running applications by pressing `Ctrl+C`.
 
 ---
 
