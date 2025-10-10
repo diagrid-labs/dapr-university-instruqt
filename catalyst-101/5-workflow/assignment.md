@@ -195,6 +195,8 @@ Now, let's check the execution of the workflow in Catalyst.
 4. Select the workflow execution entry on the right or bottom side of the visual representation to drill down into the details of this workflow instance.
 5. You'll now see the start- and end time of the workflow, the execution time, the instance ID, the input and output of the workflow, and an interactive visualization of the workflow execution.select some of the nodes in the graph to see the input and output of the activities.
 
+Use the **Terminal** tab and stop the running applications by pressing `Ctrl+C`.
+
 ---
 
 You now know how to use Catalyst to run Dapr workflow applications, and how to use the visualization of the workflow to inspect the workflow execution.

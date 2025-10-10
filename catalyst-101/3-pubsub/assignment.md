@@ -176,7 +176,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
    ```bash,run
-   diagrid dev run -f dev-javascript-pubsub.yaml --project catalyst-demo --approve
+   diagrid dev run -f dev-js-pubsub.yaml --project catalyst-demo --approve
    ```
 
    Now the CLI will:

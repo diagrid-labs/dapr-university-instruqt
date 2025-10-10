@@ -184,14 +184,20 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
    cd javascript
    ```
 
-2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+2. Install the dependencies:
 
    ```bash,run
-   diagrid dev run -f dev-javascript-state.yaml --project catalyst-demo --approve
+   npm install
    ```
 
-3. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-4. Wait until the the two applications are connected to Catalyst.
+3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+
+   ```bash,run
+   diagrid dev run -f dev-js-state.yaml --project catalyst-demo --approve
+   ```
+
+4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+5. Wait until the the two applications are connected to Catalyst.
 
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-app" to ...` in the **Terminal** tab logs before you continue.
