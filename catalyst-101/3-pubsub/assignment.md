@@ -71,7 +71,14 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
    cd java
    ```
 
-2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+2. Install the dependencies:
+
+   ```bash,run
+   mvn install -f publisher
+   mvn install -f subscriber
+   ```
+
+3. Use the Diagrid CLI to run the applictions using the Multi-App Run file:
 
    ```bash,run
    diagrid dev run -f dev-java-pubsub.yaml --project catalyst-demo --approve
@@ -83,13 +90,13 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
    - Create two AppIDs (*publisher* and *subscriber*).
    - Configures the pub/sub component and creates the topic and subscription.
 
-3. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-4. Wait until the the two applications are connected to Catalyst.
+4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+5. Wait until the the two applications are connected to Catalyst.
 
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
 
-5. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
+6. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
 
    ```bash,run
    curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
@@ -159,7 +166,14 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
    cd javascript
    ```
 
-2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+2. Install the dependencies:
+
+   ```bash,run
+   npm install publisher
+   npm install subscriber
+   ```
+
+3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
    ```bash,run
    diagrid dev run -f dev-js-pubsub.yaml --project catalyst-demo --approve

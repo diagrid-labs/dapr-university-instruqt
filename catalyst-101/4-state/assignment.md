@@ -71,23 +71,29 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
 1. Use the **Terminal** tab to navigate to the Java apps:
 
-```bash,run
-cd java
-```
+   ```bash,run
+   cd java
+   ```
 
-2. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+2. Install the dependencies:
 
-```bash,run
-diagrid dev run -f dev-java-state.yaml --project catalyst-demo --approve
-```
+   ```bash,run
+   mvn install
+   ```
 
-3. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-4. Wait until the the two applications are connected to Catalyst.
+3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
+
+   ```bash,run
+   diagrid dev run -f dev-java-state.yaml --project catalyst-demo --approve
+   ```
+
+4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+5. Wait until the the two applications are connected to Catalyst.
 
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-app" to ...` in the **Terminal** tab logs before you continue.
 
-5. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
+6. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
 
    ```bash,run
    curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 4 }' http://localhost:5001/order
@@ -97,7 +103,7 @@ diagrid dev run -f dev-java-state.yaml --project catalyst-demo --approve
 
    A new KV pair has been created in the Catalyst KV Store. You can verify this in the last step of this challenge.
 
-6. To retrieve the new KV pair, Use the **curl** tab again, and run the following command to make a `GET` request to the `order/{orderId}` endpoint of the `order-app` application:
+7. To retrieve the new KV pair, Use the **curl** tab again, and run the following command to make a `GET` request to the `order/{orderId}` endpoint of the `order-app` application:
 
    ```bash,run
    curl http://localhost:5001/order/4
