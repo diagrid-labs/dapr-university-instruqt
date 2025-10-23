@@ -33,7 +33,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
    ```bash,run
-   diagrid dev run -f dev-csharp-state.yaml --project catalyst-demo --aprove
+   diagrid dev run -f dev-csharp-state.yaml --project catalyst-demo --approve
    ```
 
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.

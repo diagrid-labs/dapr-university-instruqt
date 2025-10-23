@@ -44,7 +44,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
    - Create a Catalyst project named `catalyst-demo`.
    - Create two AppIDs (*publisher* and *subscriber*).
-   - Configures the pub/sub component and creates the topic and subscription.
+   - Configure the pub/sub component and create the topic and subscription.
 
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 5. Wait until the the two applications are connected to Catalyst.
@@ -52,7 +52,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
 
-6. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
+6. Use the **curl** tab, and run the following command three times to make several `POST` requests to the `order` endpoint of the `publisher` application:
 
    ```bash,run
    curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
@@ -78,7 +78,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
    mvn install -f subscriber
    ```
 
-3. Use the Diagrid CLI to run the applictions using the Multi-App Run file:
+3. Use the Diagrid CLI to run the applications using the Multi-App Run file:
 
    ```bash,run
    diagrid dev run -f dev-java-pubsub.yaml --project catalyst-demo --approve
@@ -88,7 +88,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
    - Create a Catalyst project named `catalyst-demo`.
    - Create two AppIDs (*publisher* and *subscriber*).
-   - Configures the pub/sub component and creates the topic and subscription.
+   - Configure the pub/sub component and create the topic and subscription.
 
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 5. Wait until the the two applications are connected to Catalyst.
@@ -96,7 +96,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
 
-6. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
+6. Use the **curl** tab, and run the following command three times to make several `POST` requests to the `order` endpoint of the `publisher` application:
 
    ```bash,run
    curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
@@ -139,7 +139,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
    - Create a Catalyst project named `catalyst-demo`.
    - Create two AppIDs (*publisher* and *subscriber*).
-   - Configures the pub/sub component and creates the topic and subscription.
+   - Configure the pub/sub component and create the topic and subscription.
 
 5. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 6. Wait until the the two applications are connected to Catalyst.
@@ -147,7 +147,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
 
-7. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
+7. Use the **curl** tab, and run the following command three times to make several `POST` requests to the `order` endpoint of the `publisher` application:
 
    ```bash,run
    curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
@@ -183,7 +183,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
    - Create a Catalyst project named `catalyst-demo`.
    - Create two AppIDs (*publisher* and *subscriber*).
-   - Configures the pub/sub component and creates the topic and subscription.
+   - Configure the pub/sub component and create the topic and subscription.
 
 3. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
 4. Wait until the the two applications are connected to Catalyst.
@@ -191,7 +191,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
 
-5. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `publisher` application:
+5. Use the **curl** tab, and run the following command three times to make several `POST` requests to the `order` endpoint of the `publisher` application:
 
    ```bash,run
    curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 1 }' http://localhost:5001/order
@@ -204,8 +204,9 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 ## 3. View the Diagrid Pub/Sub service
 
 1. Go to the **Catalyst** tab and use the left sidebar menu to go back out of the *Getting Started* page.
-2. Navigate to the *Diagrid Services* menu. Locate the *pubsub* service and drill down into the details.
-3. Now, you'll see that there is a `pubsub` component configured and the *Topic Explorer* contains details about the topic the applications are using to publish and subscribe to.
+2. Navigate to the *Diagrid Services* menu. Select the *Diagrid Pub/Sub* menu item.
+3. On the *Diagrid Pub/Sub Services* page locate the *pubsub* service and drill down into the details.
+4. Now, you'll see that there is a `pubsub` component configured and the *Topic Explorer* contains details about the topic the applications are using to publish and subscribe to.
 
 > [!NOTE]
 > If you want to test the pub/sub service further, you can drill down into the *pubsub* component, locate the *Test API* button in the top right, fill in the AppID `publisher`, the topic name `orders`, and a sample message payload such as `{ "orderId": 42 }`. Then click the *Test API* button. This will publish a message to the topic, and you should see that the *subscriber* application receives the message.

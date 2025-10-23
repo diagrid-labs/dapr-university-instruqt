@@ -43,7 +43,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
   ```bash,run
   curl --request POST \
-    --url http://localhost:5001/start \
+    --url http://localhost:5001/workflow/start \
     --header 'content-type: application/json' \
     --data '{"name": "Car","quantity": 2}'
   ```
@@ -85,7 +85,7 @@ Now, let's check the execution of the workflow in Catalyst.
 
   ```bash,run
   curl --request POST \
-    --url http://localhost:5001/start \
+    --url http://localhost:5001/workflow/start \
     --header 'content-type: application/json' \
     --data '{"name": "Car","quantity": 2}'
   ```
@@ -134,7 +134,7 @@ Now, let's check the execution of the workflow in Catalyst.
 
   ```bash,run
   curl --request POST \
-    --url http://localhost:5001/start \
+    --url http://localhost:5001/workflow/start \
     --header 'content-type: application/json' \
     --data '{"name": "Car","quantity": 2}'
   ```
@@ -176,7 +176,7 @@ Now, let's check the execution of the workflow in Catalyst.
 
   ```bash,run
   curl --request POST \
-    --url http://localhost:5001/start \
+    --url http://localhost:5001/workflow/start \
     --header 'content-type: application/json' \
     --data '{"name": "Car","quantity": 2}'
   ```

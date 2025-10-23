@@ -7,6 +7,8 @@ Let's start by creating a free Diagrid Catalyst account by using the **Catalyst*
 
 If you already have an account, you can skip this step and proceed with downloading the Diagrid CLI.
 
+Once you've signed up, you should see the *Welcome to Catalyst* page in the **Catalyst** tab. You'll be using the Diagrid CLI to create resources and run Dapr applications in the next steps, so come back the instructions and continue with the next step to download and install the Diagrid CLI.
+
 ## 2. Download & install the Diagrid CLI
 
 The Diagrid CLI is a command line tool that allows you to create and manage Catalyst resources and run local Dapr applications with Catalyst.
