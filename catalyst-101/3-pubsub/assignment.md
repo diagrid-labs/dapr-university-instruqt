@@ -2,6 +2,8 @@ Catalyst comes with a built-in pub/sub service that you can use in your Dapr app
 
 ## 1. Explore the Pub/Sub applications
 
+![Pub/Sub demo](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/3-pubsub/images/catalyst-101-pubsub.png?raw=true)
+
 Choose one of the language tabs to explore the code. For each language, there are two applications:
 
 - *publisher*: This application publishes messages to a topic using Dapr's pub/sub API.
@@ -46,7 +48,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
    - Create two AppIDs (*publisher* and *subscriber*).
    - Configure the pub/sub component and create the topic and subscription.
 
-4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+4. You can switch to the **Catalyst** tab and use the left menu to navigate to the App IDs to see the application IDs being created.
 5. Wait until the the two applications are connected to Catalyst.
 
 > [!IMPORTANT]
@@ -90,7 +92,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
    - Create two AppIDs (*publisher* and *subscriber*).
    - Configure the pub/sub component and create the topic and subscription.
 
-4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+4. You can switch to the **Catalyst** tab and use the left menu to navigate to the App IDs to see the application IDs being created.
 5. Wait until the the two applications are connected to Catalyst.
 
 > [!IMPORTANT]
@@ -141,7 +143,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
    - Create two AppIDs (*publisher* and *subscriber*).
    - Configure the pub/sub component and create the topic and subscription.
 
-5. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+5. You can switch to the **Catalyst** tab and use the left menu to navigate to the App IDs to see the application IDs being created.
 6. Wait until the the two applications are connected to Catalyst.
 
 > [!IMPORTANT]
@@ -185,7 +187,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
    - Create two AppIDs (*publisher* and *subscriber*).
    - Configure the pub/sub component and create the topic and subscription.
 
-3. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
+3. You can switch to the **Catalyst** tab and use the left menu to navigate to the App IDs to see the application IDs being created.
 4. Wait until the the two applications are connected to Catalyst.
 
 > [!IMPORTANT]
@@ -204,7 +206,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 ## 3. View the Diagrid Pub/Sub service
 
 1. Go to the **Catalyst** tab and use the left sidebar menu to go back out of the *Getting Started* page.
-2. Navigate to the *Diagrid Services* menu. Select the *Diagrid Pub/Sub* menu item.
+2. Navigate to *Diagrid Services*. Select the *Diagrid Pub/Sub* menu item.
 3. On the *Diagrid Pub/Sub Services* page locate the *pubsub* service and drill down into the details.
 4. Now, you'll see that there is a `pubsub` component configured and the *Topic Explorer* contains details about the topic the applications are using to publish and subscribe to.
 
@@ -215,7 +217,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
 Catalyst provides a call graph that shows how the applications interact with each other and with other services such as message brokers and state stores.
 
-1. Use the **Catalyst** tab and navigate to the *Call Graph* menu in the left sidebar.
+1. Use the **Catalyst** tab and navigate to *Call Graph* in the left sidebar menu.
 2. You should the a graph that contains two nodes, one for the *publisher* application and one for the *subscriber* application. The arrow between the two applications indicates the direction of communication.
 3. Click on the *publisher* node and select *Isolate*. The graph changes and will now also show the Pub/Sub service. In addition the arrow to and from the Pub/Sub service contain an icon where metrics can be viewed.
 

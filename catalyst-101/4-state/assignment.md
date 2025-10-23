@@ -2,6 +2,8 @@ Catalyst comes with a built-in key value (KV) store that you can use in your Dap
 
 ## 1. Explore the State Management application
 
+![State demo](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/4-state/images/catalyst-101-state.png?raw=true)
+
 Choose one of the language tabs to explore the code. For each language, there is one application that uses the Dapr state management API to store, retrieve, and delete key value pairs.
 
 The application uses a *statestore.yaml* component file that specifies Redis is used as the KV Store.
@@ -37,11 +39,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
    ```
 
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-5. Wait until the the two applications are connected to Catalyst.
-
-> [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-app" to ...` in the **Terminal** tab logs before you continue.
-
+5. Wait until the application is fully started.
 6. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
 
    ```bash,run
@@ -88,11 +86,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
    ```
 
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-5. Wait until the the two applications are connected to Catalyst.
-
-> [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-app" to ...` in the **Terminal** tab logs before you continue.
-
+5. Wait until the application is fully started.
 6. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
 
    ```bash,run
@@ -146,11 +140,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
    ```
 
 5. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-6. Wait until the the two applications are connected to Catalyst.
-
-> [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-app" to ...` in the **Terminal** tab logs before you continue.
-
+6. Wait until the application is fully started.
 7. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
 
    ```bash,run
@@ -197,12 +187,8 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
    ```
 
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-5. Wait until the the two applications are connected to Catalyst.
-
-> [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-app" to ...` in the **Terminal** tab logs before you continue.
-
-5. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
+5. Wait until the application is fully started.
+6. Use the **curl** tab, and run the following command to make a `POST` request to the `order` endpoint of the `order-app` application:
 
    ```bash,run
    curl -X POST -H "Content-Type: application/json" -d '{ "orderId": 4 }' http://localhost:5001/order
@@ -228,8 +214,9 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
 ## 3. View the Diagrid KV Store service
 
-1. Go to the **Catalyst** tab and navigate to the *Diagrid Services* menu in the left sidebar. Locate the *kvstore* service and drill down into the details.
-2. Now, you'll see that there is a `kvstore` component configured and the *Data Explorer* contains the key value pairs which have been created earlier. You might need to refresh the *Data Explorer* to see the latest data.
+1. Go to the **Catalyst** tab and navigate to *Diagrid Services* in the left sidebar menu. Select the *Diagrid KV Store* menu item.
+2. On the *Diagrid KV Stores* page locate the *kvstore* service and drill down into the details.
+3. Now, you'll see that there is a `kvstore` component configured and the *Data Explorer* contains the key value pairs which have been created earlier. You might need to refresh the *Data Explorer* to see the latest data.
 
 > [!NOTE]
 > If you want to test the K/V service further, you can drill down into the *kvstore* component, locate the *Test API* button in the top right, fill in the AppID `orderapp`, select a state management operation, and a key or message payload such as `{ "orderId": 42 }`. Then click the *Test API* button to test the operation.
@@ -238,7 +225,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
 Catalyst provides a call graph that shows how the applications interact with each other and with other services such as message brokers and state stores.
 
-1. Use the **Catalyst** tab and navigate to the *Call Graph* menu in the left sidebar.
+1. Use the **Catalyst** tab and navigate to *Call Graph* in the left sidebar menu.
 2. You should see a graph that contains three nodes, two nodes, *publisher* and *subscriber*, related to the previous challenge. And a new node named *order-app*.
 3. Click on the *order-app* node and select *Isolate*. The graph changes and will now also show the KV Store service. In addition, the arrow to the KV Store service contains an icon where metrics can be viewed.
 

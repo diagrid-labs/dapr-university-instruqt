@@ -34,7 +34,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
   ```
 
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-5. Wait until the the two applications are connected to Catalyst.
+5. Wait until the application is connected to Catalyst.
 
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
@@ -76,7 +76,7 @@ Now, let's check the execution of the workflow in Catalyst.
   ```
 
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-5. Wait until the the two applications are connected to Catalyst.
+5. Wait until the application is connected to Catalyst.
 
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
@@ -125,7 +125,7 @@ Now, let's check the execution of the workflow in Catalyst.
   ```
 
 5. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-6. Wait until the the two applications are connected to Catalyst.
+6. Wait until the application is connected to Catalyst.
 
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
@@ -167,7 +167,7 @@ Now, let's check the execution of the workflow in Catalyst.
   ```
 
 4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-5. Wait until the the two applications are connected to Catalyst.
+5. Wait until the application is connected to Catalyst.
 
 > [!IMPORTANT]
 > You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
@@ -189,7 +189,7 @@ Now, let's check the execution of the workflow in Catalyst.
 
 ## 4. View the Catalyst Workflows page
 
-1. Go to the **Catalyst** tab and open the *Workflows* page.
+1. Go to the **Catalyst** tab and use the left sidebar menu to navigate to the *Workflows* page.
 2. You should now see an entry for the *OrderProcessingWorkflow* with as successful status.
 3. Select the workflow instance to drill down into the details of the workflow. This leads to a page with some statistics about the workflow executions and a visual representation of the workflow.
 4. Select the workflow execution entry on the right or bottom side of the visual representation to drill down into the details of this workflow instance.
@@ -203,9 +203,9 @@ You now know how to use Catalyst to run Dapr workflow applications, and how to u
 
 ## Collect your badge & provide feedback
 
-Congratulations! 🎉 You've completed the Dapr University Running Dapr Applications with Catalyst learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training 🚀.
+Congratulations! 🎉 You've completed the Dapr University 'Running Dapr Applications with Catalyst' learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training 🚀.
 
-All code samples shown in this Dapr University track are available in the [Catalyst Quickstarts](https://github.com/diagridio/catalyst-quickstarts/) and [Dapr QuickStarts](https://github.com/dapr/quickstarts/) repositories.
+All code samples shown in this Dapr University track are available in the [Catalyst Quickstarts](https://github.com/diagridio/catalyst-quickstarts/) GitHub repository.
 
 Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmggddbde003vlg04ubjknxvm). You'll need a GitHub account to claim the badge.
 
