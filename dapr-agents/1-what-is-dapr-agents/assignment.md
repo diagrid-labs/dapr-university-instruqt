@@ -16,7 +16,7 @@ Agents in Dapr Agents leverage structured output capabilities, such as OpenAI's 
 
 The framework includes multiple LLM clients for different providers and modalities:
 
-- **OpenAIChatClient**: Full spectrum support for OpenAI models including chat, embeddings, and audio
+- **OpenAIChatClient**: Full spectrum support for OpenAI (and OpenAI compatible REST APIs such as the one offered through Azure) models including chat, embeddings, and audio
 - **HFHubChatClient**: For Hugging Face models supporting both chat and embeddings
 - **NVIDIAChatClient**: For NVIDIA AI Foundation models supporting local inference and chat
 - **ElevenLabs**: Support for speech and voice capabilities
