@@ -1,8 +1,8 @@
 Catalyst comes with a built-in key value (KV) store that you can use in your Dapr applications. In this challenge, you'll run a Dapr application that uses the state management API to interact with this KV Store.
 
-## 1. Explore the State Management application
-
 ![State demo](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/4-state/images/catalyst-101-state.png?raw=true)
+
+## 1. Explore the State Management application
 
 Choose one of the language tabs to explore the code. For each language, there is one application that uses the Dapr state management API to store, retrieve, and delete key value pairs.
 
