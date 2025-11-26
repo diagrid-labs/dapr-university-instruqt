@@ -49,12 +49,12 @@ diagrid login --no-browser
 You'll see an output like this:
 
 ```text,nocopy
-logging in to 'https://api.diagrid.io/'...
+logging in to 'https://api.r1.diagrid.io/'...
 Visit: https://login.diagrid.io/activate?user_code=XXXX-XXXX and confirm the code matches: XXXX-XXXX
 Code confirmed? (Y/N)
 ```
 
-1. Click on the link provided in the output to open a new browser tab.
+1. Click on the login link provided in the output (the one that contains the user code) to open a new browser tab.
 2. You'll need to login to your Catalyst account in this browser tab if you haven't already.
 3. Verify that the code in the browser matches the code in the terminal, click the *Confirm* button and come back to this sandbox environment.
 4. Press `Y` followed by the `Enter` key in the **Terminal** tab to confirm.
@@ -77,7 +77,7 @@ The output should show the organization, user and API endpoint:
 ```text,nocopy
 Organization: <ORG_NAME> (<ORG_ID>)
 User: <USER_NAME> (<EMAIL>)
-API: https://api.diagrid.io
+API: https://api.r1.diagrid.io
 ```
 
 ---
