@@ -19,7 +19,7 @@ This makes the DurableAgent ideal for mission-critical applications that need to
 
 ## 2.  Explore the DurableAgent
 
-Use the **Editor** window to examine the durable agent implementation in the `03_durable_agent.py` file:
+Use the **Editor** window to examine the durable agent implementation in the `03_durable_agent_run.py` file:
 
 ```python,nocopy
 import asyncio
