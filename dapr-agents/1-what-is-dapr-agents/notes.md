@@ -20,4 +20,4 @@ In this first challenge, you'll learn:
 - How Dapr Agents enables AI workflows and agent collaboration through Pub/Sub messaging
 - The benefits of using Dapr Agents and how it extends Dapr with AI-specific capabilities
 
-If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://diagrid.ws/dapr-agents-docs). If you have any questions or feedback about this track, let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://docs.dapr.io/developing-ai/dapr-agents/). If you have any questions or feedback about this track, let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
