@@ -150,7 +150,7 @@ You should see output similar to:
 == APP == Let me know once you have this information or if you need a template to request it from Alice.
 ```
 
-## When to Use Multi-Agent Systems
+## 5. When to Use Multi-Agent Systems
 
 Multi-agent systems are particularly well-suited for:
 
@@ -162,7 +162,7 @@ Multi-agent systems are particularly well-suited for:
 
 By leveraging multiple specialized agents, you can create AI systems that tackle problems too complex for a single agent to handle effectively.
 
-## Collect your badge & provide feedback
+## 6. Collect your badge & provide feedback
 
 Congratulations! 🎉 You've completed the Dapr University Dapr Agents learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training 🚀.
 
@@ -173,3 +173,10 @@ Collect the Dapr University badge for this track by following [this link to the 
 [![Dapr University Dapr Agents badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-agents/10-workflow-agents/Diagrid-Dapr-Uni-Agents_x500.png?raw=true)](https://holopin.io/collect/cmcnbixyg090907l820ki10nd)
 
 If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+
+## Next Steps
+
+Now that you've completed the Dapr Agents learning track, here are some recommended next steps:
+
+- [Dapr University: Running Dapr applications with Diagrid Catalyst]([Running Dapr applications with Diagrid Catalyst](https://www.diagrid.io/dapr-university#catalyst-101))
+- Try [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for workflow orchestration, service discovery and pub/sub, powered by Dapr. Build apps and AI agents that are compliant, secure and failure-proof.
