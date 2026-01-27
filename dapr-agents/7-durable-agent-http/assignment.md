@@ -1,6 +1,6 @@
 This challenge turns the previous agent into a durable agent backed by the Dapr Workflow engine. Instead of running interactions in-process, every step of the agent’s execution is persisted to durable storage, allowing long-running interactions to survive interruptions. The agent exposes an HTTP endpoint to start a new workflow and provides a way to query progress or retrieve the final result at any time.
 
-## 1.  Durable Agent with REST endpoint
+## 1. Durable Agent with REST endpoint
 
 The Durable Agent is Dapr Agents' most powerful and resilient agent type, designed for production-level AI applications. Unlike the previously explored agent type, the Durable Agent:
 
@@ -12,7 +12,7 @@ The Durable Agent is Dapr Agents' most powerful and resilient agent type, design
 
 This makes the DurableAgent ideal for mission-critical applications that need to remain functional even when facing system failures, network issues, or process restarts.
 
-## 2.  Explore the DurableAgent
+## 2. Explore the DurableAgent
 
 Use the **Editor** window to examine the durable agent implementation in the `06_durable_agent_http.py` file.
 
@@ -26,7 +26,7 @@ The agent exposes a REST endpoint, accepts a prompt, and returns a workflow ID t
 4. The agent creates another workflow activity to return the tool call result to the LLM and complete the reasoning step.
 5. The agent finishes the execution, persisting every interaction and the final result. The workflow engine ensures reliable progression so no LLM or tool call is repeated unless required.
 
-## Behind the Scenes: The DurableAgent's Workflow Engine
+## 3. Behind the Scenes: The DurableAgent's Workflow Engine
 
 1. **Manages Workflow State**: Each conversation becomes a workflow instance with its own state
 2. **Orchestrates Tool Execution**: Workflows break down complex tasks into steps that can be retried
@@ -37,11 +37,11 @@ The agent exposes a REST endpoint, accepts a prompt, and returns a workflow ID t
    - **Automatic retry logic**: Failed operations can be retried
    - **Workflow continuity**: Workflows can be continued even after the process restarts
 
-## 3. Key Components of DurableAgent
+## 4. Key Components of DurableAgent
 
 Let's explore the key components that enable durability in the DurableAgent:
 
-### 1. Persistent Memory
+### Persistent Memory
 
 ```python,nocopy
 memory=AgentMemoryConfig(
@@ -71,7 +71,7 @@ spec:
       value: ""
 ```
 
-### 2. State Stores for Workflow Orchestration
+### State Stores for Workflow Orchestration
 
 ```python,nocopy
 state=AgentStateConfig(
@@ -99,7 +99,7 @@ spec:
     value: "true"
 ```
 
-## 4. Run the Durable Agent
+## 5. Run the Durable Agent
 
 Use the **Terminal** window to create a virtual environment:
 
@@ -114,7 +114,7 @@ Run the durable agent with Dapr by running this command in the **Terminal** wind
 dapr run --app-id durable-agent --resources-path resources --app-port 8001 -- python 06_durable_agent_http.py
 ```
 
-## 5. Interact with the Durable Agent
+## 6. Interact with the Durable Agent
 
 Unlike simpler agents, durable agents provide REST APIs for interaction. Here's how to use them:
 
@@ -171,7 +171,7 @@ curl -i -X GET http://localhost:8001/run/$INSTANCEID
 
 This allows you to track the progress of long-running tasks.
 
-## 6. Benefits of Durable Agents
+## 7. Benefits of Durable Agents
 
 1. **Resiliency**: Agents can survive process crashes, network issues, and other failures
 2. **Stateful Conversations**: Maintain conversation context even across system restarts
@@ -182,7 +182,7 @@ This allows you to track the progress of long-running tasks.
 
 These capabilities make durable agents ideal for production environments where reliability is essential.
 
-## When to Use Durable Agents
+## 8. When to Use Durable Agents
 
 Durable agents are particularly valuable for:
 

@@ -1,4 +1,4 @@
-In this challenge, you'll use an agent with a custom prompt, backed by the Dapr Conversation API, and how to use a local Python function as a tool the agent calls during reasoning. It demonstrates the simplest way to run an agent locally as a regular Python program while benefiting from Dapr’s LLM abstraction.
+In this challenge, you'll use an agent with a custom prompt, backed by the Dapr Conversation API, and a local Python function as a tool the agent calls during reasoning. It demonstrates the simplest way to run an agent locally as a regular Python program while benefiting from Dapr’s LLM abstraction.
 
 ## 1. Examine Tool Definitions
 
@@ -11,7 +11,7 @@ Each tool has a descriptive docstring that helps the LLM understand when to use 
 
 ## 2. Examine the Agent Definition
 
-Open the `03_agent_llm_tools.py` file in the **Editor** window:
+Open the `03_agent_llm_tools.py` file in the **Editor** window to examine how the agent is defined with a tool.
 
 ### How this works
 

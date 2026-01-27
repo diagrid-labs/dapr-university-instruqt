@@ -20,29 +20,11 @@ Before diving into the code, let's cover the key concepts:
 
 In this example, you'll use **STDIO** transport, which means the agent will launch a local MCP server as a subprocess and communicate with it over the command line.
 
-
-## Step 1: Explore MCP Tools (mcp_tools.py)
+## 2: Explore MCP Tools (mcp_tools.py)
 
 Open the `mcp_tools.py` file in the **Editor** window to see how to define an MCP server using FastMCP.
 
-```python,nocopy
-from mcp.server.fastmcp import FastMCP
-import random
-
-mcp = FastMCP("TestServer")
-
-@mcp.tool()
-async def get_weather(location: str) -> str:
-    """Get weather information for a specific location."""
-    temperature = random.randint(60, 80)
-    return f"{location}: {temperature}F."
-
-
-if __name__ == "__main__":
-    mcp.run("stdio")
-```
-
-## 2. Understanding MCP Capabilities
+## 3. Understanding MCP Capabilities
 
 MCP supports different types of capabilities that can be exposed to agents:
 
@@ -50,14 +32,14 @@ MCP supports different types of capabilities that can be exposed to agents:
 - **Resources**: Similar to tools but designed for read-only access to data sources like files, databases, or configuration.
 - **Other capabilities**: MCP can also expose prompts, sampling configurations, and other specialized capabilities depending on the implementation.
 
-## How Tools Work
+## 4. How Tools Work
 
 - The `FastMCP` class creates an MCP server named "TestServer" that exposes Python functions as executable capabilities for LLM clients. When an LLM decides to use a tool, it sends a request with parameters, FastMCP validates these against the function's signature, executes the function, and returns the result.
 - The `@mcp.tool()` decorator transforms regular Python functions into MCP tools that LLMs can invoke during conversations. FastMCP automatically uses the function name as the tool name, generates an input schema from the function's parameters and type annotations, and handles parameter validation and error reporting.
 - When you run this file directly, it starts the MCP server using STDIO transport, allowing the agent to communicate with the tools as a subprocess over standard input/output.
 - The function's docstring (like `"""Get weather information for a specific location."""`) serves as the tool description that helps the LLM understand what the tool does and when to use it. The agent uses this description along with the function signature to determine which tool is appropriate for a given task and how to call it with the correct parameters.
 
-## 3. Explore the MCP Client and Agent (04_agent_mcp_tools.py)
+## 5. Explore the MCP Client and Agent (04_agent_mcp_tools.py)
 
 Open the `04_agent_mcp_tools.py` file in the **Editor** window to see how to connect to the MCP server and use its tools in an agent.
 
@@ -67,7 +49,7 @@ Open the `04_agent_mcp_tools.py` file in the **Editor** window to see how to con
 2. The weather tools are served by the local MCP script (`mcp_tools.py`), and the agent invokes them when the LLM requests a tool call.
 3. The LLM call still goes through the Dapr Conversation API, giving the same provider abstraction as in Example 3 but with a more flexible tool architecture.
 
-## 4. Run the Example
+## 6. Run the Example
 
 Use the **Terminal** window to create and activate a virtual environment:
 
@@ -82,7 +64,7 @@ To run the example, use the following command in the **Terminal** window:
 dapr run --app-id agent-mcp --resources-path resources -- python 04_agent_mcp_tools.py
 ```
 
-## 5. Observe the Tool Calling Process
+## 7. Observe the Tool Calling Process
 
 Examine the output in the **Terminal** window. You should see something similar to this:
 

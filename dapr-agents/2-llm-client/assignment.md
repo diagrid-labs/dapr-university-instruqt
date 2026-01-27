@@ -37,7 +37,7 @@ This python code sends a request to the Dapr sidecar, which then handles the com
 ### How this works
 
 1. The `DaprChatClient` sends requests to the Dapr sidecar using the Dapr Conversation API
-2. The Dapr sidecar processes these requests using the appropriate conversation component (e.g., `openai`, `echo`, etc.)
+2. The Dapr sidecar processes these requests using the appropriate conversation component (e.g., `conversation.openai`, `conversation.echo`, etc.)
 3. The conversation component handles the specifics of communicating with the LLM provider
 4. Results flow back through the same path to your application
 
@@ -70,7 +70,9 @@ Notice that the command includes:
 You should see output similar to this:
 
 ```text,nocopy
-== APP == Response:  I don’t have real-time data access, so I can’t check the current weather in London for you. But if you want a guess based on London’s typical weather, I’d say it’s probably **cloudy or partly cloudy**, maybe a bit cool and possibly some drizzle—London style! If you want the exact weather, it’s best to check a weather app or website. Want to know about London’s usual climate or what to pack for a trip? Let me know!
+== APP == Response:  I don’t have real-time data access, so I can’t know exactly what the weather in London is right now. But if I had to guess based on typical June weather: It might be around 15-22°C (59-72°F), with partly cloudy skies and a chance of rain—because, well…it’s London!
+== APP == 
+== APP == If you want the exact weather, try checking a weather website or ask your smart assistant at home!
 ```
 
 The exact responses may vary, but you should see three different responses similar to the direct OpenAI client example.

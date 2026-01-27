@@ -1,10 +1,10 @@
 In this challenge, you'll explore the basic concept of a Dapr Agent. An agent wraps an LLM with a name, role, and instructions that define how it should behave. Unlike the previous example—where you called the LLM directly—an agent provides a reusable interface you can trigger multiple times, and it will consistently act according to its assigned role.
 
-## Basic Agent with LLM
+## 1. Basic Agent with LLM
 
 Running the script constructs an agent with a defined role and behavior, sends it a weather-related prompt, and prints its response. Because the agent has no tools, the LLM simply makes a best-effort guess about the weather based on its internal knowledge.
 
-### Inspect the code
+## 2. Inspect the code
 
 Open the `02_agent_llm.py` file in the **Editor** window.
 
@@ -13,7 +13,7 @@ Open the `02_agent_llm.py` file in the **Editor** window.
 1. The agent is created with a name, a role, and a set of instructions that act as system-level guidance for how it should respond.
 2. Internally, the agent uses the DaprChatClient, so each agent invocation sends a prompt through the Dapr Conversation API and receives the LLM’s response.
 
-### Run the example
+## 3. Run the example
 
 Use the **Terminal** window to create and activate a virtual environment:
 
@@ -28,7 +28,7 @@ Use the **Terminal** window to run the agent example:
 dapr run --app-id agent-llm --resources-path resources -- python 02_agent_llm.py
 ```
 
-### Expected output
+## 4. Expected output
 
 You should see output similar to this:
 

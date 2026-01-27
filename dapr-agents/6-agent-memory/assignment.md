@@ -1,8 +1,6 @@
 This challenge shows how to use an agent that can store and recall its full conversation history across multiple interactions using a Dapr state store. By persisting the session history, the agent can continue a multi-turn dialog and provide answers informed by prior messages.
 
-## Agent with Memory
-
-### Inspect the code
+## 1. Inspect the code
 
 Open the `05_agent_memory.py` file in the **Editor** window.
 
@@ -14,7 +12,7 @@ The script runs two prompts in sequence: the agent answers the initial weather q
 2. Each call to `weather_agent.run()` retrieves any previously stored history, allowing the agent to continue the conversation seamlessly.
 3. The agent still performs tool calls as in earlier examples, but the LLM’s response now considers the restored session history.
 
-## Run the code
+## 2. Run the code
 
 Use the **Terminal** window to create and activate a virtual environment:
 
@@ -28,6 +26,8 @@ To run the example, use the following command in the **Terminal** window:
 ```bash,run
 dapr run --app-id agent-memory --resources-path resources -- python 05_agent_memory.py
 ```
+
+## 3. Inspect the output
 
 You should see output similar to:
 
