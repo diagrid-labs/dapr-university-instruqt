@@ -4,24 +4,107 @@ In this challenge, you'll use the simplest way to call an LLM using the Dapr Cha
 
 It's important to understand that the `DaprChatClient` is a client-side wrapper that internally uses the Dapr Conversation API to communicate with the Dapr sidecar, which in turn interacts with LLM providers through Dapr conversation components.
 
-## 1. Get your OpenAI API key
+## 1. Get your LLM API key
 
-To work with LLMs, you first need to sign up with an LLM provider and obtain an API key. Throughout this challenge, we'll be using OpenAI's models, but Dapr Agents supports multiple providers. If you wish to use a different provider, see the [Dapr Conversation Components documentation](https://docs.dapr.io/reference/components-reference/supported-conversation/) for more options.
+To work with LLMs, you first need to sign up with an LLM provider and obtain an API key. Dapr Agents supports multiple providers, and the next section shows how to configure either OpenAI, Anthropic, GoogleAI, or HuggingFace. More providers are supported though, see the note at the end of step 2.
 
-You can get an OpenAI API key by signing up at [OpenAI](https://platform.openai.com/signup).
+## 2. Configure the Conversation Component
 
-## 2. Configure the OpenAI Component
-
-Now we need to configure the OpenAI component with your API key:
+Now you need to configure Dapr Conversation component with the API key of the LLM provider you want to use.
 
 Open the `resources/llm-provider.yaml` file in **Editor** window.
 
-This file contains the Dapr component configuration for OpenAI. Update the `key` value with your actual OpenAI API key, then save the file.
+This file is currently configured to use Ollama, but let's update to component file to use the LLM provider of your liking.
 
-The component configuration tells Dapr how to connect to OpenAI, which model to use, and other provider-specific settings.
+Expand the instructions below for the LLM provider you want to use and ensure you have an API key for that provider.
+
+<details>
+   <summary><b>OpenAI</b></summary>
+
+Ensure that the `metadata` section matches to the example shown below and you replace <API_KEY> with your OpenAI API key.
+
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: llm-provider
+spec:
+  type: conversation.openai
+  metadata:
+  - name: key
+    value: <API_KEY>
+  - name: model
+    value: gpt-4o-mini
+```
+
+</details>
+
+<details>
+   <summary><b>Anthropic</b></summary>
+
+Ensure that the `metadata` section matches to the example shown below and you replace <API_KEY> with your Anthropic API key.
+
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: llm-provider
+spec:
+  type: conversation.anthropic
+  metadata:
+  - name: key
+    value: <API_KEY>
+  - name: model
+    value: claude-sonnet-4-6
+```
+
+</details>
+
+<details>
+   <summary><b>GoogleAI</b></summary>
+
+Ensure that the `metadata` section matches to the example shown below and you replace <API_KEY> with your Gemini API key.
+
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: llm-provider
+spec:
+  type: conversation.googleai
+  metadata:
+  - name: key
+    value: <API_KEY>
+  - name: model
+    value: gemini-3-flash-preview
+```
+
+</details>
+
+<details>
+   <summary><b>HuggingFace</b></summary>
+
+Ensure that the `metadata` section matches to the example shown below and you replace <API_KEY> with your HuggingFace API key.
+
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: llm-provider
+spec:
+  type: conversation.huggingface
+  metadata:
+  - name: key
+    value: <API_KEY>
+  - name: model
+    value: meta-llama/Meta-Llama-3-8B
+```
+
+</details>
+
 
 > [!NOTE]
-> If you want to use a different LLM provider, you can change the component configuration file and update the `type` and `metadata` accordingly. See the [Dapr Conversation Components documentation](https://docs.dapr.io/reference/components-reference/supported-conversation/) for more details.
+> The component configuration tells Dapr how to connect to the LLM provider, which model to use, and other provider-specific settings. If you want to use a different LLM provider, you can change the component configuration file and update the `type` and `metadata` accordingly. See the [Dapr Conversation Components documentation](https://docs.dapr.io/reference/components-reference/supported-conversation/) for more details.
 
 ## 3. Inspect the DaprChatClient Code
 
@@ -33,15 +116,6 @@ This file demonstrates:
 - Basic text generation with a prompt
 
 This python code sends a request to the Dapr sidecar, which then handles the communication with the LLM provider based on your component configuration.
-
-### How this works
-
-1. The `DaprChatClient` sends requests to the Dapr sidecar using the Dapr Conversation API
-2. The Dapr sidecar processes these requests using the appropriate conversation component (e.g., `conversation.openai`, `conversation.echo`, etc.)
-3. The conversation component handles the specifics of communicating with the LLM provider
-4. Results flow back through the same path to your application
-
-This abstraction layer allows you to switch between different LLM providers by simply changing the component configuration, without modifying your application code.
 
 ## 4. Run the Dapr Chat Client Example
 
@@ -67,17 +141,23 @@ Notice that the command includes:
 
 ## 5. Expected Output
 
+> [!NOTE]
+> It will take a couple of seconds for the result to appear.
+
 You should see output similar to this:
 
 ```text,nocopy
-== APP == Response:  I don’t have real-time data access, so I can’t know exactly what the weather in London is right now. But if I had to guess based on typical June weather: It might be around 15-22°C (59-72°F), with partly cloudy skies and a chance of rain—because, well…it’s London!
-== APP == 
-== APP == If you want the exact weather, try checking a weather website or ask your smart assistant at home!
+Response:  I don't have real-time data access to provide current weather conditions. For the most accurate and up-to-date weather information in London, I recommend checking a reliable weather website or app.
 ```
 
-The exact responses may vary, but you should see three different responses similar to the direct OpenAI client example.
+## 6. How this works
 
-## 6. Benefits of the Dapr Approach
+1. The DaprChatClient sends the prompt to the Dapr sidecar using the Conversation API under the hood.
+2. The Dapr sidecar uses the configured conversation component to forward the prompt to the LLM provider (OpenAI in this challenge) and returns the generated response to your application.
+
+This abstraction layer allows you to switch between different LLM providers by simply changing the component configuration, without modifying your application code.
+
+## 7. Benefits of the Dapr Approach
 
 Using the Dapr Conversation API instead of calling LLMs directly offers several advantages:
 

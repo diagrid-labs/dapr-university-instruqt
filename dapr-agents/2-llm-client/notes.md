@@ -2,7 +2,6 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 ---
 
-
 ## Challenge 2: Using the DaprChatClient for LLM Interactions
 
 In this challenge, you'll use the simplest way to call an LLM using the DaprChatClient, which sends prompts through the Dapr Conversation API.
