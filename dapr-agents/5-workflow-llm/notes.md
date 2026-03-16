@@ -2,8 +2,11 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 ---
 
-## Challenge 5: Connecting Agents to External Tools with MCP
+## Challenge 5: Orchestrate AI Tasks with Dapr Workflows
 
-In this challenge, you'll learn how to use an agent that can connect to external tools using the Model Context Protocol (MCP). This allows the agent to extend its capabilities by leveraging specialized tools for tasks like web searching, calculations, or data retrieval.
+In this challenge, you'll learn:
+
+- What agentic workflows are and how do they provide structure and predictability compared to autonomous agents
+- How to define workflows and activities using Dapr Agents' workflow framework
 
 If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://docs.dapr.io/developing-ai/dapr-agents/). If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).

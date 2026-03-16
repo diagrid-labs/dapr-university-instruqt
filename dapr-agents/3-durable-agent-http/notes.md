@@ -2,11 +2,11 @@ The sandbox for this challenge is being prepared. Once it's ready, click the *St
 
 ---
 
-## Challenge 9: Orchestrate AI Tasks with Dapr Workflows
+## Challenge 3: Durable Agent with REST API
 
 In this challenge, you'll learn:
 
-- What agentic workflows are and how do they provide structure and predictability compared to autonomous agents
-- How to define workflows and activities using Dapr Agents' workflow framework
+- How a Durable Agent provides durability and resilience through workflow orchestration.
+- How durable agents expose REST APIs for interaction and management of long-running workflows.
 
 If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://docs.dapr.io/developing-ai/dapr-agents/). If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).

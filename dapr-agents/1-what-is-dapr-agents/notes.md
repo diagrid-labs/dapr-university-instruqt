@@ -7,7 +7,7 @@ Click the *Start* button to setup the sandbox environment for this training, thi
 - Tracks can be started up to 5 times, and you can select which challenge you want to run via the *Progress* button in the top right, if you don't want to run them all in order.
 
 - If you complete all 10 challenges in this track you can claim the Dapr Agents badge.
-![Dapr University Dapr Agents badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-agents/10-workflow-agents/Diagrid-Dapr-Uni-Agents_x500.png?raw=true)
+![Dapr University Dapr Agents badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-agents/6-workflow-agents/Diagrid-Dapr-Uni-Agents_x500.png?raw=true)
 
 ---
 
