@@ -50,32 +50,43 @@ Move into the solution folder for the remaining commands:
 cd EnterpriseDiagnostics
 ```
 
-### 1.3 Fix the AppHost launch URLs (HTTPS + fixed ports)
+### 1.3 Fix the AppHost launch URLs (HTTP + fixed ports)
 
 Open `EnterpriseDiagnostics.AppHost/Properties/launchSettings.json`.
 
 Replace the templated random ports with fixed ports so the Aspire dashboard URL is stable across runs.
 
-The `https` profile should look like this:
+The `http` profile should look like this:
 
 ```json
-    "https": {
+    "http": {
     "commandName": "Project",
     "dotnetRunMessages": true,
     "launchBrowser": true,
-    "applicationUrl": "https://localhost:17000",
+    "applicationUrl": "http://localhost:17000",
     "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "DOTNET_ENVIRONMENT": "Development",
-        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "https://localhost:17001",
-        "ASPIRE_DASHBOARD_MCP_ENDPOINT_URL": "https://localhost:17002",
-        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "https://localhost:17003",
-        "DOTNET_DASHBOARD_OTLP_HTTP_ENDPOINT_URL": "https://localhost:17004"
+        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://localhost:17001",
+        "ASPIRE_DASHBOARD_MCP_ENDPOINT_URL": "http://localhost:17002",
+        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://localhost:17003",
+        "DOTNET_DASHBOARD_OTLP_HTTP_ENDPOINT_URL": "http://localhost:17004"
         }
     },
 ```
 
-> If your template generates fewer `ASPIRE_*`/`DOTNET_DASHBOARD_*` keys than shown above, only update the ones that exist — don't add the missing ones. The dashboard itself is reached at the `applicationUrl` (here, `https://localhost:17000`).
+> If your template generates fewer `ASPIRE_*`/`DOTNET_DASHBOARD_*` keys than shown above, only update the ones that exist — don't add the missing ones. The dashboard itself is reached at the `applicationUrl` (here, `http://localhost:17000`).
+
+Next, export the following environment variables in the *Terminal* before running `aspire run`. This makes the Aspire dashboard bind to all interfaces (required for the Instruqt service tab to proxy to it) and skips the login token:
+
+```shell,run,copy
+export ASPIRE_DASHBOARD_URL=http://0.0.0.0:17000
+export ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL=http://0.0.0.0:17001
+export DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS=true
+export ASPIRE_ALLOW_UNSECURED_TRANSPORT=true
+```
+
+> The port numbers match the `applicationUrl` and `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` set in the `launchSettings.json` above.
 
 ### 1.4 Add the NuGet packages
 
