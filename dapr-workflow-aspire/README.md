@@ -6,11 +6,11 @@ The project name throughout is **`EnterpriseDiagnostics`** — change it consist
 
 ---
 
-# Module 1 — Project Creation
+# Module 2 — Project Creation
 
 Open a terminal in the directory where you want the solution folder created, then run the commands below.
 
-### 1.1 Scaffold the Aspire solution
+## 2.1 Scaffold the Aspire solution
 
 Start by running the following `aspire new` command to scaffold the `aspire-starter` template solution:
 
@@ -40,7 +40,7 @@ Detecting agent environments...
 
 Refresh the Editor window, that should show the EnterpriseDiagnostics solution now.
 
-### 1.2 About the generated Web project
+## 2.2 About the generated Web project
 
 The starter template also generates an `EnterpriseDiagnostics.Web` Blazor project. We won't use it in this walkthrough — you can ignore it and leave it in place.
 
@@ -50,45 +50,34 @@ Move into the solution folder for the remaining commands:
 cd EnterpriseDiagnostics
 ```
 
-### 1.3 Fix the AppHost launch URLs (HTTP + fixed ports)
+## 2.3 Fix the AppHost launch URLs (HTTP + fixed ports)
 
 Open `EnterpriseDiagnostics.AppHost/Properties/launchSettings.json`.
 
-Replace the templated random ports with fixed ports so the Aspire dashboard URL is stable across runs.
+1. Remove the `https` profile completely.
+2. Update the`http` profile as follows:
 
-The `http` profile should look like this:
-
-```json
+```json,copy
     "http": {
     "commandName": "Project",
     "dotnetRunMessages": true,
     "launchBrowser": true,
-    "applicationUrl": "http://localhost:17000",
+    "applicationUrl": "http://0.0.0.0:17000",
     "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "DOTNET_ENVIRONMENT": "Development",
-        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://localhost:17001",
-        "ASPIRE_DASHBOARD_MCP_ENDPOINT_URL": "http://localhost:17002",
-        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://localhost:17003",
-        "DOTNET_DASHBOARD_OTLP_HTTP_ENDPOINT_URL": "http://localhost:17004"
+        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://0.0.0.0:17001",
+        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://0.0.0.0:17003",
+        "DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS": true,
+        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": true
         }
     },
 ```
 
-> If your template generates fewer `ASPIRE_*`/`DOTNET_DASHBOARD_*` keys than shown above, only update the ones that exist — don't add the missing ones. The dashboard itself is reached at the `applicationUrl` (here, `http://localhost:17000`).
+> [!IMPORTANT]
+> Use `0.0.0.0` instead of `localhost` and ensure the port numbers match exactly with the above profile, otherwise the Aspire dashboard can't be access in the learning environment. Also ensure that the `DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS` and `ASPIRE_ALLOW_UNSECURED_TRANSPORT` variables are set to `true`.
 
-Next, export the following environment variables in the *Terminal* before running `aspire run`. This makes the Aspire dashboard bind to all interfaces (required for the Instruqt service tab to proxy to it) and skips the login token:
-
-```shell,run,copy
-export ASPIRE_DASHBOARD_URL=http://0.0.0.0:17000
-export ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL=http://0.0.0.0:17001
-export DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS=true
-export ASPIRE_ALLOW_UNSECURED_TRANSPORT=true
-```
-
-> The port numbers match the `applicationUrl` and `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` set in the `launchSettings.json` above.
-
-### 1.4 Add the NuGet packages
+## 2.4 Add the NuGet packages
 
 Now let's install some depedencies the solution requires. You'll build a Dapr Workflow solution so this needs: `Dapr.Workflow`, `Dapr.Workflow.Versioning` and `CommunityToolkit.Aspire.Hosting.Dapr`.
 
@@ -136,7 +125,7 @@ aspire run
 
 ---
 
-# Module 2 — Workflow & Activity Definition
+# Module 3 — Workflow & Activity Definition
 
 Now that the dependencies are available, the workflow and activity code can be added. All workflow related files will live in the `EnterpriseDiagnostics.ApiService/` project. Create the following folders using the *Terminal* ensuring the path is currently `EnterpriseDiagnostics/`:
 
@@ -148,7 +137,7 @@ mkdir EnterpriseDiagnostics.ApiService/Activities
 
 Refresh the *Editor* window afterwards so you see the new folders.
 
-### 2.1 Models — `Models/Models.cs`
+## 3.1 Models — `Models/Models.cs`
 
 Create the models first, they are all `record` type and placed in the same `Models.cs` file. There are input and output records for the workflow, the subsystem diagnostics the prioritization, and the bridge notification activities.
 
@@ -160,7 +149,7 @@ touch EnterpriseDiagnostics.ApiService/Models/Models.cs
 
 Then copy the code:
 
-```csharp,run,copy
+```csharp,copy
 namespace EnterpriseDiagnostics.Models;
 
 public record EnterpriseDiagnosticsInput(string Id, string StarDate);
@@ -188,7 +177,7 @@ public record BridgeNotificationInput(string Priority, string Summary);
 public record BridgeNotificationOutput(bool Acknowledged, string AcknowledgedBy);
 ```
 
-### 2.2 Workflow — `Workflows/EnterpriseDiagnosticsWorkflow.cs`
+## 3.2 Workflow — `Workflows/EnterpriseDiagnosticsWorkflow.cs`
 
 Now create the workflow, it will fan-out/fan-in over 3 subsystems to run diagnostics, then prioritize, then conditionally notify the bridge.
 
@@ -200,7 +189,7 @@ touch EnterpriseDiagnostics.ApiService/Workflows/EnterpriseDiagnosticsWorkflow.c
 
 Then copy the code:
 
-```csharp,run,copy
+```csharp,copy
 using Microsoft.Extensions.Logging;
 using Dapr.Workflow;
 using EnterpriseDiagnostics.Activities;
@@ -261,7 +250,7 @@ internal sealed partial class EnterpriseDiagnosticsWorkflow
 }
 ```
 
-### 2.3 Activity — `Activities/DiagnoseSubsystemActivity.cs`
+## 3.3 Activity — `Activities/DiagnoseSubsystemActivity.cs`
 
 Now create the DiagnoseSubsystemActivity, it returns randomly-generated mock telemetry for a single subsystem.
 
@@ -273,7 +262,7 @@ touch EnterpriseDiagnostics.ApiService/Activities/DiagnoseSubsystemActivity.cs
 
 Then copy the code:
 
-```csharp,run,copy
+```csharp,copy
 using Microsoft.Extensions.Logging;
 using Dapr.Workflow;
 using EnterpriseDiagnostics.Models;
@@ -314,7 +303,7 @@ internal sealed partial class DiagnoseSubsystemActivity(ILogger<DiagnoseSubsyste
 }
 ```
 
-### 2.4 Activity — `Activities/PrioritizeDiagnosticsActivity.cs`
+## 3.4 Activity — `Activities/PrioritizeDiagnosticsActivity.cs`
 
 Create the PrioritizeDiagnosticsActivity which aggregates the three subsystem reports into a single prioritized report.
 
@@ -326,7 +315,7 @@ touch EnterpriseDiagnostics.ApiService/Activities/PrioritizeDiagnosticsActivity.
 
 Then copy the code:
 
-```csharp
+```csharp,copy
 using Microsoft.Extensions.Logging;
 using Dapr.Workflow;
 using EnterpriseDiagnostics.Models;
@@ -364,7 +353,7 @@ internal sealed partial class PrioritizeDiagnosticsActivity(ILogger<PrioritizeDi
 }
 ```
 
-### 2.5 Activity — `Activities/NotifyBridgeActivity.cs`
+## 3.5 Activity — `Activities/NotifyBridgeActivity.cs`
 
 Create the final activity, NotifyBridgeActivity, that mock-notifies the bridge with a randomly chosen acknowledging officer.
 
@@ -376,7 +365,7 @@ touch EnterpriseDiagnostics.ApiService/Activities/NotifyBridgeActivity.cs
 
 Then copy the code:
 
-```csharp
+```csharp,copy
 using Microsoft.Extensions.Logging;
 using Dapr.Workflow;
 using EnterpriseDiagnostics.Models;
@@ -417,7 +406,7 @@ Run a `dotnet build` to verify to solution builds correctly.
 dotnet build
 ```
 
-### 2.6 Update `EnterpriseDiagnostics.ApiService/Program.cs`
+## 3.6 Update `EnterpriseDiagnostics.ApiService/Program.cs`
 
 Replace the file contents with:
 
@@ -500,7 +489,7 @@ app.Run();
 
 > Workflow types are auto-registered by `AddDaprWorkflowVersioning()` — only activities need explicit `RegisterActivity<T>()` calls.
 
-### 2.7 Verify
+## 3.7 Verify
 
 From the solution root:
 
@@ -512,7 +501,7 @@ Fix any errors before continuing.
 
 ---
 
-# Module 3 — AppHost Definition & Resources
+# Module 4 — AppHost Definition & Resources
 
 There are two files required under the AppHost project:
 
@@ -523,7 +512,7 @@ Both files point to the same state store (Valkey) but require a different value 
 
 Ensure that the *Terminal* path currently in `EnterpriseDiagnostics/`.
 
-### 3.1 `Resources/dapr/workflow-state.yaml`
+## 4.1 `Resources/dapr/workflow-state.yaml`
 
 Let's create the component file used by Dapr to store workflow state. This will be the location of the file: `Resources/dapr/workflow-state.yaml`.
 
@@ -560,7 +549,7 @@ spec:
       value: true
 ```
 
-### 3.2 `Resources/dapr/diagrid-dashboard-components/diagrid-dashboard-state.yaml`
+## 4.2 `Resources/dapr/diagrid-dashboard-components/diagrid-dashboard-state.yaml`
 
 The Diagrid Dev Dashboard requires a connection to the statestore that is based on a Dapr component file. The default location for the Diagrid Dev Dashboard Aspire integration is `Resources/dapr/diagrid-dashboard-components` in the AppHost project.
 
@@ -599,7 +588,7 @@ spec:
       value: true
 ```
 
-### 3.3 Update `EnterpriseDiagnostics.AppHost.csproj`
+## 4.3 Update `EnterpriseDiagnostics.AppHost.csproj`
 
 The two Dapr component files in the Resources folder need to be available when the Aspire solution runs.
 
@@ -614,7 +603,7 @@ Add a `Content` item group so the component files are copied to the output direc
   </ItemGroup>
 ```
 
-### 3.4 Replace `AppHost.cs`
+## 4.4 Replace `AppHost.cs`
 
 ```csharp
 using System.Reflection;
@@ -654,9 +643,9 @@ builder.Build().Run();
 
 ```
 
-> The explicit `WithHttpsEndpoint` / `WithHttpEndpoint` calls pin the apiservice to fixed ports so the URL stays stable across runs (same idea as §1.3 for the Aspire dashboard itself).
+> The explicit `WithHttpsEndpoint` / `WithHttpEndpoint` calls pin the apiservice to fixed ports so the URL stays stable across runs (same idea as §2.3 for the Aspire dashboard itself).
 
-### 3.5 Verify
+## 4.5 Verify
 
 From the solution root:
 
@@ -666,9 +655,9 @@ dotnet build EnterpriseDiagnostics.sln
 
 ---
 
-# Module 4 — Run Application
+# Module 5 — Run Application
 
-### 4.1 Start Aspire
+## 5.1 Start Aspire
 
 From the solution root:
 
@@ -678,11 +667,11 @@ aspire run
 
 The Aspire dashboard opens automatically in your browser. Wait until **`apiservice`**, **`cache`**, and **`diagrid-dashboard`** all show as Running.
 
-### 4.2 Find the ApiService URL
+## 5.2 Find the ApiService URL
 
 Because §3.4 pins the apiservice to fixed ports, its HTTPS endpoint is always `https://localhost:7337`. Use this URL in the curl commands below as `<API_URL>` (you can also confirm it in the Aspire dashboard under the **`apiservice`** resource).
 
-### 4.3 Start a workflow with curl
+## 5.3 Start a workflow with curl
 
 ```shell
 curl -k -X POST <API_URL>/start ^
@@ -698,7 +687,7 @@ The response returns the `instanceId`, e.g.:
 { "instanceId": "mission-001" }
 ```
 
-### 4.4 Check the workflow status
+## 5.4 Check the workflow status
 
 ```shell
 curl -k <API_URL>/status/mission-001
@@ -706,7 +695,7 @@ curl -k <API_URL>/status/mission-001
 
 The response contains the workflow `state` and the deserialized `output` with `StarDate`, `Priority`, `Summary`, and `BridgeNotified` fields.
 
-### 4.5 Open the Diagrid Dev Dashboard
+## 5.5 Open the Diagrid Dev Dashboard
 
 In the Aspire dashboard, find the **`diagrid-dashboard`** resource and click its HTTP endpoint (port 8080). In the dashboard you can:
 

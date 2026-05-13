@@ -1,16 +1,10 @@
-# Project Creation
-
-Open a terminal in the directory where you want the solution folder created, then run the commands below.
-
 ## 1. Scaffold the Aspire solution
 
-Start by running the following `aspire new` command to scaffold the `aspire-starter` template solution:
+Start by running the following `aspire new` command to scaffold the `aspire-starter` template solution which serves as the basis for the workflow application you're building:
 
 ```shell,run
 aspire new aspire-starter -n EnterpriseDiagnostics -o EnterpriseDiagnostics --non-interactive --test-framework none
 ```
-
-> The `--non-interactive` and `--test-framework none` flags are required, otherwise the CLI blocks waiting for user input.
 
 Expected output:
 
@@ -30,7 +24,8 @@ Detecting agent environments...
 ✅ Agent environment configuration complete.
 ```
 
-Refresh the Editor window, that should show the EnterpriseDiagnostics solution now.
+> [!IMPORTANT]
+> Refresh the Editor window, that should show the EnterpriseDiagnostics solution now.
 
 >[!INFO]
 > The starter template also generates an `EnterpriseDiagnostics.Web` Blazor project. We won't use it in this walkthrough — you can ignore it and leave it in place.
@@ -45,49 +40,38 @@ cd EnterpriseDiagnostics
 
 Open `EnterpriseDiagnostics.AppHost/Properties/launchSettings.json`.
 
-1. The the `https` profile completely.
-2. Update the`http` that uses random ports with fixed ports so the Aspire dashboard URL is stable across runs.
-
-The `http` profile should look like this:
+1. Remove the `https` profile completely.
+2. Update the`http` profile as follows:
 
 ```json,copy
     "http": {
     "commandName": "Project",
     "dotnetRunMessages": true,
     "launchBrowser": true,
-    "applicationUrl": "http://localhost:17000",
+    "applicationUrl": "http://0.0.0.0:17000",
     "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "DOTNET_ENVIRONMENT": "Development",
-        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://localhost:17001",
-        "ASPIRE_DASHBOARD_MCP_ENDPOINT_URL": "http://localhost:17002",
-        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://localhost:17003",
-        "DOTNET_DASHBOARD_OTLP_HTTP_ENDPOINT_URL": "http://localhost:17004"
+        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://0.0.0.0:17001",
+        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://0.0.0.0:17003",
+        "DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS": true,
+        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": true
         }
     },
 ```
 
-2. Next, export the following environment variables in the *Terminal* before running `aspire run`. This makes the Aspire dashboard bind to all interfaces (required for the Instruqt service tab to proxy to it) and skips the login token:
-
-```shell,run,copy
-export ASPIRE_DASHBOARD_URL=http://0.0.0.0:17000
-export ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL=http://0.0.0.0:17001
-export DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS=true
-export ASPIRE_ALLOW_UNSECURED_TRANSPORT=true
-```
-
-> [!INFO]
-> The port numbers match the `applicationUrl` and `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` set in the `launchSettings.json` above.
+> [!IMPORTANT]
+> Use `0.0.0.0` instead of `localhost` and ensure the port numbers match exactly with the above profile, otherwise the Aspire dashboard can't be accessed in the learning environment. Also verify that the `DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS` and `ASPIRE_ALLOW_UNSECURED_TRANSPORT` variables are set to `true`.
 
 ## 3. Add the NuGet packages
 
-Now let's install some depedencies the solution requires. You'll build a Dapr Workflow solution so this needs: `Dapr.Workflow`, `Dapr.Workflow.Versioning` and `CommunityToolkit.Aspire.Hosting.Dapr`.
+Now let's install some dependencies the solution requires. You're building a Dapr Workflow solution and this needs: `Dapr.Workflow`, `Dapr.Workflow.Versioning` and `CommunityToolkit.Aspire.Hosting.Dapr`.
 
 Workflows require a state store and for that Valkey (Redis compatible) will be used: `Aspire.Hosting.Valkey`.
 
 Finally, an Aspire integration is added to use the Diagrid Dev Dashboard. An essential tool for local Dapr workflow inspection: `Diagrid.Aspire.Hosting.Dashboard`
 
-Run from the **solution root** (`EnterpriseDiagnostics/`) to install all the required packages to the correct project:
+Run from the **solution root** (`EnterpriseDiagnostics/`) to install all the required packages to the correct projects:
 
 ```shell,run,copy
 dotnet add EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj package Dapr.Workflow --version 1.17.9
@@ -113,14 +97,22 @@ The ApiService project  should have these packages:
 <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7" />
 ```
 
-Run a `dotnet build` to verify to solution builds correctly.
+## 4. Build and Run
+
+Run `dotnet build` to verify to solution builds without errors.
 
 ```shell,run,copy
 dotnet build
 ```
 
-Then run aspire and check if the *Aspire Dashboard* shows in tab next to the *Editor* tab.
+Then start Aspire and check if the Aspire dashboard runs in *Aspire* tab next to the *Editor* tab and verify the `apiservice` and `webfrontend` resources are in running state.
 
 ```shell,run,copy
 aspire run
 ```
+
+Use `CTRL+C` in the *Terminal* window to stop the Aspire solution.
+
+---
+
+Great! You've added the Dapr Workflow dependencies to the Aspire solution. In the next challenge, you'll add code for models, the workflow and activities.
