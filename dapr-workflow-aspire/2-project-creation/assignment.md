@@ -1,3 +1,5 @@
+In this challenge you'll lay the foundation for the USS Enterprise diagnostics application. You'll scaffold a new Aspire solution, pin its dashboard to fixed ports so it's reachable in the learning environment, and add the NuGet packages required for Dapr Workflow, the Valkey state store, and the Diagrid Dev Dashboard.
+
 ## 1. Scaffold the Aspire solution
 
 Start by running the following `aspire new` command to scaffold the `aspire-starter` template solution which serves as the basis for the workflow application you're building:
@@ -105,7 +107,7 @@ Run `dotnet build` to verify to solution builds without errors.
 dotnet build
 ```
 
-Then start Aspire and check if the Aspire dashboard runs in *Aspire* tab next to the *Editor* tab and verify the `apiservice` and `webfrontend` resources are in running state.
+Then start Aspire and check if the Aspire dashboard is available in the *Aspire* tab (next to the *Editor* tab) and verify the `apiservice` and `webfrontend` resources are in running state.
 
 ```shell,run,copy
 aspire run

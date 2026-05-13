@@ -1,3 +1,5 @@
+In this challenge you'll build the brains of the USS Enterprise diagnostics: a Dapr Workflow that fans out to three subsystem activities in parallel, aggregates the results into a prioritized report, and conditionally notifies the bridge. You'll define the data models, the workflow, three activities, and register everything in the API service.
+
 Now that the Aspire solution is scaffolded and dependencies are available, the code for the workflow, activities, and models can be added. All workflow related files will live in the `EnterpriseDiagnostics.ApiService/` project.
 
 ## 1. Folder creation
@@ -383,3 +385,7 @@ dotnet build EnterpriseDiagnostics.sln
 ```
 
 Fix any errors before continuing. Don't run the Aspire solution yet since you need to configure the statestore that is required for the workflow.
+
+---
+
+You now have a complete Dapr Workflow with three activities and a fully wired API service. The workflow runs three subsystem diagnostics in parallel, aggregates them into a prioritized report, and conditionally notifies the bridge — all that's missing is the state store and AppHost wiring to actually run it.

@@ -1,3 +1,5 @@
+In this challenge you'll wire up the infrastructure that Dapr Workflow and the Diagrid Dev Dashboard need to run. You'll author two Dapr state store component files, make sure they ship to the output directory, and update the AppHost so Aspire orchestrates Valkey, the Dapr sidecar, the dashboard, and the API service together.
+
 There are two Dapr component files required under the AppHost project:
 
 1. A Dapr state store component that is used by Dapr Workflow
@@ -148,3 +150,7 @@ From the solution root:
 ```shell,run,copy
 dotnet build EnterpriseDiagnostics.sln
 ```
+
+---
+
+The AppHost now starts Valkey as the workflow state store, runs the API service with a Dapr sidecar that picks up your component files, and exposes the Diagrid Dev Dashboard alongside it. A single `aspire run` brings the full stack up — which is exactly what the next challenge will do.
