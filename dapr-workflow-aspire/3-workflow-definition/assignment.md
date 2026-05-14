@@ -79,6 +79,8 @@ internal sealed partial class DiagnoseSubsystemActivity(ILogger<DiagnoseSubsyste
 }
 ```
 
+This activity inherits from `WorkflowActivity<TInput, TOutput>`, the Dapr base class for activity classes. The `RunAsync` method is the entry point the Dapr Workflow engine invokes when the workflow schedules this activity. Unlike workflow code, activities are allowed to use non-deterministic constructs (`Random.Shared`, `DateTime.Now`, file/network I/O) — the engine records each activity's result the first time it runs and reuses that result on replay, so the non-determinism never affects the durable history.
+
 ### 2.2 NotifyBridgeActivity.cs
 
 The `NotifyBridgeActivity` mock-notifies the bridge with a randomly chosen acknowledging officer.
@@ -120,6 +122,8 @@ internal sealed partial class NotifyBridgeActivity(ILogger<NotifyBridgeActivity>
     static partial void LogNotify(ILogger logger, string Priority, string Officer);
 }
 ```
+
+The structure is identical to the previous activity: a `WorkflowActivity<TInput, TOutput>` subclass with a single `RunAsync` method. The workflow only calls this activity when the prioritized diagnostics escalate to **Urgent**, which is why the notification is logged at `Warning` level — making it easy to spot in the Aspire dashboard logs.
 
 ### 2.3 PrioritizeDiagnosticsActivity.cs
 
@@ -166,6 +170,8 @@ internal sealed partial class PrioritizeDiagnosticsActivity(ILogger<PrioritizeDi
 }
 ```
 
+Activities aren't limited to external, non-deterministic calls — they can also do pure compute, as this one does. The switch expression with tuple patterns assigns a priority based on whether any subsystem reported `Critical` and how high the maximum anomaly score is. The resulting `priority` and `summary` flow back to the workflow as a `PrioritizationOutput` record and drive the conditional bridge notification.
+
 ## 3. Models — `Models/Models.cs`
 
 Now add the models. They are all `record` types and placed in the same `Models.cs` file. There are input and output records for the workflow, the subsystem diagnostics, the prioritization, and the bridge notification activities.
@@ -200,6 +206,8 @@ public record BridgeNotificationInput(string Priority, string Summary);
 
 public record BridgeNotificationOutput(bool Acknowledged, string AcknowledgedBy);
 ```
+
+Records are used throughout because they are immutable and serialize cleanly to JSON. The Dapr Workflow engine serializes every workflow input/output and every activity input/output to the configured state store, so all types crossing those boundaries must be JSON-serializable. Each activity in this workflow has its own input/output pair, plus a top-level pair (`EnterpriseDiagnosticsInput` / `EnterpriseDiagnosticsOutput`) for the workflow itself.
 
 ## 4. Workflow — `Workflows/EnterpriseDiagnosticsWorkflow.cs`
 
@@ -271,6 +279,13 @@ internal sealed partial class EnterpriseDiagnosticsWorkflow
     static partial void LogUrgent(ILogger logger, string Id);
 }
 ```
+
+The workflow inherits `Workflow<TInput, TOutput>` and its `RunAsync` is the entry point. A few important details:
+
+- `context.CreateReplaySafeLogger` is used instead of an injected `ILogger` because workflows replay after each activity call or timer; the replay-safe logger suppresses duplicate log lines for already-recorded events.
+- `context.CallActivityAsync<T>(nameof(Activity), input)` does **not** call the activity directly. It schedules an activity execution with the workflow engine, and the workflow durably awaits the result.
+- Building `diagnosticsTasks` with `Select(...)` and then awaiting `Task.WhenAll` is the **fan-out / fan-in** pattern: the three subsystem diagnostics run in parallel and the workflow continues once all three complete.
+- Workflow code must be deterministic — no `DateTime.Now`, `Random`, file or network I/O. Anything non-deterministic belongs inside an activity.
 
 ## 5. Update `EnterpriseDiagnostics.ApiService/Program.cs`
 
@@ -354,8 +369,7 @@ app.MapDefaultEndpoints();
 app.Run();
 ```
 
-> [!IMPORTANT]
-> Workflow types are auto-registered by `AddDaprWorkflowVersioning()` — only activities need explicit `RegisterActivity<T>()` calls.
+Two registration calls do the heavy lifting: `AddDaprWorkflow(...)` wires the Dapr Workflow runtime into DI and is where activities are registered, and `AddDaprWorkflowVersioning()` auto-discovers the workflow types themselves and enables workflow versioning support. The five HTTP endpoints expose the workflow management API end-to-end: start a new workflow, query its state, pause it, resume it, and terminate it. `DaprWorkflowClient` is resolved from DI and is the standard entry point for all workflow operations.
 
 ## 6. Verify
 
