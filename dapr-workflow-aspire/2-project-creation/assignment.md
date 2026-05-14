@@ -1,4 +1,4 @@
-In this challenge you'll lay the foundation for the USS Enterprise diagnostics application. You'll scaffold a new Aspire solution, pin its dashboard to fixed ports so it's reachable in the learning environment, and add the NuGet packages required for Dapr Workflow, the Valkey state store, and the Diagrid Dev Dashboard.
+In this challenge you'll lay the foundation for the USS Enterprise diagnostics application. You'll scaffold a new Aspire solution, pin its dashboard to fixed ports so it's reachable in the learning environment, and add the NuGet packages required for Dapr and Dapr Workflow.
 
 ## 1. Scaffold the Aspire solution
 
@@ -69,9 +69,7 @@ Open the `launchSettings.json` file located in `EnterpriseDiagnostics.AppHost/Pr
 
 Now let's install some dependencies the solution requires. You're building a Dapr Workflow solution and this needs: `Dapr.Workflow`, `Dapr.Workflow.Versioning` and `CommunityToolkit.Aspire.Hosting.Dapr`.
 
-Workflows require a state store and for that Valkey (Redis compatible) will be used: `Aspire.Hosting.Valkey`.
 
-Finally, an Aspire integration is added to use the Diagrid Dev Dashboard. An essential tool for local Dapr workflow inspection: `Diagrid.Aspire.Hosting.Dashboard`
 
 1. Use the *Terminal* (ensure you're in `EnterpriseDiagnostics/`) to install all the required packages to the correct projects:
 
@@ -79,16 +77,12 @@ Finally, an Aspire integration is added to use the Diagrid Dev Dashboard. An ess
 dotnet add EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj package Dapr.Workflow --version 1.17.9
 dotnet add EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj package Dapr.Workflow.Versioning --version 1.17.9
 dotnet add EnterpriseDiagnostics.AppHost/EnterpriseDiagnostics.AppHost.csproj package CommunityToolkit.Aspire.Hosting.Dapr --version 13.0.0
-dotnet add EnterpriseDiagnostics.AppHost/EnterpriseDiagnostics.AppHost.csproj package Aspire.Hosting.Valkey --version 13.3.0
-dotnet add EnterpriseDiagnostics.AppHost/EnterpriseDiagnostics.AppHost.csproj package Diagrid.Aspire.Hosting.Dashboard
 ```
 
 The AppHost project  should have these packages:
 
 ```text,nocopy
-<PackageReference Include="Aspire.Hosting.Valkey" Version="13.3.0" />
 <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="13.0.0" />
-<PackageReference Include="Diagrid.Aspire.Hosting.Dashboard" Version="0.0.1" />
 ```
 
 The ApiService project  should have these packages:
@@ -107,7 +101,7 @@ The ApiService project  should have these packages:
 dotnet build
 ```
 
-2. Start Aspire and check if the Aspire dashboard is available in the *Aspire* tab (next to the *Editor* tab) and verify the `apiservice` and `webfrontend` resources are in *Running* state.
+2. Start Aspire and check if the Aspire dashboard is available in the *Aspire* tab (next to the *Editor* tab) and verify the resources are in *Running* state.
 
 ```shell,run,copy
 aspire run

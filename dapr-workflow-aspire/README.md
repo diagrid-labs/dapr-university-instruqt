@@ -665,7 +665,7 @@ Start Aspire from the solution root:
 aspire run
 ```
 
-The Aspire dashboard opens automatically in your browser. Wait until **`apiservice`**, **`cache`**, and **`diagrid-dashboard`** all show as Running.
+The Aspire dashboard opens automatically in your browser. Wait until **`apiservice`**, and **`diagrid-dashboard`** all show as Running.
 
 ## 5.2 Find the ApiService URL
 
