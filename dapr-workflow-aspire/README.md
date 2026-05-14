@@ -659,9 +659,9 @@ dotnet build EnterpriseDiagnostics.sln
 
 ## 5.1 Start Aspire
 
-From the solution root:
+Start Aspire from the solution root:
 
-```shell
+```shell,run,copy
 aspire run
 ```
 
@@ -673,7 +673,7 @@ Because §3.4 pins the apiservice to fixed ports, its HTTPS endpoint is always `
 
 ## 5.3 Start a workflow with curl
 
-```shell
+```shell,run,copy
 curl -k -X POST <API_URL>/start ^
   -H "Content-Type: application/json" ^
   -d "{\"id\":\"mission-001\",\"starDate\":\"41153.7\"}"
@@ -683,13 +683,13 @@ curl -k -X POST <API_URL>/start ^
 
 The response returns the `instanceId`, e.g.:
 
-```json
+```json,nocopy
 { "instanceId": "mission-001" }
 ```
 
 ## 5.4 Check the workflow status
 
-```shell
+```shell,run,copy
 curl -k <API_URL>/status/mission-001
 ```
 

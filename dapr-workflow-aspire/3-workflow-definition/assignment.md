@@ -1,16 +1,10 @@
-In this challenge you'll build the brains of the USS Enterprise diagnostics: a Dapr Workflow that fans out to three subsystem activities in parallel, aggregates the results into a prioritized report, and conditionally notifies the bridge. You'll define the data models, the workflow, three activities, and register everything in the API service.
+In this challenge you'll build the brains of the USS Enterprise diagnostics: a Dapr Workflow that fans out to three subsystem activities in parallel, aggregates the results into a prioritized report, and conditionally notifies the bridge. You'll define the three activities, the data models, the workflow, and register everything in the API service.
 
-Now that the Aspire solution is scaffolded and dependencies are available, the code for the workflow, activities, and models can be added. All workflow related files will live in the `EnterpriseDiagnostics.ApiService/` project.
+## 1. Folder & file creation
 
-## 1. Folder creation
+All the workflow related code will be created in the ApiService project.
 
-Navigate to the  `EnterpriseDiagnostics/` path:
-
-```shell, run,copy
-cd EnterpriseDiagnostics
-```
-
-Create the following folders using the *Terminal*:
+1. Create the following folders using the *Terminal* (ensure you're in the *EnterpriseDiagnostics* folder):
 
 ```shell,run,copy
 mkdir EnterpriseDiagnostics.ApiService/Models
@@ -18,21 +12,168 @@ mkdir EnterpriseDiagnostics.ApiService/Workflows
 mkdir EnterpriseDiagnostics.ApiService/Activities
 ```
 
-Refresh the *Editor* window afterwards so you see the new folders.
-
-## 2. Models — `Models/Models.cs`
-
-Create the models first, they are all `record` type and placed in the same `Models.cs` file. There are input and output records for the workflow, the subsystem diagnostics the prioritization, and the bridge notification activities.
-
-First create the file:
+2. Create the following empty files for the models, workflow and the activities:
 
 ```shell,run,copy
 touch EnterpriseDiagnostics.ApiService/Models/Models.cs
+touch EnterpriseDiagnostics.ApiService/Workflows/EnterpriseDiagnosticsWorkflow.cs
+touch EnterpriseDiagnostics.ApiService/Activities/DiagnoseSubsystemActivity.cs
+touch EnterpriseDiagnostics.ApiService/Activities/PrioritizeDiagnosticsActivity.cs
+touch EnterpriseDiagnostics.ApiService/Activities/NotifyBridgeActivity.cs
 ```
 
-Then copy the model code into the file:
+3. Refresh the *Editor* window afterwards so you see the new folders & (empty) files in the ApiService project.
+
+## 2. Activities
+
+You'll create three activities that the workflow will call: `DiagnoseSubsystemActivity` runs (mock) diagnostics for a single subsystem and is invoked once per subsystem in parallel, `NotifyBridgeActivity` mock-notifies the bridge when priority is urgent, and `PrioritizeDiagnosticsActivity` aggregates the three subsystem reports into a single prioritized report.
+
+> [!NOTE]
+> The activities reference model types (`SubsystemDiagnosticsInput`, etc.) that you'll add in section 3, so expect compile errors in the *Editor* until you've finished section 3. The project is only built at the *Verify* step.
+
+### 2.1 DiagnoseSubsystemActivity.cs
+
+The `DiagnoseSubsystemActivity` returns randomly-generated mock telemetry for a single subsystem.
+
+1. Use the *Editor* and navigate to the `DiagnoseSubsystemActivity.cs` file in the `EnterpriseDiagnostics.ApiService/Activities/` folder.
+2. Copy the activity code into the file:
 
 ```csharp,copy
+using Microsoft.Extensions.Logging;
+using Dapr.Workflow;
+using EnterpriseDiagnostics.Models;
+
+namespace EnterpriseDiagnostics.Activities;
+
+internal sealed partial class DiagnoseSubsystemActivity(ILogger<DiagnoseSubsystemActivity> logger)
+    : WorkflowActivity<SubsystemDiagnosticsInput, SubsystemDiagnosticsOutput>
+{
+    private static readonly string[] Statuses = ["Nominal", "Degraded", "Critical"];
+
+    public override Task<SubsystemDiagnosticsOutput> RunAsync(
+        WorkflowActivityContext context,
+        SubsystemDiagnosticsInput input)
+    {
+        LogDiagnosing(logger, input.SubsystemName);
+
+        var random = Random.Shared;
+        var status = Statuses[random.Next(Statuses.Length)];
+        var anomalyScore = random.Next(0, 101);
+        var powerLevel = Math.Round(random.NextDouble() * 100.0, 2);
+
+        var result = new SubsystemDiagnosticsOutput(
+            input.SubsystemName,
+            status,
+            anomalyScore,
+            powerLevel);
+
+        LogDiagnosed(logger, input.SubsystemName, status, anomalyScore);
+        return Task.FromResult(result);
+    }
+
+    [LoggerMessage(LogLevel.Information, "Diagnosing subsystem {Subsystem}")]
+    static partial void LogDiagnosing(ILogger logger, string Subsystem);
+
+    [LoggerMessage(LogLevel.Information, "Diagnosed {Subsystem}: status={Status}, anomaly={Anomaly}")]
+    static partial void LogDiagnosed(ILogger logger, string Subsystem, string Status, int Anomaly);
+}
+```
+
+### 2.2 NotifyBridgeActivity.cs
+
+The `NotifyBridgeActivity` mock-notifies the bridge with a randomly chosen acknowledging officer.
+
+1. Use the *Editor* and navigate to the `NotifyBridgeActivity.cs` file located in the `EnterpriseDiagnostics.ApiService/Activities/` folder.
+2. Copy the activity code into the file:
+
+```csharp,copy
+using Microsoft.Extensions.Logging;
+using Dapr.Workflow;
+using EnterpriseDiagnostics.Models;
+
+namespace EnterpriseDiagnostics.Activities;
+
+internal sealed partial class NotifyBridgeActivity(ILogger<NotifyBridgeActivity> logger)
+    : WorkflowActivity<BridgeNotificationInput, BridgeNotificationOutput>
+{
+    private static readonly string[] Officers =
+    [
+        "Capt. Picard",
+        "Cmdr. Riker",
+        "Lt. Cmdr. Data",
+        "Lt. Worf",
+    ];
+
+    public override Task<BridgeNotificationOutput> RunAsync(
+        WorkflowActivityContext context,
+        BridgeNotificationInput input)
+    {
+        var officer = Officers[Random.Shared.Next(Officers.Length)];
+        LogNotify(logger, input.Priority, officer);
+
+        return Task.FromResult(new BridgeNotificationOutput(
+            Acknowledged: true,
+            AcknowledgedBy: officer));
+    }
+
+    [LoggerMessage(LogLevel.Warning, "Bridge notified ({Priority}); acknowledged by {Officer}")]
+    static partial void LogNotify(ILogger logger, string Priority, string Officer);
+}
+```
+
+### 2.3 PrioritizeDiagnosticsActivity.cs
+
+The `PrioritizeDiagnosticsActivity` aggregates the three subsystem reports into a single prioritized report.
+
+1. Use the *Editor* and navigate to the `PrioritizeDiagnosticsActivity.cs` file in the `EnterpriseDiagnostics.ApiService/Activities/` folder.
+2. Then copy the activity code into the file:
+
+```csharp,copy
+using Microsoft.Extensions.Logging;
+using Dapr.Workflow;
+using EnterpriseDiagnostics.Models;
+
+namespace EnterpriseDiagnostics.Activities;
+
+internal sealed partial class PrioritizeDiagnosticsActivity(ILogger<PrioritizeDiagnosticsActivity> logger)
+    : WorkflowActivity<PrioritizationInput, PrioritizationOutput>
+{
+    public override Task<PrioritizationOutput> RunAsync(
+        WorkflowActivityContext context,
+        PrioritizationInput input)
+    {
+        var maxAnomaly = input.Diagnostics.Max(a => a.AnomalyScore);
+        var anyCritical = input.Diagnostics.Any(a => a.Status == "Critical");
+
+        string priority = (anyCritical, maxAnomaly) switch
+        {
+            (true, _) => "Urgent",
+            (false, >= 70) => "Urgent",
+            (false, >= 40) => "Warning",
+            _ => "Normal",
+        };
+
+        var summary = string.Join("; ",
+            input.Diagnostics.Select(a =>
+                $"{a.SubsystemName}={a.Status} (anomaly {a.AnomalyScore}, power {a.PowerLevel}%)"));
+
+        LogPriority(logger, priority, maxAnomaly);
+        return Task.FromResult(new PrioritizationOutput(priority, summary));
+    }
+
+    [LoggerMessage(LogLevel.Information, "Prioritized diagnostics: {Priority} (max anomaly={Max})")]
+    static partial void LogPriority(ILogger logger, string Priority, int Max);
+}
+```
+
+## 3. Models — `Models/Models.cs`
+
+Now add the models. They are all `record` types and placed in the same `Models.cs` file. There are input and output records for the workflow, the subsystem diagnostics, the prioritization, and the bridge notification activities.
+
+1. Use the *Editor* and navigate to the `Models.cs` file located in `EnterpriseDiagnostics.ApiService/Models/`:
+2. Copy the model code into the file:
+
+```csharp,copy,wrap
 namespace EnterpriseDiagnostics.Models;
 
 public record EnterpriseDiagnosticsInput(string Id, string StarDate);
@@ -60,19 +201,14 @@ public record BridgeNotificationInput(string Priority, string Summary);
 public record BridgeNotificationOutput(bool Acknowledged, string AcknowledgedBy);
 ```
 
-## 3. Workflow — `Workflows/EnterpriseDiagnosticsWorkflow.cs`
+## 4. Workflow — `Workflows/EnterpriseDiagnosticsWorkflow.cs`
 
 Now create the workflow, it will fan-out/fan-in over 3 subsystems to run diagnostics, then prioritize, then conditionally notify the bridge.
 
-First create the file:
+1. Use the *Editor* and navigate to the `EnterpriseDiagnosticsWorkflow.cs` file located in `EnterpriseDiagnostics.ApiService/Workflows/`.
+2. Copy the workflow code into the file:
 
-```shell,run,copy
-touch EnterpriseDiagnostics.ApiService/Workflows/EnterpriseDiagnosticsWorkflow.cs
-```
-
-Then copy the workflow code into the file:
-
-```csharp,copy
+```csharp,copy,wrap
 using Microsoft.Extensions.Logging;
 using Dapr.Workflow;
 using EnterpriseDiagnostics.Activities;
@@ -136,167 +272,12 @@ internal sealed partial class EnterpriseDiagnosticsWorkflow
 }
 ```
 
-## 4. Activity — `Activities/DiagnoseSubsystemActivity.cs`
+## 5. Update `EnterpriseDiagnostics.ApiService/Program.cs`
 
-Now create the DiagnoseSubsystemActivity, it returns randomly-generated mock telemetry for a single subsystem.
+1. Use the *Editor* and navigate to the `Program.cs` file located in `EnterpriseDiagnostics.ApiService/`.
+2. Replace the file contents with:
 
-First create the file:
-
-```shell,run,copy
-touch EnterpriseDiagnostics.ApiService/Activities/DiagnoseSubsystemActivity.cs
-```
-
-Then copy the activity code into the file:
-
-```csharp,copy
-using Microsoft.Extensions.Logging;
-using Dapr.Workflow;
-using EnterpriseDiagnostics.Models;
-
-namespace EnterpriseDiagnostics.Activities;
-
-internal sealed partial class DiagnoseSubsystemActivity(ILogger<DiagnoseSubsystemActivity> logger)
-    : WorkflowActivity<SubsystemDiagnosticsInput, SubsystemDiagnosticsOutput>
-{
-    private static readonly string[] Statuses = ["Nominal", "Degraded", "Critical"];
-
-    public override Task<SubsystemDiagnosticsOutput> RunAsync(
-        WorkflowActivityContext context,
-        SubsystemDiagnosticsInput input)
-    {
-        LogDiagnosing(logger, input.SubsystemName);
-
-        var random = Random.Shared;
-        var status = Statuses[random.Next(Statuses.Length)];
-        var anomalyScore = random.Next(0, 101);
-        var powerLevel = Math.Round(random.NextDouble() * 100.0, 2);
-
-        var result = new SubsystemDiagnosticsOutput(
-            input.SubsystemName,
-            status,
-            anomalyScore,
-            powerLevel);
-
-        LogDiagnosed(logger, input.SubsystemName, status, anomalyScore);
-        return Task.FromResult(result);
-    }
-
-    [LoggerMessage(LogLevel.Information, "Diagnosing subsystem {Subsystem}")]
-    static partial void LogDiagnosing(ILogger logger, string Subsystem);
-
-    [LoggerMessage(LogLevel.Information, "Diagnosed {Subsystem}: status={Status}, anomaly={Anomaly}")]
-    static partial void LogDiagnosed(ILogger logger, string Subsystem, string Status, int Anomaly);
-}
-```
-
-## 5. Activity — `Activities/PrioritizeDiagnosticsActivity.cs`
-
-Create the PrioritizeDiagnosticsActivity which aggregates the three subsystem reports into a single prioritized report.
-
-First create the file:
-
-```shell,run,copy
-touch EnterpriseDiagnostics.ApiService/Activities/PrioritizeDiagnosticsActivity.cs
-```
-
-Then copy the activity code into the file:
-
-```csharp,copy
-using Microsoft.Extensions.Logging;
-using Dapr.Workflow;
-using EnterpriseDiagnostics.Models;
-
-namespace EnterpriseDiagnostics.Activities;
-
-internal sealed partial class PrioritizeDiagnosticsActivity(ILogger<PrioritizeDiagnosticsActivity> logger)
-    : WorkflowActivity<PrioritizationInput, PrioritizationOutput>
-{
-    public override Task<PrioritizationOutput> RunAsync(
-        WorkflowActivityContext context,
-        PrioritizationInput input)
-    {
-        var maxAnomaly = input.Diagnostics.Max(a => a.AnomalyScore);
-        var anyCritical = input.Diagnostics.Any(a => a.Status == "Critical");
-
-        string priority = (anyCritical, maxAnomaly) switch
-        {
-            (true, _) => "Urgent",
-            (false, >= 70) => "Urgent",
-            (false, >= 40) => "Warning",
-            _ => "Normal",
-        };
-
-        var summary = string.Join("; ",
-            input.Diagnostics.Select(a =>
-                $"{a.SubsystemName}={a.Status} (anomaly {a.AnomalyScore}, power {a.PowerLevel}%)"));
-
-        LogPriority(logger, priority, maxAnomaly);
-        return Task.FromResult(new PrioritizationOutput(priority, summary));
-    }
-
-    [LoggerMessage(LogLevel.Information, "Prioritized diagnostics: {Priority} (max anomaly={Max})")]
-    static partial void LogPriority(ILogger logger, string Priority, int Max);
-}
-```
-
-## 6. Activity — `Activities/NotifyBridgeActivity.cs`
-
-Create the final activity, NotifyBridgeActivity, that mock-notifies the bridge with a randomly chosen acknowledging officer.
-
-First create the file:
-
-```shell,run,copy
-touch EnterpriseDiagnostics.ApiService/Activities/NotifyBridgeActivity.cs
-```
-
-Then copy the activity code into the file:
-
-```csharp,copy
-using Microsoft.Extensions.Logging;
-using Dapr.Workflow;
-using EnterpriseDiagnostics.Models;
-
-namespace EnterpriseDiagnostics.Activities;
-
-internal sealed partial class NotifyBridgeActivity(ILogger<NotifyBridgeActivity> logger)
-    : WorkflowActivity<BridgeNotificationInput, BridgeNotificationOutput>
-{
-    private static readonly string[] Officers =
-    [
-        "Capt. Picard",
-        "Cmdr. Riker",
-        "Lt. Cmdr. Data",
-        "Lt. Worf",
-    ];
-
-    public override Task<BridgeNotificationOutput> RunAsync(
-        WorkflowActivityContext context,
-        BridgeNotificationInput input)
-    {
-        var officer = Officers[Random.Shared.Next(Officers.Length)];
-        LogNotify(logger, input.Priority, officer);
-
-        return Task.FromResult(new BridgeNotificationOutput(
-            Acknowledged: true,
-            AcknowledgedBy: officer));
-    }
-
-    [LoggerMessage(LogLevel.Warning, "Bridge notified ({Priority}); acknowledged by {Officer}")]
-    static partial void LogNotify(ILogger logger, string Priority, string Officer);
-}
-```
-
-Run a `dotnet build` to verify to solution builds correctly.
-
-```shell,run,copy
-dotnet build
-```
-
-## 7. Update `EnterpriseDiagnostics.ApiService/Program.cs`
-
-Replace the file contents with:
-
-```csharp,copy
+```csharp,copy,wrap
 using Microsoft.AspNetCore.Mvc;
 using Dapr.Workflow;
 using Dapr.Workflow.Versioning;
@@ -376,12 +357,12 @@ app.Run();
 > [!IMPORTANT]
 > Workflow types are auto-registered by `AddDaprWorkflowVersioning()` — only activities need explicit `RegisterActivity<T>()` calls.
 
-## 8. Verify
+## 6. Verify
 
 From the solution root perform a dotnet build:
 
 ```shell,run,copy
-dotnet build EnterpriseDiagnostics.sln
+dotnet build
 ```
 
 Fix any errors before continuing. Don't run the Aspire solution yet since you need to configure the statestore that is required for the workflow.

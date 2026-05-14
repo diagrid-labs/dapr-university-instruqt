@@ -2,7 +2,7 @@ In this challenge you'll lay the foundation for the USS Enterprise diagnostics a
 
 ## 1. Scaffold the Aspire solution
 
-Start by running the following `aspire new` command to scaffold the `aspire-starter` template solution which serves as the basis for the workflow application you're building:
+1. Start by running the following `aspire new` command to scaffold the `aspire-starter` template solution which serves as the basis for the workflow application you're building:
 
 ```shell,run
 aspire new aspire-starter -n EnterpriseDiagnostics -o EnterpriseDiagnostics --non-interactive --test-framework none
@@ -13,7 +13,7 @@ Expected output:
 ```text,nocopy
 Searching for available project template versions...
 🧊 Getting templates...
-📦 Using project templates version: 13.3.0
+📦 Using project templates version: 13.3.2
 🚀 Creating new Aspire project...
 🔐 Trusting certificates...
 ⚠️ Developer certificates may not be fully trusted (trust exit code was: PartiallyFailedToTrustTheCertificate).
@@ -27,12 +27,12 @@ Detecting agent environments...
 ```
 
 > [!IMPORTANT]
-> Refresh the Editor window, that should show the EnterpriseDiagnostics solution now.
+> Refresh the Editor window using the circular arrow. It should show the EnterpriseDiagnostics solution now.
 
->[!INFO]
-> The starter template also generates an `EnterpriseDiagnostics.Web` Blazor project. We won't use it in this walkthrough — you can ignore it and leave it in place.
+>[!NOTE]
+> The starter template also generates an `EnterpriseDiagnostics.Web` Blazor project. We won't use it in this learning track — you can ignore it and leave it in place.
 
-Move into the solution folder for the remaining commands:
+2. Move into the solution folder for the remaining commands, use the *Terminal* and run:
 
 ```shell,run,copy
 cd EnterpriseDiagnostics
@@ -40,7 +40,7 @@ cd EnterpriseDiagnostics
 
 ## 2 Update the AppHost launch URLs
 
-Open `EnterpriseDiagnostics.AppHost/Properties/launchSettings.json`.
+Open the `launchSettings.json` file located in `EnterpriseDiagnostics.AppHost/Properties/`.
 
 1. Remove the `https` profile completely.
 2. Update the`http` profile as follows:
@@ -59,7 +59,7 @@ Open `EnterpriseDiagnostics.AppHost/Properties/launchSettings.json`.
         "DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS": true,
         "ASPIRE_ALLOW_UNSECURED_TRANSPORT": true
         }
-    },
+    }
 ```
 
 > [!IMPORTANT]
@@ -73,7 +73,7 @@ Workflows require a state store and for that Valkey (Redis compatible) will be u
 
 Finally, an Aspire integration is added to use the Diagrid Dev Dashboard. An essential tool for local Dapr workflow inspection: `Diagrid.Aspire.Hosting.Dashboard`
 
-Run from the **solution root** (`EnterpriseDiagnostics/`) to install all the required packages to the correct projects:
+1. Use the *Terminal* (ensure you're in `EnterpriseDiagnostics/`) to install all the required packages to the correct projects:
 
 ```shell,run,copy
 dotnet add EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj package Dapr.Workflow --version 1.17.9
@@ -101,20 +101,23 @@ The ApiService project  should have these packages:
 
 ## 4. Build and Run
 
-Run `dotnet build` to verify to solution builds without errors.
+1. Run `dotnet build` to verify to solution builds without errors.
 
 ```shell,run,copy
 dotnet build
 ```
 
-Then start Aspire and check if the Aspire dashboard is available in the *Aspire* tab (next to the *Editor* tab) and verify the `apiservice` and `webfrontend` resources are in running state.
+2. Start Aspire and check if the Aspire dashboard is available in the *Aspire* tab (next to the *Editor* tab) and verify the `apiservice` and `webfrontend` resources are in *Running* state.
 
 ```shell,run,copy
 aspire run
 ```
 
-Use `CTRL+C` in the *Terminal* window to stop the Aspire solution.
+> [!NOTE]
+> Don't click on the resource URLs in the Aspire dashboard, those will open in a tab outside the learning sandbox and won't work.
+
+3. Use `CTRL+C` in the *Terminal* window to stop the Aspire solution.
 
 ---
 
-Great! You've added the Dapr Workflow dependencies to the new Aspire solution. In the next challenge, you'll add code for models, the workflow and activities.
+Great! You've added the Dapr Workflow dependencies to the new Aspire solution. In the next challenge, you'll add code for models, the workflow and the activities.

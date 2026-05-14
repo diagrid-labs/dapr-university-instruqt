@@ -7,27 +7,34 @@ There are two Dapr component files required under the AppHost project:
 
 Both files point to the same state store (Valkey) but require a different value for `redisHost` due to networking.
 
+The diagram below shows how the Dapr sidecar and the Diagrid Dev Dashboard each connect to the same Valkey state store. The Dapr sidecar reads and writes workflow state, while the Diagrid Dev Dashboard only reads from the state store to visualize it.
+
+```mermaid
+flowchart LR
+    sidecar["Dapr sidecar"]
+    dashboard["Diagrid Dev Dashboard"]
+    state[("Valkey<br/>(workflow-state)")]
+
+    sidecar <-->|read / write| state
+    dashboard -->|read only| state
+```
+
 Ensure that the *Terminal* path is currently in `EnterpriseDiagnostics/`.
 
 ## 1. `Resources/dapr/workflow-state.yaml`
 
 Let's create the component file used by Dapr to store workflow state. This will be the location of the file: `Resources/dapr/workflow-state.yaml`.
 
-1. Create the folder using the *Terminal*:
+1. Create the folders and the empty yaml file using the *Terminal*:
 
 ```shell,run,copy
+mkdir EnterpriseDiagnostics.AppHost/Resources/
 mkdir EnterpriseDiagnostics.AppHost/Resources/dapr
-```
-
-2. Create the empty component file using the *Terminal*:
-
-```shell,run,copy
 touch EnterpriseDiagnostics.AppHost/Resources/dapr/workflow-state.yaml
 ```
 
-3. Refresh the *Editor* window to see the new file.
-
-4. Update the content of the empty file using the *Editor* window:
+2. Refresh the *Editor* window to see the new file.
+3. Update the content of the empty file using the *Editor* window:
 
 ```yaml,copy
 apiVersion: dapr.io/v1alpha1
@@ -39,9 +46,9 @@ spec:
   version: v1
   metadata:
     - name: redisHost
-      value: "localhost:16379"
+      value: "localhost:6379"
     - name: redisPassword
-      value: "state-store-123"
+      value: ""
     - name: actorStateStore
       value: true
 ```
@@ -50,21 +57,15 @@ spec:
 
 The Diagrid Dev Dashboard requires a connection to the statestore that is based on a Dapr component file. The default location for the Diagrid Dev Dashboard Aspire integration is `Resources/dapr/diagrid-dashboard-components` in the AppHost project.
 
-1. Create the folder using the *Terminal*:
+1. Create the folder and yaml file using the *Terminal*:
 
 ```shell,run,copy
 mkdir EnterpriseDiagnostics.AppHost/Resources/dapr/diagrid-dashboard-components
-```
-
-2. Create the empty component file using the *Terminal*:
-
-```shell,run,copy
 touch EnterpriseDiagnostics.AppHost/Resources/dapr/diagrid-dashboard-components/diagrid-dashboard-state.yaml
 ```
 
-3. Refresh the *Editor* window to see the new file.
-
-4. Copy the following component spec in the empty file using the *Editor* window:
+2. Refresh the *Editor* window to see the new file.
+3. Copy the following component spec in the empty file using the *Editor* window:
 
 ```yaml,copy
 apiVersion: dapr.io/v1alpha1
@@ -78,9 +79,9 @@ spec:
   version: v1
   metadata:
     - name: redisHost
-      value: "host.docker.internal:16379"
+      value: "172.17.0.1:16379"
     - name: redisPassword
-      value: "state-store-123"
+      value: ""
     - name: actorStateStore
       value: true
 ```
@@ -116,15 +117,8 @@ builder.AddDapr();
 string executingPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
     ?? throw new("Where am I?");
 
-var cachePassword = builder.AddParameter("cache-password", "state-store-123", secret: true);
-var cache = builder
-    .AddValkey("cache", 16379, cachePassword)
-    .WithContainerName("workflow-state")
-    .WithDataVolume("workflow-state-data");
-
 var apiService = builder
     .AddProject<Projects.EnterpriseDiagnostics_ApiService>("apiservice")
-    .WithHttpsEndpoint(port: 7337, name: "https")
     .WithHttpEndpoint(port: 5411, name: "http")
     .WithDaprSidecar(new DaprSidecarOptions
     {
@@ -136,21 +130,22 @@ var apiService = builder
     });
 
 apiService.WaitFor(cache);
-builder.AddDiagridDashboard();
+builder.AddDiagridDashboard(configuration: new DiagridDashboardConfiguration
+{
+    Port = 18080,
+});
 
 builder.Build().Run();
 ```
 
-> The explicit `WithHttpsEndpoint` / `WithHttpEndpoint` calls pin the apiservice to fixed ports so the URL stays stable across runs.
-
 ## 5. Verify
 
-From the solution root:
+Use the *Terminal* to build the solution:
 
 ```shell,run,copy
-dotnet build EnterpriseDiagnostics.sln
+dotnet build
 ```
 
 ---
 
-The AppHost now starts Valkey as the workflow state store, runs the API service with a Dapr sidecar that picks up your component files, and exposes the Diagrid Dev Dashboard alongside it. A single `aspire run` brings the full stack up — which is exactly what the next challenge will do.
+The AppHost now starts Valkey as the workflow state store, runs the API service with a Dapr sidecar that picks up the Dapr component files, and exposes the Diagrid Dev Dashboard alongside it. let's move on to the next challenge to run the solution, start the workflow, and inspect the workflow state using the local Diagrid Dev Dashboard.
