@@ -117,4 +117,4 @@ Use `CTRL+C` in the *Terminal* window to stop the Aspire solution.
 
 ---
 
-Great! You've added the Dapr Workflow dependencies to the Aspire solution. In the next challenge, you'll add code for models, the workflow and activities.
+Great! You've added the Dapr Workflow dependencies to the new Aspire solution. In the next challenge, you'll add code for models, the workflow and activities.

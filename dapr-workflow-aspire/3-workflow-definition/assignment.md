@@ -388,4 +388,4 @@ Fix any errors before continuing. Don't run the Aspire solution yet since you ne
 
 ---
 
-You now have a complete Dapr Workflow with three activities and a fully wired API service. The workflow runs three subsystem diagnostics in parallel, aggregates them into a prioritized report, and conditionally notifies the bridge — all that's missing is the state store and AppHost wiring to actually run it.
+You now have a complete Dapr Workflow with three activities and a fully wired API service. The workflow runs three subsystem diagnostics in parallel, aggregates them into a prioritized report, and conditionally notifies the bridge. In the next challenge you'll configure the workflow state store and AppHost wiring to actually run the solution.
