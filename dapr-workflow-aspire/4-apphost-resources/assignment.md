@@ -16,7 +16,6 @@ flowchart LR
     sidecar["Dapr sidecar"]
     dashboard["Diagrid Dev Dashboard"]
     state[("Redis<br/>(dapr_redis)")]
-
     sidecar <-->|read / write| state
     dashboard -->|read only| state
 ```
@@ -57,7 +56,7 @@ spec:
 
 ### 1.2. `Resources/dapr/diagrid-dashboard-components/diagrid-dashboard-state.yaml`
 
-The Diagrid Dev Dashboard requires a connection to the statestore that is based on a Dapr component file. The default location for the Diagrid Dev Dashboard Aspire integration is `Resources/dapr/diagrid-dashboard-components` in the AppHost project.
+The Diagrid Dev Dashboard requires a connection to the statestore that is based on a Dapr component file. The default location for the Diagrid Dev Dashboard is `Resources/dapr/diagrid-dashboard-components` in the AppHost project.
 
 1. Create the folder and yaml file using the *Terminal*:
 
@@ -110,7 +109,6 @@ Replace the contents of `EnterpriseDiagnostics.AppHost/AppHost.cs` with the foll
 ```csharp,copy
 using System.Reflection;
 using CommunityToolkit.Aspire.Hosting.Dapr;
-using Diagrid.Aspire.Hosting.Dashboard;
 
 var builder = DistributedApplication.CreateBuilder(args);
 

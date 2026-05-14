@@ -6,7 +6,8 @@ This challenge uses 3 terminal windows:
 - *Diagrid Terminal*, for running the docker command to start the Diagrid Dev Dashboard
 - *Curl Terminal*, for running curl commands to start the workflow
 
-When you use the `run` button on shell commands in the instructions, select the appropriate terminal from the dropdown that will appear.
+> [!IMPORTANT]
+> When you use the `run` button on shell commands in the instructions, select the appropriate terminal from the dropdown that will appear.
 
 Ensure that all *Terminal* paths are currently in `EnterpriseDiagnostics/`.
 
@@ -60,12 +61,12 @@ Here you'll see the input and output of the workflow, and the *Execution History
 
 2. In the *Execution History* table expand some of the events. For the `TaskScheduled` events you will see the input for the activity. For the `TaskCompleted` events you will see both input and output for the activity.
 
-> [!INFO]
+> [!NOTE]
 > You can also use filters in the Execution History table to quickly find events or activities you want to inspect.
 
 ---
 
-You've run the complete USS Enterprise diagnostics workflow end-to-end. Aspire orchestrates the API service containing the workflow and its Dapr sidecar. Workflow state is stored in the `dapr_redis` container and you've inspected this state with the Diagrid Dev Dashboard, an essential tool when developing Dapr workflows.
+You've run the complete USS Enterprise diagnostics workflow end-to-end. Aspire orchestrates the API service containing the workflow and its Dapr sidecar. Workflow state is stored in the `dapr_redis` container and you've inspected this state with the [Diagrid Dev Dashboard](https://docs.diagrid.io/develop/local-development/dev-dashboard), an essential tool when developing Dapr workflows.
 
 ## Feedback and further learning
 
