@@ -74,6 +74,7 @@ Congratulations! 🎉 You've completed the Dapr University Workflow & Aspire lea
 
 We have more opportunities for you to learn and share knowledge:
 
+- Read this [blog post](https://www.diagrid.io/blog/how-to-version-net-workflows) about versioning Dapr Workflows in .NET with Aspire and run it on your local machine.
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of other developers share knowledge about Dapr. There are dedicated channels *#workflow* and *#dotnet* channels.
 - Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.
 - Try the [Catalyst 101](https://www.diagrid.io/dapr-university/catalyst-101) learning track to learn how Catalyst can make your workflow and agentic applications more reliable.
