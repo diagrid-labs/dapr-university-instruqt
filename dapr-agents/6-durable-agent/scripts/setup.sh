@@ -1,1 +1,0 @@
-cd dapr-agents/quickstarts/01-hello-world

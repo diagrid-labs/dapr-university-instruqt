@@ -76,8 +76,8 @@ dapr --version
 The expected output should be:
 
 ```text,nocopy
-CLI version: 1.15.0
-Runtime version: 1.15.4
+CLI version: [[ Instruqt-Var key="DAPR_CLI_VERSION" hostname="dapr-uni-vm" ]]
+Runtime version: [[ Instruqt-Var key="DAPR_RUNTIME_VERSION" hostname="dapr-uni-vm" ]]
 ```
 
 ## 5. Verify the containers

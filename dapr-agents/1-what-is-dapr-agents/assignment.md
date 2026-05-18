@@ -2,7 +2,7 @@
 
 Dapr Agents is a developer framework designed to build resilient AI agent systems that operate at scale. Built on top of the battle-tested Dapr project, it enables software developers to create AI agents that reason, act, and collaborate using Large Language Models (LLMs), while leveraging built-in observability and stateful workflow execution to guarantee agentic workflows complete successfully, no matter how complex.
 
-![Dapr Agents Concept](https://dapr.github.io/dapr-agents/img/concepts-agents.png)
+![Dapr Agents Concept](https://docs.dapr.io/images/dapr-agents/concepts-agents.png)
 
 Dapr Agents provides a structured way to build, deploy, and orchestrate applications that use LLMs like OpenAI's GPT models, without getting bogged down in implementation details. The primary goal is to make AI development more accessible by abstracting away the complexities of working with LLMs, tools, memory management, and distributed systems, allowing developers to focus on the business logic of their AI applications.
 
@@ -16,7 +16,7 @@ Agents in Dapr Agents leverage structured output capabilities, such as OpenAI's 
 
 The framework includes multiple LLM clients for different providers and modalities:
 
-- **OpenAIChatClient**: Full spectrum support for OpenAI models including chat, embeddings, and audio
+- **OpenAIChatClient**: Full spectrum support for OpenAI (and OpenAI compatible REST APIs such as the one offered through Azure) models including chat, embeddings, and audio
 - **HFHubChatClient**: For Hugging Face models supporting both chat and embeddings
 - **NVIDIAChatClient**: For NVIDIA AI Foundation models supporting local inference and chat
 - **ElevenLabs**: Support for speech and voice capabilities

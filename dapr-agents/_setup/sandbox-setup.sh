@@ -1,4 +1,5 @@
 git clone https://github.com/dapr/dapr-agents.git
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
 docker login -u ${DockerUSER} -p ${DockerPAT}

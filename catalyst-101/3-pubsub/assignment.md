@@ -1,8 +1,8 @@
 Catalyst comes with a built-in pub/sub service that you can use in your Dapr applications. In this challenge, you'll run two Dapr applications that communicate via this built-in message broker.
 
-## 1. Explore the Pub/Sub applications
-
 ![Pub/Sub demo](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/3-pubsub/images/catalyst-101-pubsub.png?raw=true)
+
+## 1. Explore the Pub/Sub applications
 
 Choose one of the language tabs to explore the code. For each language, there are two applications:
 
