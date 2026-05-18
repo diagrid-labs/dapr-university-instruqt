@@ -1,4 +1,4 @@
-cd dapr-agents/examples/10-expert-agent-tavily
+cd dapr-agents/examples/11-expert-agent-tavily
 
 # Comment out the hooks= line so we run the baseline (no enrichment) in this challenge.
 sed -i 's|^\(\s*\)hooks=Hooks(before_llm_call=\[enrich_with_tavily\]),|\1# hooks=Hooks(before_llm_call=[enrich_with_tavily]),  # disabled for challenge 2|' agent.py

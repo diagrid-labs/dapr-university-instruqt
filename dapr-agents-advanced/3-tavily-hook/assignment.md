@@ -2,7 +2,7 @@ In this challenge you'll re-enable the `before_llm_call` hook and watch the same
 
 ## 1. Inspect the hook
 
-Open `dapr-agents/examples/10-expert-agent-tavily/hooks.py` in the **Editor** window. It's short:
+Open `dapr-agents/examples/11-expert-agent-tavily/hooks.py` in the **Editor** window. It's short:
 
 ```python,nocopy
 @lru_cache(maxsize=1)
@@ -58,7 +58,7 @@ Three reasons.
 Same command as challenge 2:
 
 ```bash,run
-cd dapr-agents/examples/10-expert-agent-tavily
+cd dapr-agents/examples/11-expert-agent-tavily
 uv run dapr run --app-id expert-agent --resources-path ./resources -- chainlit run app.py -w
 ```
 

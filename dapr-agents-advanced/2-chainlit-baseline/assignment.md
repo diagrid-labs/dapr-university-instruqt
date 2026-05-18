@@ -2,7 +2,7 @@ In this challenge you'll run the expert agent **without** the Tavily hook — th
 
 ## 1. Add your API keys
 
-Open the `.env` file in `dapr-agents/examples/10-expert-agent-tavily/.env` and replace the placeholder values:
+Open the `.env` file in `dapr-agents/examples/11-expert-agent-tavily/.env` and replace the placeholder values:
 
 ```env,nocopy
 OPENAI_API_KEY=your_openai_api_key_here
@@ -13,7 +13,7 @@ You don't strictly *need* Tavily for this challenge (the hook is disabled), but 
 
 ## 2. Inspect the agent
 
-Open `dapr-agents/examples/10-expert-agent-tavily/agent.py` in the **Editor** window. You'll see a `DurableAgent` configured with:
+Open `dapr-agents/examples/11-expert-agent-tavily/agent.py` in the **Editor** window. You'll see a `DurableAgent` configured with:
 
 - An OpenAI chat client
 - Conversation memory backed by Redis
@@ -33,7 +33,7 @@ We'll re-enable it in challenge 3.
 Use the **Terminal** window to start Dapr and Chainlit in a single command:
 
 ```bash,run
-cd dapr-agents/examples/10-expert-agent-tavily
+cd dapr-agents/examples/11-expert-agent-tavily
 uv run dapr run --app-id expert-agent --resources-path ./resources -- chainlit run app.py -w
 ```
 

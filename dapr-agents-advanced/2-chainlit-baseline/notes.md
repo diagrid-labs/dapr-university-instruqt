@@ -1,6 +1,6 @@
 In this challenge, the setup script:
 
-- `cd`s into `~/dapr-agents/examples/10-expert-agent-tavily/`
+- `cd`s into `~/dapr-agents/examples/11-expert-agent-tavily/`
 - Comments out the `hooks=Hooks(before_llm_call=[enrich_with_tavily])` line in `agent.py` so the agent runs **without** any hook
 - Runs `uv sync` to install dependencies
 - Creates an empty `.env` file the learner fills in
