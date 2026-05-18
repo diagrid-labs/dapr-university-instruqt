@@ -4,7 +4,7 @@ Welcome to **Dapr Agents Advanced**. This track is a follow-up to the [Dapr Agen
 
 By the end of the track, you'll have an agent that can confidently answer questions about *current* events — things like the latest Dapr release, this week's news, or any topic that postdates the LLM's training cutoff — without you having to add a `web_search` tool the model has to remember to call.
 
-The magic is in the **hook system** introduced in `dapr-agents` PRs [#571](https://github.com/dapr/dapr-agents/pull/571) (tool hooks, HITL) and [#596](https://github.com/dapr/dapr-agents/pull/596) (LLM hooks). A hook is a callback that fires around every tool dispatch or LLM call. With one short hook function you can:
+The magic is in `dapr-agents` **hook system**. A hook is a callback that fires around every tool dispatch or LLM call. With one short hook function you can:
 
 - Log every call
 - Replace prompt content
