@@ -340,7 +340,7 @@ app.MapGet("/status/{instanceId}", async (
     return Results.Ok(new { state, output });
 });
 
-app.MapPost("pause/{instanceId}", async (
+app.MapPost("/pause/{instanceId}", async (
     [FromRoute] string instanceId,
     [FromServices] DaprWorkflowClient workflowClient) =>
 {
@@ -348,7 +348,7 @@ app.MapPost("pause/{instanceId}", async (
     return Results.Accepted();
 });
 
-app.MapPost("resume/{instanceId}", async (
+app.MapPost("/resume/{instanceId}", async (
     [FromRoute] string instanceId,
     [FromServices] DaprWorkflowClient workflowClient) =>
 {
@@ -356,7 +356,7 @@ app.MapPost("resume/{instanceId}", async (
     return Results.Accepted();
 });
 
-app.MapPost("terminate/{instanceId}", async (
+app.MapPost("/terminate/{instanceId}", async (
     [FromRoute] string instanceId,
     [FromServices] DaprWorkflowClient workflowClient) =>
 {

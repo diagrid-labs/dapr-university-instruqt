@@ -95,7 +95,7 @@ The ApiService project  should have these packages:
 
 ## 4. Build and Run
 
-1. Run `dotnet build` to verify to solution builds without errors.
+1. Run `dotnet build` to verify that the solution builds without errors.
 
 ```shell,run,copy
 dotnet build
