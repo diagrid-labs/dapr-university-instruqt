@@ -11,14 +11,7 @@ Both files point to the same Redis state store (the `dapr_redis` container start
 
 The diagram below shows how the Dapr sidecar and the Diagrid Dev Dashboard each connect to the same Redis state store. The Dapr sidecar reads and writes workflow state, while the Diagrid Dev Dashboard only reads from the state store to visualize it.
 
-```mermaid
-flowchart LR
-    sidecar["Dapr sidecar"]
-    dashboard["Diagrid Dev Dashboard"]
-    state[("Redis<br/>(dapr_redis)")]
-    sidecar <-->|read / write| state
-    dashboard -->|read only| state
-```
+![workflow-app-statestore.png](https://play.instruqt.com/assets/tracks/kyfkrd3ggejg/d9cb11f3eb486df1172a388d51826aeb/assets/workflow-app-statestore.png)
 
 Ensure that the *Terminal* path is currently in `EnterpriseDiagnostics/`.
 
