@@ -1,5 +1,8 @@
 In this challenge you'll build the brains of the USS Enterprise diagnostics: a Dapr Workflow that fans out to three subsystem activities in parallel, aggregates the results into a prioritized report, and conditionally notifies the bridge. You'll define the three activities, the data models, the workflow, and register everything in the API service.
 
+This is the visual representation of the workflow you'll build:
+![enterprise-diagnostics-workflow (1).png](https://play.instruqt.com/assets/tracks/kyfkrd3ggejg/5314b2be2a3ae34ebccd3b2b58256dd3/assets/enterprise-diagnostics-workflow%20(1).png)
+
 ## 1. Folder & file creation
 
 All the workflow related code will be created in the ApiService project.

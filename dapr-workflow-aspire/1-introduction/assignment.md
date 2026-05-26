@@ -2,8 +2,10 @@
 
 Welcome to the Dapr Workflow with .NET Aspire learning track! In the upcoming challenges you'll build the **USS Enterprise Diagnostics** application: a Dapr Workflow that fans out to three subsystem activities in parallel, aggregates the results into a prioritized report, and conditionally notifies the bridge. Along the way you'll scaffold an Aspire solution, add Dapr Workflow dependencies, wire up the Dapr Redis state store, and use the Diagrid Dev Dashboard to inspect workflow instances. By the end of the track you have ran a Dapr Workflow with Aspire and inspected the workflow state in detail.
 
+![workflow-app-aspire.png](https://play.instruqt.com/assets/tracks/kyfkrd3ggejg/c04838dd7ad3f33b4786f69d276aa771/assets/workflow-app-aspire.png)
+
 > [!NOTE]
-> This learning track does not explain the Dapr Workflow concepts and patterns, but is focused on building a workflow using .NET and Aspire from scratch. To learn the workflow concepts & patterns follow the **Dapr Workflow - Use durable execution to build reliable applications** track.
+> This learning track does not explain the Dapr Workflow concepts and patterns but is focussed on building a workflow using .NET and Aspire from scratch. To learn the workflow concepts & patterns follow the **Dapr Workflow - Use durable execution to build reliable applications** track.
 
 ## Why Dapr and Aspire?
 
