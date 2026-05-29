@@ -1,11 +1,3 @@
-In this challenge, the setup script re-enables the `hooks=Hooks(before_llm_call=[enrich_with_tavily])` line in `agent.py` via sed, so the agent runs **with** the Tavily hook.
+In this challenge you'll re-enable the `before_llm_call` hook so the agent runs **with** the Tavily hook, and watch the same question from challenge 2 get a much better answer that references current information. The goal is to see how silent prompt enrichment gives the agent up-to-date context automatically.
 
-The learner re-runs the same `dapr run … chainlit run` command from challenge 2 and asks the same "what's the latest …" question. The answer should now reference current information.
-
-Key pedagogical points to surface (already in `assignment.md`):
-
-1. The hook fires for every LLM call regardless of model intent.
-2. It runs inside the `call_llm` activity, so the Tavily network call is replay-safe.
-3. It's decoupled from the UI — the same agent would work behind FastAPI, pub/sub, or any other entry point.
-
-The `notes.md` for challenge 1 already explains the rationale; this `notes.md` is brief because the lesson is mostly in the assignment.
+You'll explore why a hook is the right pattern instead of a tool: it fires for every LLM call regardless of model intent, it's decoupled from the UI so the same agent works behind any entry point, and it runs inside the `call_llm` activity, making the Tavily call replay-safe.

@@ -1,10 +1,3 @@
-In this challenge, the setup script:
+In this challenge you'll run the expert agent **without** the Tavily hook, so the `DurableAgent` talks to the LLM directly and answers purely from its training data. The goal is to establish the **baseline** behavior before the hook is introduced in challenge 3.
 
-- `cd`s into `~/dapr-agents/examples/11-expert-agent-tavily/`
-- Comments out the `hooks=Hooks(before_llm_call=[enrich_with_tavily])` line in `agent.py` so the agent runs **without** any hook
-- Runs `uv sync` to install dependencies
-- Creates an empty `.env` file the learner fills in
-
-The challenge demonstrates the **baseline** behavior — a `DurableAgent` answering directly from training data. Learners should ask a "what's the latest …" type question and see that the model either hedges or gives a stale answer. That sets up the *aha* moment in challenge 3.
-
-The `cleanup.sh` doesn't propagate any secrets — challenge 3 runs in the same directory, so the `.env` file persists.
+You'll ask a "current events" question that the model can't know from its training cutoff and see it either hedge or give a confident-but-stale answer. This sets up the problem solved in challenge 3 — giving the model fresh context automatically.
