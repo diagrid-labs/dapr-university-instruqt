@@ -28,15 +28,15 @@ Three reasons.
 
 ## 4. Run it
 
-Same command as challenge 2:
+Use the same command as challenge 2:
 
-```bash,run
+```bash,copy,run
 uv run dapr run --app-id expert-agent --resources-path ./resources -- chainlit run app.py -w --host 0.0.0.0 --port 8000
 ```
 
 In the **Chainlit** tab, ask the same question as in challenge 2:
 
-```text,nocopy
+```text,copy
 What's the latest Dapr release version, and what changed in it?
 ```
 
@@ -58,7 +58,7 @@ Anything that needs fresh data is a good demo:
 
 ## 6. Inspect the trace (optional)
 
-Dapr ships Zipkin out of the box. Open `http://localhost:9411` and find your agent's trace — drill into the `call_llm` activity span and look at the input. You'll see the injected `Fresh web context (Tavily):` system message right before the user message, exactly the way the hook spliced it in.
+Dapr ships Zipkin out of the box. Open the *Zipkin* tab and find your agent's trace — drill into the `call_llm` activity span and look at the input. You'll see the injected `Fresh web context (Tavily):` system message right before the user message, exactly the way the hook spliced it in.
 
 ## 7. Stop the agent
 

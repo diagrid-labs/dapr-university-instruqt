@@ -24,13 +24,13 @@ The last argument — the one the setup script commented out — is the hooks re
 # hooks=Hooks(before_llm_call=[enrich_with_tavily]),  # disabled for challenge 2
 ```
 
-Leave it as-is. We'll re-enable it in challenge 3.
+Leave it as-is. We'll uncomment it in challenge 3.
 
 ## 3. Run the agent
 
 Use the **Terminal** window to start Dapr and Chainlit in a single command:
 
-```bash,run
+```bash,copy,run
 uv run dapr run --app-id expert-agent --resources-path ./resources -- chainlit run app.py -w --host 0.0.0.0 --port 8000
 ```
 
