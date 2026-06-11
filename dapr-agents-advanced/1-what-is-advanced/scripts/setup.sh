@@ -1,1 +1,1 @@
-echo "Sandbox ready. Move to the next challenge."
+wget -qO- https://astral.sh/uv/install.sh | sh

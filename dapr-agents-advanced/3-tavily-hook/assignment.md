@@ -2,34 +2,7 @@ In this challenge you'll re-enable the `before_llm_call` hook and watch the same
 
 ## 1. Inspect the hook
 
-Open `dapr-agents/examples/11-expert-agent-tavily/hooks.py` in the **Editor** window. It's short:
-
-```python,nocopy
-@lru_cache(maxsize=1)
-def _client() -> TavilyClient:
-    return TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
-
-
-def enrich_with_tavily(ctx: HookContext) -> HookDecision:
-    messages = ctx.payload.get("messages", [])
-    if not messages or messages[-1].get("role") != "user":
-        return Proceed()
-
-    question = messages[-1]["content"]
-    results = _client().search(query=question, max_results=3)
-    snippets = "\n".join(
-        f"- {r['title']}: {r['content']}" for r in results.get("results", [])
-    )
-    if not snippets:
-        return Proceed()
-
-    enriched_messages = [
-        *messages[:-1],
-        {"role": "system", "content": f"Fresh web context (Tavily):\n{snippets}"},
-        messages[-1],
-    ]
-    return Modify(payload={**ctx.payload, "messages": enriched_messages})
-```
+Open `dapr-agents/examples/11-expert-agent-tavily/hooks.py` in the **Editor** window and inspect the code.
 
 A `before_llm_call` hook receives a `HookContext` whose `payload` is the LLM call's kwargs — most usefully, `messages`. The hook pulls out the latest user question, web-searches it with Tavily, and returns `Modify(payload=...)` to splice the results into the prompt as a system message right before the user's question.
 
@@ -37,7 +10,7 @@ The returned `Modify(payload=...)` replaces the LLM kwargs before `self.llm.gene
 
 ## 2. Look at where the hook is registered
 
-Open `agent.py`. The setup script already uncommented this line:
+Open `agent.py` and uncomment the `# hooks=` line at the bottom. It should look like this after uncommenting:
 
 ```python,nocopy
 hooks=Hooks(before_llm_call=[enrich_with_tavily]),
@@ -55,16 +28,15 @@ Three reasons.
 
 ## 4. Run it
 
-Same command as challenge 2:
+Use the same command as challenge 2:
 
-```bash,run
-cd dapr-agents/examples/11-expert-agent-tavily
-uv run dapr run --app-id expert-agent --resources-path ./resources -- chainlit run app.py -w
+```bash,copy,run
+uv run dapr run --app-id expert-agent --resources-path ./resources -- chainlit run app.py -w --host 0.0.0.0 --port 8000
 ```
 
-In the browser, ask the same question as in challenge 2:
+In the **Chainlit** tab, ask the same question as in challenge 2:
 
-```text,nocopy
+```text,copy
 What's the latest Dapr release version, and what changed in it?
 ```
 
@@ -86,7 +58,7 @@ Anything that needs fresh data is a good demo:
 
 ## 6. Inspect the trace (optional)
 
-Dapr ships Zipkin out of the box. Open `http://localhost:9411` and find your agent's trace — drill into the `call_llm` activity span and look at the input. You'll see the injected `Fresh web context (Tavily):` system message right before the user message, exactly the way the hook spliced it in.
+Dapr ships Zipkin out of the box. Open the *Zipkin* tab and find your agent's trace — drill into the `call_llm` activity span and look at the input. You'll see the injected `Fresh web context (Tavily):` system message right before the user message, exactly the way the hook spliced it in.
 
 ## 7. Stop the agent
 
@@ -101,3 +73,9 @@ Next steps you can explore on your own:
 - Cache Tavily results per query inside the hook with a small `dict` keyed on the question.
 - Add an `after_llm_call` hook that logs the final answer and the sources it cited.
 - Swap `OpenAIChatClient` for another provider — the hook keeps working unchanged.
+
+## Keep exploring
+
+- Try [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for reliable and secure AI agents.
+- Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
+- Watch the recording of the webinar on [AI agents and identity](https://www.diagrid.io/webinars/agent-identity-client-id-not-an-identity).
