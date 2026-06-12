@@ -64,18 +64,23 @@ Dapr ships Zipkin out of the box. Open the *Zipkin* tab and find your agent's tr
 
 `Ctrl+C` in the Terminal.
 
-## Congratulations 🎉
+---
 
 You've built an expert agent that uses one of the most powerful patterns the new hook system enables: silent prompt enrichment via a `before_llm_call` hook. With ~30 lines of hook code you've given the agent abilities that would otherwise require a tool the model has to remember to call.
 
 Next steps you can explore on your own:
 
 - Cache Tavily results per query inside the hook with a small `dict` keyed on the question.
-- Add an `after_llm_call` hook that logs the final answer and the sources it cited.
 - Swap `OpenAIChatClient` for another provider — the hook keeps working unchanged.
 
-## Keep exploring
+## Feedback and further learning
+
+Congratulations! 🎉 You've completed the *Dapr Agents - Make Your Agent Production-Smart with Automatic Web Context* learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training!
+
+We have more opportunities for you to learn and share knowledge:
 
 - Try [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for reliable and secure AI agents.
+- Try the [Catalyst 101](https://www.diagrid.io/dapr-university/catalyst-101) learning track to learn how Catalyst can make your workflow and agentic applications more reliable.
 - Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
-- Watch the recording of the webinar on [AI agents and identity](https://www.diagrid.io/webinars/agent-identity-client-id-not-an-identity).
+- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of other developers share knowledge about Dapr. There are dedicated *#ai* and *#python* channels.
+- Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.

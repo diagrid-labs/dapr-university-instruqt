@@ -6,7 +6,6 @@ Workflows are great tools to ensure durable execution of your code, but they als
 
 - Deterministic workflows
 - Idempotent activities
-- Workflow versioning
 - Payload size
 
 ### 1.1 Choose a language tab
@@ -87,37 +86,7 @@ For instance, when the activity inserts a record into a database and the activit
 > [!IMPORTANT]
 > Always check if the APIs that are used in the activity code provide idempotent operations.
 
-### 1.4. Workflow versioning
-
-Workflows as code are likely to undergo changes over time. These changes can cause issues when the workflow state in the state store of unfinished (or in-flight) workflows is no longer compatible with the new workflow code.
-
-One way to deal with breaking changes is to use workflow name versioning. This means that instead of updating the workflow code, a new workflow is created, and a version number is added to the workflow name: `WorkflowClassV1`, `WorkflowClassV2`, etc. Once the application is deployed with the new workflow version, all the in-flight workflows can be replayed safely and completed with the old workflow. Note that this solution does require that the clients that manage the workflow need to be updated to use the new workflow version.
-
-> [!NOTE]
-> Expand the language-specific instructions to inspect the workflow code.
-
-<details>
-   <summary><b>.NET</b></summary>
-
-Navigate to the `VersioningWorkflow.cs` file. It contains two workflows: `VersioningWorkflow1` and `VersioningWorkflow2`. Inspect these workflows and note the breaking change due to the input arguments for the activities.
-
-</details>
-
-<details>
-   <summary><b>Java</b></summary>
-
-Navigate to the `VersioningWorkflow.java` file. It contains two workflows: `VersioningWorkflow1` and `VersioningWorkflow2`. Inspect these workflows and note the breaking change due to the input arguments for the activities.
-
-</details>
-
-<details>
-   <summary><b>Python</b></summary>
-
-Navigate to the `versioning_workflow.py` file. It contains two workflows: `versioning_workflow_1` and `versioning_workflow_2`. Inspect these workflows and note the breaking change due to the input arguments for the activities.
-
-</details>
-
-### 1.5. Payload size
+### 1.4. Payload size
 
 The Dapr Workflow engine is continuously interacting with both the workflow application and the state store to pass input and output data back and forth. It is important to keep the input and output of workflows and especially activities small to prevent serializing/deserializing many large objects, which can degrade performance.
 
@@ -164,6 +133,12 @@ Collect the Dapr University badge for this track by following [this link to the 
 
 [![Dapr University Dapr Workflow badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow/11-challenges-and-tips/Diagrid-Dapr-Uni-Workflow_x500.png?raw=true)](https://holopin.io/collect/cmcnbo8lt1386107js9fyxc2zu)
 
-If you want to quickly build workflows based on a workflow diagram, take a look at [Diagrid Workflow Composer](https://diagrid.ws/workflows). You can upload a workflow image, select the language, and this tool will generate a scaffolded Dapr workflow project that you can download and use as a starting point.
+## Next steps
 
-If you have any questions or feedback about this track, you can let us know in the *#university* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+We have more opportunities for you to learn and share knowledge:
+
+- Try [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for reliable and secure AI agents.
+- Try the [Catalyst 101](https://www.diagrid.io/dapr-university/catalyst-101) learning track to learn how Catalyst can make your workflow and agentic applications more reliable.
+- Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
+- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of other developers share knowledge about Dapr. There is a dedicated *#workflow* channel.
+- Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.

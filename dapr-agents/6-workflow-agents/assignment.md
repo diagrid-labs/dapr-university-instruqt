@@ -169,11 +169,12 @@ Collect the Dapr University badge for this track by following [this link to the 
 
 [![Dapr University Dapr Agents badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-agents/6-workflow-agents/Diagrid-Dapr-Uni-Agents_x500.png?raw=true)](https://holopin.io/collect/cmcnbixyg090907l820ki10nd)
 
-If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+## Next steps
 
-## Next Steps
+We have more opportunities for you to learn and share knowledge:
 
-Now that you've completed the Dapr Agents learning track, here are some recommended next steps:
-
-- [Dapr University: Running Dapr applications with Diagrid Catalyst]([Running Dapr applications with Diagrid Catalyst](https://www.diagrid.io/dapr-university#catalyst-101))
-- Try [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for workflow orchestration, service discovery and pub/sub, powered by Dapr. Build apps and AI agents that are compliant, secure and failure-proof.
+- Try [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for reliable and secure AI agents.
+- Try the [Catalyst 101](https://www.diagrid.io/dapr-university/catalyst-101) learning track to learn how Catalyst can make your workflow and agentic applications more reliable.
+- Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
+- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of other developers share knowledge about Dapr. There are dedicated *#ai* and *#python* channels.
+- Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.
