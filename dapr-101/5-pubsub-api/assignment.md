@@ -214,4 +214,12 @@ Collect the Dapr University badge for this track by following [this link to the 
 
 [![Dapr University Dapr 101 badge](https://raw.githubusercontent.com/diagrid-labs/dapr-university-instruqt/refs/heads/main/dapr-101/5-pubsub-api/Diagrid-Dapr-Uni-101_x500.png)](https://holopin.io/collect/cmcnbdz1r295807jsdm16r929)
 
-You can also join the [Dapr Discord](https://bit.ly/dapr-discord) where thousands of developers ask questions & share knowledge. You can use the **#university** channel on Discord for feedback or questions about the challenge.
+## Next steps
+
+We have more opportunities for you to learn and share knowledge:
+
+- Try [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for reliable and secure AI agents.
+- Try the [Catalyst 101](https://www.diagrid.io/dapr-university/catalyst-101) learning track to learn how Catalyst can make your workflow and agentic applications more reliable.
+- Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
+- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of other developers share knowledge about Dapr.
+- Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.
