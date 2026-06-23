@@ -1,0 +1,13 @@
+[project]
+name = "github-collector"
+version = "0.1.0"
+description = "Build-time GitHub snapshot collector for Dapr University tracks"
+requires-python = ">=3.12"
+dependencies = ["PyGithub>=2.5,<3"]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
