@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:jdk.java.net)"
+      "WebFetch(domain:jdk.java.net)",
+      "Bash(uv --version)",
+      "Bash(pip --version)",
+      "Bash(uv run *)"
     ]
   }
 }

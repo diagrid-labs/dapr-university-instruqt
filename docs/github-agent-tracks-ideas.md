@@ -22,7 +22,7 @@ the time budget.
 | --- | --- |
 | **LLM provider** | Default to a **small local model via Ollama** (e.g. `llama3.2:3b` or `qwen2.5:3b`), pre-pulled in the sandbox image so there's no download wait. A **hosted-provider fallback** (OpenAI/Anthropic via the Dapr Conversation API) is documented for learners who want faster inference. No other LLM keys required. |
 | **No 3rd-party SaaS** | Nothing that needs a signup or API key beyond the LLM provider and GitHub. No Tavily, no vector-DB SaaS, no observability SaaS. Any vector/embedding step uses a local model or in-process store. |
-| **GitHub access** | Learner runs **`BROWSER=true gh auth login --hostname github.com --git-protocol https --web`** once, then opens **https://github.com/login/device** in their own browser and enters the one-time code printed in the terminal (no PAT to paste; `BROWSER=true` suppresses the headless-VM "can't open a browser" error). The app then reads the token via **`gh auth token`** at startup and uses a **native GitHub SDK** (Octokit.NET in .NET, PyGithub in Python). This gives read-only access with generous authenticated rate limits and works against any public repo. |
+| **GitHub access** | **No runtime GitHub access or authentication.** Issue and PR data is fetched **once when the sandbox VM image is created** by a data-collection helper script and persisted to local JSON files baked into the image. At runtime the app reads only these local files through a read helper — no `gh` CLI, no token, no network calls to GitHub. This makes every track deterministic and offline. |
 | **No write access** | Every track is **read-only** against the target repo. The deliverable is always a **report, digest, or recommendation** (printed, written to a local file, or surfaced in a small UI) — never a label, comment, or status change pushed back to GitHub. |
 | **Target repo** | Use a genuinely high-volume public repo so the "large number of issues/PRs" premise is real — e.g. `kubernetes/kubernetes`, `microsoft/vscode`, `golang/go`, or `dapr/dapr`. Learners can point the agent at any repo they like. |
 | **Time budget** | 30–40 minutes, 3–4 challenges each. |
@@ -47,65 +47,107 @@ The reliability features each track can draw on, so the "Dapr makes it reliable"
 
 ## Technical implementation notes
 
-How the `gh` CLI is actually used from the application code, what ships pre-coded vs. what the learner
-writes, and the risks/alternatives that shaped those decisions. This applies across all five tracks.
+How GitHub data is collected once at VM creation, how the application reads it locally at runtime, and
+what ships pre-coded vs. what the learner writes. This applies across all five tracks.
 
 ### The core mechanism
 
-`BROWSER=true gh auth login --hostname github.com --git-protocol https --web` writes a token to
-`~/.config/gh/hosts.yml` (or the OS keyring) — the learner authorizes by opening
-**https://github.com/login/device** and entering the one-time code shown in the terminal (`BROWSER=true`
-avoids the failed-browser exec error on the headless VM). The app reads that token
-**once at startup** via `gh auth token` and hands it to a **native GitHub SDK client** — **Octokit.NET** in
-.NET, **PyGithub** in Python. From there every GitHub call goes through the SDK: connection reuse (no per-call
-process spawn), typed responses, real pagination, and built-in retry. The learner never pastes a PAT and the
-application code never hard-codes a credential.
+GitHub issue and PR data is collected **once, when the sandbox VM image is created** — never at sandbox
+startup and never at runtime. A data-collection helper script runs during image build, fetches the
+relevant issues/PRs for the target repo, and writes them to local JSON files under a per-repo data directory
+(`data/<owner>/<repo>/`, so multiple repos stay isolated). A build-time GitHub token is supplied to that
+script as an environment variable **during
+the build only**; it is never present in the running sandbox, so the learner never authenticates and never
+sees a token.
 
-The constraint this creates: the app process must run in the **same user/home context** where
-`gh auth login` ran, so `gh auth token` can read the stored credential. With Dapr Workflow activities
-(Tracks 1, 3, 4, 5) this holds — activities run *in-process* in the same app the learner launches via
-`dapr run`. It only breaks if the token read is attempted from a separate container or user.
+At runtime the application reads exclusively from those local JSON files through a small read helper. There
+are **no GitHub network calls, no `gh` CLI invocations, and no credentials** in the running app. Every
+track is therefore deterministic, offline, and free of rate-limit and auth failures.
 
-### .NET (Track 1 — MAF)
+The helper has two halves:
 
-A `GitHubClient` helper reads the token via `gh auth token` once, builds an **Octokit.NET** client, and is
-registered as an MAF tool (an `AIFunction` with a `[Description]`) so the agent can call e.g.
-`GetPullRequestFiles(number)`:
+1. **Collector (build time):** persists issues/PRs to local JSON. Run once per image build.
+2. **Reader (runtime):** deserializes the local JSON into typed objects and exposes them to the
+   agent/workflow as a framework tool.
 
-```csharp
-// pre-coded helper — token read once at startup, client reused for every call
-var token = (await ShellAsync("gh", "auth", "token")).Trim();
-var github = new GitHubClient(new ProductHeaderValue("dapr-university"))
-{
-    Credentials = new Credentials(token),
-};
+### Collector — build time
 
-// typed call — no subprocess, no JSON plumbing
-IReadOnlyList<PullRequestFile> files =
-    await github.PullRequest.Files(owner, repo, number);
-```
-
-The Dapr Workflow activity calls the MAF agent → the agent calls the tool → the tool uses the Octokit client.
-
-### Python (Tracks 2–5)
-
-Same shape with **PyGithub**: read the token once, build a `Github` client, then wrap the typed calls as a
-framework-native tool (the decorator differs per framework — Dapr Agents `@tool`, LangGraph `@tool`/`ToolNode`,
-Strands `@tool`, DeepAgents tool — but the body is the same):
+A script run during VM image creation fetches the data once and writes JSON files. It can use the GitHub
+REST API directly or a native SDK with a build-time token; only the output matters — fixed JSON files baked
+into the image:
 
 ```python
-# pre-coded helper — token read once at startup, client reused for every call
-import subprocess
+# collect_github_data.py — runs ONCE at VM image creation, never at runtime.
+# GITHUB_TOKEN is a build-time env var only; it is absent in the running sandbox.
+import json, os
+from pathlib import Path
 from github import Github
 
-token = subprocess.run(
-    ["gh", "auth", "token"], capture_output=True, text=True, check=True,
-).stdout.strip()
-gh = Github(token)
+OWNER, REPO = "dapr", "dapr"
+DATA = Path("data") / OWNER / REPO   # one subtree per repo, so multiple repos stay isolated
 
-# typed, paginated — no subprocess per call
-def get_pr_files(owner: str, repo: str, number: int):
-    return list(gh.get_repo(f"{owner}/{repo}").get_pull(number).get_files())
+gh = Github(os.environ["GITHUB_TOKEN"])
+repo = gh.get_repo(f"{OWNER}/{REPO}")
+
+(DATA / "prs").mkdir(parents=True, exist_ok=True)
+for pr in repo.get_pulls(state="open")[:50]:
+    files = [{"filename": f.filename, "additions": f.additions,
+              "deletions": f.deletions, "patch": f.patch} for f in pr.get_files()]
+    (DATA / "prs" / f"{pr.number}.json").write_text(json.dumps(
+        {"number": pr.number, "title": pr.title, "body": pr.body, "files": files}, indent=2))
+
+(DATA / "issues").mkdir(parents=True, exist_ok=True)
+for issue in repo.get_issues(state="open")[:100]:
+    if issue.pull_request:        # GitHub surfaces PRs as issues too — skip them
+        continue
+    comments = [c.body for c in issue.get_comments()]
+    (DATA / "issues" / f"{issue.number}.json").write_text(json.dumps(
+        {"number": issue.number, "title": issue.title, "body": issue.body,
+         "labels": [l.name for l in issue.labels], "comments": comments}, indent=2))
+```
+
+### Reader — runtime (.NET, Track 1 — MAF)
+
+A `GitHubDataReader` helper deserializes the local JSON into typed DTOs and is registered as an MAF tool (an
+`AIFunction` with a `[Description]`) so the agent can call e.g. `GetPullRequestFiles(number)`:
+
+```csharp
+// pre-coded read helper — reads local JSON, no network, no token.
+// repoDir points at one repo's snapshot, e.g. "data/dapr/dapr".
+public sealed class GitHubDataReader(string repoDir = "data/dapr/dapr")
+{
+    public async Task<IReadOnlyList<PullRequestFile>> GetPullRequestFiles(int number)
+    {
+        var path = Path.Combine(repoDir, "prs", $"{number}.json");
+        var json = await File.ReadAllTextAsync(path);
+        return JsonSerializer.Deserialize<PullRequest>(json)!.Files;
+    }
+}
+```
+
+The Dapr Workflow activity calls the MAF agent → the agent calls the tool → the tool reads the local data.
+
+### Reader — runtime (Python, Tracks 2–5)
+
+Same shape: a pre-coded module reads the local JSON, then the typed calls are wrapped as a framework-native
+tool (the decorator differs per framework — Dapr Agents `@tool`, LangGraph `@tool`/`ToolNode`, Strands
+`@tool`, DeepAgents tool — but the body is the same):
+
+```python
+# github_data.py — pre-coded read helper used at runtime. No network, no token.
+import json
+from pathlib import Path
+
+DATA = Path("data") / "dapr" / "dapr"   # one repo's snapshot: data/<owner>/<repo>/
+
+def list_issues() -> list[dict]:
+    return [json.loads(p.read_text()) for p in sorted((DATA / "issues").glob("*.json"))]
+
+def get_issue(number: int) -> dict:
+    return json.loads((DATA / "issues" / f"{number}.json").read_text())
+
+def get_pr_files(number: int) -> list[dict]:
+    return json.loads((DATA / "prs" / f"{number}.json").read_text())["files"]
 ```
 
 ### Pre-coded vs. learner-written
@@ -113,47 +155,40 @@ def get_pr_files(owner: str, repo: str, number: int):
 The learner should never write subprocess/JSON plumbing — that's noise. They write the agent and workflow
 code, which is the point of each track.
 
-| Pre-coded (cloned repo / setup) | Learner writes |
+| Pre-coded (image build / cloned repo) | Learner writes |
 | --- | --- |
-| The token bootstrap (`gh auth token`) + Octokit.NET / PyGithub client and DTOs | The **tool registration** — exposing the client wrapper as a framework tool |
+| The **collector script** (run at VM creation) + the local JSON data + the **reader helper** and DTOs | The **tool registration** — exposing the reader wrapper as a framework tool |
 | Project scaffold, `pyproject.toml` / `.csproj`, dependencies | The **agent definition + prompt** (triage / risk / dedup logic) |
 | Dapr component YAML (Conversation, state store) + resiliency spec | The **workflow orchestrator** (fan-out/fan-in, activity calls) |
-| `setup.sh` that prompts the `gh auth login` web device flow (`BROWSER=true … --web`) and pre-pulls the Ollama model | The line that **wires the tool into the agent** and the run command |
+| `setup.sh` that pre-pulls the Ollama model | The line that **wires the tool into the agent** and the run command |
 | Markdown report writer | Sometimes the report-assembly step |
 
 ### Risks
 
-1. **Auth context lost at runtime.** If the app runs where `~/.config/gh` isn't reachable (different user,
-   container, or a sidecar-spawned process), every `gh` call fails. *Highest-likelihood track-breaker.*
-2. **`gh auth login` device flow inside Instruqt.** Interactive — the learner opens
-   https://github.com/login/device and pastes the one-time code. `BROWSER=true … --web` keeps it clean on the
-   headless VM (no failed-browser error), but it's still a manual two-step the challenge text must spell out.
-3. **Network latency at fan-out.** The SDK reuses one connection (the per-call process-spawn cost is gone),
-   but a fan-out over 50 PRs × several calls each is still many network round-trips — budget for it and cap
-   batch size.
-4. **Secondary rate limits / abuse detection.** Authenticated is 5,000 req/hr, but bursts can trip GitHub's
-   secondary limits and return 403s mid-run — ironically failing *during* the "watch it recover" demo.
-5. **Payload size vs. context window.** A real PR diff or long issue thread easily exceeds a 3B model's
-   context; tool output must be truncated/summarized before reaching the LLM.
-6. **Non-determinism.** A live high-volume repo changes between runs, so expected output / screenshots drift.
-7. **Arg injection.** Essentially moot — the only subprocess call is `gh auth token` (no user input); all
-   GitHub access goes through the typed SDK.
-8. **`gh` version / PATH drift** across the sandbox image (still relevant for the one-time `gh auth token` read).
+1. **Payload size vs. context window.** A real PR diff or long issue thread easily exceeds a 3B model's
+   context; the reader/tool output must be truncated or summarized before reaching the LLM.
+2. **Data staleness.** The local snapshot reflects the target repo at image-build time and refreshes only on
+   rebuild. This is the accepted price of determinism — call it out in the track text so the data doesn't
+   look "live."
+3. **Snapshot scope must match access patterns.** The collector must fetch everything the agent might read.
+   Bounded tracks (1–4: a fixed batch of PRs or a recent-issues set) are easy. Track 5's deep investigation
+   navigates dynamically (linked PRs, related-issue search), so its collector must pre-fetch a *neighborhood*
+   around the pinned issue, and any "search" tool must query the local set rather than GitHub.
+4. **Build-time collection failures.** Rate limits or network errors during the fetch fail the image build
+   rather than the learner's run — contained, but the collector should paginate politely and be re-runnable.
 
 ### Alternatives (ranked)
 
-1. **Pre-fetch a snapshot in `setup.sh`.** The setup script runs the GitHub calls once and writes fixed JSON
-   files (or pins specific issue/PR numbers); the app reads local files as its GitHub source. Eliminates
-   risks #1, #3, #4, and #6 and makes the track deterministic, at the cost of being no longer "live."
-   Strong option for demo stability — can be combined with the default SDK approach (live for the lesson,
-   snapshot as fallback).
-2. **Raw `gh api` subprocessing.** Shell out to `gh api` per call instead of the SDK. Simpler to read but
-   reintroduces per-call process-spawn latency and manual JSON/pagination — keep it only where a track's goal
-   is explicitly to *teach* "the agent shells out to a CLI tool."
+1. **Live GitHub access at runtime (not used).** Querying the GitHub API while the app runs keeps the data
+   current and lets learners point at any repo on the fly, but it reintroduces runtime authentication, rate
+   limits, network latency, and non-determinism — the exact failure modes the build-time snapshot removes.
+   Not worth it for a time-boxed, reproducible track.
+2. **Refresh cadence.** If currency matters, rebuild the VM image (and re-run the collector) on a schedule so
+   the snapshot stays reasonably fresh without sacrificing per-run determinism.
 
-**Recommendation:** default to **`gh auth token` + native SDK** (Octokit.NET / PyGithub) for runtime calls —
-it gives clean no-PAT auth plus connection reuse, typed responses, pagination, and retry — and **pre-fetch a
-pinned snapshot in `setup.sh`** as the determinism safety net.
+**Recommendation:** collect once at VM creation into local JSON, read locally at runtime. Deterministic,
+offline, no auth, no rate limits — and the reliability story (durable workflow/agent state surviving a crash)
+is unaffected because it never depended on the data source.
 
 ---
 
@@ -179,11 +214,11 @@ so a flaky model call is retried with backoff instead of aborting the digest. MA
 reasoning; Dapr Workflow owns the durable, parallel, retryable orchestration around it.
 
 ### Challenge outline
-1. **What we're building & setup** — concepts: MAF agents vs. Dapr Workflow orchestration; GitHub auth via the
-   `gh auth login` web device flow (open https://github.com/login/device, enter the terminal code); confirm
-   Ollama model. Pull a list of open PRs with `gh pr list --json`.
-2. **A single PR-analysis agent (MAF)** — build one MAF agent with a tool that fetches a PR's files/diff via
-   `gh api`; prompt it to emit a structured summary + risk score. Run it on one PR.
+1. **What we're building & setup** — concepts: MAF agents vs. Dapr Workflow orchestration; confirm the local
+   GitHub data was collected into JSON at VM creation; confirm Ollama model. Load the list of open PRs from
+   the local data via the reader helper.
+2. **A single PR-analysis agent (MAF)** — build one MAF agent with a tool that fetches a PR's files/diff from
+   the local data via the reader helper; prompt it to emit a structured summary + risk score. Run it on one PR.
 3. **Durable fan-out/fan-in (Dapr Workflow)** — wrap the agent call as a workflow activity; orchestrator
    fans out across all PRs, fans in to a digest. Add a resiliency policy (retries/timeout) on the LLM call.
 4. **Crash & resume** — start the digest over a large batch, kill the app mid-run, restart, and watch the
@@ -194,7 +229,7 @@ reasoning; Dapr Workflow owns the durable, parallel, retryable orchestration aro
 `pr-digest.md` — ranked list of open PRs with one-line summaries, linked-issue status, and risk flags.
 
 ### Dependencies
-.NET SDK, Dapr CLI + workflow, Microsoft Agent Framework NuGet, `gh` CLI, Ollama (local model).
+.NET SDK, Dapr CLI + workflow, Microsoft Agent Framework NuGet, Ollama (local model). (GitHub data is pre-collected into local JSON at VM creation.)
 
 ---
 
@@ -219,9 +254,9 @@ no re-work. The Conversation API gives provider-agnostic LLM access (swap Ollama
 component file, not code) plus retries on transient failures.
 
 ### Challenge outline
-1. **What is a triage agent & setup** — Dapr Agents recap, GitHub auth via the `gh auth login` web device flow
-   (open https://github.com/login/device, enter the terminal code), Conversation component pointed
-   at Ollama (with the swap-to-hosted note). Fetch recent issues via `gh issue list --json`.
+1. **What is a triage agent & setup** — Dapr Agents recap, confirm the local GitHub data collected into JSON
+   at VM creation, Conversation component pointed at Ollama (with the swap-to-hosted note). Load recent issues
+   from the local data via the reader helper.
 2. **Build the DurableAgent** — define triage tools (fetch issue body/comments, list recent issues for the
    dedup check) and the triage prompt; run it over a few issues.
 3. **Durability in action** — run over a larger batch, kill the agent mid-batch, restart, and confirm it
@@ -233,7 +268,7 @@ component file, not code) plus retries on transient failures.
 `triage-report.md` — per-issue category, suggested labels, duplicate-of hint, and priority.
 
 ### Dependencies
-Python + uv, Dapr CLI + Dapr Agents, `gh` CLI, Ollama.
+Python + uv, Dapr CLI + Dapr Agents, Ollama. (GitHub data is pre-collected into local JSON at VM creation.)
 
 ---
 
@@ -260,9 +295,8 @@ LangGraph's ergonomics and gain distributed durability + resiliency you'd otherw
 best track to feature **Diagrid Catalyst** as the managed Conversation + Workflow backend.
 
 ### Challenge outline
-1. **The duplicate problem & setup** — LangGraph basics, GitHub auth via the `gh auth login` web device flow
-   (open https://github.com/login/device, enter the terminal code), Ollama. Fetch a target issue +
-   recent issues via `gh`.
+1. **The duplicate problem & setup** — LangGraph basics, confirm the local GitHub data collected into JSON at
+   VM creation, Ollama. Load a target issue + recent issues from the local data via the reader helper.
 2. **Build the LangGraph graph** — nodes: gather candidates → embed/compare (local) → LLM adjudicate →
    rank. Run it once and note the ephemeral checkpointer limitation.
 3. **Make it durable with Dapr** — wrap the graph invocation in a Dapr Workflow; move LLM calls to the
@@ -274,7 +308,7 @@ best track to feature **Diagrid Catalyst** as the managed Conversation + Workflo
 `duplicates-<issue#>.md` — ranked candidate duplicates with similarity scores and LLM rationale.
 
 ### Dependencies
-Python + uv, Dapr CLI + workflow, LangGraph, a local embeddings model (via Ollama), `gh` CLI.
+Python + uv, Dapr CLI + workflow, LangGraph, a local embeddings model (via Ollama). (GitHub data is pre-collected into local JSON at VM creation.)
 
 ---
 
@@ -299,9 +333,9 @@ agent's model calls through the **Dapr Conversation API** for declarative retrie
 a deliberately induced model timeout get retried transparently instead of crashing the run.
 
 ### Challenge outline
-1. **Strands + the GFI use case & setup** — Strands agent-loop basics, GitHub auth via the `gh auth login` web
-   device flow (open https://github.com/login/device, enter the terminal code), Ollama; configure
-   Strands to use the local model. Fetch open issues via `gh`.
+1. **Strands + the GFI use case & setup** — Strands agent-loop basics, confirm the local GitHub data collected
+   into JSON at VM creation, Ollama; configure Strands to use the local model. Load open issues from the local
+   data via the reader helper.
 2. **Build the finder agent** — tools to read issue details and labels; prompt the agent to score
    newcomer-friendliness and draft an onboarding note. Run over a sample.
 3. **Add Dapr resiliency** — wrap in a Dapr Workflow + Conversation API resiliency policy; trigger a
@@ -311,7 +345,7 @@ a deliberately induced model timeout get retried transparently instead of crashi
 `good-first-issues.md` — shortlisted issues, friendliness scores, and draft onboarding notes.
 
 ### Dependencies
-Python + uv, Dapr CLI + workflow, Strands Agents SDK, `gh` CLI, Ollama.
+Python + uv, Dapr CLI + workflow, Strands Agents SDK, Ollama. (GitHub data is pre-collected into local JSON at VM creation.)
 
 ---
 
@@ -336,11 +370,12 @@ scratch. This track backs DeepAgents with **Dapr durable state** for its scratch
 rather than re-running every expensive step. Conversation API resiliency covers the individual model calls.
 
 ### Challenge outline
-1. **DeepAgents & the deep-investigation use case & setup** — planning/sub-agent/filesystem concepts,
-   GitHub auth via the `gh auth login` web device flow (open https://github.com/login/device, enter the
-   terminal code), Ollama. Pick a target issue.
-2. **Build the deep agent** — equip it with `gh`-backed tools (read issue, list linked PRs, fetch comments,
-   search related issues) and a planning prompt; run a single investigation and watch it plan + delegate.
+1. **DeepAgents & the deep-investigation use case & setup** — planning/sub-agent/filesystem concepts, confirm
+   the local GitHub data collected into JSON at VM creation (a pre-fetched neighborhood around the target
+   issue), Ollama. Pick a target issue.
+2. **Build the deep agent** — equip it with tools backed by the local data (read issue, list linked PRs, fetch
+   comments, search related issues over the local set) and a planning prompt; run a single investigation and
+   watch it plan + delegate.
 3. **Durable scratchpad with Dapr** — back the agent's working files with a Dapr state store; wrap the run
    in a Dapr Workflow.
 4. **Interrupt a long run & resume** — kill the agent mid-investigation and restart; confirm the plan and
@@ -350,7 +385,7 @@ rather than re-running every expensive step. Conversation API resiliency covers 
 `investigation-<issue#>.md` — structured deep-dive: timeline, related issues/PRs, probable cause, next steps.
 
 ### Dependencies
-Python + uv, Dapr CLI + workflow, DeepAgents (LangChain), `gh` CLI, Ollama.
+Python + uv, Dapr CLI + workflow, DeepAgents (LangChain), Ollama. (GitHub data is pre-collected into local JSON at VM creation.)
 
 ---
 
@@ -365,15 +400,17 @@ Python + uv, Dapr CLI + workflow, DeepAgents (LangChain), `gh` CLI, Ollama.
 | 5 | DeepAgents | Python | Deep issue investigation | Durable state + workflow for long-horizon work | `investigation-<#>.md` |
 
 ### Suggested build order
-1. **Track 2 (Dapr Agents)** — most native, lowest risk, validates the shared `gh` + Ollama setup harness.
+1. **Track 2 (Dapr Agents)** — most native, lowest risk, validates the shared local-data + Ollama setup harness.
 2. **Track 1 (MAF + Dapr Workflow)** — the required pairing; reuses the workflow pattern other tracks lean on.
 3. **Tracks 3 → 4 → 5** — each adds one external framework on top of the now-proven Dapr scaffolding.
 
 ### Open questions to resolve during track build
 - Confirm the default Ollama model and verify acceptable inference latency for a 20–50 item batch on the
   sandbox VM (CPU-only). If too slow, reduce batch size or lean harder on the hosted fallback.
-- The chosen auth path is the `gh auth login` web device flow (`BROWSER=true … --web`) with the learner
-  opening https://github.com/login/device manually. Confirm this two-step reads cleanly inside an Instruqt
-  challenge step, or whether a short-lived token passed via sandbox env is smoother for learners.
+- Confirm the data-collection step runs cleanly during VM image creation for the chosen repo(s), and decide
+  the snapshot size/limits per track (number of PRs/issues, whether to store full diffs) to balance realism
+  against image size and the model's context window.
+- For Track 5, define how large a "neighborhood" the collector pre-fetches around the target issue (linked
+  PRs, referenced issues, search results) so the deep investigation has enough to traverse without ballooning.
 - Pick one canonical demo repo per track (or a shared one) so screenshots/expected output stay stable.
 - For Track 3, choose the local embeddings approach (Ollama embeddings model vs. a small in-process library).

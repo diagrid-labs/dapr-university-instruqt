@@ -34,3 +34,15 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubc
 sudo apt-get update
 sudo apt-get install gh -y
 
+# --- GitHub snapshot (build-time only) ---------------------------------------
+# Collect the repo snapshot once, at image build time, into JSON the track reads
+# locally at runtime. BUILD_GITHUB_TOKEN is injected as a build-only secret and is
+# absent from the running sandbox. See tools/github-collector/README.md.
+sudo apt install pipx -y
+pipx install uv
+GITHUB_TOKEN="$BUILD_GITHUB_TOKEN" \
+  uv run --project tools/github-collector \
+    tools/github-collector/collect_github_data.py \
+    --owner dapr --repo dapr \
+    --seed-issue 1234 --neighborhood-depth 2 \
+    --out /opt/track-data
