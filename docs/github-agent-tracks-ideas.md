@@ -1,0 +1,364 @@
+# New University Track Ideas — Reliable GitHub-Analysis Agents
+
+Five new Dapr University tracks that each build a **practical AI agent for developers** on top of a
+different agent framework. Every track tackles the same real-world theme — **making sense of the flood
+of issues and pull requests in a large, high-volume open-source repository** — but each one uses a
+distinct framework and showcases a distinct Dapr/Catalyst reliability feature.
+
+The single message that runs through all five tracks:
+
+> **The agent framework does the reasoning. Dapr (and Diagrid Catalyst) makes it reliable** —
+> durable execution that survives crashes, automatic retries/timeouts/circuit breakers on flaky LLM and
+> network calls, durable state, and built-in observability.
+
+---
+
+## Shared design constraints
+
+These apply to every track and are the guardrails that keep the tracks self-contained and finishable in
+the time budget.
+
+| Constraint | Decision |
+| --- | --- |
+| **LLM provider** | Default to a **small local model via Ollama** (e.g. `llama3.2:3b` or `qwen2.5:3b`), pre-pulled in the sandbox image so there's no download wait. A **hosted-provider fallback** (OpenAI/Anthropic via the Dapr Conversation API) is documented for learners who want faster inference. No other LLM keys required. |
+| **No 3rd-party SaaS** | Nothing that needs a signup or API key beyond the LLM provider and GitHub. No Tavily, no vector-DB SaaS, no observability SaaS. Any vector/embedding step uses a local model or in-process store. |
+| **GitHub access** | Learner runs **`gh auth login`** once (device flow — no PAT to paste). Tracks shell out to `gh api` / `gh issue list` / `gh pr list`. This gives read-only access with generous authenticated rate limits and works against any public repo. |
+| **No write access** | Every track is **read-only** against the target repo. The deliverable is always a **report, digest, or recommendation** (printed, written to a local file, or surfaced in a small UI) — never a label, comment, or status change pushed back to GitHub. |
+| **Target repo** | Use a genuinely high-volume public repo so the "large number of issues/PRs" premise is real — e.g. `kubernetes/kubernetes`, `microsoft/vscode`, `golang/go`, or `dapr/dapr`. Learners can point the agent at any repo they like. |
+| **Time budget** | 30–40 minutes, 3–4 challenges each. |
+| **Reliability proof** | Each track includes a "**kill it and watch it recover**" moment — the learner interrupts the process (Ctrl-C / kill the app) mid-run and restarts to see Dapr resume durable work instead of starting over. This is the concrete payoff, not just a slide. |
+
+### Why Dapr/Catalyst, concretely
+
+The reliability features each track can draw on, so the "Dapr makes it reliable" claim is shown, not asserted:
+
+- **Durable execution (Dapr Workflow / Dapr Agents):** workflow and agent state is checkpointed; a crash
+  resumes from the last completed step instead of replaying the whole run or losing partial work.
+- **Resiliency policies (Dapr Conversation API + resiliency spec):** retries, timeouts, and circuit
+  breakers on LLM calls and tool/HTTP calls — declared in config, not hand-coded into the agent loop.
+- **Durable state (Dapr state store):** the agent's scratchpad, intermediate findings, and dedup index
+  survive restarts.
+- **Observability:** built-in tracing (Zipkin in the sandbox) so learners can see every LLM and tool hop.
+- **Diagrid Catalyst:** the managed-Dapr option — the same Conversation API and Workflow APIs without
+  running the control plane yourself. Featured as the "take this to production" path, especially in
+  Tracks 1 and 3.
+
+---
+
+## Technical implementation notes
+
+How the `gh` CLI is actually used from the application code, what ships pre-coded vs. what the learner
+writes, and the risks/alternatives that shaped those decisions. This applies across all five tracks.
+
+### The core mechanism
+
+`gh auth login` writes a token to `~/.config/gh/hosts.yml` (or the OS keyring). **Any child process the app
+spawns inherits that auth automatically** — the application code never sees or handles a token. So in both
+.NET and Python the pattern is identical: **shell out to `gh` as a subprocess, capture stdout as JSON,
+deserialize.** No SDK and no credentials in code.
+
+The constraint this creates: the app process must run in the **same user/home context** where
+`gh auth login` ran, so `~/.config/gh` is visible. With Dapr Workflow activities (Tracks 1, 3, 4, 5) this
+holds — activities run *in-process* in the same app the learner launches via `dapr run`. It only breaks if a
+tool call is dispatched to a separate container or user.
+
+### .NET (Track 1 — MAF)
+
+A `GitHubClient` helper wraps `System.Diagnostics.Process` and is registered as an MAF tool (an `AIFunction`
+with a `[Description]`) so the agent can call e.g. `GetPullRequestFiles(number)`:
+
+```csharp
+// pre-coded helper
+var psi = new ProcessStartInfo("gh")
+{
+    ArgumentList = { "api", $"repos/{owner}/{repo}/pulls/{number}/files", "--paginate" }, // list form, no shell string
+    RedirectStandardOutput = true, RedirectStandardError = true
+};
+using var p = Process.Start(psi);
+var json = await p.StandardOutput.ReadToEndAsync();
+return JsonSerializer.Deserialize<PrFile[]>(json);
+```
+
+The Dapr Workflow activity calls the MAF agent → the agent calls the tool → the tool shells to `gh`.
+
+### Python (Tracks 2–5)
+
+Same shape via `subprocess`, then wrapped as a framework-native tool (the decorator differs per framework —
+Dapr Agents `@tool`, LangGraph `@tool`/`ToolNode`, Strands `@tool`, DeepAgents tool — but the body is the
+same):
+
+```python
+# pre-coded helper
+def gh_api(path: str) -> dict:
+    out = subprocess.run(
+        ["gh", "api", path, "--paginate"],   # list form, no shell=True
+        capture_output=True, text=True, check=True,
+    )
+    return json.loads(out.stdout)
+```
+
+### Pre-coded vs. learner-written
+
+The learner should never write subprocess/JSON plumbing — that's noise. They write the agent and workflow
+code, which is the point of each track.
+
+| Pre-coded (cloned repo / setup) | Learner writes |
+| --- | --- |
+| The `gh` subprocess wrapper (`GitHubClient` / `gh_api`) and JSON DTOs | The **tool registration** — exposing the wrapper as a framework tool |
+| Project scaffold, `pyproject.toml` / `.csproj`, dependencies | The **agent definition + prompt** (triage / risk / dedup logic) |
+| Dapr component YAML (Conversation, state store) + resiliency spec | The **workflow orchestrator** (fan-out/fan-in, activity calls) |
+| `setup.sh` that runs `gh auth login` and pre-pulls the Ollama model | The line that **wires the tool into the agent** and the run command |
+| Markdown report writer | Sometimes the report-assembly step |
+
+### Risks
+
+1. **Auth context lost at runtime.** If the app runs where `~/.config/gh` isn't reachable (different user,
+   container, or a sidecar-spawned process), every `gh` call fails. *Highest-likelihood track-breaker.*
+2. **`gh auth login` device flow inside Instruqt.** Interactive, needs a browser tab + code paste — clunky in
+   a timed challenge (tracked as an open question below).
+3. **Process-spawn overhead + latency.** Each call is a ~100–300 ms process start *plus* network; a fan-out
+   over 50 PRs × several calls each adds many seconds of pure overhead before any LLM work.
+4. **Secondary rate limits / abuse detection.** Authenticated is 5,000 req/hr, but bursts can trip GitHub's
+   secondary limits and return 403s mid-run — ironically failing *during* the "watch it recover" demo.
+5. **Payload size vs. context window.** A real PR diff or long issue thread easily exceeds a 3B model's
+   context; tool output must be truncated/summarized before reaching the LLM.
+6. **Non-determinism.** A live high-volume repo changes between runs, so expected output / screenshots drift.
+7. **Arg injection.** Mitigated entirely by the list / `ArgumentList` form (no shell string, no `shell=True`),
+   which the scaffold enforces.
+8. **`gh` version / PATH drift** across the sandbox image.
+
+### Alternatives (ranked)
+
+1. **`gh auth token` → native SDK (recommended hybrid).** Run `gh auth login` once for clean auth, then read
+   the token via `gh auth token` and hand it to **Octokit.NET** (.NET) / **httpx or PyGithub** (Python).
+   Keeps the no-PAT-pasting UX but gains connection reuse (no per-call process spawn), typed responses, real
+   pagination, and built-in retry. Removes risk #3 and most of #4.
+2. **Pre-fetch a snapshot in `setup.sh`.** The setup script runs the `gh` calls once and writes fixed JSON
+   files (or pins specific issue/PR numbers); the app reads local files as its GitHub source. Eliminates
+   risks #1, #3, #4, and #6 and makes the track deterministic, at the cost of being no longer "live."
+   Strong option for demo stability — can be combined with #1 (live for the lesson, snapshot as fallback).
+3. **GitHub MCP server.** Most "agentic," but adds Docker + token + per-framework MCP variance; best confined
+   to a single track rather than the shared harness.
+4. **Unauthenticated REST.** 60 req/hr — a non-starter on a busy repo.
+
+**Recommendation:** default to the **`gh auth token` + native SDK** hybrid for runtime calls (it removes the
+latency/rate-limit/auth-context risks that most threaten a timed track), and **pre-fetch a pinned snapshot in
+`setup.sh`** as the determinism safety net. Keep raw `gh api` subprocessing only where the goal is explicitly
+to *teach* "the agent shells out to a CLI tool."
+
+---
+
+## Track 1 — Microsoft Agent Framework + Dapr Workflow *(required pairing)*
+
+**Working title:** *Reliable PR Digests with Microsoft Agent Framework and Dapr Workflow*
+**Framework:** Microsoft Agent Framework (the unified successor to Semantic Kernel + AutoGen)
+**Language:** **.NET / C#** (plays to MAF's strongest SDK and your existing .NET workflow tracks)
+**Estimated time:** ~40 minutes, 4 challenges
+
+### Use case
+A maintainer drowning in open PRs wants a **daily digest**. The app fans out over a batch of open PRs and,
+for each one, runs an MAF agent that **summarizes the change, checks whether it references an issue, and
+flags risk signals** (touches many files, no tests, large diff). Results fan in to a single ranked
+markdown digest the maintainer can skim in two minutes.
+
+### The reliability angle
+A batch of 20–50 PRs, each needing a slow local LLM call, is exactly where naive scripts fall over — one
+crash and you re-run everything. **Dapr Workflow** drives the fan-out/fan-in as a **durable orchestration**:
+each PR's analysis is a workflow activity, checkpointed on completion. Kill the app halfway through and
+restart — the workflow resumes from the next unprocessed PR. **Resiliency policies** wrap the LLM activity
+so a flaky model call is retried with backoff instead of aborting the digest. MAF owns the per-PR agent
+reasoning; Dapr Workflow owns the durable, parallel, retryable orchestration around it.
+
+### Challenge outline
+1. **What we're building & setup** — concepts: MAF agents vs. Dapr Workflow orchestration; `gh auth login`;
+   confirm Ollama model. Pull a list of open PRs with `gh pr list --json`.
+2. **A single PR-analysis agent (MAF)** — build one MAF agent with a tool that fetches a PR's files/diff via
+   `gh api`; prompt it to emit a structured summary + risk score. Run it on one PR.
+3. **Durable fan-out/fan-in (Dapr Workflow)** — wrap the agent call as a workflow activity; orchestrator
+   fans out across all PRs, fans in to a digest. Add a resiliency policy (retries/timeout) on the LLM call.
+4. **Crash & resume** — start the digest over a large batch, kill the app mid-run, restart, and watch the
+   workflow continue from where it stopped. Inspect the trace in Zipkin. Mention Diagrid Catalyst as the
+   managed path to run the same workflow in production.
+
+### Output artifact
+`pr-digest.md` — ranked list of open PRs with one-line summaries, linked-issue status, and risk flags.
+
+### Dependencies
+.NET SDK, Dapr CLI + workflow, Microsoft Agent Framework NuGet, `gh` CLI, Ollama (local model).
+
+---
+
+## Track 2 — Dapr Agents
+
+**Working title:** *An Issue-Triage Agent that Never Loses Its Place*
+**Framework:** Dapr Agents (`DurableAgent`)
+**Language:** Python
+**Estimated time:** ~35 minutes, 3–4 challenges
+
+### Use case
+New issues arrive faster than maintainers can sort them. A **triage agent** reads a batch of recently
+opened issues and, for each, produces a **triage recommendation**: category (bug / feature / question /
+docs), suggested labels, a likely-duplicate flag, and a priority guess — all collated into a triage report
+the maintainer reviews before touching the repo.
+
+### The reliability angle
+This is the **native** Dapr story: a `DurableAgent` already runs on Dapr Workflow under the hood, so its
+state, tool-call history, and progress are **durable by default**. The track makes that visible — the agent
+processes issues one by one, and if interrupted it resumes mid-batch with its conversation/state intact,
+no re-work. The Conversation API gives provider-agnostic LLM access (swap Ollama ↔ OpenAI by editing a
+component file, not code) plus retries on transient failures.
+
+### Challenge outline
+1. **What is a triage agent & setup** — Dapr Agents recap, `gh auth login`, Conversation component pointed
+   at Ollama (with the swap-to-hosted note). Fetch recent issues via `gh issue list --json`.
+2. **Build the DurableAgent** — define triage tools (fetch issue body/comments, list recent issues for the
+   dedup check) and the triage prompt; run it over a few issues.
+3. **Durability in action** — run over a larger batch, kill the agent mid-batch, restart, and confirm it
+   resumes without redoing completed issues. Show the durable state in the state store.
+4. *(optional)* **Swap the model & add resiliency** — flip the Conversation component to a hosted provider;
+   add a resiliency policy; re-run.
+
+### Output artifact
+`triage-report.md` — per-issue category, suggested labels, duplicate-of hint, and priority.
+
+### Dependencies
+Python + uv, Dapr CLI + Dapr Agents, `gh` CLI, Ollama.
+
+---
+
+## Track 3 — LangGraph
+
+**Working title:** *Durable Duplicate Detection with LangGraph and Dapr Workflow*
+**Framework:** LangGraph (stateful graph orchestration)
+**Language:** Python
+**Estimated time:** ~40 minutes, 4 challenges
+
+### Use case
+Duplicate issues are the single biggest time sink for maintainers of popular repos. The learner builds a
+**duplicate-detection graph**: given a target issue, the graph gathers candidate recent issues, compares
+them (local embeddings + an LLM adjudication node), and outputs a ranked **"likely duplicates"** list with
+reasoning.
+
+### The reliability angle
+LangGraph models the reasoning beautifully as a graph, but its built-in checkpointers are **local and
+ephemeral** (in-memory / SQLite) — fine for a laptop, not for a service that must survive restarts or scale
+out. This track shows two complementary fixes: (1) wrap the LangGraph run inside a **Dapr Workflow** so the
+overall job is durably orchestrated and restartable, and (2) route the graph's LLM calls through the **Dapr
+Conversation API** so retries/timeouts/circuit breakers are declarative. The teaching beat: *you keep
+LangGraph's ergonomics and gain distributed durability + resiliency you'd otherwise hand-roll.* This is the
+best track to feature **Diagrid Catalyst** as the managed Conversation + Workflow backend.
+
+### Challenge outline
+1. **The duplicate problem & setup** — LangGraph basics, `gh auth login`, Ollama. Fetch a target issue +
+   recent issues via `gh`.
+2. **Build the LangGraph graph** — nodes: gather candidates → embed/compare (local) → LLM adjudicate →
+   rank. Run it once and note the ephemeral checkpointer limitation.
+3. **Make it durable with Dapr** — wrap the graph invocation in a Dapr Workflow; move LLM calls to the
+   Conversation API with a resiliency policy.
+4. **Crash, resume & go managed** — interrupt mid-run and resume; then point the Conversation/Workflow
+   components at Diagrid Catalyst to show the same code running on managed Dapr.
+
+### Output artifact
+`duplicates-<issue#>.md` — ranked candidate duplicates with similarity scores and LLM rationale.
+
+### Dependencies
+Python + uv, Dapr CLI + workflow, LangGraph, a local embeddings model (via Ollama), `gh` CLI.
+
+---
+
+## Track 4 — Strands
+
+**Working title:** *A Resilient "Good First Issue" Finder with Strands*
+**Framework:** Strands Agents SDK (model-driven agent loop)
+**Language:** Python
+**Estimated time:** ~35 minutes, 3 challenges
+
+### Use case
+Growing a contributor base means surfacing approachable work. The learner builds a **good-first-issue
+finder**: a Strands agent scans open issues, judges which are genuinely newcomer-friendly (clear scope,
+low blast radius, no deep context required), and drafts a short **onboarding note** for each — a ready-made
+"here's how to get started" the maintainer can later post.
+
+### The reliability angle
+Strands' model-driven agent loop is concise and elegant, but the loop's many LLM/tool iterations are a
+**resiliency liability** on a small local model that occasionally times out or returns garbage. This track
+wraps the Strands run in a **Dapr Workflow** so the overall scan is durable and restartable, and sends the
+agent's model calls through the **Dapr Conversation API** for declarative retries/timeouts. The learner sees
+a deliberately induced model timeout get retried transparently instead of crashing the run.
+
+### Challenge outline
+1. **Strands + the GFI use case & setup** — Strands agent-loop basics, `gh auth login`, Ollama; configure
+   Strands to use the local model. Fetch open issues via `gh`.
+2. **Build the finder agent** — tools to read issue details and labels; prompt the agent to score
+   newcomer-friendliness and draft an onboarding note. Run over a sample.
+3. **Add Dapr resiliency** — wrap in a Dapr Workflow + Conversation API resiliency policy; trigger a
+   timeout/retry and an interrupt-and-resume to prove durability.
+
+### Output artifact
+`good-first-issues.md` — shortlisted issues, friendliness scores, and draft onboarding notes.
+
+### Dependencies
+Python + uv, Dapr CLI + workflow, Strands Agents SDK, `gh` CLI, Ollama.
+
+---
+
+## Track 5 — DeepAgents
+
+**Working title:** *Deep Issue Investigation that Survives the Long Haul*
+**Framework:** DeepAgents (LangChain's planning + sub-agents + virtual filesystem, built on LangGraph)
+**Language:** Python
+**Estimated time:** ~40 minutes, 3–4 challenges
+
+### Use case
+Some issues are a rabbit hole — they reference other issues, span multiple PRs, and bury the real cause in
+a long comment thread. The learner builds a **deep investigation agent** that takes **one gnarly issue** and
+runs a **long-horizon investigation**: plan the steps, pull related issues and linked PRs, read the comment
+history, and write up an **in-depth analysis report** (probable cause, related work, suggested next steps).
+
+### The reliability angle
+DeepAgents is purpose-built for long, multi-step work with sub-agents and a scratchpad filesystem — which is
+precisely the workload most likely to be interrupted partway through and most expensive to restart from
+scratch. This track backs DeepAgents with **Dapr durable state** for its scratchpad/working files and a
+**Dapr Workflow** as the durable outer driver, so a long investigation **resumes mid-plan** after a crash
+rather than re-running every expensive step. Conversation API resiliency covers the individual model calls.
+
+### Challenge outline
+1. **DeepAgents & the deep-investigation use case & setup** — planning/sub-agent/filesystem concepts,
+   `gh auth login`, Ollama. Pick a target issue.
+2. **Build the deep agent** — equip it with `gh`-backed tools (read issue, list linked PRs, fetch comments,
+   search related issues) and a planning prompt; run a single investigation and watch it plan + delegate.
+3. **Durable scratchpad with Dapr** — back the agent's working files with a Dapr state store; wrap the run
+   in a Dapr Workflow.
+4. **Interrupt a long run & resume** — kill the agent mid-investigation and restart; confirm the plan and
+   partial findings are intact and it continues instead of restarting. Inspect the trace.
+
+### Output artifact
+`investigation-<issue#>.md` — structured deep-dive: timeline, related issues/PRs, probable cause, next steps.
+
+### Dependencies
+Python + uv, Dapr CLI + workflow, DeepAgents (LangChain), `gh` CLI, Ollama.
+
+---
+
+## Cross-track summary
+
+| # | Framework | Lang | Use case | Headline Dapr feature | Output |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Microsoft Agent Framework + Dapr Workflow | .NET | PR digest (fan-out/fan-in) | Durable orchestration + retries | `pr-digest.md` |
+| 2 | Dapr Agents | Python | Issue triage | `DurableAgent` durable-by-default | `triage-report.md` |
+| 3 | LangGraph | Python | Duplicate detection | Durable wrap + Conversation API resiliency (+ Catalyst) | `duplicates-<#>.md` |
+| 4 | Strands | Python | Good-first-issue finder | Resiliency policies on a flaky agent loop | `good-first-issues.md` |
+| 5 | DeepAgents | Python | Deep issue investigation | Durable state + workflow for long-horizon work | `investigation-<#>.md` |
+
+### Suggested build order
+1. **Track 2 (Dapr Agents)** — most native, lowest risk, validates the shared `gh` + Ollama setup harness.
+2. **Track 1 (MAF + Dapr Workflow)** — the required pairing; reuses the workflow pattern other tracks lean on.
+3. **Tracks 3 → 4 → 5** — each adds one external framework on top of the now-proven Dapr scaffolding.
+
+### Open questions to resolve during track build
+- Confirm the default Ollama model and verify acceptable inference latency for a 20–50 item batch on the
+  sandbox VM (CPU-only). If too slow, reduce batch size or lean harder on the hosted fallback.
+- Decide whether the `gh auth login` device flow fits cleanly inside an Instruqt challenge step, or whether
+  a short-lived token passed via sandbox env is smoother for learners.
+- Pick one canonical demo repo per track (or a shared one) so screenshots/expected output stay stable.
+- For Track 3, choose the local embeddings approach (Ollama embeddings model vs. a small in-process library).
