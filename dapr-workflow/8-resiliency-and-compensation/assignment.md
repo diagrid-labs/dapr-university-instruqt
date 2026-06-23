@@ -428,12 +428,12 @@ Expected output:
 
 If you want, you can run some additional tests to explore different retry policies. Update the `(Workflow)RetryPolicy` in the workflow. Use the language specific reference to see what options are available.
 
-- [.NET `WorkflowRetryPolicy` definition on GitHub](
-https://github.com/dapr/dotnet-sdk/blob/master/src/Dapr.Workflow/WorkflowRetryPolicy.cs)
+- [.NET `WorkflowRetryPolicy` Examples on GitHub](
+https://github.com/dapr/dotnet-sdk/blob/master/examples/Workflow/WorkflowRetryPolicy/README.md)
 - [.Java `WorkflowRetryPolicy` definition on GitHub](
 https://github.com/dapr/java-sdk/blob/master/sdk-workflows/src/main/java/io/dapr/workflows/WorkflowTaskRetryPolicy.java)
 - [Python `RetryPolicy` definition on GitHub](
-https://github.com/dapr/python-sdk/blob/main/ext/dapr-ext-workflow/dapr/ext/workflow/retry_policy.py) (Currently there is an issue with the `RetryPolicy` in the Python SDK, so you may not be able to test this.)
+https://github.com/dapr/python-sdk/blob/main/dapr/ext/workflow/retry_policy.py) (Currently there is an issue with the `RetryPolicy` in the Python SDK, so you may not be able to test this.)
 
 ## 6. Stop the workflow application
 
