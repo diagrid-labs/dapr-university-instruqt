@@ -8,7 +8,9 @@ dapr-agents-advanced
 
 ## Teaser
 
-You'll build an end-user-facing expert agent that uses a Chainlit chat UI and a `before_llm_call` hook to silently inject fresh Tavily web-search results into every prompt — "RAG via hook." Picks up where the Dapr Agents track left off.
+Build an end-user-facing expert agent with a Chainlit chat UI that uses a `before_llm_call` hook to silently inject fresh Tavily web-search results into every prompt.
+
+Languages: Python. Duration: 45 min. Required an OpenAI API key, and a Tavily API key.
 
 ## Time limit (minutes)
 
