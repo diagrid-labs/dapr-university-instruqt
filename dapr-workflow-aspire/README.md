@@ -8,7 +8,13 @@ dapr-workflow-aspire
 
 ## Teaser
 
-Learn how to build and run Dapr Workflow application in .NET using Aspire and the Diagrid Dev Dashboard
+Build and run a code-first, fault-tolerant Dapr Workflow application end-to-end with .NET Aspire, and inspect every step with the Diagrid Dev Dashboard.
+
+Languages: .NET. Duration: 30 min.
+
+## Time limit (minutes)
+
+30
 
 ## Description
 

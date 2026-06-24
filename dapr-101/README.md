@@ -8,7 +8,9 @@ dapr-101
 
 ## Teaser
 
-You'll be using the Dapr CLI and get familiar with the State Management, Service Invocation, and Pub/Sub APIs.
+Get introduced to Dapr and use the Dapr CLI to explore the three most popular building block APIs: State Management, Service Invocation, and Pub/Sub.
+
+Languages: .NET/Python/Java/JavaScript. Duration: 45 min.
 
 ## Time limit (minutes)
 

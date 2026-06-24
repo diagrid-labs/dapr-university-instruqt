@@ -8,11 +8,13 @@ dapr-workflow
 
 ## Teaser
 
-You'll be learning about durable execution, workflow as code, and running workflow applications using the Dapr CLI to get familiar with various workflow patterns that Dapr supports.
+Learn durable execution and workflow-as-code by building and running Dapr Workflow applications that apply patterns like task chaining, fan-out/fan-in, monitor, external events, and child workflows.
+
+Languages: .NET/Java/Python. Duration: 50 min.
 
 ## Time limit (minutes)
 
-60
+50
 
 ## Description
 

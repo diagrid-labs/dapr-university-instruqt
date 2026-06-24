@@ -8,11 +8,13 @@ dapr-agents
 
 ## Teaser
 
-You will learn how to create LLM-powered agentic applications that autonomously take actions to achieve a goal. To get there, you will learn how to call various LLMs, build reliable agents that can invoke tools and MCP servers, create agentic workflows to orchestrate complex processes, and design multi-agent systems that collaborate to solve complex problems.
+Build LLM-powered agentic applications that autonomously take actions to achieve a goal by calling LLMs, invoking tools and MCP servers, and orchestrating agentic and multi-agent workflows.
+
+Languages: Python. Duration: 45 min. Requires an OpenAI API key.
 
 ## Time limit (minutes)
 
-70
+45
 
 ## Description
 
