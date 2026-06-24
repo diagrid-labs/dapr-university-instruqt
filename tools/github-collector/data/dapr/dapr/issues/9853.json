@@ -1,0 +1,25 @@
+{
+  "type": "issue",
+  "number": 9853,
+  "title": "Configurable logging format",
+  "state": "open",
+  "body": "Some users would like to see customizable logging as an option for all Dapr containers, so they can ensure that output aligns with internal standards.\n\n## In what area(s)?\n\n/area runtime\n/area operator\n/area placement\n/area injector\n/area scheduler\n/area sentry\n\n## Release Note\nRELEASE NOTE: **ADD** Configurable/customizable logging format.",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "atrauzzi",
+  "created_at": "2026-05-01T13:26:03Z",
+  "updated_at": "2026-06-09T00:29:43Z",
+  "comments": [
+    {
+      "user": "huynna12",
+      "body": "Hi, I'd like to work on this. Is it still available? Should this be one PR covering all 6 components or separate PRs? \n",
+      "created_at": "2026-06-09T00:29:43Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9853",
+  "is_seed": false,
+  "partial": false
+}

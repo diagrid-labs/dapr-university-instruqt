@@ -1,0 +1,30 @@
+{
+  "type": "issue",
+  "number": 9744,
+  "title": "Dapr endless retry on Activity that crash ungracefully",
+  "state": "open",
+  "body": "## In what area(s)?\n\n<!-- Remove the '> ' to select -->\n\n> /area runtime\n> /area placement\n> /area scheduler\n> /area dotnetsdk\n\n## What version of Dapr?\n\n> 1.17.0 - 1.17.3\n> dotnetsdk 1.17.5\n\n## Expected Behavior\n\n- limit retry attempts\n- Check the activity workflow status in the actors statestore, to determine if can execute it (i e. Terminated,  purged)\n\n## Actual Behavior\n\nIn case the app/container/pod that executes the activity crashes ungracefully, Dapr perform endless retries, each one keep reproducing the crash\n> In this specific case the app uses native C++ library that crashes as result of invalid input\n\nLimiting the retry policy thru the DotNetSdk didn't help. \n\nThe following recovery actions didn't help:  \n- Restart the app K8S Deployment. \n- Restart all Dapr services under namespace dapr-system\n- Deleting the actors statestore - Dapr continued the retries nevertheless\n- Reinstalling Dapr thru helm chart\n\n## Steps to Reproduce the Problem\n\nfor the DotNetSdk simply call `Environment.Exit(1);` in the Activity RunAsync method. \n\n## Workaround\n- Uninstall Dapr\n- DELETE Scheduler PVC volume\n- Reinstall Dapr\n",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "barakbbn",
+  "created_at": "2026-04-03T18:51:16Z",
+  "updated_at": "2026-04-09T08:06:20Z",
+  "comments": [
+    {
+      "user": "JoshVanL",
+      "body": "Hi @barakbbn \n\nActivities are retried indefinitely by design. This is a core property of durable workflows. If an activity doesn't complete, whether from a crash, network failure, node eviction, or deployment rollout, the workflow engine has to retry it, otherwise the workflow would silently stop making progress. That's the durability guarantee.\n\nIn your case the activity crashes every time because the same input triggers the same native code crash. The fix here is at the application layer: the activity code should catch or guard against the failure and return an error result to the workflow, rather than crashing the process. The workflow orchestrator can then decide what to do (retry with different input, compensate, or fail the workflow).",
+      "created_at": "2026-04-09T04:31:59Z"
+    },
+    {
+      "user": "barakbbn",
+      "body": "Hi @JoshVanL \n\nthe use case is more challaging than the simple example I gave for reproducing the issue.\nwe're dealing with native 3rd-party c++ libraries,  which sometimes causes corruptions that you can't try/catch in C# (we tried).\nMoreover,  the activity input includes data parts that only the c++ library can understand,  thus we can't validated it.\n\nOur expectation from Dapr was to allow us reasonable recovery it's control, such as verifying if the Workflow the activity belongs to,  wasn't **suspended, terminated or no longer exists** in the actors statestore. \nso we could avoid the rog activity in *production* env,  until a fix could be deployed. \n\nDoes the Dapr design defines to continue retires if the workflow is no longer active? or that is an implementation choice? \n\nIf you know on a way to somehow gain control on the fire at production,  I'll appreciate if you could share. \n\nthanks\n\n",
+      "created_at": "2026-04-09T08:06:20Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9744",
+  "is_seed": false,
+  "partial": false
+}

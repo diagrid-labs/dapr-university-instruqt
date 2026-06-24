@@ -1,0 +1,47 @@
+{
+  "type": "issue",
+  "number": 3224,
+  "title": "Add binding support for Azure Email Communication Service",
+  "state": "open",
+  "body": "I would like to request the addition of a new component binding for the Azure Email Communication Service within the Dapr ecosystem. The objective is to facilitate applications using Dapr to seamlessly integrate email sending functionalities through Azure\u2019s robust service.\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted",
+    "good first issue"
+  ],
+  "user": "cilerler",
+  "created_at": "2023-11-10T21:17:13Z",
+  "updated_at": "2024-10-16T20:43:30Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "@cilerler can you explain a little bit more which functionality you need? I would assume you'd provide the name of an already created Azure Email Communication Service and we authenticate with that somehow, then you issue the binding command to send an email?\r\n\r\nUnfortunately there is no Go SDK it seems - so we'd have to manually implement REST APIs which is not ideal. My preference would be to wait for a suitable Go SDK before implementing this.",
+      "created_at": "2023-11-10T22:08:21Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "I see two APIs:\r\n- `Send`: https://learn.microsoft.com/en-us/rest/api/communication/dataplane/email/send?view=rest-communication-dataplane-2023-03-31&tabs=HTTP\r\n- `Get Send Result`: https://learn.microsoft.com/en-us/rest/api/communication/dataplane/email/get-send-result?view=rest-communication-dataplane-2023-03-31&tabs=HTTP\r\n\r\nWould that be sufficient?\r\n\r\nIn general we only implement dataplane operations - so the Azure Communications resource would already need to exist.\r\n\r\nSeems there will also be some custom code requires to provide the correct Authorization value as defined here: https://learn.microsoft.com/en-us/rest/api/communication/authentication?view=rest-communication-dataplane-2023-03-31\r\n\r\nWe'd have to find a way to leverage our existing Azure component authentication code as well:\r\nhttps://github.com/dapr/components-contrib/blob/main/internal/authentication/azure/auth.go",
+      "created_at": "2023-11-10T22:14:56Z"
+    },
+    {
+      "user": "cilerler",
+      "body": "@berndverst, you're absolutely correct about each point.\r\n\r\n1. There is no Go SDK, so the REST API is the way\r\n2. Only two values are required: ENDPOINT and KEY (for authentication)\r\n3. Those API docs fulfill the requirements\r\n4. Indeed, as with any other component (like Azure Configuration), the resource must pre-exist\r\n\r\nThanks in advance \ud83e\udd17 ",
+      "created_at": "2023-11-10T22:23:19Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "> 2. Only two values are required: ENDPOINT and KEY (for authentication)\r\n\r\n@cilerler it says the AUTHENTICATION value is:\r\n> An authentication string containing a signature generated using HMAC-SHA256 scheme.\r\n\r\nRight - it seems the access key is all that is required to sign the request to generate the HMAC token.\r\n\r\nFor managed identity based authentication is a bit more complicated.\r\n\r\nGiven how our code works I think this means we need to write custom code to obtain the credentials for a given identity.\r\n\r\nOf course we would not want to implement this functionality without supporting managed identities (or workload identities) at the same time since that is the preferred authentication approach for Azure services.\r\n\r\nI'll also try to ask the Azure Communications team what their plans for a GO SDK are.",
+      "created_at": "2023-11-10T22:33:29Z"
+    },
+    {
+      "user": "sonalika-roy",
+      "body": "@berndverst : Do we have any updates on the dapr component for ACS?",
+      "created_at": "2024-10-16T20:43:29Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3224",
+  "is_seed": false,
+  "partial": false
+}

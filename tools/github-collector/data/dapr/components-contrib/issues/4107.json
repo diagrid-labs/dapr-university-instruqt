@@ -1,0 +1,47 @@
+{
+  "type": "issue",
+  "number": 4107,
+  "title": "OIDC + mTLS auth type for Redis State",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\n\n## Describe the feature\nAs was done with Kafka, add support on top of the [existing Redis component](https://docs.dapr.io/reference/components-reference/supported-state-stores/setup-redis/) for:\n- OIDC authentication method\n- mTLS \n\nIncluding the following\n- Support client JWT auth method via oidc using certificates: https://github.com/dapr/components-contrib/pull/4057\n- Add kid header to kafka jwt auth: https://github.com/dapr/components-contrib/pull/4099\n\n## Release Note\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE: **ADD OIDC + mTLS auth type for Redis** \n",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "alicejgibbons",
+  "created_at": "2025-12-04T10:53:26Z",
+  "updated_at": "2026-06-23T10:39:52Z",
+  "comments": [
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-01-08T11:46:54Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-01-15T11:55:10Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-02-14T13:02:29Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-02-21T13:27:30Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-06-11T11:38:09Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    4408
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4107",
+  "is_seed": false,
+  "partial": false
+}

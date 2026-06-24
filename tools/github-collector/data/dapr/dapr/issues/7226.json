@@ -1,0 +1,118 @@
+{
+  "type": "issue",
+  "number": 7226,
+  "title": "[Proposal] Invoke Dapr Workflow Operations via PubSub",
+  "state": "open",
+  "body": "/area runtime\n\n## Invoke Dapr Workflow Operations via PubSub\n\nIf an app has registered a Workflow, It should be possible to perform a range of operations against a workflow instance of a particular Workflow Type via receiving a message from a Dapr PubSub Topic.\n\n### Benefits\n\n- Reduce the boiler plate code to zero to schedule a workflow from a PubSub message. This would be a great showcase for how composable Dapr components can be with zero code.\n- Enable other Apps on the network to operate on Workflows, which is currently not easy to achieve.\n- The App wouldn't even need to supply an App channel / web server, which is great for a minimal example.\n- Encourages the use of PubSub between Apps to encourage good design by loose coupling (thanks @georgestevens99)\n\n### Design\n\n#### Declarative Subscription\n\nThere are at least two familiar options that should be explored first \n\n- Extend the existing `Subscription` CRD\n- Create a new CRD specifically for workflows, `Subscription-workflow` for example. \n\nI'm less opinionated about this, so for simplicity sake, I'll just present an example of what it _could_ be like to extend the existing `Subscription` CRD\n\n---\n\n#### Workflow Name [MANDATORY]\n\nI propose adding a new property to the `routes` section called `workflowname`\n\nThis is where one would specify the Workflow type name, for example `workflowname : MyAwesomeWorkflow`\n\nAlternatively, the workflow name could be specified at runtime by extracting a field in the CloudEvent payload of the incoming message.\n\n- `workflowname: MyAwesomeWorkflow` - A _Constant_ workflow name is used\n- `workflowname: {cloudevent.type}` - Workflow Name is resolved at runtime from a specific CE field.\n\n**note :** In the case of extending the existing `Subscription` CRD, the `workflowname` attribute would be **mutually exclusive** with the existing `default` route option for existing HTTP subscribers. Specifying both would cause an error on dapr init.\n\n```yaml\napiVersion: dapr.io/v2alpha1\nkind: Subscription\nmetadata:\n  name: order-pub-sub\nspec:\n  pubsubname: order-pub-sub\n  topic: orders\n  routes: \n    workflowname: MyAwesomeWorkflow\nscopes:\n- checkout\n```\n---\n\n#### Workflow Operation [OPTIONAL]\n\nAt the time of writing, Dapr Workflows support several [Management Operations](https://docs.dapr.io/reference/api/workflow_api/), which could all be invoked from a PubSub message.\n\nI propose adding a new property to the `routes` section named `workflowoperation` \n\nAlternatively, the workflow Operation could be specified at runtime by extracting a field in the CloudEvent payload of the incoming message.\n\n- `workflowoperation: start` - A _constant_ workflow operation is used\n- `workflowoperation: {cloudevent.type}` - Workflow operation is resolved at runtime from a specific CE field.\n\n```yaml\nspec:\n  pubsubname: order-pub-sub\n  topic: orders\n  routes: \n    workflowname: MyAwesomeWorkflow\n    workflowoperation: start\n```\n\n- `Start` - **Default**\n- `Terminate`\n- `RaiseEvent`\n- `Pause`\n- `Resume`\n- `Purge`\n---\n\n#### Workflow Instance ID [OPTIONAL]\n\nI propose adding a new property to the `routes` section named `workflowinstanceid`\n\nTypically the design of a Workflow Instance ID is not accidental, but deliberate. Often times users will encode necessary Client IDs, correlation IDs, and tags to other processes & business entities.\n\nIt's important that we retain flexibility and provide a couple of strategies that can be combined together to craft a desirable Workflow instance ID. We should lean heavily on Daprs utilisation of the `CloudEvent` message format, and ensure that the strategies can extract various fields from the CE envelope (if a CE event is present)\n\nA simple/common use-case would be to directly utilise the `cloudevent.id` field as the workflow Instance ID.\n\n- `{cloudevent.id}` - **Default**\n- `{cloudevent.my-custom-field-name}` - Support utilising custom user-provided CloudEvent fields\n- `{cloudevent.type}-{cloudevent.id}` - Support combining of various cloud event fields together\n- `MyAwesomeWorkflow-{cloudevent.id}` - Support the use of a _Constant_ - It is common that users will include the Workflow Type Name in the Workflow Instance ID.\n- `{uuid}` - Support message payloads that are not in CloudEvent format, such as [raw messages](https://docs.dapr.io/developing-applications/building-blocks/pubsub/pubsub-raw/), and/or the user wants to guarantee a unique random workflow Instance ID\n\n```yaml\nspec:\n  pubsubname: order-pub-sub\n  topic: orders\n  routes: \n    workflowname: MyAwesomeWorkflow\n    workflowoperation: start\n    workflowinstanceid: MyAwesomeWorkflow-{cloudevent.id}\n```\n---\n\n#### Workflow ID Reuse Policy [OPTIONAL]\n\nDue to At-Least-Once delivery guarantee of Dapr PubSub (and other scenarios where a user provides the Workflow Instance Id specifically via custom cloud event field), there needs to be a hint provided to the workflow runtime on how to handle the starting of the workflow instance (just incase it is already in a `running` status from a previous `start` operation).\n\nFortunately, there are [Workflow ID reuse policies](https://github.com/dapr/dapr/issues/7101) already planned for Dapr Workflows, and I hypothesise that these can be re-used for the above purpose.\n\nThe current planned reuse policies are :\n\n* `TerminateIfExists` \n    * Terminates any existing workflows with the same instance ID and then schedules a new instance as one atomic action, similar to on-demand ContinueAsNew.\n    * This is a destructive operation, but should be allowed.\n    * Should return the equivalent of a  `SUCCESS` status code to dapr.\n* `SkipIfExists` - **Default**\n   * If there is an existing workflow already scheduled, then the scheduler does nothing. \n   * This should be the default as it is the least destructive option, and minimises potentially unexpected side-effects of terminating a running workflow that is mid-way through its operation, and then rescheduling from the start\n   * Should return the equivalent of a `SUCCESS` status code to dapr.\n* `ThrowIfExists` \n   * If there is an existing workflow then the scheduler throws an exception.\n   * I don't see that there is any value in exposing this option, but we can include it for completeness (or prevent it)\n   * Should return the equivalent of a `SUCCESS` status code to dapr.\n\nI propose adding a new property to the `routes` section named `workflowidreusepolicy`\n\n```yaml\nspec:\n  pubsubname: order-pub-sub\n  topic: orders\n  routes: \n    workflowname: MyAwesomeWorkflow\n    workflowoperation: start\n    workflowinstanceid: MyAwesomeWorkflow-{cloudevent.id}\n    workflowidreusepolicy: SkipIfExists\n```\n---\n\n#### Workflow operation payload [OPTIONAL]\n\nSome Dapr Workflow Operations support an optional payload :\n- `start` operation takes a payload as the `input` to the Workflow\n- `raise-event` operation takes a payload\n\nThe payload of the PubSub message should be used as the payload to the operations `start` and `raise-event`\n\nI propose adding a new property to the `routes` section named `workflowoperationpayload`\n \nIt may be necessary to hint to Dapr if it should attempt to deliver the message payload as-is, or just the `cloudevent.data` field\n\n* `{cloudevent.data}` - **Default**\n* `as-is`\n   * This option would be necessary to support the use of [raw messages](https://docs.dapr.io/developing-applications/building-blocks/pubsub/pubsub-raw/)\n   \n\n```yaml\nspec:\n  pubsubname: order-pub-sub\n  topic: orders\n  routes: \n    workflowname: MyAwesomeWorkflow\n    workflowoperation: start\n    workflowinstanceid: MyAwesomeWorkflow-{cloudevent.id}\n    workflowidreusepolicy: SkipIfExists\n    workflowoperationpayload: as-is\n```\n\n---\n#### Content-based routing (Thanks @WhitWaldo)\n\n```yaml\napiVersion: dapr.io/v2alpha1\nkind: Subscription\nmetadata:\n  name: order-pub-sub\nspec:\n  pubsubname: order-pub-sub\n  topic: orders\n  routes:\n    rules:\n      - match: event.type == \"widget\"\n        workflowoperation: start\n        workflowinstanceid: MyAwesomeWidget-{cloudevent.id}\n      - match: event.type == \"gadget\"\n        workflowoperation: start\n        workflowinstanceid: MyAwesomeGadget-{cloudevent.id}\n```\n---\n\n#### `/dapr/subscribe` Programmatic Subscriptions\n\n```json\n[\n  {\n    \"pubsubname\": \"order-pub-sub\",\n    \"topic\": \"orders\",\n    \"workflowname\": \"MyAwesomeWorkflow\",\n    \"workflowinstaceId\": \"MyAwesomeWorkflow-{cloudevent.id}\",\n    \"workflowidreusepolicy\": \"SkipIfExists\",\n    \"workflowoperationpayload\": \"as-is\"\n  }\n]\n```\n---\n \n#### SDK Support\n\n**Example of how the Workflow could be bound to PubSub** using the existing Workflow registration syntax :\n\n```c#\nvar builder = Host.CreateDefaultBuilder(args).ConfigureServices(services =>\n{\n    services.AddDaprWorkflow(options =>\n    {\n        options.RegisterWorkflow<MyAwesomeWorkflow>()\n          .PubSubTrigger(PubsubName: \"order-pub-sub\", \n             Topic: orders,\n             WorkflowOperation: \"start\",\n             WorkflowInstanceId: \"MyAwesomeWorkflow-{cloudevent.id}\",\n             WorkflowIdReusePolicy: \"SkipIfExists\"\n             WorkflowOperationPayload: \"as-is\");\n\n        options.RegisterActivity<NotifyActivity>();\n    });\n});\n```\n\n**Starting a workflow with the defaults** would then be as simple as :\n\n```c#\nvar builder = Host.CreateDefaultBuilder(args).ConfigureServices(services =>\n{\n    services.AddDaprWorkflow(options =>\n    {\n        options.RegisterWorkflow<MyAwesomeWorkflow>()\n          .PubSubTrigger(PubsubName: \"order-pub-sub\", \n             Topic: orders);\n\n        options.RegisterActivity<NotifyActivity>();\n    });\n});\n```\n\n## Release Note\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE:\n",
+  "labels": [
+    "kind/enhancement",
+    "pinned"
+  ],
+  "user": "olitomlinson",
+  "created_at": "2023-11-22T00:40:20Z",
+  "updated_at": "2025-01-24T21:46:36Z",
+  "comments": [
+    {
+      "user": "cgillum",
+      "body": "I'd very much like us to add this feature for the reasons you mentioned.\r\n\r\nA few technical thoughts/questions:\r\n* I think it's worth allowing `workflowidreusepolicy: ThrowIfExists`. The difference between this and `SkipIfExists` is that the former will log an error, whereas the latter will log a warning.\r\n* Instead of `payload: as-is`, perhaps `payload: {cloudevent}` to make it consistent with the other supported expressions?\r\n* Assuming that in the future we want to add support for `raise-event`, how might we design that subscription? Would that cause us to design the subscription for `start` any differently?\r\n",
+      "created_at": "2023-11-22T01:26:54Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "> I think it's worth allowing `workflowidreusepolicy: ThrowIfExists`. The difference between this and `SkipIfExists` is that the former will log an error, whereas the latter will log a warning.\r\n\r\nI understand, and I agree. I'm just not sure what it means semantically for users - how would the E2E behaviour differ if it did throw vs if it didn't? (other than a logging of a warning vs an error)\r\n\r\n> Instead of payload: as-is, perhaps payload: {cloudevent} to make it consistent with the other supported expressions?\r\n\r\nTrue, but then I think that that rules out the ability to use [raw payloads](https://docs.dapr.io/developing-applications/building-blocks/pubsub/pubsub-raw/). I'll add a new section to the proposal to consider the implications of supporting raw payloads.\r\n\r\n> Assuming that in the future we want to add support for raise-event, how might we design that subscription? Would that cause us to design the subscription for start any differently?\r\n\r\nI agree, I had a thought of including an `operation` field in the spec. Ill add a section to cover that future extensibility :)\r\n",
+      "created_at": "2023-11-22T14:59:58Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "TODO : `Scopes` / ACLs to enable/disable certain Apps performing specific Workflow operations.",
+      "created_at": "2023-11-23T00:44:45Z"
+    },
+    {
+      "user": "georgestevens99",
+      "body": "Good idea.  Thanks for the good write up.  Please consider under benefits adding decoupling since that is always a hugely important benefit of pubsubs in particular and messaging in general.  Just Fire and Forget and not have to deal with the code/yaml for retries or the extra load on the system that comes with RPC/tight coupling, especially when things are under heavy stress and loads.  Decoupling (aka loose coupling) is the opposite of tight coupling.",
+      "created_at": "2023-11-23T01:01:28Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "I think this would be an excellent addition to Dapr. In addition to just expanding on the composability of the components + leaning on the built-in reliability, this functionality would be well received, I think.\r\n\r\nOne ask though - today, I don't know that any of the PubSub components support filtering, but should that change, I'd like to leave a standing ask here to include a filter (for components that support it) so a received event only triggers a workflow if the conditions are met.",
+      "created_at": "2023-11-26T20:59:08Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "@WhitWaldo  \r\n\r\n> One ask though - today, I don't know that any of the PubSub components support filtering, but should that change, I'd like to leave a standing ask here to include a filter (for components that support it) so a received event only triggers a workflow if the conditions are met.\r\n\r\nSo Dapr PubSub does have a notion of content-based routing, as described [here](https://docs.dapr.io/developing-applications/building-blocks/pubsub/howto-route-messages/) - it's worth pointing out that this all happens in the Dapr sidecar - the filters/routing doesn't get propagated to the underlying PubSub broker.\r\n\r\nI'll add to the proposal what this could look like! Thanks!\r\n",
+      "created_at": "2023-11-27T23:21:26Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "> @WhitWaldo\r\n> \r\n> > One ask though - today, I don't know that any of the PubSub components support filtering, but should that change, I'd like to leave a standing ask here to include a filter (for components that support it) so a received event only triggers a workflow if the conditions are met.\r\n> \r\n> So Dapr PubSub does have a notion of content-based routing, as described [here](https://docs.dapr.io/developing-applications/building-blocks/pubsub/howto-route-messages/) - it's worth pointing out that this all happens in the Dapr sidecar - the filters/routing doesn't get propagated to the underlying PubSub broker.\r\n\r\nThat's precisely what I was getting at with putting this into the Dapr side - while I could just as easily filter out on the client side, it would be amazing for the PubSub broker and processing client to simply never even receive the request at all and reduce overall load that much more. I'm awfully happy to see that's already supported functionality.\r\n\r\nThank you!",
+      "created_at": "2023-11-28T22:29:57Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-01-27T22:31:34Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "Keep alive",
+      "created_at": "2024-01-28T01:00:13Z"
+    },
+    {
+      "user": "mikeee",
+      "body": "+1 \r\n\r\nGreat writeup. I'm looking forward to seeing this and ditching my inventory of boilerplate!",
+      "created_at": "2024-03-20T11:03:21Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-05-19T11:13:55Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "Keep alive",
+      "created_at": "2024-05-19T11:15:19Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-07-18T11:23:03Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "Hey bot - none of that please.",
+      "created_at": "2024-07-18T20:00:23Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-09-16T20:03:39Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "Shoo bot!",
+      "created_at": "2024-09-16T20:12:10Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-11-15T20:15:42Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "keep alive\r\n",
+      "created_at": "2024-11-18T11:25:19Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-01-17T11:41:35Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    7636
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/7226",
+  "is_seed": false,
+  "partial": false
+}

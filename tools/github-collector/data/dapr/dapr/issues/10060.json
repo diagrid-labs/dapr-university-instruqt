@@ -1,0 +1,17 @@
+{
+  "type": "issue",
+  "number": 10060,
+  "title": "Dapr sidecar containers should load user azure secrets from host when service principle not provided.",
+  "state": "open",
+  "body": "Azure service principle is ok to use at service level in clould. but when using for local development it not helpful to detect which user is using service principle. and auditing is difficult.\n\nCurrently dapr container are go based binary,  entry point directly start with go binary. At start, It does not check any .azure or any other secret file mounted on container. Only way to auth with azure is service principle.\n\nthere should be way to have user based authentication for azure resources on dapr container.",
+  "labels": [],
+  "user": "adarsh-gour",
+  "created_at": "2026-06-04T08:45:21Z",
+  "updated_at": "2026-06-04T08:45:21Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/10060",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,52 @@
+{
+  "type": "issue",
+  "number": 9277,
+  "title": "DAPR Sidecar Injection Fails to Inject",
+  "state": "open",
+  "body": "## In what area(s)?\n\n> /area runtime\n\n> /area operator\n\n> /area placement\n\n> /area docs\n\n> /area test-and-release\n\n/area injector\n\n> /area scheduler\n\n> /area sentry\n\n## What version of Dapr?\n\n1.16.2\n\n> 1.1.x<br>1.0.x<br>edge: output of `git describe --dirty`\n\n## Expected Behavior\n\nWhen pods are annotated for injection, they should be injected with DAPR sidecar.\n\n## Actual Behavior\n\nIn an anecdotally small percentage of overall injection, pods that are annotated for injection are not getting injected.\n\nI've enabled watchdog to restart/kill (not sure which it does) these pods and that has been successful for now.\n\nThis is related to [#4270](<https://github.com/dapr/dapr/issues/4270>) but in my case I am not using Weave Net.\n\n## Steps to Reproduce the Problem\n\nI don't have steps to reproduce currently, however I have experienced this both in AKS with the extension and in GKE with the helm install.\n\nAre there meaningful logs in the sidecar-injector? Or perhaps if this is a known issue and the cause is known someone could point me in the right direction to contribute to the operator.\n\n## Release Note\n\nRELEASE NOTE:",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "sethtomy",
+  "created_at": "2026-01-09T19:23:37Z",
+  "updated_at": "2026-05-04T15:41:53Z",
+  "comments": [
+    {
+      "user": "alicejgibbons",
+      "body": "Hey @sethtomy this happens occasionally but the fix is to enable the Dapr operator watchdog: https://docs.dapr.io/concepts/dapr-services/operator/#injector-watchdog",
+      "created_at": "2026-01-21T18:07:14Z"
+    },
+    {
+      "user": "sethtomy",
+      "body": "@alicejgibbons thanks for your response!\n\nI'm currently using the watchdog and it does work well enough. \n\nMy concern is the existence of watchdog is perhaps a bandaid. Is it an issue in the sidecar injector or the K8s API/eventing?\n\nIs there an issue or otherwise as to why this is happening to fix the root cause or can anyone point me in a direction?",
+      "created_at": "2026-01-21T23:43:14Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "It is indeed a bandaid. Is it happening on initial startup or on cluster events like upgrades/downgrades? The only time I have seen it happen is when the networking setup is something exotic or there is other mutating webhooks competing. Are you using a service mesh or something else that might be involved here?\n\nThe relevant logs are as follows:\n```\ntime=\"2026-01-23T18:05:11.262255551Z\" level=error msg=\"Admission succeeded, but pod was not patched. No sidecar injected for ...\" \n```\n\nNext time it happens it would be great to see the log output and then go from there. You can also enable debug logs for the sidecar injector.",
+      "created_at": "2026-01-23T18:19:38Z"
+    },
+    {
+      "user": "sethtomy",
+      "body": "If I had to guess I fit under the network side. Not using a service mesh. This log is incredibly helpful thank you. I'll keep a look out and report back if I can help. ",
+      "created_at": "2026-01-23T19:25:27Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-04-23T19:40:21Z"
+    },
+    {
+      "user": "steve-todorov",
+      "body": "I'm also experiencing a similar issue to this and #4270. The easiest way to reproduce it is with `k3d` where you just install the latest helm version. Then do a `service docker stop` and `service docker start` and you'll reproduce the issue 9 times out of 10 (if not 10/10).  \n\nI can also confirm that setting `dapr_operator.watchInterval: 15s` fixes it. :) ",
+      "created_at": "2026-05-04T15:41:53Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    4270
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/9277",
+  "is_seed": false,
+  "partial": false
+}

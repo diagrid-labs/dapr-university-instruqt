@@ -1,0 +1,39 @@
+{
+  "type": "pr",
+  "number": 4175,
+  "title": "Adds request fifoMessageGroupId for SNS/SQS",
+  "state": "open",
+  "body": "# Description\r\nAdds support for the `fifoMessageGroupId` field in request metadata for the SNS/SQS pubsub component.\r\n\r\nOrder of precedence:\r\n1.  Request Metadata\r\n2.  Component Metadata\r\n3. Generated\r\n\r\n## Issue reference\r\n\r\n#3415 \r\n\r\n## Checklist\r\n\r\nPlease make sure you've completed the relevant tasks for this PR, out of the following list:\r\n\r\n* [x] Code compiles correctly\r\n* [x] Created/updated tests\r\n* [x] Extended the documentation\r\n    * [x] Created the dapr/docs PR: https://github.com/dapr/docs/pull/5002\r\n",
+  "labels": [],
+  "user": "joshm998",
+  "created_at": "2026-01-15T07:41:31Z",
+  "updated_at": "2026-06-04T13:45:22Z",
+  "additions": 77,
+  "deletions": 0,
+  "changed_files": 2,
+  "linked_issue_numbers": [
+    3415
+  ],
+  "comments": [],
+  "html_url": "https://github.com/dapr/components-contrib/pull/4175",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pubsub/aws/snssqs/snssqs.go",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "patch": "@@ -393,6 +393,9 @@ func (s *snsSqs) getOrCreateQueue(ctx context.Context, queueName string) (*sqsQu\n }\n \n func (s *snsSqs) getMessageGroupID(req *pubsub.PublishRequest) *string {\n+\tif reqGroupID := req.Metadata[\"fifoMessageGroupID\"]; len(reqGroupID) > 0 {\n+\t\treturn &reqGroupID\n+\t}\n \tif len(s.metadata.FifoMessageGroupID) > 0 {\n \t\treturn &s.metadata.FifoMessageGroupID\n \t}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pubsub/aws/snssqs/snssqs_test.go",
+      "status": "modified",
+      "additions": 74,
+      "deletions": 0,
+      "patch": "@@ -508,3 +508,77 @@ func Test_buildARN_NonStandardPartition(t *testing.T) {\n \tarn := ps.buildARN(\"sns\", \"myTopic\")\n \tr.Equal(\"arn:aws-cn:sns:cn-northwest-1:123456789012:myTopic\", arn)\n }\n+\n+func Test_getMessageGroupID(t *testing.T) {\n+\tt.Parallel()\n+\n+\tfixtures := []struct {\n+\t\tname            string\n+\t\tcomponentProps  map[string]string\n+\t\trequestMetadata map[string]string\n+\t\texpectedGroupID string\n+\t}{\n+\t\t{\n+\t\t\tname:            \"Request with fifoMessageGroupId\",\n+\t\t\tcomponentProps:  map[string]string{\"fifoMessageGroupID\": \"component-group-id\"},\n+\t\t\trequestMetadata: map[string]string{\"fifoMessageGroupID\": \"request-group-id\"},\n+\t\t\texpectedGroupID: \"request-group-id\",\n+\t\t},\n+\t\t{\n+\t\t\tname:            \"Request with blank fifoMessageGroupId\",\n+\t\t\tcomponentProps:  map[string]string{\"fifoMessageGroupID\": \"component-group-id\"},\n+\t\t\trequestMetadata: map[string]string{\"fifoMessageGroupID\": \"\"},\n+\t\t\texpectedGroupID: \"component-group-id\",\n+\t\t},\n+\t\t{\n+\t\t\tname:            \"Request without fifoMessageGroupId\",\n+\t\t\tcomponentProps:  map[string]string{\"fifoMessageGroupID\": \"component-group-id\"},\n+\t\t\trequestMetadata: map[string]string{},\n+\t\t\texpectedGroupID: \"component-group-id\",\n+\t\t},\n+\t\t{\n+\t\t\tname:            \"Component without fifoMessageGroupId\",\n+\t\t\tcomponentProps:  map[string]string{},\n+\t\t\trequestMetadata: map[string]string{},\n+\t\t\t// Should be the default generated value\n+\t\t\texpectedGroupID: \"c\",\n+\t\t},\n+\t}\n+\n+\tfor _, f := range fixtures {\n+\t\tt.Run(f.name, func(t *testing.T) {\n+\t\t\tr := require.New(t)\n+\t\t\tl := logger.NewLogger(\"SnsSqs unit test\")\n+\t\t\tl.SetOutputLevel(logger.DebugLevel)\n+\t\t\tps := snsSqs{\n+\t\t\t\tlogger: l,\n+\t\t\t\tid:     f.name,\n+\t\t\t}\n+\n+\t\t\tprops := map[string]string{\n+\t\t\t\t\"consumerID\": \"c\",\n+\t\t\t\t\"accessKey\":  \"a\",\n+\t\t\t\t\"secretKey\":  \"s\",\n+\t\t\t\t\"fifo\":       \"true\",\n+\t\t\t}\n+\t\t\tfor k, v := range f.componentProps {\n+\t\t\t\tprops[k] = v\n+\t\t\t}\n+\n+\t\t\tmd, err := ps.getSnsSqsMetadata(pubsub.Metadata{\n+\t\t\t\tBase: metadata.Base{Properties: props},\n+\t\t\t})\n+\n+\t\t\tr.NoError(err)\n+\t\t\tps.metadata = md\n+\n+\t\t\treq := pubsub.PublishRequest{\n+\t\t\t\tMetadata:   f.requestMetadata,\n+\t\t\t\tPubsubName: \"test-pubsub\",\n+\t\t\t\tTopic:      \"test-topic\",\n+\t\t\t}\n+\t\t\tgroupID := ps.getMessageGroupID(&req)\n+\t\t\tr.Equal(f.expectedGroupID, *groupID)\n+\t\t})\n+\t}\n+}",
+      "patch_truncated": false
+    }
+  ]
+}

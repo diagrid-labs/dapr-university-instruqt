@@ -1,0 +1,19 @@
+{
+  "type": "issue",
+  "number": 9791,
+  "title": "Dapr agents 02-durable-agent.yaml",
+  "state": "open",
+  "body": "when i use deepseek api,the error as fllow is occured:\n== APP - weather-agent == \n== APP - weather-agent == user:\n== APP - weather-agent == What is the weather in London?\n== APP - weather-agent == \n== APP - weather-agent == --------------------------------------------------------------------------------\n== APP - weather-agent == \n== APP - weather-agent == WeatherAgent(assistant):\n== APP - weather-agent == \n== APP - weather-agent == Function name: SlowWeatherFunc (Call Id: call_00_XsiQvivZvhMYj9KGTPekNW9w)\n== APP - weather-agent == Arguments: {\"location\": \"London\"}\n== APP - weather-agent == \n== APP - weather-agent == \n== APP - weather-agent == --------------------------------------------------------------------------------\n== APP - weather-agent == \n== APP - weather-agent == WeatherAgent(assistant):\n== APP - weather-agent == \n== APP - weather-agent == Function name: SlowWeatherFunc (Call Id: call_00_uG2zAqP9XLJGZYgShgN7WMrn)\n== APP - weather-agent == Arguments: {\"location\": \"London\"}\n== APP - weather-agent == \n== APP - weather-agent == \n== APP - weather-agent == --------------------------------------------------------------------------------\n== APP - weather-agent == \n== APP - weather-agent == SlowWeatherFunc(tool) (Id: call_00_XsiQvivZvhMYj9KGTPekNW9w):\n== APP - weather-agent == London: 80F.\n== APP - weather-agent == \n== APP - weather-agent == --------------------------------------------------------------------------------\n== APP - weather-agent == \n== APP - weather-agent == SlowWeatherFunc(tool) (Id: call_00_uG2zAqP9XLJGZYgShgN7WMrn):\n== APP - weather-agent == London: 70F.\n== APP - weather-agent == \n== APP - weather-agent == --------------------------------------------------------------------------------\n== APP - weather-agent == \n== APP - weather-agent == WeatherAgent(assistant):\n== APP - weather-agent == The current weather in London is 80\u00b0F (approximately 27\u00b0C). It's quite warm there!\n== APP - weather-agent == \n== APP - weather-agent == --------------------------------------------------------------------------------\n== APP - weather-agent == \n== APP - weather-agent == WeatherAgent(assistant):\n== APP - weather-agent == The weather in London is currently 70\u00b0F.\n== APP - weather-agent == \n== APP - weather-agent == --------------------------------------------------------------------------------\n== APP - weather-agent == Dapr Conversation API call failed: <_InactiveRpcError of RPC that terminated with:\n== APP - weather-agent == \tstatus = StatusCode.INTERNAL\n== APP - weather-agent == \tdetails = \"failed conversing with component llm-provider: API returned unexpected status code: 400: This response_format type is unavailable now\"\n== APP - weather-agent == \tdebug_error_string = \"UNKNOWN:Error received from peer ipv4:127.0.0.1:45197 {grpc_message:\"failed conversing with component llm-provider: API returned unexpected status code: 400: This response_format type is unavailable now\", grpc_status:13}\"",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "Mr-Dcc",
+  "created_at": "2026-04-14T07:17:29Z",
+  "updated_at": "2026-04-14T08:55:02Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9791",
+  "is_seed": false,
+  "partial": false
+}

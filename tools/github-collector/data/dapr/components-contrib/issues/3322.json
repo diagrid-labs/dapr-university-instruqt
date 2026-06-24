@@ -1,0 +1,49 @@
+{
+  "type": "issue",
+  "number": 3322,
+  "title": "Change EventGrid component implementation to use the new Azure SDK with data polling",
+  "state": "open",
+  "body": "At the time of the EventGrid component creation there was no Go SDK for it. We had to use an ARM Management SDK, and only delivery via a public endpoint (pushing of events) was supported as a result. This was complicated to configure for users. \r\n\r\nNow there is a GO SDK that supports polling. We should rewrite the component to use the official Go SDK. This would be vastly more convenient and secure for users.\r\n\r\nhttps://github.com/Azure/azure-sdk-for-go/tree/main/sdk/messaging/azeventgrid",
+  "labels": [
+    "kind/enhancement",
+    "pinned"
+  ],
+  "user": "berndverst",
+  "created_at": "2024-01-25T19:55:38Z",
+  "updated_at": "2024-04-17T00:33:41Z",
+  "comments": [
+    {
+      "user": "denniszielke",
+      "body": "Agree. That would have helped us in a couple engagements.\nRelevant would on how batching could be used and how would dapr handle accepting/ rejecting individual events?\nAlso great if there would be a metric that could be used to monitor the number of batches.",
+      "created_at": "2024-02-09T05:54:35Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "@denniszielke\r\n\r\n### PubSub\r\nsupport for a native Batch/Bulk subscription would not be part of this switch in the PubSub component and that would need to come in a subsequent implementation.\r\n\r\nMaybe we would release this updated component as a v2 so that we can retain the existing behavior as a v1 component (with no further updates however). The v2 version with polling would lack support for native bulk / batch initially. This would be a subsequent feature someone can add. You can read up on Dapr Bulk Pubsub on the Dapr docs. This is how we would need to implement bulk / batch handling.\r\n\r\n### Binding\r\nAs for the switching the Binding to the new SDK and support Batch/Bulk there. This could be implemented more freely - and suggestions or contributions are welcome here. (You will need to check the specific SDK capabilities) There is no precedent that must be followed.\r\n\r\n### Note on the Event Grid Go SDK\r\nBecause the Event Grid SDK is not v1.0 yet I will insistent on labeling these components Alpha or Beta (meaning they do not get patch/hotfix support in Dapr) until we have a stable SDK from the Azure SDK for Go team.\r\n\r\n### Expectation Setting\r\n\r\nI do want to set realistic expectations that all of this is more of a wish list / dream I would like to see as maintainer. But neither I or anyone I'm aware of have time and resources to implement this. Contributions are welcome of course.\r\n",
+      "created_at": "2024-02-09T21:56:08Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-03-10T22:05:14Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2024-03-17T22:16:27Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-04-16T23:53:45Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    1263,
+    3172
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3322",
+  "is_seed": false,
+  "partial": false
+}

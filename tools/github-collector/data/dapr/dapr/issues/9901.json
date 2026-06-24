@@ -1,0 +1,27 @@
+{
+  "type": "issue",
+  "number": 9901,
+  "title": "WorkflowRuntimeState.GetStartEvent().GetVersion() always returns an empty version",
+  "state": "open",
+  "body": "## In what area(s)?\n\n/area runtime\n\n## What version of Dapr?\n\n 1.1.17\n\n## Expected Behavior\n\ncalling `WorkflowRuntimeState.GetStartEvent().GetVersion()` returns the workflow version.\n\n## Actual Behavior\n\nReading `WorkflowRuntimeState.GetStartEvent().GetVersion()` returns nil for any workflow scheduled through the standard client API. \n\nThe runtime-resolved version is **not** stored on ExecutionStartedEvent (the event returned by `WorkflowRuntimeState.GetStartEvent`).\n\n**AI generated analysis**: \n\n`ExecutionStartedEvent.Version` is only populated when a client schedules with an explicit version on `CreateInstanceRequest`. The standard durabletask-go ScheduleNewWorkflow API has no WithVersion option, and even when `CreateInstanceRequest.Version` is set the gRPC StartInstance handler does not copy it onto the constructed event.\n\n## Steps to Reproduce the Problem\n\nN/A\n\n## Release Note\n\n<!-- How should the fix for this issue be communicated in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE:\n",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "pablochacin",
+  "created_at": "2026-05-07T10:22:55Z",
+  "updated_at": "2026-05-07T14:00:06Z",
+  "comments": [
+    {
+      "user": "acroca",
+      "body": "I think the version in the `ExecutionStartedEvent` is not used. There's `version` in other events and AFAIK we're not using. I think we should deprecate them, but we need to confirm first.",
+      "created_at": "2026-05-07T14:00:06Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    9822
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9901",
+  "is_seed": false,
+  "partial": false
+}

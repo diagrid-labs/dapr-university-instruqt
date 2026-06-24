@@ -1,0 +1,32 @@
+{
+  "type": "issue",
+  "number": 9481,
+  "title": "HTTP metrics cardinality should be predictable and consistent",
+  "state": "open",
+  "body": "## In what area(s)?\n\n/area runtime\n/area docs\n\n## Describe the feature\n\n**Problem:**\nThe current behavior of HTTP metrics cardinality is inconsistent and counter-intuitive. Specifically, when users opt-in to `High Cardinality` (legacy mode), the system still attempts to auto-truncate unmatched paths. This defeats the purpose of enabling high cardinality, which is to see the *exact* raw paths being requested for debugging or detailed analysis. Users expecting raw data are instead getting modified/masked paths, which is confusing.\n\n**Proposal:**\nWe should refactor the HTTP metrics path matching logic to fix this inconsistency and provide predictable behavior:\n\n1.  **Low Cardinality (Default)**: Unmatched paths should be dropped to prevent unbounded cardinality. However, known Dapr API paths (such as Actors, Service Invocation, State, etc.) should be **auto-truncated** (e.g., IDs are masked) to ensure visibility without exploding metric cardinality.\n2.  **High Cardinality (Legacy)**: When `increasedCardinality` is enabled, unmatched paths should be passed through as **raw paths** without truncation. This preserves full fidelity for users who explicitly opt-in to higher resource usage.\n\n## Release Note\n\nRELEASE NOTE: **UPDATE** Improved HTTP metrics path matching with auto-truncation for Dapr APIs in low cardinality mode.\n",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "MyMirelHub",
+  "created_at": "2026-02-12T21:43:39Z",
+  "updated_at": "2026-03-26T16:27:46Z",
+  "comments": [
+    {
+      "user": "mehrdadbn9",
+      "body": "I'd like to work on making HTTP metrics cardinality predictable and consistent. I can analyze the current implementation and propose a solution. Please assign if appropriate.",
+      "created_at": "2026-02-13T08:24:53Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "@mehrdadbn9 please comment /assign on this issue and you can take it! thanks",
+      "created_at": "2026-03-26T16:27:46Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    9482
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9481",
+  "is_seed": false,
+  "partial": false
+}

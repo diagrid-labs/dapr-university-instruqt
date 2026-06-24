@@ -1,0 +1,31 @@
+{
+  "type": "issue",
+  "number": 2317,
+  "title": "MQTT pubsub to offer metadata for retained messages",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\nToday, MQTT pubsub offers the `retain` attribute in the component as a global setting - meaning that every message published with  that component will have its value set to true. On the other hand, applications might require only some messages to be set as retained (since only one retained message is allowed per topic). This feature request is to allow `retain` attribute to be overwritten per message metadata on publish call as well.\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE: Support `retain` per message metadata in MQTT publish\r\n",
+  "labels": [
+    "kind/enhancement",
+    "good first issue",
+    "P2",
+    "size/XS"
+  ],
+  "user": "artursouza",
+  "created_at": "2022-11-27T21:57:25Z",
+  "updated_at": "2022-11-30T15:22:05Z",
+  "comments": [
+    {
+      "user": "SpikeWong",
+      "body": "/assign",
+      "created_at": "2022-11-28T08:34:28Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    2377,
+    3141
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2317",
+  "is_seed": false,
+  "partial": false
+}

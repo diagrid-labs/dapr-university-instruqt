@@ -1,0 +1,90 @@
+{
+  "type": "issue",
+  "number": 8236,
+  "title": "Add more descriptive logging for component startup failure",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## In what area(s)?\r\n\r\n<!-- Remove the '> ' to select -->\r\n\r\n> /area runtime\r\n\r\n## Describe the feature\r\nCurrently, at least in the scenario I am currently experiencing, component startup failures (when the dapr sidecar fails) do not explicitly log what component has caused the logged failure. As an example (directly taken from our own logs)\r\n\r\n```\r\ntime=\"2024-10-24T14:16:38.96601361Z\" level=info msg=\"Loading components\u2026\"\r\ntime=\"2024-10-24T14:16:38.966165869Z\" level=debug msg=\"Loading component: kubernetes (secretstores.kubernetes/v1)\" \r\ntime=\"2024-10-24T14:16:38.966859016Z\" level=info msg=\"Component loaded: kubernetes (secretstores.kubernetes/v1)\"\r\ntime=\"2024-10-24T14:16:38.968072409Z\" level=info msg=\"Dapr is shutting down\"\r\ntime=\"2024-10-24T14:16:38.968092427Z\" level=debug msg=\"Graceful shutdown timeout: 5s\"\r\ntime=\"2024-10-24T14:16:38.968190794Z\" level=info msg=\"Shutting down component kubernetes (secretstores.kubernetes/v1)\"\r\ntime=\"2024-10-24T14:16:38.968228115Z\" level=info msg=\"Dapr runtime stopped\" \r\ntime=\"2024-10-24T14:16:38.968274223Z\" level=debug msg=\"stopping workload cert expiry watcher\"\r\ntime=\"2024-10-24T14:16:38.96829895Z\" level=fatal msg=\"Fatal error from runtime: failed to load components: rpc error: code = Unknown desc = Secret XXX not found\" \r\n```\r\nNote that this is running ver=1.13.4, I have looked through some changelogs and don't see anything that implies this has been changed in later versions, but if it has then feel free to close this obviously.\r\n\r\nAs you can see the logs do not explicitly specify which component has failed: \"kubernetes\" is marked as having loaded, but there is no followup \"loading component\" for any other component before it fails, nor does any other log name any other component that might have failed.\r\n\r\nI propose that the component responsible for the failure is added to the final \"fatal\" log, example:\r\n\r\n```Fatal error from runtime: failed to load components: Failed to load component {COMPONENT}: errormessage```\r\n\r\nor just \r\n\r\n```Fatal error from runtime: Failed to load component {COMPONENT}: errormessage```\r\n\r\n## Release Note\r\nRELEASE NOTE: More descriptive logging for component startup failures\r\n",
+  "labels": [
+    "good first issue",
+    "kind/enhancement"
+  ],
+  "user": "lor1113",
+  "created_at": "2024-10-24T15:06:50Z",
+  "updated_at": "2026-02-12T15:09:59Z",
+  "comments": [
+    {
+      "user": "Xander-run",
+      "body": "This looks like a great first-time issue to learn from. Could I take it on?",
+      "created_at": "2024-10-26T12:22:19Z"
+    },
+    {
+      "user": "Xander-run",
+      "body": "/assign",
+      "created_at": "2024-10-27T12:06:53Z"
+    },
+    {
+      "user": "SpiffyEight77",
+      "body": "I would like to work on this issue.",
+      "created_at": "2024-11-20T13:33:32Z"
+    },
+    {
+      "user": "SpiffyEight77",
+      "body": "/assign",
+      "created_at": "2024-11-20T13:35:30Z"
+    },
+    {
+      "user": "RohanMishra315",
+      "body": "Hey @SpiffyEight77 , you workin' on this, let me know",
+      "created_at": "2024-12-03T04:10:54Z"
+    },
+    {
+      "user": "SpiffyEight77",
+      "body": "> Hey @SpiffyEight77 , you workin' on this, let me know\r\n\r\nHi @RohanMishra315, I'm still working on this issue.",
+      "created_at": "2024-12-03T05:29:52Z"
+    },
+    {
+      "user": "adam6878",
+      "body": "Hey [SpiffyEight77](https://github.com/SpiffyEight77) still working on this?",
+      "created_at": "2025-05-12T08:49:49Z"
+    },
+    {
+      "user": "SpiffyEight77",
+      "body": "> Hey [SpiffyEight77](https://github.com/SpiffyEight77) still working on this?\n\nHello @adam6878 , I'm not working on this anymore. Please feel free to take it.",
+      "created_at": "2025-05-13T12:56:11Z"
+    },
+    {
+      "user": "citymaus",
+      "body": "/assign",
+      "created_at": "2025-07-25T00:32:43Z"
+    },
+    {
+      "user": "AdarshRavichandran",
+      "body": "@citymaus, are you still working on this? It looks a bit familiar to me\u2014would it be alright if I pick this up?",
+      "created_at": "2025-08-19T05:12:09Z"
+    },
+    {
+      "user": "citymaus",
+      "body": "> [@citymaus](https://github.com/citymaus), are you still working on this? It looks a bit familiar to me\u2014would it be alright if I pick this up?\n\nGo ahead! @AdarshRavichandran ",
+      "created_at": "2025-08-19T05:27:28Z"
+    },
+    {
+      "user": "AdarshRavichandran",
+      "body": "/assign",
+      "created_at": "2025-08-19T05:27:54Z"
+    },
+    {
+      "user": "AdarshRavichandran",
+      "body": "@lor1113  @yaron2 please help with a review ",
+      "created_at": "2025-08-21T06:15:01Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    8330,
+    8997,
+    9735
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/8236",
+  "is_seed": false,
+  "partial": false
+}

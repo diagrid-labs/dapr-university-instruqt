@@ -1,0 +1,42 @@
+{
+  "type": "issue",
+  "number": 631,
+  "title": "feat: add Drasi extension to support agent workflow triggers from Drasi pubsub",
+  "state": "open",
+  "body": "## Context\n\nDrasi's Kubernetes offering has a pub/sub connector [`PostDaprPubSub`](https://drasi.io/drasi-kubernetes/how-to-guides/configure-reactions/configure-post-pubsub-reaction/) that forwards Drasi change events to pub/sub topics. These events can be consumed by any app that uses Dapr pub/sub (including agents), but requires [a significant amount of boilerplate](https://drasi.io/drasi-kubernetes/how-to-guides/configure-reactions/configure-post-pubsub-reaction/#how-dapr-microservices-consume-messages). This includes: redefining [Drasi event envelopes](https://drasi.io/drasi-kubernetes/how-to-guides/configure-reactions/configure-post-pubsub-reaction/#output-formats) (not a stable API since Drasi is a sandbox project); parsing and filtering in workflows for specific queries and operations, which mixes business logic and \"boundary\"-level concerns (and makes workflows harder to read); extra indirection as workflows must call agents as child workflows. All of this requires app developers to read Drasi documentation and understand Drasi internals.\n\n## Solution\n\nTo reduce developer burden, we should add a `drasi_trigger` function that can route Drasi events directly to agent workflows, supporting the following parameters:\n- The agent to target\n- Pub/sub component\n- Pub/sub topic\n- Drasi query ID\n- Drasi operation (insert/update/delete)\n- Model representing the \"view\"/change data within the Drasi change event\n\nA \"barebones\" implementation would need to validate the Drasi event, extract the \"view\"/change data, and transform it into the format expected by `DurableAgent` (`TriggerAction`).\n\nThis will also serve as a reference for developers building their own custom extensions.\n\n## Acceptance Criteria\n- [ ] `drasi_trigger` able to be imported as part of a namespace package `dapr_agents.ext.drasi`\n- [ ] Agent workflows are triggered directly using `drasi_trigger`\n- [ ] Unit tests\n- [ ] Dapr docs update\n- [ ] Development docs update\n- [ ] CI update if necessary\n- [ ] Demo E2E app",
+  "labels": [],
+  "user": "JeffreyJPZ",
+  "created_at": "2026-06-01T20:45:46Z",
+  "updated_at": "2026-06-19T05:53:48Z",
+  "comments": [
+    {
+      "user": "JeffreyJPZ",
+      "body": "/assign",
+      "created_at": "2026-06-01T20:47:58Z"
+    },
+    {
+      "user": "amansinghoriginal",
+      "body": "@JeffreyJPZ Originally we were considering a decorator as the title of this issue mentions, which would have looked like this:\n\n```\n agent = DurableAgent(...)\n  \n  @drasi_trigger(agent, query_id=\"risky-orders\")\n  def to_task(event):                      \n      return TriggerAction(task=f\"Handle order {event.payload.after}\")\n\n  agent.run()\n```\n\nBut the current proposed implementation is taking a more explicit form, by using a Function instead.\n\n```\n  agent = DurableAgent(...)\n  drasi_trigger(agent, topic=\"drasi-events-risky-orders\",\n                mapper=lambda e: TriggerAction(task=...))\n  agent.run()\n```\n\nNeither is wrong - I guess it 's a taste call.\nDo you and Casper agree the second approach aligns more with style in dapr-agents codebase?",
+      "created_at": "2026-06-14T07:50:28Z"
+    },
+    {
+      "user": "amansinghoriginal",
+      "body": "@JeffreyJPZ We're also adding the `topic` as explicity required field in the drasi_trigger. Can we make this topic-name optional? So that we support an automatically derived topic name by default, and allow `topic=` to override if necessary.\nSomething like `drasi-events-{query_id}` ?",
+      "created_at": "2026-06-14T07:52:16Z"
+    },
+    {
+      "user": "JeffreyJPZ",
+      "body": "Re the above, we decided that the explicit form is better as we can just wire everything up at runtime and it better reflects what the trigger is doing (the focal point is the agent). We also decided it would be better to make the query ID required as it uniquely identifies the events of interest, whereas the topic is more of a transport-level detail and can be abstracted away (at least from the agent/\"client\" side).",
+      "created_at": "2026-06-19T05:08:35Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    646
+  ],
+  "referenced_issue_numbers": [
+    630
+  ],
+  "html_url": "https://github.com/dapr/dapr-agents/issues/631",
+  "is_seed": false,
+  "partial": false
+}

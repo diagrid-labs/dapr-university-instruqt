@@ -1,0 +1,30 @@
+{
+  "type": "issue",
+  "number": 9800,
+  "title": "Add CLI tool to evaluate health of scheduler etcd state store",
+  "state": "open",
+  "body": "**In what area(s)?**\n\n/area placement\n/area scheduler\n\n**Describe the feature**\n\nProblem Statement:\nWhile Dapr leverages etcd for critical state management within the Scheduler and Placement services, operators currently lack a high-level diagnostic tool to verify the logical integrity of the data stored within the cluster. Standard etcdctl tools can confirm if the database is \"up,\" but they cannot verify if the stored Protobuf-encoded bytes are still consistent with Dapr's internal schemas.\n\nIn scenarios involving disk corruption, partial failures during upgrades, or manual data manipulation, the etcd cluster can enter a state where keys exist but are unreadable or logically malformed. This leads to opaque failures in the Scheduler (e.g., jobs failing to load) or the Placement service (e.g., hashing inconsistencies).\nProposed Solution\n\nI propose the creation of a diagnostic CLI tool (or a subcommand within dapr-admin) specifically designed to evaluate Dapr-level schema integrity within an etcd cluster.\n\nKey capabilities would include (things like):\n\n    Schema Validation: Iterating through service-specific prefixes (e.g., /dapr/scheduler/jobs/) and attempting to deserialize the values into their corresponding Go structs/Protobuf messages.\n\n    Orphan Detection: Identifying logical pointers to data that no longer exists within the keyspace.\n\n    Version Verification: Checking if the stored data format matches the expected schema version of the running Dapr control plane.\n\n    Safe Execution: Providing a read-only \"dry-run\" mode that can be executed against a live cluster or a snapshot without risk to production stability.\n\n**Business Value**\n\n    Reduced MTTR: Dramatically speeds up root-cause analysis during infrastructure-level incidents by immediately confirming or ruling out data corruption.\n\n    Operational Confidence: Provides a \"pre-flight check\" tool for operators performing major version upgrades or migrating infrastructure.\n\n    Reliability: Ensures that the high-availability guarantees of the Scheduler and Placement services are backed by verified, healthy data.\n\n**Release Note**\n\nRELEASE NOTE: ADD Diagnostic CLI tool to evaluate schema integrity and data consistency for etcd-backed services (Scheduler/Placement).",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "ryanisnan",
+  "created_at": "2026-04-15T20:42:14Z",
+  "updated_at": "2026-04-22T19:33:40Z",
+  "comments": [
+    {
+      "user": "olitomlinson",
+      "body": "@ryanisnan \n\n> In scenarios involving disk corruption, partial failures during upgrades, or manual data manipulation, the etcd cluster can enter a state where keys exist but are unreadable or logically malformed\n\nIs this something you have first-hand experience of occurring with Dapr Scheduler/placement? \n\nIf so, have these items been raised on GitHub or with a Dapr enterprise vendor? It's really important that we get to the bottom of the root cause of such incidents occurring. Thank you",
+      "created_at": "2026-04-21T08:46:07Z"
+    },
+    {
+      "user": "ryanisnan",
+      "body": "Yes @olitomlinson, thanks for the reply.\n\n@yaron2, @atrauzzi and @JoshVanL have some context.\n\nI think the crux of the issue is that we've found ourselves in some edge-case scenarios, and at times have had to roll back, so our usage of dapr sometimes does not follow the happy path; having a tool like this would be helpful going forward for just understanding and analyzing the state storage.",
+      "created_at": "2026-04-22T19:13:35Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9800",
+  "is_seed": false,
+  "partial": false
+}

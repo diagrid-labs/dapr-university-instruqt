@@ -1,0 +1,84 @@
+{
+  "type": "pr",
+  "number": 9746,
+  "title": "Fix Sentry regenerating certificates when ConfigMap is out of sync",
+  "state": "open",
+  "body": "# Description\n\nWhen the `dapr-trust-bundle` ConfigMap is out of sync with the Secret (e.g. during certificate renewal via `dapr mtls renew-certificate -k --restart`), Sentry incorrectly regenerates new self-signed certificates instead of using the valid certificates from the Secret.\n\nThe root cause is in `kube.go`'s `get()` method: when the ConfigMap's root cert doesn't match the Secret's root cert, `generateX509` is set to `true`, causing `get()` to return a bundle with `X509 == nil`. This makes `ca.New()` generate entirely new self-signed certificates, invalidating the just-renewed ones.\n\nThe Secret is the authoritative source for certificate data. A ConfigMap mismatch should trigger a re-sync (re-persisting the bundle to update the ConfigMap), not a full certificate regeneration.\n\n## Changes\n\n- Changed the `store` interface's `get` method to return a `needsSync` boolean alongside the bundle\n- In `kube.get()`, a ConfigMap mismatch now sets `needsSync = true` instead of `generateX509 = true`, with a warning log\n- In `ca.New()`, `needsSync` is OR'd into the existing `needsWrite` flag, which triggers `store()` to re-persist the bundle and sync the ConfigMap\n- Updated `selfhosted.get()` to match the new interface (always returns `false` for `needsSync`)\n\n## Issue reference\n\nPlease reference the issue this PR will close: #9563\n\n## Checklist\n\nPlease make sure you've completed the relevant tasks for this PR, out of the following list:\n\n- [x] Code compiles correctly\n- [x] Created/updated tests\n- [x] Unit tests passing\n- [ ] End-to-end tests passing\n- [ ] Extended the documentation / Created issue in the <https://github.com/dapr/docs/> repo: dapr/docs#_[issue number]_\n- [ ] Specification has been updated / Created issue in the <https://github.com/dapr/docs/> repo: dapr/docs#_[issue number]_\n- [ ] Provided sample for the feature / Created issue in the <https://github.com/dapr/docs/> repo: dapr/docs#_[issue number]_",
+  "labels": [],
+  "user": "officialasishkumar",
+  "created_at": "2026-04-04T09:33:50Z",
+  "updated_at": "2026-04-04T10:33:53Z",
+  "additions": 110,
+  "deletions": 28,
+  "changed_files": 5,
+  "linked_issue_numbers": [
+    9563
+  ],
+  "comments": [
+    {
+      "user": "Copilot",
+      "body": "When the ConfigMap GET fails, this returns the raw error without context. Elsewhere in this method (and in kube.store) errors are wrapped with actionable context (resource type/name/namespace). Consider wrapping this error (eg, \"failed to get trust bundle configmap: %w\") so logs clearly indicate why bundle loading failed.\n```suggestion\n\t\treturn bundle.Bundle{}, false, fmt.Errorf(\"failed to get trust bundle configmap: %w\", err)\n```",
+      "created_at": "2026-04-04T09:37:42Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "needsSync feeds into needsWrite, which triggers castore.store even when the Secret already has the correct certs/keys and only the ConfigMap is stale. In Kubernetes mode, kube.store updates the Secret unconditionally before updating the ConfigMap, so a pure re-sync will still write the Secret (bumping resourceVersion and potentially triggering watchers) and will also emit the existing \"generated and persisted\" log line + IssuerCertChanged metric, which becomes misleading. Consider distinguishing the \"re-sync ConfigMap\" path from the \"generate new bundle\" path so (1) only the ConfigMap is updated when appropriate and (2) logs/metrics reflect what actually happened.",
+      "created_at": "2026-04-04T09:37:43Z"
+    },
+    {
+      "user": "officialasishkumar",
+      "body": "Wrapped the ConfigMap GET error with context in `5a87353`, so failures now identify the resource clearly.",
+      "created_at": "2026-04-04T10:24:16Z"
+    },
+    {
+      "user": "officialasishkumar",
+      "body": "Split the ConfigMap-only resync from the full store write in `5a87353`, so this path no longer rewrites the Secret or emits the full write-path signal.",
+      "created_at": "2026-04-04T10:24:28Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/dapr/pull/9746",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pkg/sentry/server/ca/ca.go",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 2,
+      "patch": "@@ -80,7 +80,17 @@ type Signer interface {\n // store is the interface for the trust bundle backend store.\n type store interface {\n \tstore(context.Context, bundle.Bundle) error\n-\tget(context.Context) (bundle.Bundle, error)\n+\t// get returns the bundle and a boolean indicating whether the store is out\n+\t// of sync and the bundle needs to be re-persisted (e.g. ConfigMap diverged\n+\t// from Secret in Kubernetes mode).\n+\tget(context.Context) (bundle.Bundle, bool, error)\n+}\n+\n+// configMapSyncer is an optional interface that a store can implement to\n+// re-sync only the ConfigMap without rewriting the Secret. This avoids\n+// unnecessary Secret updates when the certificates are already correct.\n+type configMapSyncer interface {\n+\tsyncConfigMap(context.Context, bundle.Bundle) error\n }\n \n // ca is the implementation of the CA Signer.\n@@ -110,12 +120,13 @@ func New(ctx context.Context, conf config.Config) (Signer, error) {\n \t\tcastore = &selfhosted{config: conf}\n \t}\n \n-\tbndle, err := castore.get(ctx)\n+\tbndle, needsSync, err := castore.get(ctx)\n \tif err != nil {\n \t\treturn nil, fmt.Errorf(\"failed to get CA bundle: %w\", err)\n \t}\n \n \tvar needsWrite bool\n+\n \tif bndle.X509 == nil {\n \t\tneedsWrite = true\n \n@@ -164,6 +175,22 @@ func New(ctx context.Context, conf config.Config) (Signer, error) {\n \t\tlog.Info(\"Generating JWT signing key and persisting to store\")\n \t}\n \n+\t// When the ConfigMap is out of sync but no new certs were generated,\n+\t// only re-sync the ConfigMap to avoid an unnecessary Secret write.\n+\tif needsSync && !needsWrite {\n+\t\tif syncer, ok := castore.(configMapSyncer); ok {\n+\t\t\tlog.Info(\"Trust bundle ConfigMap is out of sync; re-syncing ConfigMap only\")\n+\t\t\tif err := syncer.syncConfigMap(ctx, bndle); err != nil {\n+\t\t\t\treturn nil, fmt.Errorf(\"failed to sync trust bundle configmap: %w\", err)\n+\t\t\t}\n+\t\t\tlog.Info(\"Trust bundle ConfigMap re-synced successfully\")\n+\t\t} else {\n+\t\t\t// Fallback for stores that don't support partial sync.\n+\t\t\tneedsWrite = true\n+\t\t\tlog.Info(\"Trust bundle store is out of sync; will re-persist bundle\")\n+\t\t}\n+\t}\n+\n \tif needsWrite {\n \t\tif err := castore.store(ctx, bndle); err != nil {\n \t\t\treturn nil, fmt.Errorf(\"failed to store CA bundle: %w\", err)",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/sentry/server/ca/kube.go",
+      "status": "modified",
+      "additions": 43,
+      "deletions": 10,
+      "patch": "@@ -41,11 +41,13 @@ type kube struct {\n }\n \n // get retrieves the existing certificate bundle from Kubernetes.\n-func (k *kube) get(ctx context.Context) (bundle.Bundle, error) {\n+// It returns the bundle, a boolean indicating whether the ConfigMap needs to\n+// be re-synced with the Secret, and any error.\n+func (k *kube) get(ctx context.Context) (bundle.Bundle, bool, error) {\n \t// Get the trust bundle secret\n \tsecret, err := k.client.CoreV1().Secrets(k.namespace).Get(ctx, TrustBundleK8sName, metav1.GetOptions{})\n \tif err != nil {\n-\t\treturn bundle.Bundle{}, fmt.Errorf(\"failed to get trust bundle secret: %w\", err)\n+\t\treturn bundle.Bundle{}, false, fmt.Errorf(\"failed to get trust bundle secret: %w\", err)\n \t}\n \n \t// Check if X.509 certificates need to be generated\n@@ -55,22 +57,26 @@ func (k *kube) get(ctx context.Context) (bundle.Bundle, error) {\n \n \tgenerateX509 := !hasRootCert || !hasIssuerCert || !hasIssuerKey\n \n-\t// Also check if the ConfigMap is in sync\n+\t// Check if the ConfigMap is in sync with the Secret.\n+\t// The Secret is the authoritative source for certificate data. A ConfigMap\n+\t// mismatch should trigger a re-sync, not certificate regeneration.\n+\tvar needsSync bool\n \tconfigMap, err := k.client.CoreV1().ConfigMaps(k.namespace).Get(ctx, TrustBundleK8sName, metav1.GetOptions{})\n \tif err != nil {\n-\t\treturn bundle.Bundle{}, err\n+\t\treturn bundle.Bundle{}, false, fmt.Errorf(\"failed to get trust bundle configmap: %w\", err)\n \t}\n \n \tif configMapRootCert, ok := configMap.Data[filepath.Base(k.config.RootCertPath)]; !ok || (hasRootCert && configMapRootCert != string(trustAnchors)) {\n-\t\tgenerateX509 = true\n+\t\tneedsSync = true\n+\t\tlog.Warn(\"Trust bundle ConfigMap is out of sync with Secret; will re-sync\")\n \t}\n \n \t// Create a bundle if certificates are available\n \tvar bndle bundle.Bundle\n \tif !generateX509 {\n \t\tbndle.X509, err = verifyX509Bundle(trustAnchors, issChainPEM, issKeyPEM)\n \t\tif err != nil {\n-\t\t\treturn bundle.Bundle{}, fmt.Errorf(\"failed to verify CA bundle: %w\", err)\n+\t\t\treturn bundle.Bundle{}, false, fmt.Errorf(\"failed to verify CA bundle: %w\", err)\n \t\t}\n \t}\n \n@@ -81,11 +87,11 @@ func (k *kube) get(ctx context.Context) (bundle.Bundle, error) {\n \tif hasJWTKey && hasJWKS {\n \t\tjwtKey, jwtErr := loadJWTSigningKey(jwtKeyPEM)\n \t\tif jwtErr != nil {\n-\t\t\treturn bundle.Bundle{}, fmt.Errorf(\"failed to load JWT signing key: %w\", jwtErr)\n+\t\t\treturn bundle.Bundle{}, false, fmt.Errorf(\"failed to load JWT signing key: %w\", jwtErr)\n \t\t}\n \n \t\tif verifyErr := verifyJWKS(jwks, jwtKey, k.config.JWT.KeyID); verifyErr != nil {\n-\t\t\treturn bundle.Bundle{}, fmt.Errorf(\"failed to verify JWKS: %w\", verifyErr)\n+\t\t\treturn bundle.Bundle{}, false, fmt.Errorf(\"failed to verify JWKS: %w\", verifyErr)\n \t\t}\n \n \t\tbndle.JWT = &bundle.JWT{\n@@ -95,11 +101,11 @@ func (k *kube) get(ctx context.Context) (bundle.Bundle, error) {\n \t\t}\n \t\tbndle.JWT.JWKS, err = jwk.Parse(jwks)\n \t\tif err != nil {\n-\t\t\treturn bundle.Bundle{}, fmt.Errorf(\"failed to parse JWKS: %w\", err)\n+\t\t\treturn bundle.Bundle{}, false, fmt.Errorf(\"failed to parse JWKS: %w\", err)\n \t\t}\n \t}\n \n-\treturn bndle, nil\n+\treturn bndle, needsSync, nil\n }\n \n // store saves the certificate bundle to Kubernetes.\n@@ -160,3 +166,30 @@ func (k *kube) store(ctx context.Context, bundle bundle.Bundle) error {\n \n \treturn nil\n }\n+\n+// syncConfigMap re-syncs only the ConfigMap with the provided bundle data,\n+// without touching the Secret. This is used when the Secret already has correct\n+// certs but the ConfigMap has diverged.\n+func (k *kube) syncConfigMap(ctx context.Context, b bundle.Bundle) error {\n+\tconfigMap, err := k.client.CoreV1().ConfigMaps(k.namespace).Get(ctx, TrustBundleK8sName, metav1.GetOptions{})\n+\tif err != nil {\n+\t\treturn fmt.Errorf(\"failed to get trust bundle configmap: %w\", err)\n+\t}\n+\n+\tif configMap.Data == nil {\n+\t\tconfigMap.Data = make(map[string]string)\n+\t}\n+\n+\tconfigMap.Data[filepath.Base(k.config.RootCertPath)] = string(b.X509.TrustAnchors)\n+\n+\tdelete(configMap.Data, filepath.Base(k.config.JWT.JWKSPath))\n+\tif b.JWT != nil {\n+\t\tconfigMap.Data[filepath.Base(k.config.JWT.JWKSPath)] = string(b.JWT.JWKSJson)\n+\t}\n+\n+\tif _, err = k.client.CoreV1().ConfigMaps(k.namespace).Update(ctx, configMap, metav1.UpdateOptions{}); err != nil {\n+\t\treturn fmt.Errorf(\"failed to update trust bundle configmap: %w\", err)\n+\t}\n+\n+\treturn nil\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/sentry/server/ca/kube_test.go",
+      "status": "modified",
+      "additions": 31,
+      "deletions": 11,
+      "patch": "@@ -52,10 +52,11 @@ func TestKube_get(t *testing.T) {\n \trequire.NoError(t, err)\n \n \ttests := map[string]struct {\n-\t\tsec       *corev1.Secret\n-\t\tcm        *corev1.ConfigMap\n-\t\texpBundle ca_bundle.Bundle\n-\t\texpErr    bool\n+\t\tsec          *corev1.Secret\n+\t\tcm           *corev1.ConfigMap\n+\t\texpBundle    ca_bundle.Bundle\n+\t\texpNeedsSync bool\n+\t\texpErr       bool\n \t}{\n \t\t\"if secret doesn't exist, expect error\": {\n \t\t\tsec: nil,\n@@ -148,7 +149,7 @@ func TestKube_get(t *testing.T) {\n \t\t\texpBundle: ca_bundle.Bundle{},\n \t\t\texpErr:    false,\n \t\t},\n-\t\t\"if configmap doesn't include ca.crt, expect to generate x509\": {\n+\t\t\"if configmap doesn't include ca.crt, expect valid bundle with needsSync\": {\n \t\t\tsec: &corev1.Secret{\n \t\t\t\tObjectMeta: metav1.ObjectMeta{\n \t\t\t\t\tName:      \"dapr-trust-bundle\",\n@@ -167,10 +168,19 @@ func TestKube_get(t *testing.T) {\n \t\t\t\t},\n \t\t\t\tData: map[string]string{},\n \t\t\t},\n-\t\t\texpBundle: ca_bundle.Bundle{},\n-\t\t\texpErr:    false,\n+\t\t\texpBundle: ca_bundle.Bundle{\n+\t\t\t\tX509: &ca_bundle.X509{\n+\t\t\t\t\tTrustAnchors: rootPEM,\n+\t\t\t\t\tIssChainPEM:  intPEM,\n+\t\t\t\t\tIssKeyPEM:    intPKPEM,\n+\t\t\t\t\tIssChain:     []*x509.Certificate{intCrt},\n+\t\t\t\t\tIssKey:       intPK,\n+\t\t\t\t},\n+\t\t\t},\n+\t\t\texpNeedsSync: true,\n+\t\t\texpErr:       false,\n \t\t},\n-\t\t\"if trust anchors do not match, expect not to generate x509\": {\n+\t\t\"if trust anchors do not match, expect valid bundle with needsSync\": {\n \t\t\tsec: &corev1.Secret{\n \t\t\t\tObjectMeta: metav1.ObjectMeta{\n \t\t\t\t\tName:      \"dapr-trust-bundle\",\n@@ -189,8 +199,17 @@ func TestKube_get(t *testing.T) {\n \t\t\t\t},\n \t\t\t\tData: map[string]string{\"ca.crt\": string(rootPEM) + \"\\n\" + string(rootPEM2)},\n \t\t\t},\n-\t\t\texpBundle: ca_bundle.Bundle{},\n-\t\t\texpErr:    false,\n+\t\t\texpBundle: ca_bundle.Bundle{\n+\t\t\t\tX509: &ca_bundle.X509{\n+\t\t\t\t\tTrustAnchors: rootPEM,\n+\t\t\t\t\tIssChainPEM:  intPEM,\n+\t\t\t\t\tIssKeyPEM:    intPKPEM,\n+\t\t\t\t\tIssChain:     []*x509.Certificate{intCrt},\n+\t\t\t\t\tIssKey:       intPK,\n+\t\t\t\t},\n+\t\t\t},\n+\t\t\texpNeedsSync: true,\n+\t\t\texpErr:       false,\n \t\t},\n \t\t\"if bundle fails to verify x509, expect error\": {\n \t\t\tsec: &corev1.Secret{\n@@ -526,8 +545,9 @@ func TestKube_get(t *testing.T) {\n \t\t\t\tnamespace: \"dapr-system-test\",\n \t\t\t}\n \n-\t\t\tbundle, err := k.get(t.Context())\n+\t\t\tbundle, needsSync, err := k.get(t.Context())\n \t\t\tassert.Equal(t, test.expErr, err != nil, \"expected error: %v, but got %v\", test.expErr, err)\n+\t\t\tassert.Equal(t, test.expNeedsSync, needsSync, \"expected needsSync: %v, but got %v\", test.expNeedsSync, needsSync)\n \t\t\tbundlesEqual(t, test.expBundle, bundle)\n \t\t})\n \t}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/sentry/server/ca/selfhosted.go",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 4,
+      "patch": "@@ -57,21 +57,22 @@ func (s *selfhosted) store(_ context.Context, bundle bundle.Bundle) error {\n }\n \n // get retrieves the existing certificate bundle from the filesystem.\n-func (s *selfhosted) get(_ context.Context) (bundle.Bundle, error) {\n+// The selfhosted store never needs a re-sync, so needsSync is always false.\n+func (s *selfhosted) get(_ context.Context) (bundle.Bundle, bool, error) {\n \tx509, err := s.loadAndValidateX509Bundle()\n \tif err != nil {\n-\t\treturn bundle.Bundle{}, err\n+\t\treturn bundle.Bundle{}, false, err\n \t}\n \n \tjwt, err := s.loadAndValidateJWTBundle()\n \tif err != nil {\n-\t\treturn bundle.Bundle{}, err\n+\t\treturn bundle.Bundle{}, false, err\n \t}\n \n \treturn bundle.Bundle{\n \t\tX509: x509,\n \t\tJWT:  jwt,\n-\t}, nil\n+\t}, false, nil\n }\n \n // loadAndValidateX509Bundle loads the X.509 certificates and keys from disk, verifies them, and updates the bundle. Returns whether any are missing.",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/sentry/server/ca/selfhosted_test.go",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "patch": "@@ -320,8 +320,9 @@ func TestSelfhosted_get(t *testing.T) {\n \t\t\t\trequire.NoError(t, os.WriteFile(jwksFile, *test.jwksData, writePerm))\n \t\t\t}\n \n-\t\t\tbundle, err := s.get(t.Context())\n+\t\t\tbundle, needsSync, err := s.get(t.Context())\n \t\t\tassert.Equal(t, test.expErr, err != nil, \"expected error: %v, but got %v\", test.expErr, err)\n+\t\t\tassert.False(t, needsSync, \"selfhosted store should never need sync\")\n \t\t\tbundlesEqual(t, test.expBundle, bundle)\n \t\t})\n \t}",
+      "patch_truncated": false
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "type": "issue",
+  "number": 4405,
+  "title": "Support for \"Kafka queues\" aka \"share consumers\"",
+  "state": "open",
+  "body": "See this blog post for more details: https://medium.com/@andrew_schofield/queues-for-kafka-ready-for-prime-time-988f5c58b8f7\n\nThis is just to track whether any special work is necessary for the Kafka component to add support for \"share consumers\" or queues.  \n\nIs this something worth adding support for in the Kafka pubsub component?",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "atrauzzi",
+  "created_at": "2026-06-11T14:06:52Z",
+  "updated_at": "2026-06-11T14:06:52Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4405",
+  "is_seed": false,
+  "partial": false
+}

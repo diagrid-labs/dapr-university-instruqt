@@ -1,0 +1,36 @@
+{
+  "type": "issue",
+  "number": 7351,
+  "title": "Actors: when not using .NET SDK, invocation error response and status code are \"swallowed\"",
+  "state": "open",
+  "body": "When using Dapr to perform actor invocation, if the actor responds with a non-200 (exactly 200) status code, both the error and status code are swallowed by Dapr, which returns a generic 500 response and a JSON error message `ERR_ACTOR_INVOKE_METHOD`\r\n\r\nThe reason for this behavior is here:\r\n\r\nhttps://github.com/dapr/dapr/blob/70e3f699793bb138d927079682261999b010e40e/pkg/actors/actors.go#L624-L627\r\n\r\nThis is a problem as it makes it impossible for the actor to communicate to the application the kind of error that it's experiencing. It is not possible, for example, to distinguish network errors from application errors.\r\n\r\nThis doesn't happen when using the .NET SDK however, which signifies errors returned by the actor by responding with a 200 status code and including the header `X-Daprerrorresponseheader`. In that case, Dapr handles the error differently\r\n\r\nhttps://github.com/dapr/dapr/blob/70e3f699793bb138d927079682261999b010e40e/pkg/actors/actors.go#L629-L632\r\n\r\nIt preserves the response (but not the status code) which are sent back to the app:\r\n\r\nhttps://github.com/dapr/dapr/blob/70e3f699793bb138d927079682261999b010e40e/pkg/http/api.go#L1475-L1482\r\n\r\nThe behavior used by the .NET SDK is undocumented, although we (now) have tests for it.\r\n\r\nTwo points:\r\n\r\n1. Would it be helpful to return the response from the app (maybe as \"additional data\") in all cases?\r\n2. Should we document the behavior the header `X-Daprerrorresponseheader`?",
+  "labels": [
+    "kind/bug",
+    "pinned"
+  ],
+  "user": "ItalyPaleAle",
+  "created_at": "2024-01-06T20:25:38Z",
+  "updated_at": "2024-03-11T19:51:12Z",
+  "comments": [
+    {
+      "user": "KrylixZA",
+      "body": "Hey @ItalyPaleAle. \r\n\r\nI can definitely add that I would love to have the original error codes in all cases. We have built our applications using global exception handlers and the one exception we have no way of handling effectively are actor exceptions. There are some scenarios where, if there was a 500 anywhere along the call stack in our actor call, we'd want to re-queue the event for processing on the pub/sub topic. However, if there was a 400 for whatever reason (in particular, on our dependencies), we would want to nack and dequeue the message. \r\n\r\nCurrently what happens for us is any error in the actor propagates itself as a 500 and the event is dequeued. However, if a dependency is returning a 400 on an event, it will always return a 400 for that particular event. This essentially creates an indefinite retry loop on our side. The way we worked around this was setting up retry policies and essentially discarding any \"dead letters\". But this obviously slows down our system as we have to retry a certain number of times to eventually throw the message away. \r\n\r\nHaving the original status code would allow us to expand the global exception handler code to factor in what was the root cause and cleverly choose what response code to return to the dapr sidecar and subsequently how to handle that event.\r\n\r\n\ud83d\ude80 ",
+      "created_at": "2024-01-09T08:38:11Z"
+    },
+    {
+      "user": "darraghjones",
+      "body": "Do you have any context for why this was designed like this in the first place? \r\n\r\nSeems like the default choice would be to simply return the response code and body as is.",
+      "created_at": "2024-01-11T19:34:55Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-03-11T19:41:47Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/7351",
+  "is_seed": false,
+  "partial": false
+}

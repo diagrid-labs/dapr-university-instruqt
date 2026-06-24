@@ -1,0 +1,33 @@
+{
+  "type": "issue",
+  "number": 3426,
+  "title": "Please add support for Versioning in Amazon S3 and Azure Blob Store",
+  "state": "open",
+  "body": "## In what area(s)?\r\n\r\n<!-- Remove the '> ' to select -->\r\n\r\n> /area runtime\r\n\r\n/area operator\r\n\r\n> /area placement\r\n\r\n> /area docs\r\n\r\n> /area test-and-release\r\n\r\n## Describe the feature\r\n<!-- Please also discuss possible business value -->\r\nWe are looking at implementing dapr.io for our multicloud needs and would benefit from support for Versioning in the Storage layer:\r\n\r\n* https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html\r\n* https://learn.microsoft.com/en-us/azure/storage/blobs/versioning-overview\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/enhancement",
+    "good first issue"
+  ],
+  "user": "etheriault",
+  "created_at": "2024-05-25T19:59:30Z",
+  "updated_at": "2025-08-11T21:55:57Z",
+  "comments": [
+    {
+      "user": "yaron2",
+      "body": "Hi @etheriault,.can you please give an example of how you see versioning implemented in Dapr? Would allowing users to provide Dapr a version ID for each supported operation and returning a version ID via metadata if available give you what you're looking for?",
+      "created_at": "2024-05-26T01:21:09Z"
+    },
+    {
+      "user": "etheriault",
+      "body": "Hi @yaron2 , Yes, I think adding support for specifying or returning the version ID would be great, but I also think we\u2019d need some support for Listing Versions, a la: https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectVersions.html .  Thanks!",
+      "created_at": "2024-05-27T05:16:47Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    3465
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3426",
+  "is_seed": false,
+  "partial": false
+}

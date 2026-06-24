@@ -1,0 +1,29 @@
+{
+  "type": "issue",
+  "number": 2190,
+  "title": "alicloud oss can't upload image",
+  "state": "open",
+  "body": "**evnrionment**\r\nmachine: mac M1\r\ndocker image: daprio/daprd:edge\uff0c build by docker-compose\r\ncomponent: bindings.alicloud.oss\r\n\r\n**problem**\r\nwhen i use alicloud oss binding, i can upload a file with text, follow is my code:\r\n```PHP\r\n$resp = $this->client->post($this->daprSideCardUrl . '/v1.0/bindings/bingdingAliyunoss', [\r\n            RequestOptions::JSON => ['data' => 'hello, world', \"metadata\" => [\"key\" => \"1.txt\"],  'operation' => 'create']\r\n        ]);\r\n```\r\ni didn't use the php sdk, just use guzzlehttp to call the sidecar api, and it worked. I login aliyun\uff0cand i can see the file is there, i download the file, open it, and yes, it contains the string \"hello, world\".\r\nhowever, if i want to upload a image file, i don't know what's the value of `data` field, i have tried different ways, but none worked.\r\n\r\n- set the base64 data of image to the `data` field\r\n like \"data:image/png;base64,xxxxxxxx\", it won't throw exception. i login aliyun, i can see the file, but it's broken, it is not a image file. i think it means the image data is not correct. follow is my code.\r\n```PHP\r\n$file = BASE_PATH . '/assets/1.jpeg';\r\n$imageInfo = getimagesize($file);\r\n$imageBase64Data = \"data:{$imageInfo['mime']};base64,\" . chunk_split(base64_encode(file_get_contents($file)));\r\n$resp = $this->client->post($this->daprSideCardUrl . '/v1.0/bindings/bingdingAliyunoss', [\r\n    RequestOptions::JSON => ['data' => $imageBase64Data, \"metadata\" => [\"key\" => \"1.jpeg\"],  'operation' => 'create']\r\n]);\r\n```\r\n-  set the base64 data of image without \"data:image/png;base64,\" prefix to the `data` field \r\nthen, i delete the prefix  \"data:image/png;base64,\"  of \"data:image/png;base64,xxxxxxxx\", the result is the same as above\r\n- use `file_get_contents` to get the content of image, and set to `data` field\r\n```PHP\r\n$file = BASE_PATH . '/assets/1.jpeg';\r\n$resp = $this->client->post($this->daprSideCardUrl . '/v1.0/bindings/bingdingAliyunoss', [\r\n    RequestOptions::JSON => ['data' => file_get_contents($file), \"metadata\" => [\"key\" => \"1.jpeg\"],  'operation' => 'create']\r\n]);\r\n```\r\nit would throw an exception because that makes the payload a wrong json format. \r\n",
+  "labels": [
+    "kind/bug",
+    "help wanted",
+    "triaged/unresolved"
+  ],
+  "user": "maqueisaprogrammer",
+  "created_at": "2022-10-13T16:22:47Z",
+  "updated_at": "2022-11-02T16:27:18Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "@madhugilla as the author of that component is this something you can investigate?\r\n\r\nThe majority of Dapr maintainers and approvers doesn't have access to AliCloud, so we cannot investigate this.\r\n\r\n",
+      "created_at": "2022-10-17T23:24:47Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    2196
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2190",
+  "is_seed": false,
+  "partial": false
+}

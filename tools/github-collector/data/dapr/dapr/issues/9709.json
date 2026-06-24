@@ -1,0 +1,25 @@
+{
+  "type": "issue",
+  "number": 9709,
+  "title": "e2e resiliency test flakey",
+  "state": "open",
+  "body": "```\n\n\n=== Skipped\n=== SKIP: tests/e2e/crypto TestSubtleCrypto (0.00s)\n    crypto_test.go:185: Skipping Subtle Crypto APIs test because they are not enabled in the binary\n\n=== Failed\n=== FAIL: tests/e2e/resiliency TestResiliencyCircuitBreakers/Test_grpc_service_invocation_circuit_breaker_trips (3.06s)\n    resiliency_test.go:623: \n        \tError Trace:\t/home/runner/work/dapr/dapr/tests/e2e/resiliency/resiliency_test.go:623\n        \tError:      \tNot equal: \n        \t            \texpected: 200\n        \t            \tactual  : 500\n        \tTest:       \tTestResiliencyCircuitBreakers/Test_grpc_service_invocation_circuit_breaker_trips\n    --- FAIL: TestResiliencyCircuitBreakers/Test_grpc_service_invocation_circuit_breaker_trips (3.06s)\n\n=== FAIL: tests/e2e/resiliency TestResiliencyCircuitBreakers (4.42s)\n2026/03/26 16:27:18 Waiting until service ingress is ready for resiliencyapp...\n2026/03/26 16:27:18 Service ingress for resiliencyapp is ready...: url=172.18.0.2:30134\n\nDONE 404 tests, 1 skipped, 2 failures in 1402.676s\nmake: *** [tests/dapr_tests.mk:349: test-e2e-all] Error 1\nError: Process completed with exit code 2.\n```\nhttps://github.com/dapr/dapr/actions/runs/23604078895/job/68741860077?pr=9685\nhttps://github.com/dapr/dapr/pull/9685",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "sicoyle",
+  "created_at": "2026-03-26T18:01:21Z",
+  "updated_at": "2026-04-02T19:27:53Z",
+  "comments": [
+    {
+      "user": "sicoyle",
+      "body": "also seeing in this PR run here https://github.com/dapr/dapr/actions/runs/23915815738/job/69749352913?pr=9685",
+      "created_at": "2026-04-02T19:27:53Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9709",
+  "is_seed": false,
+  "partial": false
+}

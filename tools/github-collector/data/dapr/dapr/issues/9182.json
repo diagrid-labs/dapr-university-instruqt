@@ -1,0 +1,30 @@
+{
+  "type": "issue",
+  "number": 9182,
+  "title": "Implement Streaming for Storage Binding API",
+  "state": "open",
+  "body": "## Describe the feature\nAdd support for streaming in Dapr GCS Binding API for file upload.\n\nWe have observed that even though the upload from the Dapr sidecar to GCS is streamed, the Dapr sidecar currently buffers the entire payload in memory when receiving the request from the application.",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "ojhamohit",
+  "created_at": "2025-11-12T06:55:08Z",
+  "updated_at": "2026-06-15T16:36:08Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-02-10T07:17:45Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 97 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-02-17T07:27:47Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9182",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,19 @@
+{
+  "type": "issue",
+  "number": 4403,
+  "title": "Redis state store: queryIndexes init fails on Redis 8.8+ (\"SEARCH_INDEX_EXISTS Index already exists\")",
+  "state": "open",
+  "body": "## Expected Behavior\n\nThe `state.redis` component with `queryIndexes` should initialize successfully when the query index already exists in Redis, taking the existing drop-and-recreate path. This is what happens on Redis < 8.8, and it is what makes running more than one replica of an app (or restarting a single replica) possible at all, since every daprd instance runs `FT.CREATE` for the configured indexes at init.\n\n## Actual Behavior\n\nOn **Redis 8.8+**, component init fails and daprd exits whenever the index already exists \u2014 i.e. for every replica after the first, and for any pod restart:\n\n```\nlevel=fatal msg=\"Fatal error from runtime: process component teststore error: [INIT_COMPONENT_FAILURE]:\ninitialization error occurred for teststore (state.redis/v1): redis store: error registering query schemas:\nSEARCH_INDEX_EXISTS Index already exists\"\n```\n\nRoot cause: Redis 8.8 started prefixing module error replies with an error code. A duplicate `FT.CREATE` now returns `SEARCH_INDEX_EXISTS Index already exists` instead of `Index already exists`:\n\n```\n$ docker run --rm -d --name r redis:8.6.3   # ... FT.CREATE twice -> \"Index already exists\"\n$ docker run --rm -d --name r redis:8.8.0   # ... FT.CREATE twice -> \"SEARCH_INDEX_EXISTS Index already exists\"\n```\n\n`registerSchemas` in `state/redis/redis.go` compares the error string exactly, so the new format is treated as a fatal error instead of taking the drop-and-recreate path:\n\n```go\nif err.Error() != \"Index already exists\" {\n    return err\n}\n```\n\nVerified against daprd 1.16.4 and 1.18.0 (components-contrib v1.18.0 and current master have the same comparison).\n\n## Steps to Reproduce the Problem\n\n1. Start Redis 8.8: `docker network create t && docker run -d --name redis88 --network t redis:8.8.0`\n2. Create a `state.redis` component with `queryIndexes`:\n   ```yaml\n   apiVersion: dapr.io/v1alpha1\n   kind: Component\n   metadata:\n     name: teststore\n   spec:\n     type: state.redis\n     version: v1\n     metadata:\n       - name: redisHost\n         value: redis88:6379\n       - name: queryIndexes\n         value: |\n           [{\"name\":\"userIdx\",\"indexes\":[{\"key\":\"user.email\",\"type\":\"TEXT\"}]}]\n   ```\n3. Run daprd once \u2014 index is created, component loads fine.\n4. Run daprd again (simulates a second replica or a pod restart): `docker run --name daprd --network t -v $PWD/components:/components daprio/daprd:1.18.0 ./daprd --app-id test --resources-path /components`\n5. daprd exits with `INIT_COMPONENT_FAILURE ... SEARCH_INDEX_EXISTS Index already exists`.\n\nRepeating the same steps with `redis:8.6.3` works (logs show `drop stale query index` and the component loads).\n\n## Release Note\n\nRELEASE NOTE: **FIX** Redis state store query index initialization on Redis 8.8+ (\"SEARCH_INDEX_EXISTS Index already exists\" error on component init).\n",
+  "labels": [],
+  "user": "wrysjy",
+  "created_at": "2026-06-11T06:43:19Z",
+  "updated_at": "2026-06-11T06:43:19Z",
+  "comments": [],
+  "linked_pr_numbers": [
+    4404
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4403",
+  "is_seed": false,
+  "partial": false
+}

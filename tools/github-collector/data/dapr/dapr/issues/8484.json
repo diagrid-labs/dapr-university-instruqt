@@ -1,0 +1,43 @@
+{
+  "type": "issue",
+  "number": 8484,
+  "title": "Allow to define the route for a job in the job metadata",
+  "state": "open",
+  "body": "## In what area(s)?\n\n/area runtime\n\n## Describe the feature\n\nI have a use case where I need to schedule jobs for videos that are uploaded and which are transcoded by a third party video provider. I need to schedule a job for each video. I can append the video ID to the job name itself.\n\n```\nsync-video-state-video-id\n```\n\nThe route that is called for the job is:\n\n```\n/job/sync-video-state-video-id\n```\n\nThis makes it hard to assign a single job handler to the router.\n\nIt would be great if I could have a route in the following format:\n\n```\n/job/sync-video-state/video-id\n```\n\nTherefore I suggest that the route that is called by the job can be defined when scheduling the job.\n\nUsing a route path as the job name itself is not possible:\n\n```\nsync-video-state/video-id\n```\n\nResults in:\n\n```\na lowercase RFC 1123 subdomain must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com', regex used for validation is '[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*')\n```\n\nBased on @cicoyle this is expected: That is part of how we namespace keys in etcd is why we don\u2019t allow jobs with / in the name\n\n\n## Release Note\n\nRELEASE NOTE: **ADD** Allow to define the route that is called by a scheduled job.\n\n\n",
+  "labels": [
+    "kind/enhancement",
+    "pinned"
+  ],
+  "user": "akkie",
+  "created_at": "2025-02-12T17:16:49Z",
+  "updated_at": "2026-02-12T15:09:59Z",
+  "comments": [
+    {
+      "user": "JoshVanL",
+      "body": "Adding some kind of override or path extension totally makes sense to me! As as in your example, we may only override the `/jobs` sub path to prevent cross API conflicts.\n\nI suggest the following API changes:\n\n\n```\ndiff --git a/dapr/proto/runtime/v1/dapr.proto b/dapr/proto/runtime/v1/dapr.proto\nindex 41b978a93..cd5b35e5f 100644\n--- a/dapr/proto/runtime/v1/dapr.proto\n+++ b/dapr/proto/runtime/v1/dapr.proto\n@@ -1258,6 +1258,12 @@ message Job {\n   // payload is the serialized job payload that will be sent to the recipient\n   // when the job is triggered.\n   google.protobuf.Any data = 6 [json_name = \"data\"];\n+\n+  // override route path is an optional string which overrides the route which\n+  // would otherwise be the Job name.\n+  // `/job/{name}` -> `/job/{override_route_path}`.\n+  // If set, must be a non empty HTTP path complaint string.\n+  optional string override_route_path = 7 [json_name = \"overrideRoutePath\"];\n }\n \n // ScheduleJobRequest is the message to create/schedule the job.\n@@ -1344,4 +1350,4 @@ message ConversationResponse {\n \n   // An array of results.\n   repeated ConversationResult outputs = 2;\n-}\n\\ No newline at end of file\n+}\ndiff --git a/dapr/proto/scheduler/v1/scheduler.proto b/dapr/proto/scheduler/v1/scheduler.proto\nindex b765b7819..65e29b377 100644\n--- a/dapr/proto/scheduler/v1/scheduler.proto\n+++ b/dapr/proto/scheduler/v1/scheduler.proto\n@@ -50,7 +50,13 @@ message Job {\n \n // TargetJob is the message used by the daprd sidecar to schedule a job\n // from an App.\n-message TargetJob {}\n+message TargetJob {\n+  // override route path is an optional string which overrides the route which\n+  // would otherwise be the Job name.\n+  // `/job/{name}` -> `/job/{override_route_path}`.\n+  // If set, must be a non empty HTTP path complaint string.\n+  optional string override_route_path = 1;\n+}\n \n // TargetActorReminder is the message used by the daprd sidecar to\n // schedule a job from an Actor Reminder.\n```\n\n",
+      "created_at": "2025-02-14T19:09:38Z"
+    },
+    {
+      "user": "cicoyle",
+      "body": "This makes sense to add. Thanks for the suggestion @akkie. The `override_route_path` seems very reasonable to me.",
+      "created_at": "2025-02-17T14:34:46Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-04-18T14:35:42Z"
+    },
+    {
+      "user": "akkie",
+      "body": "@cicoyle please can you tag the issue?",
+      "created_at": "2025-04-18T14:37:34Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    8670
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/8484",
+  "is_seed": false,
+  "partial": false
+}

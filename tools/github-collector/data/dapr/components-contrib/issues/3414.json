@@ -1,0 +1,29 @@
+{
+  "type": "issue",
+  "number": 3414,
+  "title": "[Bindings] Azure SQL DB / SQL Server Binding",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the proposal\r\n\r\nCustomers who heavily leverage SQL Server installations in their existing on-premises data centres and are also moving to the cloud and adopting Azure SQL DB during the move to the cloud. Furthermore, these customers likely have relatively complex data structures, tables, views, and a host of stored procedures to make their systems work. \r\n\r\nProviding a Dapr binding for Azure SQL DB & SQL Server that looks the same as the [Microsoft SQL Server & Azure SQL state management component](https://docs.dapr.io/reference/components-reference/supported-state-stores/setup-sqlserver/#component-format) YAML component but gives them the ability to interact with their existing databases through the abstraction of the Dapr API will help progress Dapr's adoption for these customers.\r\n\r\nThe YAML would likely look as follows:\r\n\r\n```yaml\r\napiVersion: dapr.io/v1alpha1\r\nkind: Component\r\nmetadata:\r\n  name: <NAME>\r\nspec:\r\n  type: bindings.sqlserver\r\n  version: v1\r\n  metadata:\r\n    # Authenticate using SQL Server credentials\r\n    - name: connectionString\r\n      value: Server=myServerName\\myInstanceName;Database=myDataBase;User Id=myUsername;Password=myPassword;\r\n    # Authenticate with Microsoft Entra ID (Azure SQL only)\r\n    # \"useAzureAD\" be set to \"true\"\r\n    - name: useAzureAD\r\n      value: true\r\n    # Connection string or URL of the Azure SQL database, optionally containing the database\r\n    - name: connectionString\r\n      value: sqlserver://myServerName.database.windows.net:1433?database=myDataBase\r\n```\r\n\r\nGiven the intended use case, I'm not sure focusing on a specific table or indexing policy makes sense to include in the binding YAML. That would be for the database developer to configure on their database.\r\n\r\nThis would ultimately give developers the ability to (re)build their systems using Dapr without having to change their state stores and lowering the barrier of entry into Dapr for those who heavily leverage SQL Server / Azure SQL DB.",
+  "labels": [
+    "help wanted"
+  ],
+  "user": "KrylixZA",
+  "created_at": "2024-05-10T09:48:25Z",
+  "updated_at": "2024-05-16T20:00:48Z",
+  "comments": [
+    {
+      "user": "KrylixZA",
+      "body": "#3409 is related.",
+      "created_at": "2024-05-10T09:51:35Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    4115
+  ],
+  "referenced_issue_numbers": [
+    3409
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3414",
+  "is_seed": false,
+  "partial": false
+}

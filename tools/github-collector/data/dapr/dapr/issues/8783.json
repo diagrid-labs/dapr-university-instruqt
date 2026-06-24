@@ -1,0 +1,46 @@
+{
+  "type": "issue",
+  "number": 8783,
+  "title": "MCP Server for Dapr APIs",
+  "state": "open",
+  "body": "**Context**\nDapr provides powerful building blocks for microservices, but its APIs are not natively accessible to AI tools like Cursor, Claude, or OpenAI agents. By implementing an MCP server that exposes Dapr APIs and components, we can enable AI tools to invoke services, read/write state, publish events, start workflows, and more. \n\nSuch an MCP server would be a standalone app deployed alongside a Dapr sidecar, acting as a bridge between Dapr and any MCP-compatible client. \n\n**Benefits**\nWith a Dapr MCP, there's no need to use separate MCP servers for each database, message broker, or external system. Since Dapr already abstracts these through its components, the MCP server can expose a unified interface to all underlying services. This means AI tools can interact with multiple technologies\u2014like Redis, PostgreSQL, Kafka, or Azure Service Bus\u2014through a single, consistent set of MCP tools and resources.\n\n\n\n\n\n\n\n",
+  "labels": [],
+  "user": "bibryam",
+  "created_at": "2025-06-11T16:39:51Z",
+  "updated_at": "2026-04-20T12:52:01Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-09-28T11:22:44Z"
+    },
+    {
+      "user": "aidevr",
+      "body": "Any update on this ? \n",
+      "created_at": "2025-09-30T15:07:24Z"
+    },
+    {
+      "user": "CasperGN",
+      "body": "@yaron2 should we consider creating the repo for this?\n\n@aidevr there's a beginning [here](https://github.com/caspergn/dapr-mcp). Kindly note it's still very much WIP and not everything works but take it for a spin ",
+      "created_at": "2025-12-09T07:53:54Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-03-09T08:03:57Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 97 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-03-16T08:14:14Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    9642,
+    9724
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/8783",
+  "is_seed": false,
+  "partial": false
+}

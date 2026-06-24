@@ -1,0 +1,21 @@
+{
+  "type": "issue",
+  "number": 9693,
+  "title": "Dependency Review Build Failure",
+  "state": "open",
+  "body": "On PRs to main:\n```\nRun GOMEMLIMIT=12GiB govulncheck -C '.' -format text --tags=unit,allcomponents,integration ./...\n=== Symbol Results ===\n\nVulnerability #1: GO-2026-4815\n    OOM from malicious IFD offset in golang.org/x/image/tiff\n  More info: https://pkg.go.dev/vuln/GO-2026-4815\n  Module: golang.org/x/image\n    Found in: golang.org/x/image@v0.25.0\n    Fixed in: golang.org/x/image@v0.38.0\n    Example traces found:\nError:       #1: tests/integration/suite/daprd/serviceinvocation/http/streaming/chunkedresponse.go:150:25: streaming.chunkedresponse.Run calls io.SectionReader.Read, which calls tiff.buffer.ReadAt\n\nYour code is affected by 1 vulnerability from 1 module.\nThis scan also found 1 vulnerability in packages you import and 1 vulnerability\nin modules you require, but your code doesn't appear to call these\nvulnerabilities.\nUse '-show verbose' for more details.\nError: Process completed with exit code 3.\n```\nunrelated PR https://github.com/dapr/dapr/actions/runs/23558437587/job/68591525572?pr=9685\n\nseen in pr https://github.com/dapr/dapr/pull/9685",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "sicoyle",
+  "created_at": "2026-03-25T19:56:26Z",
+  "updated_at": "2026-03-25T19:58:21Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    1
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/9693",
+  "is_seed": false,
+  "partial": false
+}

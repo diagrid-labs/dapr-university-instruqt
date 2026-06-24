@@ -1,0 +1,76 @@
+{
+  "type": "issue",
+  "number": 8933,
+  "title": "Outbox Pattern Topic Naming: Unable to Configure Namespace in Azure Container App Environment",
+  "state": "open",
+  "body": "## In what area(s)?\n\n/area runtime\n\n## Describe the feature\n\nThe outbox pattern's automatic topic naming convention (namespace + appID + topic + \"outbox\")  works well in local development where the `NAMESPACE` environment variable can be set, but there's no apparent way to configure the namespace when using Dapr sidecars in Azure Container App Environment (CAE). This causes issues when the default namespace \"default\" conflicts with topic naming requirements.\n\n## Current Behavior\n\nThe outbox pattern constructs internal topic names using this formula in [`pkg/runtime/pubsub/outbox.go:246-248`](https://github.com/dapr/dapr/blob/cc6c3fb6c4bc6411f9b3f53bf45c516d9e8d0c33/pkg/runtime/pubsub/outbox.go#L247):\n\n```go\nfunc outboxTopic(appID, topic, namespace string) string {\n\treturn namespace + appID + topic + \"outbox\"\n}\n```\n\n**Local Development (Works):**\n- Can set `NAMESPACE` environment variable\n- Dapr respects the custom namespace\n- Topics are created with the desired naming pattern\n\n**Azure Container App Environment (Problematic):**\n- No apparent way to configure the namespace for daprd sidecars\n- Falls back to default namespace \"default\" \n- Results in topic names like: `defaultmyappnametopicnameoutbox`\n- Some messaging systems/topic naming conventions cannot accept topics starting with \"default\"\n\n## Expected Behavior\n\nOne of the following solutions would resolve this issue:\n\n### Option 1: Namespace Configuration in Azure CAE\nProvide a way to configure the namespace for daprd sidecars in Azure Container App Environment, similar to how it works locally with the `NAMESPACE` environment variable.\n\n### Option 2: Flexible Topic Naming\nAllow the outbox pattern to use the exact topic name specified in the component configuration without automatic namespace/appID prefixing, controlled by an optional metadata flag.\n\n## Environment\n\n- **Dapr version**: 1.15.5 locally, 1.13.6-msft.4  as of deployment in Azure CAE\n- **Deployment**: Azure Container App Environment with Dapr sidecars\n- **Local development**: Dapr CLI with custom namespace (works correctly)\n- **Use case**: Transactional outbox pattern for event-driven architecture\n\n## Steps to Reproduce\n\n1. Configure outbox pattern in Azure Container App Environment\n2. Deploy application with Dapr sidecar\n3. Observe that internal outbox topics are created with \"default\" namespace prefix\n4. Note that target messaging system may reject topics with \"default\" prefix\n\n## Workaround Attempts\n\n- \u2705 **Local development**: Successfully using `NAMESPACE` environment variable\n- \u274c **Azure CAE**: No apparent configuration option for namespace in Container Apps Dapr configuration\n\n## Additional Context\n\nThis issue affects production deployments where:\n- Topic naming conventions are strict\n- Multiple applications need consistent namespace handling  \n- The \"default\" namespace conflicts with organizational naming standards\n\nOur current project uses the outbox pattern for reliable event publishing in a compliance service, where consistent topic naming across environments is critical for event routing and consumer applications.\n\n## Proposed Solution\n\n**Preferred**: Add namespace configuration support for Azure Container App Environment Dapr sidecars, either through:\n- Container App environment variables that Dapr sidecars can read\n- Dapr component metadata configuration\n- Azure-specific Dapr configuration options\n\n**Alternative**: Add a metadata flag to outbox-enabled state stores like:\n```yaml\nmetadata:\n- name: outboxPublishTopic\n  value: \"my.topic.name\"\n- name: outboxUseExactTopicName  # New flag\n  value: \"true\"\n```\n\nThis would bypass the automatic namespace/appID prefixing when explicitly requested.\n\n## References\n\n- [Dapr Outbox Pattern Documentation](https://docs.dapr.io/developing-applications/building-blocks/state-management/howto-outbox/)\n- [Source code: outboxTopic function](https://github.com/dapr/dapr/blob/cc6c3fb6c4bc6411f9b3f53bf45c516d9e8d0c33/pkg/runtime/pubsub/outbox.go#L247)\n\n## Release Note\n\nRELEASE NOTE: **ADD** Support for configuring Dapr namespace in Azure Container App Environment for outbox pattern topic naming.\n",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "spolom",
+  "created_at": "2025-07-30T13:38:41Z",
+  "updated_at": "2026-05-01T15:31:55Z",
+  "comments": [
+    {
+      "user": "yaron2",
+      "body": "I would also suggest opening this issue here: https://github.com/microsoft/azure-container-apps",
+      "created_at": "2025-07-30T19:28:07Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-10-28T19:31:47Z"
+    },
+    {
+      "user": "spolom",
+      "body": "Would love to see this solved, currently the outbox pattern is not useable due to the hard coded naming.",
+      "created_at": "2025-10-30T09:21:07Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-01-28T09:42:40Z"
+    },
+    {
+      "user": "spolom",
+      "body": "Still help wanted here.",
+      "created_at": "2026-01-30T08:58:32Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "> Still help wanted here.\n\n@spolom We don't control anything about the version of Dapr that Microsoft opts to host in their Azure Container Apps solution. If you're having an issue with Dapr as presented through ACA, you need to take that up with Microsoft Support as we can't do anything about it.\n\nAs you noted - locally it works fine. We control the runtime that runs there, so I'm happy to hear that works. But we can't do anything about what bits ACA is loading nor how it's presented there.",
+      "created_at": "2026-01-30T22:16:12Z"
+    },
+    {
+      "user": "spolom",
+      "body": "@WhitWaldo, I opened an issue with ACA (https://github.com/microsoft/azure-container-apps/issues/1544).\n\nWhile you do not control ACA, you do control the name of the outbox topic.\nIt is the root cause of the problem. ACA just manifests it.\n\nI proposed a solution for the inflexible naming (option 2).",
+      "created_at": "2026-01-31T09:39:00Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "> While you do not control ACA, you do control the name of the outbox topic. It is the root cause of the problem. ACA just manifests it.\n\nNot if they never update the version of Dapr they're running. It's my understanding they're locked to version ~~1.12~~ 1.13 or so and have no public plans to change it. \n\nThis might certainly be a worthwhile feature request of something we could consider changing on the runtime itself, but I certainly wouldn't hold my breath waiting for anything to change on the ACA front even if we accommodated the suggestion.",
+      "created_at": "2026-01-31T09:54:21Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-05-01T10:33:16Z"
+    },
+    {
+      "user": "spolom",
+      "body": "Still help wanted here. I will open a PR.",
+      "created_at": "2026-05-01T15:15:45Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    1544,
+    5154,
+    9855
+  ],
+  "referenced_issue_numbers": [
+    5155
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/8933",
+  "is_seed": false,
+  "partial": false
+}

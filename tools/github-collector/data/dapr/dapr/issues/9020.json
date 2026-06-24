@@ -1,0 +1,42 @@
+{
+  "type": "issue",
+  "number": 9020,
+  "title": "Quality of life improvements for managing workflow state",
+  "state": "open",
+  "body": "## In what area(s)?\n\n/area runtime\n/area scheduler\n\n## Describe the feature\n\nRight now, Dapr only concerns itself with workflow state that it's actively managing.  Once a workflow is in any finished state, maintenance and cleanup is currently seen as an outside concern.\n_(There is one exception in that we do offer the advice that users can configure a TTL on the store backing their workflows.  Unfortunately, this is outside the scheduler lifecycle and can result in a [foot gun](https://github.com/dapr/dapr/issues/9018) as there's nothing connecting the two lifecycles.)_\n\nThere are improvements we can make to Dapr workflows that could help make users' experiences feel more guided and structured.  The specific scenarios worth tackling are:\n\n1. Scheduler-level configurable TTLs for workflows\n2. Explicitly configurable success and DLQ destinations\n\n**Important:** I suspect offering any kind of API for explicit cleanup operations that users would have to integrate with won't be a \"great experience\"\u2122\ufe0f and that this functionality is ideally accomplished as part of configuring Dapr components.\n\n### 1 - Scheduler-level TTLs\nThis would just be a more explicit implementation at the scheduler level, rather than relying on the backing store to provide expiry semantics. The benefit being that we wouldn't be encouraging users to configure the system to pull the rug out from under itself. \ud83d\ude1c \n\n### 2 - Explicit success and DLQ destinations\nThis could come in the form of some additional configuration options for workflows where they could define a different backing store for the workflow engine to move jobs to.  One for success, one for failed.\n\n## Release Note\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE:\n",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "atrauzzi",
+  "created_at": "2025-08-28T14:01:56Z",
+  "updated_at": "2026-03-31T15:47:52Z",
+  "comments": [
+    {
+      "user": "olitomlinson",
+      "body": "A prerequisite to this is the completion of the [Workflows Lifecycle events](https://github.com/dapr/dapr/issues/6072) feature, which is being delivered by @cicoyle via the [Event Stream](https://github.com/dapr/proposals/pull/77) proposal, which was originally targeted for the 1.16 release time frame, but has been deferred to a future release.",
+      "created_at": "2025-08-28T23:21:15Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-02-02T12:38:04Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 97 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-02-09T12:51:57Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "Part of this was added in 1.17 with workflow **History Retention Policies:** [https://v1-17.docs.dapr.io/developing-applications/building-blocks/workflow/workflow-history-retention-policy/](<https://v1-17.docs.dapr.io/developing-applications/building-blocks/workflow/workflow-history-retention-policy/>)",
+      "created_at": "2026-03-03T14:35:11Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    9730
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/9020",
+  "is_seed": false,
+  "partial": false
+}

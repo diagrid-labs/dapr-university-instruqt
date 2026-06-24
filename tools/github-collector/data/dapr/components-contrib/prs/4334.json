@@ -1,0 +1,169 @@
+{
+  "type": "pr",
+  "number": 4334,
+  "title": "Add (alpha) Openrouter Conversation component",
+  "state": "open",
+  "body": "Signed-off-by: Joni Collinge <jonathancollinge@live.com>\n\n# Description\nAdds a new alpha conversation component for openrouter. This abstraction, similar to ollama allows you to select from a portfolio of models that are hosted on the openrouter platform.\n\n\n## Issue reference\n\nWe strive to have all PR being opened based on an issue, where the problem or feature have been discussed prior to implementation.\n\nPlease reference the issue this PR will close: #_[issue number]_\n\n## Checklist\n\nPlease make sure you've completed the relevant tasks for this PR, out of the following list:\n\n* [x] Code compiles correctly\n* [ ] Created/updated tests\n* [ ] Extended the documentation\n    * [ ] Created the dapr/docs PR: <insert PR link here>\n\n**Note:** We expect contributors to open a corresponding documentation PR in the [dapr/docs](https://github.com/dapr/docs/) repository. As the implementer, you are the best person to document your work! Implementation PRs will not be merged until the documentation PR is opened and ready for review.\n",
+  "labels": [],
+  "user": "jjcollinge",
+  "created_at": "2026-04-10T10:02:19Z",
+  "updated_at": "2026-06-01T20:03:47Z",
+  "additions": 391,
+  "deletions": 0,
+  "changed_files": 9,
+  "linked_issue_numbers": [],
+  "comments": [
+    {
+      "user": "jjcollinge",
+      "body": "comes from https://openrouter.ai/docs/api/reference/overview#headers",
+      "created_at": "2026-04-10T10:12:24Z"
+    },
+    {
+      "user": "JoshVanL",
+      "body": "```suggestion\n\tSiteURL *string `json:\"siteURL\" mapstructure:\"siteURL\"`\n```\n",
+      "created_at": "2026-04-10T11:39:23Z"
+    },
+    {
+      "user": "JoshVanL",
+      "body": "```suggestion\n\tSiteTitle *string `json:\"siteTitle\" mapstructure:\"siteTitle\"`\n```\n",
+      "created_at": "2026-04-10T11:39:40Z"
+    },
+    {
+      "user": "JoshVanL",
+      "body": "I'm surprised there isn't a better way to do this \ud83e\udd14",
+      "created_at": "2026-04-10T11:41:41Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "BuildHTTPClientWithHeaders stores the caller-provided map in the transport. Because maps are mutable and not thread-safe, a caller mutating the map after creating the client could cause a data race during RoundTrip. Consider copying extraHeaders into a new map (or converting to http.Header) inside BuildHTTPClientWithHeaders so the transport has an immutable snapshot.\n```suggestion\n\theaders := make(map[string]string, len(extraHeaders))\n\tfor k, v := range extraHeaders {\n\t\theaders[k] = v\n\t}\n\n\tbase := &httputil.Transport{Transport: http.DefaultTransport}\n\treturn &http.Client{\n\t\tTransport: &headerInjectingTransport{wrapped: base, headers: headers},\n```",
+      "created_at": "2026-04-10T13:36:33Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The Close doc comment is inaccurate: the underlying net/http client/transport may keep idle connections alive and does hold pooled connections. Either adjust the comment to reflect that Close is intentionally a no-op, or implement explicit transport cleanup (e.g., CloseIdleConnections) if that\u2019s desired.",
+      "created_at": "2026-04-10T13:36:34Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The component metadata links to a docs page, but the PR description checklist indicates documentation hasn\u2019t been extended and no dapr/docs PR link is provided. Please open and reference the required docs PR (and ensure this URL matches the final docs location) before merge.",
+      "created_at": "2026-04-10T13:36:34Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "In tests/config/conversation, component manifests are consistently named <component>.yml (e.g., anthropic/anthropic.yml, mistral/mistral.yml, openai/openai/openai.yml). This new OpenRouter manifest is named metadata.yml, which is inconsistent and makes it harder to locate. Consider renaming it to openrouter.yml to match the existing convention.",
+      "created_at": "2026-04-10T13:36:34Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "```suggestion\n\tSiteURL *string `json:\"siteURL,omitempty\" mapstructure:\"siteURL\"`\n\n\t// SiteTitle is forwarded as X-Title for OpenRouter attribution.\n\t// Optional but recommended so OpenRouter can identify your application.\n\tSiteTitle *string `json:\"siteTitle,omitempty\" mapstructure:\"siteTitle\"`\n```",
+      "created_at": "2026-04-10T14:43:31Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "pls rm this line and use the default key instead",
+      "created_at": "2026-04-10T14:44:46Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "this should propagate from the timeout set form the resiliency policy timeout. I believe if you look at the other conversation components they pick up on the ctx timeout somewhere as that's how we propagate resiliency policy timeouts from runtime to contrib. ",
+      "created_at": "2026-04-10T14:48:30Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "does openai/ need to be provided as a prefix? will it work without the prefix? Does the example in the metadata.yaml file include this prefix?",
+      "created_at": "2026-04-10T14:49:34Z"
+    },
+    {
+      "user": "jjcollinge",
+      "body": "yeh it's the way openrouter does model ids.",
+      "created_at": "2026-04-10T15:15:21Z"
+    },
+    {
+      "user": "jjcollinge",
+      "body": "This is a copy of the existing function in this package just with header cloning so hopefully this is expected? https://github.com/dapr/components-contrib/blob/ee5e0302ccf4cb656d83c0b6dfec65ac99ba2360/conversation/opts.go#L65",
+      "created_at": "2026-04-13T14:47:34Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "ok cool thank you!",
+      "created_at": "2026-04-13T18:27:18Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/pull/4334",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "conversation/models.go",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "patch": "@@ -29,6 +29,7 @@ const (\n \tenvMistralModel     = \"MISTRAL_MODEL\"\n \tenvHuggingFaceModel = \"HUGGINGFACE_MODEL\"\n \tenvOllamaModel      = \"OLLAMA_MODEL\"\n+\tenvOpenRouterModel  = \"OPENROUTER_MODEL\"\n )\n \n // Exported default model constants for consumers of the conversation package.\n@@ -41,6 +42,7 @@ const (\n \tDefaultMistralModel     = \"open-mistral-7b\"\n \tDefaultHuggingFaceModel = \"deepseek-ai/DeepSeek-R1-Distill-Qwen-32B\"\n \tDefaultOllamaModel      = \"llama3.2:latest\"\n+\tDefaultOpenRouterModel  = \"openai/gpt-4o-mini\"\n )\n \n // getModel returns the value of an environment variable or a default value\n@@ -83,3 +85,7 @@ func GetHuggingFaceModel(metadataValue string) string {\n func GetOllamaModel(metadataValue string) string {\n \treturn getModel(envOllamaModel, DefaultOllamaModel, metadataValue)\n }\n+\n+func GetOpenRouterModel(metadataValue string) string {\n+\treturn getModel(envOpenRouterModel, DefaultOpenRouterModel, metadataValue)\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "conversation/openrouter/metadata.go",
+      "status": "added",
+      "additions": 31,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,31 @@\n+/*\n+Copyright 2026 The Dapr Authors\n+Licensed under the Apache License, Version 2.0 (the \"License\");\n+you may not use this file except in compliance with the License.\n+You may obtain a copy of the License at\n+\n+\thttp://www.apache.org/licenses/LICENSE-2.0\n+\n+Unless required by applicable law or agreed to in writing, software\n+distributed under the License is distributed on an \"AS IS\" BASIS,\n+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+See the License for the specific language governing permissions and\n+limitations under the License.\n+*/\n+\n+package openrouter\n+\n+import \"github.com/dapr/components-contrib/conversation\"\n+\n+// OpenRouterMetadata holds configuration for the OpenRouter conversation component.\n+type OpenRouterMetadata struct {\n+\tconversation.LangchainMetadata `json:\",inline\" mapstructure:\",squash\"`\n+\n+\t// SiteURL is forwarded as HTTP-Referer for OpenRouter attribution and ranking.\n+\t// Optional but recommended so OpenRouter can identify your application.\n+\tSiteURL *string `json:\"siteURL,omitempty\" mapstructure:\"siteURL\"`\n+\n+\t// SiteTitle is forwarded as X-Title for OpenRouter attribution.\n+\t// Optional but recommended so OpenRouter can identify your application.\n+\tSiteTitle *string `json:\"siteTitle,omitempty\" mapstructure:\"siteTitle\"`\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "conversation/openrouter/metadata.yaml",
+      "status": "added",
+      "additions": 62,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,62 @@\n+# yaml-language-server: $schema=../../../component-metadata-schema.json\n+schemaVersion: v1\n+type: conversation\n+name: openrouter\n+version: v1\n+status: alpha\n+title: \"OpenRouter\"\n+urls:\n+  - title: Reference\n+    url: https://docs.dapr.io/reference/components-reference/supported-conversation/setup-openrouter/\n+authenticationProfiles:\n+  - title: \"API Key\"\n+    description: \"Authenticate using an OpenRouter API key\"\n+    metadata:\n+      - name: key\n+        type: string\n+        required: true\n+        sensitive: true\n+        description: |\n+          API key for OpenRouter. Obtain one at https://openrouter.ai/keys.\n+        example: \"sk-or-v1-**********\"\n+        default: \"\"\n+metadata:\n+  - name: model\n+    required: false\n+    type: string\n+    description: |\n+      Model identifier in provider/model-name format. All providers supported by\n+      OpenRouter are valid (e.g. openai/gpt-4o, anthropic/claude-3-5-sonnet,\n+      meta-llama/llama-3.3-70b-instruct). Configurable via OPENROUTER_MODEL\n+      environment variable.\n+    example: \"anthropic/claude-3-5-sonnet\"\n+    default: \"openai/gpt-4o-mini\"\n+  - name: endpoint\n+    required: false\n+    type: string\n+    description: |\n+      Override the OpenRouter API base URL. Useful when routing through a proxy.\n+    default: \"https://openrouter.ai/api/v1\"\n+  - name: cacheTTL\n+    required: false\n+    type: string\n+    description: |\n+      Time-to-live for the in-process response cache. Identical prompts within\n+      the TTL window are served from cache without an API call. Uses Go duration\n+      format.\n+    example: \"10m\"\n+  - name: siteURL\n+    required: false\n+    type: string\n+    description: |\n+      Your application URL, forwarded as HTTP-Referer on every request. Optional\n+      but recommended so OpenRouter can attribute usage and include your app in\n+      public rankings.\n+    example: \"https://myapp.example.com\"\n+  - name: siteTitle\n+    required: false\n+    type: string\n+    description: |\n+      Your application name, forwarded as X-Title on every request. Optional but\n+      recommended for OpenRouter attribution.\n+    example: \"My Dapr App\"",
+      "patch_truncated": false
+    },
+    {
+      "filename": "conversation/openrouter/openrouter.go",
+      "status": "added",
+      "additions": 121,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,121 @@\n+/*\n+Copyright 2026 The Dapr Authors\n+Licensed under the Apache License, Version 2.0 (the \"License\");\n+you may not use this file except in compliance with the License.\n+You may obtain a copy of the License at\n+\n+\thttp://www.apache.org/licenses/LICENSE-2.0\n+\n+Unless required by applicable law or agreed to in writing, software\n+distributed under the License is distributed on an \"AS IS\" BASIS,\n+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+See the License for the specific language governing permissions and\n+limitations under the License.\n+*/\n+\n+package openrouter\n+\n+import (\n+\t\"context\"\n+\t\"net/http\"\n+\t\"reflect\"\n+\n+\t\"github.com/tmc/langchaingo/llms/openai\"\n+\n+\t\"github.com/dapr/components-contrib/conversation\"\n+\t\"github.com/dapr/components-contrib/conversation/langchaingokit\"\n+\t\"github.com/dapr/components-contrib/metadata\"\n+\t\"github.com/dapr/kit/logger\"\n+\tkmeta \"github.com/dapr/kit/metadata\"\n+)\n+\n+const (\n+\t// defaultEndpoint is the OpenRouter OpenAI-compatible API base URL.\n+\tdefaultEndpoint = \"https://openrouter.ai/api/v1\"\n+\n+\t// headerReferer and headerTitle are the attribution headers OpenRouter recommends.\n+\theaderReferer = \"HTTP-Referer\"\n+\theaderTitle   = \"X-Title\"\n+)\n+\n+// OpenRouter is a Dapr conversation component that routes requests through\n+// OpenRouter (https://openrouter.ai), providing access to 200+ LLM models\n+// from all major providers via a single OpenAI-compatible API.\n+type OpenRouter struct {\n+\tlangchaingokit.LLM\n+\n+\tlogger logger.Logger\n+}\n+\n+// NewOpenRouter returns a new OpenRouter conversation component.\n+func NewOpenRouter(logger logger.Logger) conversation.Conversation {\n+\treturn &OpenRouter{\n+\t\tLLM:    langchaingokit.New(logger),\n+\t\tlogger: logger,\n+\t}\n+}\n+\n+// Init initialises the OpenRouter client from the supplied metadata.\n+func (o *OpenRouter) Init(ctx context.Context, meta conversation.Metadata) error {\n+\tm := OpenRouterMetadata{}\n+\tif err := kmeta.DecodeMetadata(meta.Properties, &m); err != nil {\n+\t\treturn err\n+\t}\n+\n+\tmodel := conversation.GetOpenRouterModel(m.Model)\n+\n+\tendpoint := m.Endpoint\n+\tif endpoint == \"\" {\n+\t\tendpoint = defaultEndpoint\n+\t}\n+\n+\t// Build HTTP client \u2014 inject optional attribution headers when configured,\n+\t// otherwise fall back to the standard client with no extra transport wrapping.\n+\tvar httpClient *http.Client\n+\tif m.SiteURL != nil || m.SiteTitle != nil {\n+\t\textraHeaders := http.Header{}\n+\t\tif m.SiteURL != nil {\n+\t\t\textraHeaders.Set(headerReferer, *m.SiteURL)\n+\t\t}\n+\t\tif m.SiteTitle != nil {\n+\t\t\textraHeaders.Set(headerTitle, *m.SiteTitle)\n+\t\t}\n+\t\thttpClient = conversation.BuildHTTPClientWithHeaders(extraHeaders)\n+\t} else {\n+\t\thttpClient = conversation.BuildHTTPClient()\n+\t}\n+\n+\toptions := []openai.Option{\n+\t\topenai.WithModel(model),\n+\t\topenai.WithToken(m.Key),\n+\t\topenai.WithBaseURL(endpoint),\n+\t\topenai.WithHTTPClient(httpClient),\n+\t}\n+\n+\tllm, err := openai.New(options...)\n+\tif err != nil {\n+\t\treturn err\n+\t}\n+\n+\to.LLM.Model = llm\n+\to.LLM.SetModel(model)\n+\n+\tif m.ResponseCacheTTL != nil {\n+\t\tcached, cacheErr := conversation.CacheResponses(ctx, m.ResponseCacheTTL, o.LLM.Model)\n+\t\tif cacheErr != nil {\n+\t\t\treturn cacheErr\n+\t\t}\n+\t\to.LLM.Model = cached\n+\t}\n+\n+\treturn nil\n+}\n+\n+// GetComponentMetadata returns metadata info for this component derived from the metadata struct.\n+func (o *OpenRouter) GetComponentMetadata() (metadataInfo metadata.MetadataMap) {\n+\tmetadataStruct := OpenRouterMetadata{}\n+\tmetadata.GetMetadataInfoFromStructType(reflect.TypeOf(metadataStruct), &metadataInfo, metadata.ConversationType)\n+\treturn\n+}\n+\n+func (o *OpenRouter) Close() error { return nil }",
+      "patch_truncated": false
+    },
+    {
+      "filename": "conversation/openrouter/openrouter_test.go",
+      "status": "added",
+      "additions": 117,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,117 @@\n+/*\n+Copyright 2026 The Dapr Authors\n+Licensed under the Apache License, Version 2.0 (the \"License\");\n+you may not use this file except in compliance with the License.\n+You may obtain a copy of the License at\n+\n+\thttp://www.apache.org/licenses/LICENSE-2.0\n+\n+Unless required by applicable law or agreed to in writing, software\n+distributed under the License is distributed on an \"AS IS\" BASIS,\n+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+See the License for the specific language governing permissions and\n+limitations under the License.\n+*/\n+\n+package openrouter\n+\n+import (\n+\t\"testing\"\n+\n+\t\"github.com/stretchr/testify/assert\"\n+\t\"github.com/stretchr/testify/require\"\n+\n+\t\"github.com/dapr/components-contrib/conversation\"\n+\t\"github.com/dapr/components-contrib/metadata\"\n+\t\"github.com/dapr/kit/logger\"\n+)\n+\n+func TestInit(t *testing.T) {\n+\ttestLogger := logger.NewLogger(\"test\")\n+\n+\ttests := []struct {\n+\t\tname   string\n+\t\tprops  map[string]string\n+\t\ttestFn func(t *testing.T, o *OpenRouter, err error)\n+\t}{\n+\t\t{\n+\t\t\tname: \"default model and endpoint\",\n+\t\t\tprops: map[string]string{\n+\t\t\t\t\"key\": \"sk-or-v1-test\",\n+\t\t\t},\n+\t\t\ttestFn: func(t *testing.T, o *OpenRouter, err error) {\n+\t\t\t\trequire.NoError(t, err)\n+\t\t\t\tassert.NotNil(t, o.LLM.Model)\n+\t\t\t\tassert.Equal(t, conversation.DefaultOpenRouterModel, o.LLM.GetModel())\n+\t\t\t},\n+\t\t},\n+\t\t{\n+\t\t\tname: \"custom model\",\n+\t\t\tprops: map[string]string{\n+\t\t\t\t\"key\":   \"sk-or-v1-test\",\n+\t\t\t\t\"model\": \"anthropic/claude-3-5-sonnet\",\n+\t\t\t},\n+\t\t\ttestFn: func(t *testing.T, o *OpenRouter, err error) {\n+\t\t\t\trequire.NoError(t, err)\n+\t\t\t\tassert.Equal(t, \"anthropic/claude-3-5-sonnet\", o.LLM.GetModel())\n+\t\t\t},\n+\t\t},\n+\t\t{\n+\t\t\tname: \"custom endpoint\",\n+\t\t\tprops: map[string]string{\n+\t\t\t\t\"key\":      \"sk-or-v1-test\",\n+\t\t\t\t\"endpoint\": \"https://proxy.example.com/v1\",\n+\t\t\t},\n+\t\t\ttestFn: func(t *testing.T, o *OpenRouter, err error) {\n+\t\t\t\trequire.NoError(t, err)\n+\t\t\t\tassert.NotNil(t, o.LLM.Model)\n+\t\t\t},\n+\t\t},\n+\t\t{\n+\t\t\tname: \"with attribution headers\",\n+\t\t\tprops: map[string]string{\n+\t\t\t\t\"key\":       \"sk-or-v1-test\",\n+\t\t\t\t\"siteURL\":   \"https://myapp.example.com\",\n+\t\t\t\t\"siteTitle\": \"My Dapr App\",\n+\t\t\t},\n+\t\t\ttestFn: func(t *testing.T, o *OpenRouter, err error) {\n+\t\t\t\trequire.NoError(t, err)\n+\t\t\t\tassert.NotNil(t, o.LLM.Model)\n+\t\t\t},\n+\t\t},\n+\t\t{\n+\t\t\tname: \"with response cache TTL\",\n+\t\t\tprops: map[string]string{\n+\t\t\t\t\"key\":      \"sk-or-v1-test\",\n+\t\t\t\t\"cacheTTL\": \"5m\",\n+\t\t\t},\n+\t\t\ttestFn: func(t *testing.T, o *OpenRouter, err error) {\n+\t\t\t\trequire.NoError(t, err)\n+\t\t\t\tassert.NotNil(t, o.LLM.Model)\n+\t\t\t},\n+\t\t},\n+\t\t{\n+\t\t\tname:  \"missing API key returns an error from the SDK\",\n+\t\t\tprops: map[string]string{},\n+\t\t\ttestFn: func(t *testing.T, o *OpenRouter, err error) {\n+\t\t\t\trequire.Error(t, err)\n+\t\t\t},\n+\t\t},\n+\t}\n+\n+\tfor _, tt := range tests {\n+\t\tt.Run(tt.name, func(t *testing.T) {\n+\t\t\to := NewOpenRouter(testLogger).(*OpenRouter)\n+\t\t\terr := o.Init(t.Context(), conversation.Metadata{\n+\t\t\t\tBase: metadata.Base{Properties: tt.props},\n+\t\t\t})\n+\t\t\ttt.testFn(t, o, err)\n+\t\t})\n+\t}\n+}\n+\n+func TestGetComponentMetadata(t *testing.T) {\n+\to := NewOpenRouter(logger.NewLogger(\"test\")).(*OpenRouter)\n+\tmd := o.GetComponentMetadata()\n+\tassert.NotEmpty(t, md)\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "conversation/opts.go",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 0,
+      "patch": "@@ -59,6 +59,38 @@ func CacheResponses(ctx context.Context, ttl *time.Duration, model llms.Model) (\n \treturn cache.New(model, mem), nil\n }\n \n+// BuildHTTPClientWithHeaders creates an HTTP client that injects extra headers on every request\n+// without overwriting headers the caller has already set. Used for optional attribution headers\n+// required by some providers (e.g. OpenRouter's HTTP-Referer / X-Title).\n+func BuildHTTPClientWithHeaders(extraHeaders http.Header) *http.Client {\n+\tbase := &httputil.Transport{Transport: http.DefaultTransport}\n+\treturn &http.Client{\n+\t\tTransport: &headerInjectingTransport{\n+\t\t\twrapped: base,\n+\t\t\theaders: extraHeaders.Clone(), // snapshot so caller mutations don't race\n+\t\t},\n+\t\t// Timeout is set to 0 to rely on context deadlines set by any configured resiliency policies.\n+\t\t// The context deadline will be respected via http.NewRequestWithContext in Langchain.\n+\t\tTimeout: 0,\n+\t}\n+}\n+\n+type headerInjectingTransport struct {\n+\twrapped http.RoundTripper\n+\theaders http.Header\n+}\n+\n+func (t *headerInjectingTransport) RoundTrip(req *http.Request) (*http.Response, error) {\n+\t// Clone before mutating \u2014 RoundTripper must not modify the original request.\n+\treq = req.Clone(req.Context())\n+\tfor k, v := range t.headers {\n+\t\tif req.Header[k] == nil {\n+\t\t\treq.Header[k] = v\n+\t\t}\n+\t}\n+\treturn t.wrapped.RoundTrip(req)\n+}\n+\n // BuildHTTPClient creates an HTTP client with timeout set to 0 to rely on context deadlines.\n // The context deadline will be respected via http.NewRequestWithContext within Langchain.\n // This allows resiliency policy timeouts from runtime to propagate through to the HTTP client for the LLM provider.",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/config/conversation/openrouter/openrouter.yml",
+      "status": "added",
+      "additions": 12,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,12 @@\n+apiVersion: dapr.io/v1alpha1\n+kind: Component\n+metadata:\n+  name: openrouter\n+spec:\n+  type: conversation.openrouter\n+  version: v1\n+  metadata:\n+    - name: key\n+      value: \"${{OPENROUTER_API_KEY}}\"\n+    - name: model\n+      value: \"openai/gpt-4o-mini\"",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/config/conversation/tests.yml",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "patch": "@@ -18,4 +18,6 @@ components:\n     operations: []\n   - component: bedrock\n     operations: []\n+  - component: openrouter\n+    operations: []\n # TODO: We are missing tests for deepseek.\n\\ No newline at end of file",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/conformance/conversation_test.go",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "patch": "@@ -32,6 +32,7 @@ import (\n \t\"github.com/dapr/components-contrib/conversation/mistral\"\n \t\"github.com/dapr/components-contrib/conversation/ollama\"\n \t\"github.com/dapr/components-contrib/conversation/openai\"\n+\t\"github.com/dapr/components-contrib/conversation/openrouter\"\n \tconf_conversation \"github.com/dapr/components-contrib/tests/conformance/conversation\"\n \t\"github.com/dapr/components-contrib/tests/conformance/utils\"\n )\n@@ -114,6 +115,11 @@ func shouldSkipComponent(t *testing.T, componentName string) bool {\n \t\t\tt.Skipf(\"Skipping AWS Bedrock conformance test: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables not set\")\n \t\t\treturn true\n \t\t}\n+\tcase \"openrouter\":\n+\t\tif os.Getenv(\"OPENROUTER_API_KEY\") == \"\" {\n+\t\t\tt.Skipf(\"Skipping OpenRouter conformance test: OPENROUTER_API_KEY environment variable not set\")\n+\t\t\treturn true\n+\t\t}\n \t}\n \treturn false\n }\n@@ -136,6 +142,8 @@ func loadConversationComponent(name string) conversation.Conversation {\n \t\treturn ollama.NewOllama(testLogger)\n \tcase \"bedrock\":\n \t\treturn bedrock.NewAWSBedrock(testLogger)\n+\tcase \"openrouter\":\n+\t\treturn openrouter.NewOpenRouter(testLogger)\n \tcase \"deepseek\":\n \t\ttestLogger.Infof(\"TODO add deepseek conformance tests\")\n \t\treturn nil",
+      "patch_truncated": false
+    }
+  ]
+}

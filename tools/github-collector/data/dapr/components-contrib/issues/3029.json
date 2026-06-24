@@ -1,0 +1,79 @@
+{
+  "type": "issue",
+  "number": 3029,
+  "title": "Cosmos DB: Query API not working if there's more than 1 partition",
+  "state": "open",
+  "body": "> This issue was reported by a user via Microsoft Support. The findings are reported below\r\n\r\nIt seems the issue occur when Cosmos DB has multi partitions.\r\n\r\n(1) Create local Dapr environment and configure state store to cosmos db.\r\n\r\n```yaml\r\napiVersion: dapr.io/v1alpha1\r\nkind: Component\r\nmetadata:\r\n  name: statestore\r\nspec:\r\n  type: state.azure.cosmosdb\r\n  version: v1\r\n  metadata:\r\n  - name: url\r\n    value: https://something.documents.azure.com:443/\r\n  - name: masterKey\r\n    value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n  - name: database\r\n    value: db\r\n  - name: collection\r\n    value: collection\r\n```\r\n\r\n(2) Configure Cosmos DB scale to use multiple partitions. Setting the throughput to Manual: 11000.\r\n![image](https://github.com/dapr/components-contrib/assets/43508/8fab78f5-840e-45ca-9158-3e045581225e)\r\n\r\n\r\n(3) After setting (2), wait about 30 minutes, as it takes time for the partitions to actually scale out.\r\n\r\n(4) Then run dapr.\r\n\r\n(5) Run the following API.\r\n\r\n https://docs.dapr.io/reference/api/state_api/#query-state\r\n\r\nYou can see the following error.\r\n\r\n```\r\nPS C:\\Users\\toruita> Invoke-WebRequest -Method Post -Headers @{\"Content-type\"=\"application/json\"} -Uri 'http://localhost:3500/v1.0-alpha1/state/statestore/query?metadata.contentType=application/json' -Body '{}'\r\nInvoke-WebRequest : {\"errorCode\":\"ERR_STATE_QUERY\",\"message\":\"failed query in state store statestore: context canceled\"}\r\n???? ?:1 ??:1\r\n+ Invoke-WebRequest -Method Post -Headers @{\"Content-type\"=\"application ...\r\n+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : InvalidOperation: ([System.Net](http://system.net/).HttpWebRequest:HttpWebRequest) [Invoke-WebRequest]?WebException\r\n    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand----```",
+  "labels": [
+    "kind/bug",
+    "help wanted",
+    "P2",
+    "size/L",
+    "pinned"
+  ],
+  "user": "ItalyPaleAle",
+  "created_at": "2023-08-02T14:52:07Z",
+  "updated_at": "2025-08-11T21:55:51Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "What is interesting is that we specifically consulted with cosmos DB folks on this - since the SDK does not have built in support for cross partition queries we manually added the required headers (via the policy options) to enable cross partition queries.\n\nWorth investigating further why that isn't working.",
+      "created_at": "2023-08-02T15:14:52Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-09-01T15:16:47Z"
+    },
+    {
+      "user": "joshuadmatthews",
+      "body": "+1 for fixing this",
+      "created_at": "2023-10-21T19:51:12Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "I reached out to the Azure CosmosDB service team to get their thoughts on our implementation and why this could be happening.",
+      "created_at": "2023-11-13T20:37:16Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "There is a possibility that this cannot be fixed and we actually would need to remove Query API support for CosmosDB. This is a possibility given the Alpha status.\r\n\r\nWe may need to reimplement query support entirely to do the following:\r\n- Get each partition: https://learn.microsoft.com/en-us/rest/api/cosmos-db/get-partition-key-ranges\r\n- Then query each partition independently and combine results in memory. The results would not be sorted across the partitions.\r\n\r\nThis is a lot of work, especially for an API that we do not plan to bring to Beta or Stable.",
+      "created_at": "2023-11-13T20:43:51Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "Another option - and this is probably the easiest:\r\n\r\n1. Check whether there is only a single partition\r\n2. If 1 partition: perform query with the native SDK method - not our custom code.\r\n3. Otherwise, throw an error -- we will not support cross-partition queries.\r\n\r\nThis approach might be acceptable because nobody should be using an Alpha component in a production scenario with multiple partitions.",
+      "created_at": "2023-11-13T20:53:59Z"
+    },
+    {
+      "user": "joshuadmatthews",
+      "body": "I\u2019d vote for an actual fix. Cross partition queries are certainly supported in Cosmos, it would be nice for them to work with Dapr. ",
+      "created_at": "2023-11-13T20:57:50Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "> I\u2019d vote for an actual fix. Cross partition queries are certainly supported in Cosmos, it would be nice for them to work with Dapr.\r\n\r\n@joshuadmatthews cross-partition queries are not supported in the CosmosDB GO SDK and the Azure SDK team has no plans to implement this in their roadmap. Cosmos DB does not perform these queries server side but does so manually in the SDK with lots of manual code to aggregate and sort things in memory. You can read all about it if you go to the Azure SDK repos. That is too much work for Dapr however.\r\n\r\nSo the choices are single partition only, removing the Query support entirely, or possibly a rudimentary support where we send the same query to each partition but will not perform any further aggregation, sorting or filtering in Dapr.\r\n\r\nTechnically our current implementation should work, but the gateway server (not used by any of the official SDKs because of its severe query limitations) seems to time out. We have no choice but to change our approach.\r\n\r\nIf the Azure SDK for Go Team ever provides native cross partition query support we'd of course use that instead.\r\n\r\nI want to remind the community again that Alpha in Dapr means experimental - we may discontinue Alpha features. We have long decided that Query API cannot progress to Beta given the way it was designed. It is not sustainable to support and maintain this. I must strongly discourage using the Query API.",
+      "created_at": "2023-11-13T21:55:23Z"
+    },
+    {
+      "user": "joshuadmatthews",
+      "body": "Can you share a link to the Azure SDK repo section you are talking about?  Interested to read up on that.  The dotnet v3 Cosmos SDK seems like an official SDK, and also seems to be using the header approach, but I'm sure I'm missing something there. \r\n\r\nhttps://github.com/Azure/azure-cosmos-dotnet-v3/blob/e534de251bdadafd1adb960da83c15d463486a66/Microsoft.Azure.Cosmos/src/RequestOptions/QueryRequestOptions.cs#L173-L177",
+      "created_at": "2023-11-13T23:15:18Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "I explained in my previous comment how the DotNet SDK manages to query all partitions and aggregate results. The Go SDK does not have the ability to do this.\r\n\r\nAs a result, this would need to be manually implemented in Dapr. That feels like the wrong approach however. Instead we need to wait for the Go SDK (github.com/azure/azure-sdk-for-go) to support this for CosmosDB.\r\n\r\nIf anyone feels inclined to work on this, I suggest contributing to the Azure SDK for Go, and then Dapr can simply consume the updated SDK.",
+      "created_at": "2024-01-25T20:33:20Z"
+    },
+    {
+      "user": "litan1106",
+      "body": "If we are going to remove the query api from cosmosdb, then we need a way to filter items.",
+      "created_at": "2024-03-28T22:47:03Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3029",
+  "is_seed": false,
+  "partial": false
+}

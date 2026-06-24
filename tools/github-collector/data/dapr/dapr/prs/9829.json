@@ -1,0 +1,29 @@
+{
+  "type": "pr",
+  "number": 9829,
+  "title": "Add openrouter conversation component registration",
+  "state": "open",
+  "body": "Signed-off-by: Joni Collinge <jonathancollinge@live.com>\n\n# Description\nAdds the openrouter converstaion component registration from https://github.com/dapr/components-contrib/pull/4334 - will require a go.mod bump once that is merged.\n<!--\nPlease explain the changes you've made.\n-->\n\n## Issue reference\n\n<!--\nWe strive to have all PR being opened based on an issue, where the problem or feature have been discussed prior to implementation.\n-->\n\nPlease reference the issue this PR will close: #_[issue number]_\n\n## Checklist\n\nPlease make sure you've completed the relevant tasks for this PR, out of the following list:\n\n- [ ] Code compiles correctly\n- [ ] Created/updated tests\n- [ ] Unit tests passing\n- [ ] End-to-end tests passing\n- [ ] Extended the documentation / Created issue in the <https://github.com/dapr/docs/> repo: dapr/docs#_[issue number]_\n- [ ] Specification has been updated / Created issue in the <https://github.com/dapr/docs/> repo: dapr/docs#_[issue number]_\n- [ ] Provided sample for the feature / Created issue in the <https://github.com/dapr/docs/> repo: dapr/docs#_[issue number]_\n",
+  "labels": [],
+  "user": "jjcollinge",
+  "created_at": "2026-04-27T16:06:12Z",
+  "updated_at": "2026-04-27T16:06:13Z",
+  "additions": 27,
+  "deletions": 0,
+  "changed_files": 1,
+  "linked_issue_numbers": [],
+  "comments": [],
+  "html_url": "https://github.com/dapr/dapr/pull/9829",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "cmd/daprd/components/conversation_openrouter.go",
+      "status": "added",
+      "additions": 27,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,27 @@\n+//go:build allcomponents\n+\n+/*\n+Copyright 2026 The Dapr Authors\n+Licensed under the Apache License, Version 2.0 (the \"License\");\n+you may not use this file except in compliance with the License.\n+You may obtain a copy of the License at\n+\n+    http://www.apache.org/licenses/LICENSE-2.0\n+\n+Unless required by applicable law or agreed to in writing, software\n+distributed under the License is distributed on an \"AS IS\" BASIS,\n+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+See the License for the specific language governing permissions and\n+limitations under the License.\n+*/\n+\n+package components\n+\n+import (\n+\t\"github.com/dapr/components-contrib/conversation/openrouter\"\n+\t\"github.com/dapr/dapr/pkg/components/conversation\"\n+)\n+\n+func init() {\n+\tconversation.DefaultRegistry.RegisterComponent(openrouter.NewOpenRouter, \"openrouter\")\n+}",
+      "patch_truncated": false
+    }
+  ]
+}

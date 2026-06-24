@@ -1,0 +1,61 @@
+{
+  "type": "pr",
+  "number": 10112,
+  "title": "fix: make scheduler securityContext.fsGroup opt-in",
+  "state": "open",
+  "body": "## Problem\n\nThe Dapr Scheduler's `securityContext.fsGroup` was hardcoded to `65532` by default (introduced in #7891). This breaks default installations on OpenShift, which assigns its own `fsGroup` automatically from a per-namespace range and rejects a hardcoded value with an admission error.\n\nThe reporter's workaround was to explicitly null out the value:\n```yaml\ndapr_scheduler:\n  securityContext:\n    fsGroup: ~\n```\n\n`fsGroup` is only necessary when mounting custom volumes that require group ownership \u2014 it should not be set by default.\n\n## Fix\n\n- **`charts/dapr/charts/dapr_scheduler/values.yaml`**: Changed `fsGroup` default from `65532` to `null` (`~`). The key is documented in a comment with an example value so operators know it exists.\n- **`charts/dapr/charts/dapr_scheduler/templates/dapr_scheduler_statefulset.yaml`**: Replaced `{{- with .Values.securityContext.fsGroup }}` with an explicit `{{- if ne .Values.securityContext.fsGroup nil }}` guard so that a legitimate `fsGroup: 0` (root group) is rendered correctly, and no dangling empty `securityContext:` block is emitted when the value is unset.\n- **`charts/dapr/README.md`**: Updated the `dapr_scheduler.securityContext.fsGroup` default from `\"\"` to `~` to match the actual YAML null sentinel.\n- **`charts/dapr/templates/NOTES.txt`**: Added a conditional upgrade warning that renders when `dapr_scheduler.securityContext.fsGroup` is nil and persistence is enabled, reminding upgraders to set `fsGroup=65532` explicitly if they relied on the previous default for volume-write access.\n\nExisting behaviour when `fsGroup` IS set is fully preserved.\n\n## Validation\n\nVerified with `helm template` and `helm lint`:\n\n- **Default render** (no overrides): `fsGroup` is **absent** from the scheduler StatefulSet pod `securityContext`; no empty `securityContext:` block emitted. \u2713\n- **Explicit set to 0** (`dapr_scheduler.securityContext.fsGroup=0`): renders `fsGroup: 0` correctly (the old `{{- with }}` guard would have silently dropped this). \u2713\n- **Explicit set to 65532** (`dapr_scheduler.securityContext.fsGroup=65532`): renders `fsGroup: 65532`. \u2713\n- `helm lint charts/dapr`: **0 chart(s) failed**. \u2713\n\nFixes #8885\n\n## Upgrade note\n\nUsers upgrading from a previous version who relied on the scheduler's default `fsGroup: 65532` (e.g., to ensure the etcd PV is writable) must now set it explicitly:\n\n```\n--set dapr_scheduler.securityContext.fsGroup=65532\n```\n\nThis only affects the Scheduler StatefulSet. OpenShift users (and any platform that auto-assigns fsGroup) are unaffected by the default removal.\n\n## Follow-up: placement chart\n\nThe `dapr_placement` chart still hardcodes `fsGroup: 65532` unconditionally. The same opt-in treatment (nil default + `{{- if ne ... nil }}` guard) could be applied there in a follow-up PR.\n\n\n---\n\n\ud83d\udcd6 **Documentation:** dapr/docs#5219\n",
+  "labels": [],
+  "user": "nelson-parente",
+  "created_at": "2026-06-17T07:38:35Z",
+  "updated_at": "2026-06-23T11:14:54Z",
+  "additions": 17,
+  "deletions": 2,
+  "changed_files": 4,
+  "linked_issue_numbers": [
+    8885
+  ],
+  "comments": [
+    {
+      "user": "Copilot",
+      "body": "This block is labeled \"Upgrade note\" but will render on fresh installs too (the condition only checks values, not whether this is an upgrade). That can confuse new installs and doesn\u2019t match the PR\u2019s intent of an upgrade-only warning.",
+      "created_at": "2026-06-18T20:13:16Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/dapr/pull/10112",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "charts/dapr/README.md",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -188,7 +188,7 @@ The Helm chart has the follow configuration options that can be supplied:\n | `dapr_scheduler.cluster.storageClassName`     | When set, uses this class to provision the database storage volume.                                                                                                                                                                                                                                                                                  |                                            |\n | `dapr_scheduler.cluster.storageSize`          | Default PVC size requested for the scheduler StatefulSet on a fresh install. On an upgrade, the chart detects the live StatefulSet via `lookup` and pins this to the existing PVC size, because `StatefulSet.spec.volumeClaimTemplates` is immutable in Kubernetes - changing it would cause the upgrade to fail. To grow an existing PVC, expand it directly on the cluster. | `16Gi`                                     |\n | `dapr_scheduler.securityContext.runAsNonRoot` | Boolean value for `securityContext.runAsNonRoot`. You may have to set this to `false` when running in Minikube                                                                                                                                                                                                                                       | `true`                                     |\n-| `dapr_scheduler.securityContext.fsGroup`      | Integer value for `securityContext.fsGroup`. Useful for adding the Scheduler process to the file system group that can write to the mounted database volume.                                                                                                                                                                                         | `65532`                                    |\n+| `dapr_scheduler.securityContext.fsGroup`      | Optional integer value for `securityContext.fsGroup`. When set, adds the Scheduler process to the specified file system group (e.g. to write to a mounted volume owned by that group). Unset by default so that platforms such as OpenShift can assign an fsGroup automatically from the namespace range.                                             | `~`                                        |\n | `dapr_scheduler.resources`                    | Value of `resources` attribute. Can be used to set memory/cpu resources/limits. See the section \"Resource configuration\" above. Defaults to empty                                                                                                                                                                                                    | `{}`                                       |\n | `dapr_scheduler.debug.enabled`                | Boolean value for enabling debug mode                                                                                                                                                                                                                                                                                                                | `{}`                                       |\n | `dapr_scheduler.statefulsetAnnotations`       | Custom annotations for Dapr Scheduler Statefulset                                                                                                                                                                                                                                                                                                    | `{}`                                       |",
+      "patch_truncated": false
+    },
+    {
+      "filename": "charts/dapr/charts/dapr_scheduler/templates/dapr_scheduler_statefulset.yaml",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "patch": "@@ -52,8 +52,10 @@ spec:\n {{ toYaml . | indent 8 }}\n {{- end }}\n     spec:\n+      {{- if ne .Values.securityContext.fsGroup nil }}\n       securityContext:\n         fsGroup: {{ .Values.securityContext.fsGroup }}\n+      {{- end }}\n     {{- with .Values.global.initContainers.scheduler }}\n       initContainers:\n         {{- toYaml . | nindent 8 }}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "charts/dapr/charts/dapr_scheduler/values.yaml",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "patch": "@@ -80,7 +80,12 @@ debug:\n \n securityContext:\n   runAsNonRoot: true\n-  fsGroup: 65532\n+  # fsGroup is intentionally unset by default. Set it only when you need the\n+  # Scheduler process to belong to a specific file-system group (e.g. to write\n+  # to a mounted volume owned by that group). Leaving it unset lets platforms\n+  # such as OpenShift assign an fsGroup automatically from the namespace range.\n+  # Example: fsGroup: 65532\n+  fsGroup: ~\n \n resources: {}\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "charts/dapr/templates/NOTES.txt",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "patch": "@@ -16,3 +16,11 @@ https://dapr.io\n >\n > For more information, see https://docs.dapr.io/operations/hosting/kubernetes/kubernetes-persisting-scheduler\n {{- end }}\n+{{- if and .Release.IsUpgrade (eq .Values.global.scheduler.enabled true) (not .Values.dapr_scheduler.cluster.inMemoryStorage) (eq .Values.dapr_scheduler.securityContext.fsGroup nil) }}\n+\n+> Upgrade note: The Scheduler's default fsGroup (previously 65532) has been removed.\n+> If your etcd persistent volume required group ownership for writes, you must now set\n+> fsGroup explicitly to preserve that behavior:\n+>\n+> --set dapr_scheduler.securityContext.fsGroup=65532\n+{{- end }}",
+      "patch_truncated": false
+    }
+  ]
+}

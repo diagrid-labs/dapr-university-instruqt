@@ -1,0 +1,82 @@
+{
+  "type": "issue",
+  "number": 8706,
+  "title": "Workflows: First class support for input/output db referencing",
+  "state": "open",
+  "body": "It is often the case that workflow/activity results are desired to be (or reference) a significantly large data payload- this could be a movie, AI dataset, gene sequence etc. Dapr workflows, by nature, are incredibly I/O intensive- by the fact that it provides both durability, and load balancing across elastic distributed workloads. It is not appropriate for these data payloads to be networked frequently, nor be stored in ETCD (the scheduler DB storage layer).\n\nIt has, and continues to be the case, that Workflow authors should instead pass workflow/activity results by _reference_, i.e. a db key or some other index which references a result of some large data payload. It _is_ the case that users should continue to be able to pass small metadata payloads which include results like success/failure, timestamp, favorite color etc.\n\nWe should update the workflow documentation to make clear that users should pass by reference/metadata only.\n\nWe should update SDKs to include helper wrappers so that it is easier to save a result to a chosen Dapr state-store, pass by state-store name & key, then unwrap on the consuming end. This does not need any runtime changes.",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "JoshVanL",
+  "created_at": "2025-05-08T23:30:15Z",
+  "updated_at": "2026-04-28T20:39:58Z",
+  "comments": [
+    {
+      "user": "WhitWaldo",
+      "body": "I'd really like to see additional specialty building blocks like ~~the [proposed object store](https://github.com/dapr/dapr/issues/4804)~~ [my proposed Binary Store building block](https://github.com/dapr/proposals/pull/88) so we can trivially stream large blobs somewhere even if the SDK handles storage and retrieval. But I think putting this in the SDK is a great idea.",
+      "created_at": "2025-05-09T05:58:32Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "Duplicate of https://github.com/dapr/dapr/issues/6014",
+      "created_at": "2025-05-12T12:38:03Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-08-10T12:56:14Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 97 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2025-08-17T13:10:01Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "@JoshVanL We might just be able to keep this one closed - in the responses to a [similar ticket](https://github.com/dapr/dotnet-sdk/issues/1533) in the .NET SDK, @olitomlinson pointed out the reasonableness of returning the reference data in the return value of an activity (so it's persisted in the workflow state for replay purposes), limiting the need for any specific runtime implementation here.",
+      "created_at": "2025-10-01T19:16:46Z"
+    },
+    {
+      "user": "JoshVanL",
+      "body": "> @JoshVanL We might just be able to keep this one closed - in the responses to a [similar ticket](https://github.com/dapr/dotnet-sdk/issues/1533) in the .NET SDK, @olitomlinson pointed out the reasonableness of returning the reference data in the return value of an activity (so it's persisted in the workflow state for replay purposes), limiting the need for any specific runtime implementation here.\n\nThis issue explicitly calls out that this does not need runtime changes. Given we want a consistent workflow experience across SDKs, it doesn't belong to any single SDK either and instead we should implement a similar mechanism across the board.",
+      "created_at": "2025-10-01T19:21:32Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-12-30T19:27:04Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 97 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-01-06T19:34:56Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "> I'd really like to see additional specialty building blocks like the [proposed object store](https://github.com/dapr/dapr/issues/4804) or something similar here first so we can trivially stream large blobs somewhere even if the SDK handles storage and retrieval. But I think putting this in the SDK is a great idea.\n\n@WhitWaldo you should update your comment to point to your Binary Store proposal",
+      "created_at": "2026-01-06T20:08:01Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-04-10T12:24:25Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it was marked stale with no further activity for 7 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-04-17T12:35:24Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "Not having this in Dapr workflow today allows a footgun to exist since users will *at some point* pass payloads that are larger than the maximum `dapr.io/max-body-size` ([default 4MB](https://docs.dapr.io/reference/arguments-annotations-overview/)) or even hit the limitation that is being set to the application in some SDKs `DAPR_GRPC_MAX_INBOUND_MESSAGE_SIZE_BYTES` ([set to 4MB in Java as well](https://docs.dapr.io/developing-applications/sdks/java/java-client/properties/#grpc-configuration)). This needs to be easier for SDK users to do given the fact that this has often been a production issue.",
+      "created_at": "2026-04-28T20:25:21Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    1533
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/8706",
+  "is_seed": false,
+  "partial": false
+}

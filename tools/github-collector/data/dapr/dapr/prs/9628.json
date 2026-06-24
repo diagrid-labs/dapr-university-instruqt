@@ -1,0 +1,138 @@
+{
+  "type": "pr",
+  "number": 9628,
+  "title": "fix: Set gRPC authority for SNI-based TLS gateway routing to placement",
+  "state": "open",
+  "body": "# Description\r\n\r\nWhen running external daprd, connections to the placement service might go through a TLS gateway that relies on SNI to route traffic. By setting grpc.WithAuthority to the original hostname, the SNI hint is preserved even when dialing a resolved IP:port, enabling the gateway to route to the correct placement instance.\r\n\r\n",
+  "labels": [],
+  "user": "lrascao",
+  "created_at": "2026-03-11T14:18:09Z",
+  "updated_at": "2026-05-04T13:15:56Z",
+  "additions": 144,
+  "deletions": 3,
+  "changed_files": 2,
+  "linked_issue_numbers": [],
+  "comments": [
+    {
+      "user": "Copilot",
+      "body": "`r.gOpts = append(r.gOpts, grpc.WithAuthority(r.host))` mutates the connector\u2019s stored dial options on every `Connect` call. Since `Connect` is used for reconnection, this will keep growing the slice unboundedly (and can also mutate the caller-provided `opts.GRPCOptions` backing array), causing avoidable memory growth over time. Consider keeping `r.gOpts` immutable (clone in `New`) and build per-call dial options (or append the authority once during construction).",
+      "created_at": "2026-03-11T14:28:00Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "This change adds new connection semantics (setting gRPC authority for SNI) but there\u2019s no unit test asserting the authority option is applied and, importantly, that dial options don\u2019t grow across repeated `Connect` calls. Since this package already has unit tests, consider extending them (e.g., type-assert to `*dnsLookUpConnector` and verify `len(gOpts)` stays stable across multiple `Connect` attempts) to prevent regressions.",
+      "created_at": "2026-03-11T14:28:00Z"
+    },
+    {
+      "user": "lrascao",
+      "body": "3ba1f49",
+      "created_at": "2026-03-11T14:40:25Z"
+    },
+    {
+      "user": "lrascao",
+      "body": "26af805",
+      "created_at": "2026-03-11T14:40:34Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "`for range 5 {}` does not compile in Go because `range` requires an iterable (slice/map/string/channel). Use a counted loop instead (e.g., `for i := 0; i < 5; i++ { ... }`).\n```suggestion\n\tfor i := 0; i < 5; i++ {\n```",
+      "created_at": "2026-03-11T15:00:44Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "This test claims it verifies `WithAuthority` is present, but `assert.Greater(t, initialLen, 0)` will pass even if the authority option was not appended (e.g., if only the caller-provided `GRPCOptions` are present). Consider asserting that `len(c.gOpts)` increased by exactly 1 compared to the input options (or, in this test, that `initialLen == 2`).",
+      "created_at": "2026-03-11T15:00:45Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "`gOpts: append(opts.GRPCOptions, grpc.WithAuthority(host))` may reuse and mutate the backing array of `opts.GRPCOptions` (depending on its capacity), which can unexpectedly modify the caller's slice. To avoid side effects, clone the slice before appending the authority option (e.g., copy `opts.GRPCOptions` into a new slice, then append).",
+      "created_at": "2026-03-11T15:00:45Z"
+    },
+    {
+      "user": "acroca",
+      "body": "I don't see how this test covers the change introduced. Why would `gOpts` grow on every connection attempt?",
+      "created_at": "2026-03-11T16:02:06Z"
+    },
+    {
+      "user": "lrascao",
+      "body": "a fixup moved the option from Connect to New but the test remained behind, deleted it",
+      "created_at": "2026-03-11T17:31:48Z"
+    },
+    {
+      "user": "acroca",
+      "body": "Can't we make this more specific and check the `gOpts` contains the WithAuthority? \nAlso, I'm not sure we have integration tests for this, but it'd be good to have some sort of test that makes sure this change solves an actual issue, not just asserting in the opts. Possible?",
+      "created_at": "2026-03-13T09:00:52Z"
+    },
+    {
+      "user": "lrascao",
+      "body": "bd6d038",
+      "created_at": "2026-03-16T17:30:12Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "This Invoke call uses `nil` and `&struct{}{}` as request/response, which can fail client-side marshaling (expects `proto.Message`) and may prevent a real stream from being created in some gRPC versions. Using a real protobuf message type (eg, `emptypb.Empty` or `structpb.NullValue`) makes the test more robust while still triggering the transport handshake.",
+      "created_at": "2026-03-16T17:36:07Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The log format strings include an unexpected '@' and an extra comma before the authority parenthetical (e.g., \"placement @%s, (authority %s)\"). This looks like a typo and makes logs harder to grep/parse; consider using a consistent format like \"placement %s (authority %s)\" for both messages.",
+      "created_at": "2026-03-16T17:36:07Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "This test asserts an exact length for gOpts (2), which is brittle if New adds any additional default dial options in the future. Consider asserting `len(c.gOpts) == len(opts.GRPCOptions)+1` (and/or focusing only on the stability property across Connect calls) to keep the test resilient to unrelated option additions.",
+      "created_at": "2026-03-16T17:36:08Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "`grpc.WithInsecure()` is deprecated; since this file already imports `credentials/insecure`, prefer `grpc.WithTransportCredentials(insecure.NewCredentials())` to avoid relying on a staticcheck suppression.\n",
+      "created_at": "2026-03-16T17:36:08Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "`conn.Connect(...)` returns a `*grpc.ClientConn` which can start background goroutines; these returned conns are currently discarded without being closed. Consider closing them (or using `t.Cleanup`) to avoid leaking goroutines/resources during the test run.",
+      "created_at": "2026-03-16T17:36:08Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "`authorityCreds.Clone()` returns a new wrapper that does not share/copy the `authority` capture state. gRPC commonly clones transport creds per connection, so the authority may be recorded on the clone and never visible via the original `creds` pointer used by the test, making this test flaky/failing. Consider sharing the capture state across clones (eg, store a pointer to an atomic value in the struct and reuse it in Clone).\n",
+      "created_at": "2026-03-16T17:36:08Z"
+    },
+    {
+      "user": "lrascao",
+      "body": "bit contrived but hopefully this test shows that there exists a valid use-case for this (placement behind a gateway)",
+      "created_at": "2026-03-16T18:16:47Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "`grpc.WithAuthority(host)` uses the host value returned by `net.SplitHostPort`, which strips IPv6 brackets and also drops the port. For an IPv6 placement address (for example `[fd00::1]:50005`), this would set an invalid HTTP/2 authority string (`fd00::1`) and can break downstream routing/handshakes. Consider constructing a RFC-compliant authority (for example by bracketing IPv6 literals, or using `net.JoinHostPort(host, port)` / the original host:port) before passing it to `WithAuthority`.",
+      "created_at": "2026-05-04T10:49:29Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The test/comment say they verify the gRPC \":authority\" header received by the server, but the implementation actually captures the `authority` string passed into the client-side `TransportCredentials.ClientHandshake`. Consider renaming the test and/or adjusting the comment to reflect what is actually being asserted to avoid misleading future readers.",
+      "created_at": "2026-05-04T10:49:30Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/dapr/pull/9628",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pkg/actors/internal/placement/connector/dnslookup/dnslookup.go",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 3,
+      "patch": "@@ -19,6 +19,7 @@ import (\n \t\"context\"\n \t\"fmt\"\n \t\"net\"\n+\t\"slices\"\n \n \t\"google.golang.org/grpc\"\n \n@@ -59,10 +60,17 @@ func New(opts Options) (connector.Interface, error) {\n \t\tresolver = (&net.Resolver{PreferGo: true}).LookupHost\n \t}\n \n+\t// net.SplitHostPort strips brackets from IPv6 literals; re-add them so the\n+\t// gRPC :authority is a valid URI authority (e.g. \"[fd00::1]\" not \"fd00::1\").\n+\tauthority := host\n+\tif ip := net.ParseIP(host); ip != nil && ip.To4() == nil {\n+\t\tauthority = \"[\" + host + \"]\"\n+\t}\n+\n \treturn &dnsLookUpConnector{\n \t\thost:     host,\n \t\tport:     port,\n-\t\tgOpts:    opts.GRPCOptions,\n+\t\tgOpts:    append(slices.Clone(opts.GRPCOptions), grpc.WithAuthority(authority)),\n \t\tresolver: resolver,\n \t}, nil\n }\n@@ -89,15 +97,17 @@ func (r *dnsLookUpConnector) Connect(ctx context.Context) (*grpc.ClientConn, err\n \thostPort := net.JoinHostPort(addr, r.port)\n \tr.current = hostPort\n \n-\tlog.Debugf(\"Attempting to connect to placement %s\", hostPort)\n+\tlog.Debugf(\"Attempting to connect to placement %s (authority %s)\",\n+\t\thostPort, r.host)\n \n \t//nolint:staticcheck\n \tconn, err := grpc.DialContext(ctx, hostPort, r.gOpts...)\n \tif err != nil {\n \t\treturn nil, err\n \t}\n \n-\tlog.Infof(\"Connected to placement %s\", hostPort)\n+\tlog.Infof(\"Connected to placement %s (authority %s)\",\n+\t\thostPort, r.host)\n \n \treturn conn, nil\n }",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/actors/internal/placement/connector/dnslookup/dnslookup_test.go",
+      "status": "modified",
+      "additions": 131,
+      "deletions": 0,
+      "patch": "@@ -17,11 +17,17 @@ package dnslookup\n import (\n \t\"context\"\n \t\"errors\"\n+\t\"net\"\n \t\"sync/atomic\"\n \t\"testing\"\n \n \t\"github.com/stretchr/testify/assert\"\n \t\"github.com/stretchr/testify/require\"\n+\t\"google.golang.org/grpc\"\n+\t\"google.golang.org/grpc/credentials\"\n+\t\"google.golang.org/grpc/credentials/insecure\"\n+\t\"google.golang.org/grpc/test/bufconn\"\n+\t\"google.golang.org/protobuf/types/known/emptypb\"\n )\n \n func TestRoundRobinAcrossAddresses(t *testing.T) {\n@@ -168,6 +174,131 @@ func TestRoundRobinWrapsWhenDNSResultsShrink(t *testing.T) {\n \tassert.Equal(t, \"10.0.0.4:50005\", conn.Address())\n }\n \n+func TestAuthorityOptionStability(t *testing.T) {\n+\tinputOpts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}\n+\tconn, err := New(Options{\n+\t\tAddress:     \"dapr-placement-server.dapr-tests.svc.cluster.local:50005\",\n+\t\tGRPCOptions: inputOpts,\n+\t\tresolver: func(ctx context.Context, host string) ([]string, error) {\n+\t\t\treturn []string{\"add1\", \"add2\", \"add3\"}, nil\n+\t\t},\n+\t})\n+\trequire.NoError(t, err)\n+\n+\tc := conn.(*dnsLookUpConnector)\n+\n+\t// WithAuthority must be appended to the user-supplied options.\n+\trequire.Len(t, c.gOpts, len(inputOpts)+1)\n+\n+\t// Verify the option list doesn't grow on repeated Connect calls.\n+\tbefore := len(c.gOpts)\n+\tgc1, _ := conn.Connect(t.Context())\n+\tif gc1 != nil {\n+\t\tt.Cleanup(func() { gc1.Close() })\n+\t}\n+\tgc2, _ := conn.Connect(t.Context())\n+\tif gc2 != nil {\n+\t\tt.Cleanup(func() { gc2.Close() })\n+\t}\n+\tassert.Equal(t, before, len(c.gOpts))\n+}\n+\n+// TestConnectOverridesClientAuthority verifies that the authority string the\n+// client passes into the transport handshake (and therefore uses for SNI /\n+// the HTTP/2 :authority pseudo-header) matches the original input hostname,\n+// not the resolved IP address. This is the core behaviour that WithAuthority\n+// enables \u2014 it allows SNI-based TLS gateways to route the connection correctly.\n+//\n+// The IPv6 case also locks in that bracketed literals stay bracketed in the\n+// authority, since net.SplitHostPort strips them from the host field.\n+func TestConnectOverridesClientAuthority(t *testing.T) {\n+\ttests := []struct {\n+\t\tname              string\n+\t\taddress           string\n+\t\texpectedAuthority string\n+\t}{\n+\t\t{\n+\t\t\tname:              \"DNS hostname\",\n+\t\t\taddress:           \"dapr-placement-server.dapr-tests.svc.cluster.local:50005\",\n+\t\t\texpectedAuthority: \"dapr-placement-server.dapr-tests.svc.cluster.local\",\n+\t\t},\n+\t\t{\n+\t\t\tname:              \"IPv6 literal is bracketed\",\n+\t\t\taddress:           \"[fd00::1]:50005\",\n+\t\t\texpectedAuthority: \"[fd00::1]\",\n+\t\t},\n+\t}\n+\n+\tfor _, tc := range tests {\n+\t\tt.Run(tc.name, func(t *testing.T) {\n+\t\t\t// authorityCreds wraps insecure credentials but captures the\n+\t\t\t// authority string that gRPC passes during the client transport\n+\t\t\t// handshake. When grpc.WithAuthority is set, this is the overridden\n+\t\t\t// authority (the original input host) rather than the dialed IP.\n+\t\t\tcreds := &authorityCreds{\n+\t\t\t\tTransportCredentials: insecure.NewCredentials(),\n+\t\t\t\tauthority:            new(atomic.Value),\n+\t\t\t}\n+\n+\t\t\tlis := bufconn.Listen(1024 * 1024)\n+\t\t\tsrv := grpc.NewServer()\n+\t\t\tt.Cleanup(srv.Stop)\n+\t\t\tgo func() { _ = srv.Serve(lis) }()\n+\n+\t\t\tconn, err := New(Options{\n+\t\t\t\tAddress: tc.address,\n+\t\t\t\tGRPCOptions: []grpc.DialOption{\n+\t\t\t\t\tgrpc.WithTransportCredentials(creds),\n+\t\t\t\t\tgrpc.WithContextDialer(func(context.Context, string) (net.Conn, error) {\n+\t\t\t\t\t\treturn lis.DialContext(t.Context())\n+\t\t\t\t\t}),\n+\t\t\t\t},\n+\t\t\t\tresolver: func(ctx context.Context, host string) ([]string, error) {\n+\t\t\t\t\treturn []string{\"127.0.0.1\"}, nil\n+\t\t\t\t},\n+\t\t\t})\n+\t\t\trequire.NoError(t, err)\n+\n+\t\t\tgrpcConn, err := conn.Connect(t.Context())\n+\t\t\trequire.NoError(t, err)\n+\t\t\tt.Cleanup(func() { grpcConn.Close() })\n+\n+\t\t\t// Trigger a real RPC so the transport handshake (and authority\n+\t\t\t// capture) actually happens. The method is unregistered so the\n+\t\t\t// server returns Unimplemented, but that's fine \u2014 we only care\n+\t\t\t// about the authority.\n+\t\t\t_ = grpcConn.Invoke(t.Context(), \"/test.Service/Ping\", &emptypb.Empty{}, &emptypb.Empty{})\n+\n+\t\t\tgot, ok := creds.authority.Load().(string)\n+\t\t\trequire.True(t, ok, \"transport credentials did not capture the authority\")\n+\t\t\tassert.Equal(t, tc.expectedAuthority, got)\n+\t\t})\n+\t}\n+}\n+\n+// authorityCreds wraps a credentials.TransportCredentials and records the\n+// authority value that gRPC supplies during the client handshake.\n+//\n+// gRPC clones transport credentials per connection, so the capture state is\n+// held behind a pointer that Clone copies \u2014 otherwise the authority would be\n+// stored on a clone the test never sees.\n+type authorityCreds struct {\n+\tcredentials.TransportCredentials\n+\tauthority *atomic.Value\n+}\n+\n+func (c *authorityCreds) ClientHandshake(ctx context.Context, authority string, rawConn net.Conn) (net.Conn, credentials.AuthInfo, error) {\n+\tc.authority.Store(authority)\n+\treturn c.TransportCredentials.ClientHandshake(ctx, authority, rawConn)\n+}\n+\n+func (c *authorityCreds) Clone() credentials.TransportCredentials {\n+\treturn &authorityCreds{\n+\t\tTransportCredentials: c.TransportCredentials.Clone(),\n+\t\tauthority:            c.authority,\n+\t}\n+}\n+\n func TestNewDNSConnectorErrors(t *testing.T) {\n \t_, err := New(Options{\n \t\tAddress: \"dns:///dapr-placement-server.dapr-tests.svc.cluster.local:50005\",",
+      "patch_truncated": false
+    }
+  ]
+}

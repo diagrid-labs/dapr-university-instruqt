@@ -1,0 +1,45 @@
+{
+  "type": "issue",
+  "number": 7663,
+  "title": "Proposal: use native Go test framework only in functional tests",
+  "state": "open",
+  "body": "Our functional test framework in written on top of the existing Go's test framework but it has its own custom interface. It makes local development and debugging harder because we lose IDE integration that we get with unit and E2E tests (VS Code, for example). Another disadvantage is that the functional tests compile the binaries in a separate logic than we have in our Makefiles, so we need to keep the compilation logic in two places when there is a change.\r\n\r\nAdvantages of this proposal:\r\n 1. Native IDE integration for running functional tests locally (a must IMO)\r\n 2. Consistency in building Dapr binaries (nice to have IMO)\r\n 3. No new framework to learn to write, run and debug functional tests (nice to have IMO)\r\n\r\nI cannot think of any disadvantage apart from the rework, maybe having to compile the binaries before running functional tests, which can be seen as a disadvantage depending on the point of view, but since we are running binaries, it is fair game IMO. For example, users need to compile Docker images to run E2E tests.\r\n\r\nAgain, the main motivation for this proposal is item (1) and I can compromise on (2) and (3).\r\n\r\n\r\nCurrent code for functional tests (no \"run\" or \"debug\" shortcut in VS Code):\r\n<img width=\"778\" alt=\"image\" src=\"https://github.com/dapr/dapr/assets/130954/6404b7e9-181d-4b6a-aebc-46e162dbffc5\">\r\n\r\n\r\nCurrent code for E2E tests (you can run or debug a single test straight from VS Code):\r\n<img width=\"860\" alt=\"image\" src=\"https://github.com/dapr/dapr/assets/130954/dd11fce3-a190-4249-95dd-16097e743931\">\r\n\r\nCollecting quantitative data can help decide one way or another here:\r\n\ud83d\udc4d For changing functional tests to run natively from VS Code too.\r\n\ud83d\udc4e For keeping functional tests as-is.\r\n",
+  "labels": [
+    "pinned"
+  ],
+  "user": "artursouza",
+  "created_at": "2024-03-29T17:39:39Z",
+  "updated_at": "2024-06-20T23:44:45Z",
+  "comments": [
+    {
+      "user": "artursouza",
+      "body": "There is one way to debug from VS Code, it involved putting a break-point at the test you want to debug and run all tests from here, eventually it hits your code.\r\n\r\n<img width=\"443\" alt=\"image\" src=\"https://github.com/dapr/dapr/assets/130954/2e705bb0-aee8-4057-932b-ae469bc732be\">\r\n",
+      "created_at": "2024-03-29T18:19:09Z"
+    },
+    {
+      "user": "cicoyle",
+      "body": "`Native IDE integration for running functional tests locally` gets a +1 from me. It's easier for developers to be able to use breakpoints naturally rather than put panics in places and output the vals that way. Both work, but in concurrent systems its nice to use the debugger. This also leans to being more first time contributor friendly. I know several draft PRs that have been a work in progress on error standardization efforts, but once at the IT part they hit a road block. This might help there too. ",
+      "created_at": "2024-04-03T20:25:06Z"
+    },
+    {
+      "user": "JoshVanL",
+      "body": "Integration tests are designed so that we never have a situation where code is changed, but these changes are not reflected in the compiled code that is tested against resulting in false positives or false negatives. This is nuclear imo, and is an issue today with e2e tests. It is intentional that running tests need only be done with a single command. IDEs can be configured to run custom flags when testing, so a custom `-focus` flag can be given to choose your area of interested tests.\n\nE2E tests are not dev friendly today, and find myself heavily modifying the framework in order to run them with `time.Sleep`s and `kubectl port-forward`s to actuate.\n\n@cicoyle can you expand a bit more on how'd you want to use a debugger rather than intentionally adding panics in the code- do IDEs today not allow for adding breakpoints to compiled binaries? Tbh, I don't know. It would be true for e2e in any case.\n\nThe issue I see currently for contributors writing integration tests are that in-memory/file based components are not available for some APIs, rather than a hickup on writing int tests themselves.",
+      "created_at": "2024-04-03T20:55:25Z"
+    },
+    {
+      "user": "artursouza",
+      "body": "> Integration tests are designed so that we never have a situation where code is changed, but these changes are not reflected in the compiled code that is tested against resulting in false positives or false negatives. This is nuclear imo, and is an issue today with e2e tests. It is intentional that running tests need only be done with a single command. IDEs can be configured to run custom flags when testing, so a custom `-focus` flag can be given to choose your area of interested tests.\r\n> \r\n> E2E tests are not dev friendly today, and find myself heavily modifying the framework in order to run them with `time.Sleep`s and `kubectl port-forward`s to actuate.\r\n> \r\n> @cicoyle can you expand a bit more on how'd you want to use a debugger rather than intentionally adding panics in the code- do IDEs today not allow for adding breakpoints to compiled binaries? Tbh, I don't know. It would be true for e2e in any case.\r\n> \r\n> The issue I see currently for contributors writing integration tests are that in-memory/file based components are not available for some APIs, rather than a hickup on writing int tests themselves.\r\n\r\nI understand the initial design principle. This proposal is to change that by prioritizing usability of debugging and writing new functional tests. My point is that the -focus does not test only one of the scenarios and is not integrated into the IDE. Changing the -focus is not native to VS Code. Again, see the screenshot on how a mouse click is enough to run a specific scenario within a file, not the entire subfolder (what -focus does).\r\n\r\nThe goal of this issue is to collect quantitative data on how the community/contributors feels about one way or another.\r\n",
+      "created_at": "2024-05-03T23:01:03Z"
+    },
+    {
+      "user": "artursouza",
+      "body": "Pinned this issue to see if we can get some traction from contributors to give feedback on this idea. I am troubleshooting an issue with an integration test right now and being able to debug a single test case from the IDE would be a time saver.",
+      "created_at": "2024-06-20T23:44:24Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/7663",
+  "is_seed": false,
+  "partial": false
+}

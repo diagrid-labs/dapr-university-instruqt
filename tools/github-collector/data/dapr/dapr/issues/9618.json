@@ -1,0 +1,19 @@
+{
+  "type": "issue",
+  "number": 9618,
+  "title": "Standardize performance testing methodology",
+  "state": "open",
+  "body": "_Current benchmark results can be seen here: https://github.com/dapr/dapr/tree/master/tests/perf/report/charts_\n\n## Idea\n\nDapr's performance test suite has grown organically across APIs, resulting in a mix of tooling and load profiles. Bringing these into alignment would make results significantly easier to compare, interpret, and present to the community.\n\n - We should standardize all API performance tests on a single tooling stack\n   - Fortio seems like it might be the best bet as we're already using it, and it natively supports both gRPC and HTTP\n - Define a consistent load profile (QPS, connection count, operation count) to use across all API tests\n\n## Expected Outcome\n\n - Comparable metrics across all Dapr APIs\n - Aligned percentile reporting (p50, p90, p99, p99.9) across every test\n\n## Reference\n\nIf you're like me, you might not keep all the performance testing lingo committed to memory \ud83d\ude05, here's an AI-summary:\n\n - p50 \u2014 50% of requests completed within this time. Essentially the median. Represents your \"typical\" experience.\n - p90 \u2014 90% of requests completed within this time. Starts showing how the system behaves under mild stress.\n - p99 \u2014 99% of requests completed within this time. Represents your worst 1 in 100 requests.\n - p99.9 \u2014 99.9% of requests completed within this time. Worst 1 in 1,000 requests.\n - p99.99 (sometimes called p999 colloquially) \u2014 Worst 1 in 10,000 requests. Really only meaningful at very high sample sizes.\n",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "atrauzzi",
+  "created_at": "2026-03-10T17:16:44Z",
+  "updated_at": "2026-03-31T15:44:32Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9618",
+  "is_seed": false,
+  "partial": false
+}

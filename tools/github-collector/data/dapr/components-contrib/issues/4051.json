@@ -1,0 +1,46 @@
+{
+  "type": "issue",
+  "number": 4051,
+  "title": "Rabbit MQ Pub/Sub Publish Metadata Propogation",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\n\n## Ask your question here\n\nHello!\n\nI'm trying to use a [headers exchange](https://www.rabbitmq.com/tutorials/amqp-concepts#exchange-headers) with Rabbit MQ but am not able to achieve it. I route my message from exchange to individual queues, by use case, using a particular header.\n\nI could not get this working though DAPR even after setting this in the component:\n\n```yaml\n    - name: publishMessagePropertiesToMetadata\n      value: \"true\"\n```\n\nFrom the subscribing code it looks like the inverse of what I want is supported [here](https://github.com/dapr/components-contrib/blob/main/pubsub/rabbitmq/rabbitmq.go#L758C1-L795C2).\n\nI dug into the publishing code a bit and found [this](https://github.com/dapr/components-contrib/blob/main/common/component/rabbitmq/rabbitmq.go#L36-L52) so it looks like this is intentional behavior?\n\nSo I guess that's my question, is this intentional behavior or is this propogation something I could request as a feature (and maybe contribute)?\n",
+  "labels": [
+    "help wanted",
+    "good first issue"
+  ],
+  "user": "sethtomy",
+  "created_at": "2025-10-01T00:05:31Z",
+  "updated_at": "2026-01-06T16:44:53Z",
+  "comments": [
+    {
+      "user": "sethtomy",
+      "body": "This looks to be related to [#6075](https://github.com/dapr/dapr/issues/6075)",
+      "created_at": "2025-10-08T12:58:22Z"
+    },
+    {
+      "user": "lorenzoponsbarber",
+      "body": "I have the same problem but in my case I can't get the traceparent from the header",
+      "created_at": "2025-10-23T21:34:18Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-11-22T21:37:35Z"
+    },
+    {
+      "user": "sethtomy",
+      "body": "Still hoping to get some input here to see what community thinks and to add support. ",
+      "created_at": "2025-11-22T22:46:46Z"
+    },
+    {
+      "user": "sethtomy",
+      "body": "I've worked through most of this but I'm a bit stuck on some backwards compatibility.\n\n[Here](https://github.com/dapr/components-contrib/blob/main/pubsub/rabbitmq/rabbitmq.go#L780), on subscription, DAPR will prefix headers with \"metadata.\". This is managed by the \"publishMessagePropertiesToMetadata\" configuration.\n\nWhile I would like to hook into that as well on the publish side, I'd have a difference in behavior on the publish vs. the subscription side. (I'd publish without the \"metadata.\" prefix but then receive the \"metadata.\" prefix on the subscription side.\n\nThe only thing I've come up with thus far is to introduce a new configuration for the prefix with the default as \"metadata.\" and then you would opt to the publish side by setting this to \"\". (not a great solution)\n\n",
+      "created_at": "2026-01-06T16:44:53Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4051",
+  "is_seed": false,
+  "partial": false
+}

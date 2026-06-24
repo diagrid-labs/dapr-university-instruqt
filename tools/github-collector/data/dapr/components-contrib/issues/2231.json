@@ -1,0 +1,56 @@
+{
+  "type": "issue",
+  "number": 2231,
+  "title": "Support for appRole based authentication for secretstores.hashicorp.vault",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\n<!-- Please also discuss possible business value -->\r\nWe use AppRole based authentication to manage secrets within Vault. More info on AppRole can be found [here](https://developer.hashicorp.com/vault/docs/auth/approle). \r\n\r\nDAPR's secretstores.hashicorp.vault Component uses Token based authentication. Here are the key/values on the Component that requires to provide the token\r\n\r\n```\r\n  - name: vaultTokenMountPath # Required if vaultToken not provided. Path to token file.\r\n    value : \"[path_to_file_containing_token]\"\r\n  - name: vaultToken # Required if vaultTokenMountPath not provided. Token value.\r\n    value : \"[path_to_file_containing_token]\"\r\n```\r\n\r\nThe apps don't have access to the token, however they are designed to access Vault with AppRole authentication. So the ask here is to support AppRole based authentication from DAPR's Component when spec.type=secretstores.hashicorp.vault\r\n\r\n\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/enhancement",
+    "good first issue",
+    "pinned"
+  ],
+  "user": "neeta-rathi",
+  "created_at": "2022-10-27T16:47:26Z",
+  "updated_at": "2025-08-11T21:55:42Z",
+  "comments": [
+    {
+      "user": "yaron2",
+      "body": "@neeta-rathi there are several ways to provide an app (Dapr in this case) with the SecretID as mentioned in the link above.\r\n\r\nOne thing we can easily do is allow users to supply the SecretID to Dapr via the component secret ref, which means that on Kubernetes, there will be a k8s secret (in the example below, named `secretID`) that holds the SecretID value and provided to Dapr like this:\r\n\r\n```yaml\r\n- name: secretID\r\n    secretKeyRef:\r\n      name: secretID\r\n      key:  secretID\r\n```\r\n\r\nI'm interested to know based on your organizational policy if this would be considered secure enough, and if not, how do you plan on distributing the SecretID to apps?",
+      "created_at": "2022-11-16T23:31:13Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2022-12-16T23:35:25Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2022-12-23T23:35:43Z"
+    },
+    {
+      "user": "infine8",
+      "body": "I believe there should be two fields: roleId and secretId. Do you think is only secretId enough ? btw, when are you going to release this feature? i really need it. can you add this to prerelease ?",
+      "created_at": "2023-02-14T15:33:38Z"
+    },
+    {
+      "user": "deivanaiarunagiri",
+      "body": "Is there any update on the approle/secretid authentication with vault from dapr ?\r\n",
+      "created_at": "2023-03-29T04:21:56Z"
+    },
+    {
+      "user": "Kreestyan",
+      "body": "Any one, is looking into this? There would be great value in delivering AppRole based authentication from DAPR's Component when spec.type=secretstores.hashicorp.vault.\r\nPure token-based authentication, authentication tokens are not replicated between vault clusters. This is a hashicorp vault limitation. This means our vault is limited to one cluster and exposes us to resiliency issues.",
+      "created_at": "2023-11-30T22:53:23Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    2011
+  ],
+  "referenced_issue_numbers": [
+    2716
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2231",
+  "is_seed": false,
+  "partial": false
+}

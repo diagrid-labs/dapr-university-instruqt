@@ -1,0 +1,116 @@
+{
+  "type": "issue",
+  "number": 7549,
+  "title": "Failing PubSub events stuck in resiliency loop are lost on deployment restart",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## In what area(s)?\r\n\r\n<!-- Remove the '> ' to select -->\r\n\r\n/area runtime\r\n\r\n> /area operator\r\n\r\n> /area placement\r\n\r\n> /area docs\r\n\r\n> /area test-and-release\r\n\r\n## What version of Dapr?\r\n\r\n<!-- Delete all but your choice -->\r\n\r\n> 1.12.x\r\n> I'd assume every version starting from 1.10\r\n> We did NOT experience this issue in 1.9.x due to behavioral changes in retries in 1.10.0.\r\n\r\n## Expected Behavior\r\n\r\n<!-- Briefly describe what you expect to happen -->\r\nWe use a resiliency policy to infinitely retry an Azure EventHub subscription using dapr PubSub components. The subscriber is a k8s deployment with an injected daprd sidecar. The subscription is defined declaratively and the resilience policy is correctly detected.  \r\nIf the subscriber fails to handle a specific event every time, the event is (correctly) stuck retrying with a delay defined in the resiliency.  \r\nIf the deployment fails or is restarted, we would expect the failing event to be retried on the new deployment, possibly succeeding (e.g. if the subscriber's image got updated in the meantime).\r\n\r\n\r\n## Actual Behavior\r\nAfter restarting the deployment, the failing event disappears entirely. We assume it is checkpointed as \"handled\", even though the subscriber never returned a 200 to the sidecar. This introduces a loss of data.\r\n\r\n<!-- Briefly describe what is actually happening -->\r\n\r\n\r\n## Steps to Reproduce the Problem\r\n\r\n<!-- How can a maintainer reproduce this issue (be detailed) -->\r\n- Construct a PubSub environment with a subscriber bound to an Azure EventHub (might also work with other event sources) declaratively\r\n- Ensure the subscriber fails to handle the event and instead returns a RETRY every time\r\n- Add a Resiliency policy which retries events infinitely\r\n- Ensure the policy is applied and the subscription works by checking the daprd logs\r\n- Publish a singular event to the hub\r\n- Watch the event trigger the subscriber infinitely, as it won't ever be successfully handled\r\n- Restart the deployment\r\n- See that the event won't reappear\r\n\r\n\r\n## Release Note\r\n\r\n<!-- How should the fix for this issue be communicated in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE: **FIX** populate later.\r\n",
+  "labels": [
+    "kind/bug",
+    "stale"
+  ],
+  "user": "jrehnen",
+  "created_at": "2024-02-20T14:24:18Z",
+  "updated_at": "2026-06-22T12:30:46Z",
+  "comments": [
+    {
+      "user": "olitomlinson",
+      "body": "cc @berndverst ",
+      "created_at": "2024-02-21T14:23:38Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-04-21T14:31:45Z"
+    },
+    {
+      "user": "jrehnen",
+      "body": "Bump. Just tried this on dapr 1.13.2, issue still persists.",
+      "created_at": "2024-04-23T09:00:26Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "@halspang can you look into this please?",
+      "created_at": "2024-04-23T17:45:21Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-06-22T17:51:48Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 67 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2024-06-29T18:02:18Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-08-28T18:15:39Z"
+    },
+    {
+      "user": "jrehnen",
+      "body": "Bump. ",
+      "created_at": "2024-08-29T08:23:17Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-10-28T08:29:44Z"
+    },
+    {
+      "user": "jrehnen",
+      "body": "Bump. This still is neither fixed nor confirmed intended",
+      "created_at": "2024-10-28T08:42:23Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "> Bump. This still is neither fixed nor confirmed intended\r\n\r\nCan you please add me as a friend on Discord? My handle is yaron2. I'd like to help you debug this and provide a fix if needed",
+      "created_at": "2024-10-28T23:17:35Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-12-27T23:24:00Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 67 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2025-01-03T23:24:23Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-03-06T08:16:01Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 67 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2025-03-13T08:16:33Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-05-18T11:51:37Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-08-18T13:18:41Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 97 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2025-08-25T13:29:52Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-06-22T12:30:45Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/7549",
+  "is_seed": false,
+  "partial": false
+}

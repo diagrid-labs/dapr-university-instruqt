@@ -1,0 +1,45 @@
+{
+  "type": "issue",
+  "number": 4303,
+  "title": "Azure App Configuration component ignores retryDelay when configuring Azure SDK retry options",
+  "state": "open",
+  "body": "## Expected Behavior\n\nThe Azure App Configuration component should correctly apply both `retryDelay` and `maxRetryDelay` from metadata when configuring the Azure SDK retry options.\n\n- `retryDelay` should be used as the initial retry delay  \n- `maxRetryDelay` should be used as the maximum retry backoff  \n\n## Actual Behavior\n\nAlthough both `retryDelay` and `maxRetryDelay` are parsed correctly from component metadata, the current implementation uses `maxRetryDelay` for both fields when constructing the Azure SDK retry options.\n\n[configuration/azure/appconfig/appconfig.go](https://github.com/dapr/components-contrib/blob/fd97a1c1398468e8aacebdef0ce1d39400e055cc/configuration/azure/appconfig/appconfig.go#L97)\n<img width=\"528\" height=\"214\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/7e7f8c7f-9034-429c-93c4-230af82ea4af\" />\n\n## Steps to Reproduce the Problem\n\n1. Configure the Azure App Configuration component with retry settings:\n\n```yaml\nmetadata:\n  - name: maxRetries\n    value: \"3\"\n  - name: retryDelay\n    value: \"4s\"\n  - name: maxRetryDelay\n    value: \"120s\"\n```\n2. Initialize the component.\n\n3. Observe that:\n   - the Azure SDK retry configuration does not use the configured `retryDelay`, and the initial retry delay is ignored.\n\n## Release Note\n\nRELEASE NOTE: **FIX** Azure App Configuration component ignores retryDelay when configuring retry options",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "mtaghavi2005",
+  "created_at": "2026-03-22T21:07:06Z",
+  "updated_at": "2026-05-26T15:35:55Z",
+  "comments": [
+    {
+      "user": "mtaghavi2005",
+      "body": "I would be happy to submit a PR",
+      "created_at": "2026-03-22T21:08:05Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-04-21T21:19:56Z"
+    },
+    {
+      "user": "mtaghavi2005",
+      "body": "@dapr-bot ping.",
+      "created_at": "2026-04-26T11:19:40Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-05-26T13:17:49Z"
+    },
+    {
+      "user": "mtaghavi2005",
+      "body": "@dapr-bot ping.",
+      "created_at": "2026-05-26T14:40:59Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4303",
+  "is_seed": false,
+  "partial": false
+}

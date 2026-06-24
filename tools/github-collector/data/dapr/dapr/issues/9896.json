@@ -1,0 +1,42 @@
+{
+  "type": "issue",
+  "number": 9896,
+  "title": "[1.18] Flaky unit test: TestSubscriptionRetryMechanisms/retry_stops_when_subscriber_is_closed on darwin",
+  "state": "open",
+  "body": "## Summary\n\nThe unit test `TestSubscriptionRetryMechanisms/retry_stops_when_subscriber_is_closed` in `pkg/runtime/processor/subscriber` is flaky on darwin CI runners. It asserts a value is **strictly greater than** the same value, which is an off-by-one timing race in the retry-count tracking.\n\n## Where I saw it\n\nPR #9731 \u2014 https://github.com/dapr/dapr/pull/9731\n\nFailing job (darwin unit tests):\nhttps://github.com/dapr/dapr/actions/runs/25440059300/job/74629220512?pr=9731\n\nThe PR has nothing to do with the subscriber/retry code, so this is a pre-existing flake.\n\n## Failure\n\n```\n=== FAIL: pkg/runtime/processor/subscriber TestSubscriptionRetryMechanisms/retry_stops_when_subscriber_is_closed (2.01s)\n    subscriber_test.go:703:\n        Error Trace: /Users/runner/work/dapr/dapr/pkg/runtime/processor/subscriber/subscriber_test.go:703\n        Error:       \"2\" is not greater than \"2\"\n        Test:        TestSubscriptionRetryMechanisms/retry_stops_when_subscriber_is_closed\n\n=== FAIL: pkg/runtime/processor/subscriber TestSubscriptionRetryMechanisms (0.00s)\nmake: *** [test] Error 1\nDONE 5727 tests, 4 skipped, 2 failures in 486.120s\n```\n\n## Diagnosis\n\nThe assertion `assert.Greater(t, count, 2)` is failing because the observed count is exactly 2 \u2014 the producer and assertion are racing. Either:\n- the close path is short-circuiting one retry attempt that the test expected to land\n- the goroutine that increments the counter is being descheduled long enough on slow runners that the third increment hasn't landed by the time the assertion fires\n\nLikely fix: either `assert.GreaterOrEqual(t, count, 2)` if the test only cares about \"at least one retry happened before close\", or wait for the counter to settle (`assert.EventuallyWithT`) before snapshotting.\n\n## Repro\n\nCI darwin runs intermittently. Doesn't reproduce reliably locally. The PR linked above hit it on a vanilla CI run with no relevant code in the subscriber path.",
+  "labels": [
+    "Bug"
+  ],
+  "user": "sicoyle",
+  "created_at": "2026-05-06T14:20:49Z",
+  "updated_at": "2026-06-20T06:31:37Z",
+  "comments": [
+    {
+      "user": "devagya-rattan",
+      "body": "hi Can i please work on this\n",
+      "created_at": "2026-06-18T12:10:52Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "> hi Can i please work on this\n\nAmazing!!! Thank you @devagya-rattan for your interest in the Dapr Open Source Project as well as this contribution! Pls lmk if you need anything along the way \ud83d\ude4c \ud83c\udf1e ",
+      "created_at": "2026-06-19T14:14:16Z"
+    },
+    {
+      "user": "devagya-rattan",
+      "body": "thanks @sicoyle for assigning me this issue i will start working on this\n\ncan you please guide me how can i replicated this issue ?\n",
+      "created_at": "2026-06-19T14:44:25Z"
+    },
+    {
+      "user": "devagya-rattan",
+      "body": "hi @sicoyle \nI investigated the current code and noticed that the test now asserts finalCallCount > initialCallCount in the assert.greater function \nso the fix is to change the assert.greater function to assert.GreaterOrEqual(t, finalCallCount, initialCallCount) , in this way it will not cause ```\"2\" is not greater than \"2\"``` in the runner \ni would like you to confirm if it is the way??",
+      "created_at": "2026-06-20T06:29:54Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    9731
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9896",
+  "is_seed": false,
+  "partial": false
+}

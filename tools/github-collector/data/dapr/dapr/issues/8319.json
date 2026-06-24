@@ -1,0 +1,65 @@
+{
+  "type": "issue",
+  "number": 8319,
+  "title": "Only emit the \"Found Subscription\" log when the subscription is within scope",
+  "state": "open",
+  "body": "## In what area(s)?\r\n\r\n/area runtime\r\n\r\n## Describe the feature\r\n\r\nSince 1.13 (I think?) Dapr emits the following `info` level log line per declarative `subscription` :\r\n\r\n`Found Subscription: xxxxxx` \r\n\r\nhttps://github.com/dapr/dapr/blob/24ac3b84a96c399e998e797a0a09719ec98ad1bc/pkg/runtime/runtime.go#L1182\r\n\r\n**However this log line is output even for subscriptions that are out scope.** \r\n\r\nFrom a user/operator perspective, I only want to know about subscriptions that are _within_ scope, as it leads to unnecessary confusion / alarm to see a Dapr emitting one or more logs for a subscriptions that are unexpected on a particular App.\r\n\r\nIn my example below there are lots of subscriptions being logged out entirely unnecessarily as they are out of scope.\r\n\r\n<img width=\"365\" alt=\"Found Subscription us\" src=\"https://github.com/user-attachments/assets/9bf1e7e6-4aae-4d60-a471-b9aaf75b3c71\">\r\n\r\n<!-- Please also discuss possible business value -->\r\n",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "olitomlinson",
+  "created_at": "2024-11-28T21:29:07Z",
+  "updated_at": "2026-04-10T13:17:59Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-01-27T21:31:51Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 67 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2025-02-03T21:31:55Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "@JoshVanL please could to add a keep-alive to this so it doesn't get automatically closed. Thnx",
+      "created_at": "2025-06-20T10:38:46Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-09-28T11:22:38Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "bump",
+      "created_at": "2025-09-28T12:19:56Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-12-27T12:33:36Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 97 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-01-03T12:56:44Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-04-10T12:24:24Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "bump",
+      "created_at": "2026-04-10T13:00:17Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/8319",
+  "is_seed": false,
+  "partial": false
+}

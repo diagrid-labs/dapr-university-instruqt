@@ -1,0 +1,47 @@
+{
+  "type": "issue",
+  "number": 9252,
+  "title": "Reminder migrations perpetually run in 1.16.5",
+  "state": "open",
+  "body": "## In what area(s)?\n\n/area scheduler\n\n## What version of Dapr?\n1.16.5\n\n## Expected Behavior\nWhen running dapr in self-hosting mode locally via the CLI, I expect to see dapr run and eventually show the \"You're up and running!\" message. Unless the connected workflow app disconnects and reconnects, it should largely sit there and idle indefinitely.\n\n## Actual Behavior\n\nAfter a moment, I see the following on indefinitely repeat (again, with a brief pause between each interval):\n\n```\ntime=\"2025-12-22T21:24:08.6085526-06:00\" level=info msg=\"work item stream established by user-agent: [grpc-dotnet/2.71.0 (.NET 9.0.11; CLR 9.0.11; net8.0; windows; x64)]\" app_id=wfapp instance=MyMachine scope=dapr.runtime.wfengine type=log ver=1.16.5\ntime=\"2025-12-22T21:25:46.3220776-06:00\" level=info msg=\"work item stream closed\" app_id=wfapp instance=MyMachine scope=dapr.runtime.wfengine type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6215638-06:00\" level=info msg=\"work item stream closed\" app_id=wfapp instance=MyMachine scope=dapr.runtime.wfengine type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.622141-06:00\" level=info msg=\"Updating actor types: []\" app_id=wfapp instance=MyMachine scope=dapr.runtime.actors.placement type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.622141-06:00\" level=info msg=\"Scheduler stream disconnected\" app_id=wfapp instance=MyMachine scope=dapr.runtime.scheduler.cluster type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.622141-06:00\" level=info msg=\"Scheduler stream disconnected\" app_id=wfapp instance=MyMachine scope=dapr.runtime.scheduler.cluster type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.622141-06:00\" level=info msg=\"Scheduler stream disconnected\" app_id=wfapp instance=MyMachine scope=dapr.runtime.scheduler.cluster type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6226569-06:00\" level=info msg=\"Scheduler stream connected for [JOB_TARGET_TYPE_JOB]\" app_id=wfapp instance=MyMachine scope=dapr.runtime.scheduler.cluster type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6226569-06:00\" level=info msg=\"Scheduler stream connected for [JOB_TARGET_TYPE_JOB]\" app_id=wfapp instance=MyMachine scope=dapr.runtime.scheduler.cluster type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6226569-06:00\" level=info msg=\"Scheduler stream connected for [JOB_TARGET_TYPE_JOB]\" app_id=wfapp instance=MyMachine scope=dapr.runtime.scheduler.cluster type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6232048-06:00\" level=info msg=\"Placement tables updated, version: 2\" app_id=wfapp instance=MyMachine scope=dapr.runtime.actors.placement type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6232048-06:00\" level=info msg=\"Running actor reminder migration from state store to scheduler\" app_id=wfapp instance=MyMachine scope=dapr.runtime.actors.reminders.migration type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6237238-06:00\" level=info msg=\"Skipping migration, no missing scheduler reminders found\" app_id=wfapp instance=MyMachine scope=dapr.runtime.actors.reminders.migration type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6232048-06:00\" level=info msg=\"Scheduler stream disconnected\" app_id=wfapp instance=MyMachine scope=dapr.runtime.scheduler.cluster type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6237238-06:00\" level=info msg=\"Found 0 missing scheduler reminders from state store\" app_id=wfapp instance=MyMachine scope=dapr.runtime.actors.reminders.migration type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6237238-06:00\" level=info msg=\"Migrated 0 reminders from state store to scheduler successfully\" app_id=wfapp instance=MyMachine scope=dapr.runtime.actors.reminders.migration type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6232048-06:00\" level=info msg=\"Scheduler stream disconnected\" app_id=wfapp instance=MyMachine scope=dapr.runtime.scheduler.cluster type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6232048-06:00\" level=info msg=\"Scheduler stream disconnected\" app_id=wfapp instance=MyMachine scope=dapr.runtime.scheduler.cluster type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6237238-06:00\" level=info msg=\"Scheduler stream connected for [JOB_TARGET_TYPE_JOB]\" app_id=wfapp instance=MyMachine scope=dapr.runtime.scheduler.cluster type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6237238-06:00\" level=info msg=\"Scheduler stream connected for [JOB_TARGET_TYPE_JOB]\" app_id=wfapp instance=MyMachine scope=dapr.runtime.scheduler.cluster type=log ver=1.16.5\ntime=\"2025-12-22T21:25:48.6237238-06:00\" level=info msg=\"Scheduler stream connected for [JOB_TARGET_TYPE_JOB]\" app_id=wfapp instance=MyMachine scope=dapr.runtime.scheduler.cluster type=log ver=1.16.5\n```\n\n## Steps to Reproduce the Problem\n\n1. Run the following in a Windows Terminal prompt to uninstall and reinstall the latest version of Dapr (currently 1.16.5) and launch to expect an app.\n```pwsh\ndapr uninstall --all;dapr init;dapr run --app-id wfapp --dapr-grpc-port 50001 --dapr-http-port 3500\n```\n\n2. Watch the logs.\n\n## Release Note\n\n<!-- How should the fix for this issue be communicated in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE: **FIX** Fixed repeated work item stream closure after startup\n",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "WhitWaldo",
+  "created_at": "2025-12-23T03:37:16Z",
+  "updated_at": "2026-03-17T18:53:05Z",
+  "comments": [
+    {
+      "user": "WhitWaldo",
+      "body": "Update: This might just be an issue with the CLI. While I see the initial set of messages in Docker, it doesn't repeat.",
+      "created_at": "2025-12-23T04:35:44Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "When I use 1.16.5 and start a dapr process using dapr run I always get the error : \n\n```ERRO[0002] Error attempting to migrate reminders to scheduler: statestore reminders is not ready  app_id=fast-fire instance=ip-192-168-1-90.eu-west-1.compute.internal scope=dapr.runtime.actor.reminders.scheduler type=log ver=1.16.5```\n\nWhy is this a thing statestore reminders is not ready ? This is a brand new database and dapr installation (so there should be no lingering statestore based reminders to migrate)\n\nthis is with a PGSQL v2 state store",
+      "created_at": "2025-12-23T09:54:31Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "<img width=\"1087\" height=\"65\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/3d8b7c96-009c-4be7-9ee0-55c4ab20c54b\" />\n\nI got this in 1.16.4 too on startup but everything seems to work fine after that.",
+      "created_at": "2026-01-06T20:06:10Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "@alicejgibbons yeah it all works fine, but the error message still needs to be addressing as it causes unnecessary alarms, particularly in observability tools that are on the lookout for errors. \n\nAlso interferes with vibe coding, the error log is easily picked up by the LLM, which it then gets hung up on and starts incorrectly blaming it for other issues.",
+      "created_at": "2026-01-06T23:48:25Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "@olitomlinson i think we can close this one?",
+      "created_at": "2026-03-17T18:14:48Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    9271
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9252",
+  "is_seed": false,
+  "partial": false
+}

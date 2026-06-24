@@ -1,0 +1,28 @@
+{
+  "type": "issue",
+  "number": 2968,
+  "title": "Enable standard AAD authentication for Azure EventGrid binding component, specifically on the output binding (create)",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\nCurrently, it appears that the Azure EventGrid output binding supports authentication with AccessKey only.  It is preferable to enable all of the standard AAD authentication methods described in https://docs.dapr.io/developing-applications/integrations/azure/azure-authentication/authenticating-azure/.\r\n\r\nCurrent Work-Around:  \r\n1. Configure an Azure Key Vault secrets component using the AAD authentication method of choice (preferably a managed identity).  \r\n2. Add a KV secret containing the EventGrid access key.\r\n3. Configure the EventGrid binding component with accessKey using a secretKeyRef to retrieve the value via the KV secrets component.\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted",
+    "P1",
+    "pinned"
+  ],
+  "user": "bb33f",
+  "created_at": "2023-07-05T21:41:52Z",
+  "updated_at": "2025-08-11T21:55:50Z",
+  "comments": [
+    {
+      "user": "ItalyPaleAle",
+      "body": "I agree this should be improved.",
+      "created_at": "2023-07-06T19:21:19Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2968",
+  "is_seed": false,
+  "partial": false
+}

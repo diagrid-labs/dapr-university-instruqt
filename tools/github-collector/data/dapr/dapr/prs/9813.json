@@ -1,0 +1,37 @@
+{
+  "type": "pr",
+  "number": 9813,
+  "title": "test(operator): fix flaky TestDaprWatchdog_Start by removing sleep",
+  "state": "open",
+  "body": "Related to #5915\n\n## Summary\n\n`TestDaprWatchdog_Start` used timing-based synchronization by starting `dw.Start(ctx)` in a goroutine, sleeping for 1 second, and then cancelling the context. That makes the test dependent on scheduler timing and machine load, which can become flaky under CI and especially under race instrumentation.\n\nThis change makes the test deterministic and single-iteration based instead of wall-clock based. It sets `dw.interval` below `singleIterationDurationThreshold`, so `DaprWatchdog.Start` returns after the first successful iteration. With that in place, the test can call `dw.Start(ctx)` directly and remove the extra goroutine, `time.Sleep`, and manual cancellation path.\n\n## Verification\n\nRan:\n\n```bash\ngo test -race -count=50 -run TestDaprWatchdog_Start ./pkg/operator\n```\n\nResult: passed successfully.\n",
+  "labels": [],
+  "user": "Kunalbehbud",
+  "created_at": "2026-04-22T08:29:06Z",
+  "updated_at": "2026-04-22T14:00:50Z",
+  "additions": 3,
+  "deletions": 20,
+  "changed_files": 1,
+  "linked_issue_numbers": [
+    5915
+  ],
+  "comments": [
+    {
+      "user": "Copilot",
+      "body": "Using `ctx := t.Context()` means `dw.Start(ctx)` can block for the remainder of the test (and potentially until the global test timeout) if the first `listPods` iteration never succeeds, because `Start` retries until the context is canceled. Consider using a `context.WithTimeout`/`WithCancel` here (with `defer cancel()`) so the test fails fast instead of hanging on regression.\n```suggestion\n\tctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)\n\tdefer cancel()\n```",
+      "created_at": "2026-04-22T14:00:49Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/dapr/pull/9813",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pkg/operator/watchdog_test.go",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 20,
+      "patch": "@@ -242,14 +242,7 @@ func Test_patchPodLabel(t *testing.T) {\n }\n \n func TestDaprWatchdog_Start(t *testing.T) {\n-\t// simple test of start\n-\tctx, cancel := context.WithCancel(t.Context())\n-\tcancelled := false\n-\tdefer func() {\n-\t\tif !cancelled {\n-\t\t\tcancel()\n-\t\t}\n-\t}()\n+\tctx := t.Context()\n \n \tsingleIterationDurationThreshold = 100 * time.Millisecond\n \tdefer func() {\n@@ -262,7 +255,7 @@ func TestDaprWatchdog_Start(t *testing.T) {\n \t\tclient:            ctlClient,\n \t\tmaxRestartsPerMin: 0,\n \t\tcanPatchPodLabels: true,\n-\t\tinterval:          200 * time.Millisecond,\n+\t\tinterval:          50 * time.Millisecond,\n \t\tpodSelector:       getSideCarInjectedNotExistsSelector(),\n \t}\n \tdaprized := 5\n@@ -273,17 +266,7 @@ func TestDaprWatchdog_Start(t *testing.T) {\n \t\trequire.NoError(t, ctlClient.Create(ctx, pod))\n \t}\n \n-\tstartDone := make(chan error)\n-\tgo func() {\n-\t\tstartDone <- dw.Start(ctx)\n-\t}()\n-\n-\t// let it run a few cycles\n-\ttime.Sleep(time.Second)\n-\tcancel()\n-\tcancelled = true\n-\n-\trequire.NoError(t, <-startDone)\n+\trequire.NoError(t, dw.Start(ctx))\n \n \tt.Log(\"daprized pods should be deleted except those running\")\n \tassertExpectedPodsDeleted(t, pods, ctlClient, ctx, daprized, running, injected)",
+      "patch_truncated": false
+    }
+  ]
+}

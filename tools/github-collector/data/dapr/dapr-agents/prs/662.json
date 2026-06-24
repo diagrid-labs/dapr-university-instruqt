@@ -1,0 +1,32 @@
+{
+  "type": "pr",
+  "number": 662,
+  "title": "chore(deps): Bump elevenlabs from 2.52.0 to 2.53.0",
+  "state": "open",
+  "body": "Bumps [elevenlabs](https://github.com/elevenlabs/elevenlabs-python) from 2.52.0 to 2.53.0.\n<details>\n<summary>Release notes</summary>\n<p><em>Sourced from <a href=\"https://github.com/elevenlabs/elevenlabs-python/releases\">elevenlabs's releases</a>.</em></p>\n<blockquote>\n<h2>v2.53.0</h2>\n<h2>What's Changed</h2>\n<ul>\n<li>SDK regeneration by <a href=\"https://github.com/fern-api\"><code>@\u200bfern-api</code></a>[bot] in <a href=\"https://redirect.github.com/elevenlabs/elevenlabs-python/pull/803\">elevenlabs/elevenlabs-python#803</a></li>\n</ul>\n<p><strong>Full Changelog</strong>: <a href=\"https://github.com/elevenlabs/elevenlabs-python/compare/v2.52.0...v2.53.0\">https://github.com/elevenlabs/elevenlabs-python/compare/v2.52.0...v2.53.0</a></p>\n</blockquote>\n</details>\n<details>\n<summary>Commits</summary>\n<ul>\n<li><a href=\"https://github.com/elevenlabs/elevenlabs-python/commit/df72109f0618fea72c054ed4c9b7e09580ebd783\"><code>df72109</code></a> [fern-generated] Update SDK (<a href=\"https://redirect.github.com/elevenlabs/elevenlabs-python/issues/803\">#803</a>)</li>\n<li>See full diff in <a href=\"https://github.com/elevenlabs/elevenlabs-python/compare/v2.52.0...v2.53.0\">compare view</a></li>\n</ul>\n</details>\n<br />\n\n\n[![Dependabot compatibility score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=elevenlabs&package-manager=uv&previous-version=2.52.0&new-version=2.53.0)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)\n\nDependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.\n\n[//]: # (dependabot-automerge-start)\n[//]: # (dependabot-automerge-end)\n\n---\n\n<details>\n<summary>Dependabot commands and options</summary>\n<br />\n\nYou can trigger Dependabot actions by commenting on this PR:\n- `@dependabot rebase` will rebase this PR\n- `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it\n- `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency\n- `@dependabot ignore this major version` will close this PR and stop Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it yourself)\n- `@dependabot ignore this minor version` will close this PR and stop Dependabot creating any more for this minor version (unless you reopen the PR or upgrade to it yourself)\n- `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for this dependency (unless you reopen the PR or upgrade to it yourself)\n\n\n</details>",
+  "labels": [
+    "dependencies",
+    "python:uv"
+  ],
+  "user": "dependabot[bot]",
+  "created_at": "2026-06-23T04:25:22Z",
+  "updated_at": "2026-06-23T04:25:23Z",
+  "additions": 3,
+  "deletions": 3,
+  "changed_files": 1,
+  "linked_issue_numbers": [],
+  "comments": [],
+  "html_url": "https://github.com/dapr/dapr-agents/pull/662",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "uv.lock",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "patch": "@@ -1845,7 +1845,7 @@ wheels = [\n \n [[package]]\n name = \"elevenlabs\"\n-version = \"2.52.0\"\n+version = \"2.53.0\"\n source = { registry = \"https://pypi.org/simple\" }\n dependencies = [\n     { name = \"httpx\" },\n@@ -1855,9 +1855,9 @@ dependencies = [\n     { name = \"typing-extensions\" },\n     { name = \"websockets\" },\n ]\n-sdist = { url = \"https://files.pythonhosted.org/packages/d0/eb/8673dac4b69c1bd8f4d7257fe876e2d5d688d97c496296056ecbd12f67fd/elevenlabs-2.52.0.tar.gz\", hash = \"sha256:8cbb22418a9ff51251f5e524fe88505bd70be1c4c180b7ebe7998110c8330bee\", size = 632488, upload-time = \"2026-06-09T09:44:45.405Z\" }\n+sdist = { url = \"https://files.pythonhosted.org/packages/09/a9/5f1afc8d3649b303e6a0f1c317f37062694be4dd95daec99d73581ceee54/elevenlabs-2.53.0.tar.gz\", hash = \"sha256:4681561f12a72baffc451f5d9d14b915dffe7e3d9b007917a1b077859bc63866\", size = 646150, upload-time = \"2026-06-15T09:33:10.332Z\" }\n wheels = [\n-    { url = \"https://files.pythonhosted.org/packages/b0/e3/e6aaadb21d2b3f190edf4dcecf83290d2ea8bbc11b6d1fcf807ff7f33fed/elevenlabs-2.52.0-py3-none-any.whl\", hash = \"sha256:c9c8048431dadea691a1561b44e775240c012a1eaa84159d67a1ee935bed3b3f\", size = 1715594, upload-time = \"2026-06-09T09:44:43.416Z\" },\n+    { url = \"https://files.pythonhosted.org/packages/a7/ab/56c99ee7701ab4c2c587637a32b2f9b0afbfe3373069c02ecf524f752e16/elevenlabs-2.53.0-py3-none-any.whl\", hash = \"sha256:c1cb3bce2134ddc42375de77d88a8154c92bef497593ece2634b23e616ef057e\", size = 1752582, upload-time = \"2026-06-15T09:33:08.258Z\" },\n ]\n \n [[package]]",
+      "patch_truncated": false
+    }
+  ]
+}

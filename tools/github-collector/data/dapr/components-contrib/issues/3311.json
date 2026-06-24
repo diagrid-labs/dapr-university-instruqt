@@ -1,0 +1,96 @@
+{
+  "type": "issue",
+  "number": 3311,
+  "title": "Implement NSQ Pub/Sub component",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\n<!-- Please also discuss possible business value -->\r\nImplement NSQ PubSub (https://nsq.io/overview/design.html)\r\n\r\nI'd like to add NSQ as an option for Pub/Sub.\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n**ADD** Pub/Sub component added - NSQ.",
+  "labels": [
+    "kind/enhancement",
+    "pinned"
+  ],
+  "user": "mikeee",
+  "created_at": "2024-01-10T10:25:11Z",
+  "updated_at": "2024-09-13T09:57:21Z",
+  "comments": [
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-02-09T10:27:37Z"
+    },
+    {
+      "user": "mikeee",
+      "body": "/assign",
+      "created_at": "2024-02-09T14:26:02Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-03-10T14:43:49Z"
+    },
+    {
+      "user": "mikeee",
+      "body": "Not stale",
+      "created_at": "2024-03-10T15:29:56Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-04-09T15:35:40Z"
+    },
+    {
+      "user": "mikeee",
+      "body": "Still planned",
+      "created_at": "2024-04-09T17:50:19Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-05-09T17:53:40Z"
+    },
+    {
+      "user": "mikeee",
+      "body": "Still planned",
+      "created_at": "2024-05-09T18:21:01Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-06-08T18:29:20Z"
+    },
+    {
+      "user": "mikeee",
+      "body": "/keep-alive ",
+      "created_at": "2024-06-11T21:08:32Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-07-11T21:36:10Z"
+    },
+    {
+      "user": "mikeee",
+      "body": "/keep-alive",
+      "created_at": "2024-07-12T00:27:27Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-08-11T00:49:18Z"
+    },
+    {
+      "user": "mikeee",
+      "body": "/keepalive",
+      "created_at": "2024-08-13T19:19:51Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-09-12T19:25:30Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3311",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,50 @@
+{
+  "type": "issue",
+  "number": 8852,
+  "title": "[Scheduler] introduce noisy-neighbour mitigations",
+  "state": "open",
+  "body": "It's currently possible that one App or one Workflow Type could saturate the available bandwidth of the scheduler component. \n\nThis would create a noisy-neighbour effect, preventing other Apps / Workflows from making progress.\n\nIntroduce some form of noisy-neighbour mitigations to lessen the effects of one App / Workflow running away with all the available scheduler bandwidth. From an Operational perspective, minimising the negative impact of shared-components, such as Scheduler, is essential.\n\ncc @JoshVanL \n\n## In what area(s)?\n\n<!-- Remove the '> ' to select -->\n\n> /area runtime\n\n> /area operator\n\n> /area placement\n\n> /area docs\n\n> /area test-and-release\n\n> /area injector\n\n/area scheduler\n\n> /area sentry\n\n## Describe the feature\n<!-- Please also discuss possible business value -->\n\n## Release Note\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE:\n",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "olitomlinson",
+  "created_at": "2025-07-07T22:12:07Z",
+  "updated_at": "2026-04-10T13:18:03Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-10-05T22:14:56Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "bump",
+      "created_at": "2025-10-06T10:05:44Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-01-04T10:28:44Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "Bump",
+      "created_at": "2026-01-04T11:13:43Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-04-10T12:24:30Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "bump",
+      "created_at": "2026-04-10T12:58:21Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/8852",
+  "is_seed": false,
+  "partial": false
+}

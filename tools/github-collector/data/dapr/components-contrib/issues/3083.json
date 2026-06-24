@@ -1,0 +1,41 @@
+{
+  "type": "issue",
+  "number": 3083,
+  "title": "metadata.yaml schema: improvements on default values and examples",
+  "state": "open",
+  "body": "For our components' metadata, all values are technically strings: even numbers, are interpreted as strings in Component YAMLs.\r\n\r\nIn the metadata.yaml, we try to reflect this by using quotes around all examples and default values. Sometimes that makes us include awkward double quotes, such as:\r\n\r\nhttps://github.com/dapr/components-contrib/blob/b3e2b1024a508d2aca07a124ea5a6cf63ff9a70c/bindings/http/metadata.yaml#L48-L49\r\n\r\nThis should be improved in two ways.\r\n\r\n## First: remove double quotes - let renderers add quotes when they render the metadat.ayaml\r\n\r\nWe should update all metadata.yaml documents to not include double quotes, so things like `default: '\"100Mi\"'` will become `default: \"100Mi\"` (or even just `default: 100Mi` when it's valid YAML)\r\n\r\nRenderers should then add quotes around all examples and default values automatically\r\n\r\n## Second: update schema for examples\r\n\r\nThe change above is fine for the default value, but it does cause issues with examples since examples may contain multiple values (e.g. `example: `\"true\" or \"false\"`) where quotes do matter (we can't rely on renderers to add them automatically), or even explanations such as `example: '\"100\" (as bytes)`\r\n\r\nTo fix that, we can:\r\n\r\n1. Make `example` support arrays too. If a single string is passed, the renderer will quote it. If an array is passed, they are considered as multiple examples and they will be quoted independently in the renderer\r\n2. Add a field `exampleRaw` which is not quoted automatically and allows typing things such as `exampleRaw: '\"100\" (as bytes)`\r\n   - `example` and `exampleRaw` are mutually-exclusive",
+  "labels": [
+    "kind/enhancement",
+    "pinned"
+  ],
+  "user": "ItalyPaleAle",
+  "created_at": "2023-08-15T17:21:02Z",
+  "updated_at": "2025-08-11T21:55:53Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "This might not go into 1.12 - we are technically beyond code freeze and while this isn't core code, it still requires reviewer time. Let's see when we get a PR for this and then we can decide. 1.13 is looking more likely.",
+      "created_at": "2023-08-16T19:04:42Z"
+    },
+    {
+      "user": "artursouza",
+      "body": "I am OK for this to be in 1.13, I don't want to add more to 1.12 unless absolutely necessary.",
+      "created_at": "2023-08-16T22:11:31Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "I put it in 1.12 to track it better as something aspirational. Doesn't need to be done in the next few weeks :) But, if it does happen, I'd happily review it. metadata.yaml files are sort-of \"evergreen\" anyways, as changes to those do not end up in the compiled binary.",
+      "created_at": "2023-08-16T22:14:23Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-09-15T22:16:24Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3083",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,33 @@
+{
+  "type": "issue",
+  "number": 8597,
+  "title": "Docs (Automation) - kubernetes annotations",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\n\n## In what area(s)?\n\n<!-- Remove the '> ' to select -->\n\n> /area runtime\n\n> /area operator\n\n> /area placement\n\n /area docs\n\n> /area test-and-release\n\n## Describe the feature\n<!-- Please also discuss possible business value -->\n\nKubernetes annotations reference documentation should be generated from code\n\n## Release Note\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE:\n",
+  "labels": [
+    "P1",
+    "kind/enhancement"
+  ],
+  "user": "mikeee",
+  "created_at": "2025-03-18T12:58:14Z",
+  "updated_at": "2026-04-01T21:44:16Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-09-15T16:16:06Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 97 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2025-09-22T16:16:12Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    8585
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/8597",
+  "is_seed": false,
+  "partial": false
+}

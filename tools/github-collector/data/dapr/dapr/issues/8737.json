@@ -1,0 +1,44 @@
+{
+  "type": "issue",
+  "number": 8737,
+  "title": "Subscription Fallthru Inconsistency",
+  "state": "open",
+  "body": "[Per this discussion](https://github.com/dapr/dapr/pull/8692#discussion_r2099378669), we should update the `Deliver` & `DeliverBulk` funcs to fallthru consistently. As of now, one falls thru to retry and the other to success which is inconsistent.",
+  "labels": [
+    "kind/bug",
+    "good first issue"
+  ],
+  "user": "cicoyle",
+  "created_at": "2025-05-27T19:05:59Z",
+  "updated_at": "2026-02-15T18:18:22Z",
+  "comments": [
+    {
+      "user": "rtunn",
+      "body": "I would like to tackle this. It would be my first contribution to dapr. I'm not sure what the best approach is for submitting my change b/c the `Deliver` & `DeliverBulk` funcs do not exist in the dapr/dapr repo, but in the JoshVanL fork (new funcs created as part of the refactor). Should I create a PR targeting JoshVanL's fork, make the changes in the new funcs, and allow Josh to merge my changes into the fork? \n\nYour counsel would be greatly appreciated! I look forward to contributing",
+      "created_at": "2025-05-30T18:32:57Z"
+    },
+    {
+      "user": "aabhas-sao",
+      "body": "Hi @rtunn,\ngentle ping. are you working on this issue. I would like to take it up if not. \n\nThe code is merged to master, so now you can make changes to `Deliver` and `DeliverBulk`.",
+      "created_at": "2025-06-13T17:22:09Z"
+    },
+    {
+      "user": "mehrdadbn9",
+      "body": "I see this is about inconsistent fallthru behavior in Deliver vs DeliverBulk funcs - one falls thru to retry, the other to success. I'd like to fix this consistency issue. The PR discussion mentions the specific changes needed. Is this still available?",
+      "created_at": "2026-02-15T18:18:21Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    8692,
+    8794,
+    9719,
+    9814,
+    10098
+  ],
+  "referenced_issue_numbers": [
+    45
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/8737",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,88 @@
+{
+  "type": "issue",
+  "number": 2557,
+  "title": "unstable work of rabbitmq pubsub with resilience policies (with the loss of messages!)",
+  "state": "open",
+  "body": "Hello everyone!\r\n\r\nWe have encountered an important problem when using dapr resilience policies with rabbitmq pubsub.\r\n\r\nPreviously, we used kafka, and if some message got into the topic that could not be processed and for which the dead letter topic was not enabled, dapr continued trying to process this message every 5 seconds, and it was OK.\r\n\r\nAfter migrating to rabbitmq, we encountered the problem that the broken message tried to be re-processed immediately after the crash, that is, it made thousands of attempts per minute.\r\n\r\nTo solve this problem, we added a resiliency policy for DefaultRetryPolicy, setting the frequency of retries every 5 seconds:\r\n```\r\napiVersion: dapr.io/v1alpha1\r\nkind: Resiliency\r\nmetadata:\r\n  name: donum-resiliency\r\nspec:\r\n  policies:\r\n    retries:\r\n      # Global Retry Policy\r\n      DefaultRetryPolicy:\r\n        policy: constant\r\n        duration: 5s\r\n\r\n  targets:\r\n    apps:\r\n      # apps and their applied policies here\r\n```\r\n\r\nIt worked, retries began to occur every 5 seconds. We had one corrupted message left in the queue (a message about the need to send an SMS message, but with an incorrect number), and it turned out that the frequency of re-processing was increasing every hour, and after 18 hours the frequency reached 400-430 attempts per MINUTE instead of the expected 12 attempts. In fact, we made a DDoS attack on our SMS gateway. \r\n![image](https://user-images.githubusercontent.com/44698/219905595-d89724de-d4d6-4424-b9e4-9687657243a0.png)\r\n\r\nWe tried to re-deploy our applications and monitor the frequency of exceptions, and that bug was detected! I wasn't quite right. The frequency remains every 5 seconds, but at some point the message starts to be processed twice (but we have only one message). \r\n![image](https://user-images.githubusercontent.com/44698/219905670-5a36b65b-74e5-4aba-9dc5-31458d98e93b.png)\r\n\r\nThen we faced an even more important problem, which in my opinion is critical.\r\nWe assumed that the bug could only be in the constant policy, and tried to rewrite it to the exponential type:\r\n```\r\napiVersion: dapr.io/v1alpha1\r\nkind: Resiliency\r\nmetadata:\r\n  name: donum-resiliency\r\nspec:\r\n  policies:\r\n    retries:\r\n      # Global Retry Policy\r\n      DefaultPubsubComponentInboundRetryPolicy:\r\n        policy: exponential\r\n        duration: 5s\r\n        maxInterval: 60s\r\n        maxRetries: -1 # Retry indefinitely\r\n  targets:\r\n    apps:\r\n      # apps and their applied policies here\r\n```\r\n\r\nFirstly, we were faced with the fact that the retry period was unstable and went beyond the allowed values.\r\n1) At first it was less than 5 seconds:\r\n<img width=\"592\" alt=\"image\" src=\"https://user-images.githubusercontent.com/44698/219905993-84665b06-ef23-4ffa-a529-7cccace99361.png\">\r\n\r\n2) Then the period began to increase, but chaotically. The period could decrease by 3 times, and then increase immediately by 6 times, and even became more than 60 seconds, i.e. exceeded the specified maxInterval:\r\n![image](https://user-images.githubusercontent.com/44698/219906369-358d309d-04c3-44d1-8d3b-24a1cd8345c5.png)\r\n\r\n![image](https://user-images.githubusercontent.com/44698/219906456-ea548272-9a62-4341-abaa-b0ae9ffec471.png)\r\n\r\n3) But the worst thing is that at some point message processing attempts ended, however, not because the message was successfully processed (it was impossible, it was broken), but because this message disappeared from the queue! It looks like dapr sent a successful ack to rabbitmq, although MaxRetries=-1 and a different behavior is specified in pubsub:\r\n```\r\napiVersion: dapr.io/v1alpha1\r\nkind: Component\r\nmetadata:\r\n  name: donum-pubsub\r\nspec:\r\n  type: pubsub.rabbitmq\r\n  version: v1\r\n  metadata:\r\n  - name: host\r\n    value: \"amqp://guest:guest@rabbitmq:5672\"\r\n  - name: durable\r\n    value: true\r\n  - name: deletedWhenUnused\r\n    value: false\r\n  **- name: autoAck\r\n    value: false**\r\n  - name: deliveryMode\r\n    value: 2\r\n  **- name: requeueInFailure\r\n    value: true**\r\n  - name: prefetchCount\r\n    value: 0\r\n  - name: reconnectWait\r\n    value: 0\r\n  - name: concurrencyMode\r\n    value: parallel\r\n  - name: publisherConfirm\r\n    value: true\r\n  - name: enableDeadLetter\r\n    value: false\r\n```\r\n\r\nThere is nothing new in the dapr sidecar logs, the last entry was still about the inability to process the message:\r\n<img width=\"592\" alt=\"image\" src=\"https://user-images.githubusercontent.com/44698/219906626-b23a5f1e-9738-47b5-ae85-766a2e553cc5.png\">",
+  "labels": [
+    "kind/bug",
+    "help wanted"
+  ],
+  "user": "VuiDJi",
+  "created_at": "2023-02-19T01:12:00Z",
+  "updated_at": "2025-08-11T21:55:44Z",
+  "comments": [
+    {
+      "user": "VuiDJi",
+      "body": "Now I noticed that according to the documentation, \"duration\" should be specified only for the \"constant\" type. I'm not sure if it affects anything, but I tried updating the policy and restarting the applications. I'll let you know if the problem persists.\r\nActual policy:\r\n```\r\napiVersion: dapr.io/v1alpha1\r\nkind: Resiliency\r\nmetadata:\r\n  name: donum-resiliency\r\nspec:\r\n  policies:\r\n    retries:\r\n      DefaultPubsubComponentInboundRetryPolicy:\r\n        policy: exponential\r\n        maxInterval: 60s\r\n        maxRetries: -1\r\n\r\n  targets:\r\n    apps:\r\n```\r\n\r\nAt least the problem of exceeding the allowed maximum interval remained:\r\n![image](https://user-images.githubusercontent.com/44698/219907531-fc7bcbcc-bc95-4f4e-9bbc-97f385ba7d60.png)",
+      "created_at": "2023-02-19T01:33:36Z"
+    },
+    {
+      "user": "VuiDJi",
+      "body": "Gotcha!\r\nIt turned out that sometimes if I terminate the application, for example, by reducing the number of replicas to 0, the message disappears from the queue, because **dapr is sending an ack to rabbitmq** at that moment, but not everytime.\r\n<img width=\"635\" alt=\"image\" src=\"https://user-images.githubusercontent.com/44698/219908352-d5438390-ca93-484f-9a10-a4e0450f5ade.png\">\r\n",
+      "created_at": "2023-02-19T02:08:48Z"
+    },
+    {
+      "user": "VuiDJi",
+      "body": "Updated information:\r\nFew minutes ago dapr again sent an ack to rabbitmq:\r\n<img width=\"593\" alt=\"image\" src=\"https://user-images.githubusercontent.com/44698/219908905-d37f1a3d-4ebc-45f5-8cdc-e1547fea24d8.png\">\r\n\r\nApp is up for 23 mins, but 10 minutes ago suddenly sent an ack to rabbitmq and finished processing the message. Here are the latest dapr sidecar logs (nothing new):\r\n![image](https://user-images.githubusercontent.com/44698/219909002-3eae791b-b292-416f-a705-8085c3f0ff06.png)\r\n",
+      "created_at": "2023-02-19T02:34:56Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "Thanks for reporting this.\r\n",
+      "created_at": "2023-02-21T05:15:44Z"
+    },
+    {
+      "user": "VuiDJi",
+      "body": "I have updated information. Apparently, the message didn't just disappear from rabbitmq, but dapr tried to send it to DLQ.\r\nSo we are have three issues:\r\n1) with infinite repeats configured every 5 seconds (constant mode), dapr eventually starts doing repetitions more and more often, duplicating calls, reaching thousands of repetitions per minute\r\n\r\n2) with the exponential variant, dapr incorrectly sets the period (it deviates sharply up, then down, then exceeds the maxInterval).\r\n\r\n3) with the exponential option, dapr ignores the infinite or large MaxRetries (-1 or, for example, 1.000.000), and at some point after ~15 minutes it still throws the message to DLQ.",
+      "created_at": "2023-02-21T16:12:36Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "cc @halspang ",
+      "created_at": "2023-02-21T16:16:01Z"
+    },
+    {
+      "user": "VuiDJi",
+      "body": "Hi all!\r\ntell me, please, is there any news?",
+      "created_at": "2023-03-13T15:46:13Z"
+    },
+    {
+      "user": "halspang",
+      "body": "@VuiDJi - Sorry for not responding to this earlier, I thought I did but I guess not.\r\n\r\nFrom what I'm seeing, the main thing that I worry about is that the listener is receiving the message again after some kind of lease duration on the message times out. With infinite retries and the component not interacting with runtime retries, it seems plausible that every so often it's just starting a new retry chain as it thinks the message has been dropped and needs to be read again.\r\n\r\nAs for the 2 issues with exponential retries, I do think that it could be partially due to what I explained above, but they need further investigation.",
+      "created_at": "2023-03-13T18:05:19Z"
+    },
+    {
+      "user": "VuiDJi",
+      "body": "Hi all!\r\ntell me, please, is there any news?",
+      "created_at": "2023-05-13T20:26:08Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "This was not investigated for release 1.11.",
+      "created_at": "2023-05-31T15:52:46Z"
+    },
+    {
+      "user": "artursouza",
+      "body": "@halspang do we have anyone looking into resiliency policies?",
+      "created_at": "2023-06-30T17:43:19Z"
+    },
+    {
+      "user": "halspang",
+      "body": "@artursouza - Component resiliency is in the v1.12 release planning, though I don't know if anyone has committed to doing it.",
+      "created_at": "2023-06-30T17:57:09Z"
+    },
+    {
+      "user": "VuiDJi",
+      "body": "Hi all!\r\ntell me, please, is there any news?",
+      "created_at": "2023-12-17T19:12:20Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    2757
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2557",
+  "is_seed": false,
+  "partial": false
+}

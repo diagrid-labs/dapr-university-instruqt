@@ -1,0 +1,55 @@
+{
+  "type": "issue",
+  "number": 2279,
+  "title": "More stable components for 1.10",
+  "state": "open",
+  "body": "**Description:**\r\nFor 1.10 we want to try and target getting a few more components to stable. This issue will be the tracking issue for this initiative in the 1.10 release.\r\n\r\n**1.10 Targets for stable components:**\r\n\r\n- #1928 \r\n- #1917 \r\n- #1971 \r\n- #2013 \r\n- #2056 \r\n- #2232 \r\n- #1539 \r\n- #2247 \r\n\r\n\r\nStatus for all stable components can be tracked here: [Stable Components](https://github.com/orgs/dapr/projects/59/views/1?sortedBy%5Bdirection%5D=asc&sortedBy%5BcolumnId%5D=Milestone)",
+  "labels": [
+    "kind/enhancement",
+    "pinned"
+  ],
+  "user": "nyemade-uversky",
+  "created_at": "2022-11-14T20:21:28Z",
+  "updated_at": "2023-06-30T17:34:16Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "Given the way release notes are generated it isn't ideal to have both the Epic as well we individual issues tagged with the milestone.\r\n\r\nI prefer not tagging this epic and only adding it to the project board.",
+      "created_at": "2022-11-14T20:38:43Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2022-12-14T20:45:59Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2022-12-21T20:53:43Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "Incomplete - moving to 1.11",
+      "created_at": "2023-02-02T02:09:29Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "Only waiting for EventGrid Binding",
+      "created_at": "2023-05-30T20:44:11Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    1539,
+    1917,
+    1928,
+    1971,
+    2013,
+    2056,
+    2232,
+    2247
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2279",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,67 @@
+{
+  "type": "issue",
+  "number": 7326,
+  "title": "Dapr Sidecar still Ready when \"failed to load components\"",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Expected Behavior\r\n\r\n<!-- Briefly describe what you expect to happen -->\r\nDapr Sidecar in Kubernetes should change to **READY=false** and **State=Failed** if Dapr is unable to process components and not start correctly.\r\n\r\n## Actual Behavior\r\n\r\n<!-- Briefly describe what is actually happening -->\r\n\r\nIf a badly configured component is in the namespace when Dapr starts, we see the following WARNING message in the `daprd` container:\r\n> time=\"2023-11-16T09:43:15.920447668Z\" level=warning msg=\"failed to load components: rpc error: code = Unknown desc = Secret \\\"spc-app1-secret\\\" not found\" app_id=myapp2 instance=myapp2-777c5868b4-plbrd scope=dapr.runtime type=log ver=1.12.0\r\n\r\nWhen using the `bindings.azure.eventgrid` it looks like dapr started correctly, however it never starts to listen to events. We therefore never have any feedback that there is a problem with subscribing to events from Event Grid.\r\n\r\nWhen the sidecar loads correctly, the following message is seen just before `dapr initialized. Status: Running.`\r\n\r\n> time=\"2023-11-16T17:13:38.348196388Z\" level=info msg=\"Listening for Event Grid events at http://localhost:9000/dapr-eventgrid/claimsubmision/api/events\" app_id=myapp2 component=\"claimsubmision (bindings.azure.eventgrid/v1)\" instance=myapp2-7f5d65dfc9-2wwxc scope=dapr.contrib type=log ver=1.12.0\r\n\r\n## Steps to Reproduce the Problem\r\n\r\n<!-- How can a maintainer reproduce this issue (be detailed) -->\r\nAdd a component the namespace that has a bad secret reference.\r\n\r\n## Release Note\r\n\r\n<!-- How should the fix for this issue be communicated in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/bug",
+    "help wanted",
+    "good first issue",
+    "P1",
+    "pinned"
+  ],
+  "user": "joshwright10",
+  "created_at": "2023-11-16T17:19:40Z",
+  "updated_at": "2026-06-08T02:59:42Z",
+  "comments": [
+    {
+      "user": "yaron2",
+      "body": "Looks like we need to error instead of warn if we fail to load components due to an error. This would be somewhat consistent with what Dapr does when initializing individual components, which is to error and cause a restart if a component fails to init.\r\n\r\nThoughts @mukundansundar @artursouza @daixiang0?",
+      "created_at": "2023-11-16T17:38:06Z"
+    },
+    {
+      "user": "joshwright10",
+      "body": "This is especially annoying that the components are scoped to their individual apps and they still cause this error. For example component01 is scoped to app01, but an error in component01 will cause app02 to not start correctly. It essentially takes all dapr enabled apps down in that namespace until the broken component is fixed. \r\n\r\nThis only happens to new pods that are created after the broken component is deployed, but this also impacts all new app deployments and any pods that scale up during this time frame.",
+      "created_at": "2023-11-17T15:39:23Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "> This is especially annoying that the components are scoped to their individual apps and they still cause this error. For example component01 is scoped to app01, but an error in component01 will cause app02 to not start correctly. It essentially takes all dapr enabled apps down in that namespace until the broken component is fixed.\r\n> \r\n> This only happens to new pods that are created after the broken component is deployed, but this also impacts all new app deployments and any pods that scale up during this time frame.\r\n\r\nThis is an edge case you've found here, where a secret that is missing for one component will cause all Dapr sidecars to fail loading all components. Generally, a failure in a scoped component shouldn't affect applications that aren't loading it. We'll fix this.",
+      "created_at": "2023-11-17T16:50:59Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-12-17T16:56:29Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "Moving this issue to Runtime, since it needs to be handled there.",
+      "created_at": "2023-12-20T20:18:58Z"
+    },
+    {
+      "user": "joshwright10",
+      "body": "Are there any plans to work on this? It is quite problematic for us that the Dapr sidecar is in the Ready state after failing to load components. This leaves the application failing when it error should have been highlighted much earlier.\n\nDoes anyone have any potential workaround, such as a health check in the application to check of the Dapr sidecar is working as expected? Is there a health endpoint in the sidecar that we can check from the application?",
+      "created_at": "2025-07-21T08:34:32Z"
+    },
+    {
+      "user": "Br1an67",
+      "body": "I'd like to work on this. This fix captures component processing errors in the runtime processor and checks for them during initialization to ensure the Sidecar fails with a clear error when components fail to load. PR: #9605",
+      "created_at": "2026-03-08T08:47:13Z"
+    },
+    {
+      "user": "JoeArias1121",
+      "body": "Hi! I'm a student in the CodePath AI301 program and I'd like to work on this issue. I'll start by reproducing the problem locally this week. Any pointers on where to start in the codebase would be appreciated!",
+      "created_at": "2026-06-08T02:59:42Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    9605,
+    9736
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/7326",
+  "is_seed": false,
+  "partial": false
+}

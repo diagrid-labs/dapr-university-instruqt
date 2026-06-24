@@ -1,0 +1,106 @@
+{
+  "type": "issue",
+  "number": 2274,
+  "title": "New output binding for Wasm",
+  "state": "open",
+  "body": "## Describe the feature\r\n\r\nWe currently have a middleware that allows modifying requests using Wasm.\r\n\r\nSince Dapr implements now a Wasm runtime to support that, would it make sense to have the ability to create a binding to allow running code as Wasm?\r\n\r\nThis would be an output binding with an `invoke` method that allows triggering code from a Wasm file. It would allow turning Dapr into a Wasm runtime easily.\r\n\r\nCC: @codefromthecrypt  @daixiang0 @artursouza \r\n\r\n## Release Note\r\n\r\nRELEASE NOTE: **ADD** Wasm output binding",
+  "labels": [
+    "kind/enhancement",
+    "pinned"
+  ],
+  "user": "ItalyPaleAle",
+  "created_at": "2022-11-11T21:14:25Z",
+  "updated_at": "2023-04-13T09:14:29Z",
+  "comments": [
+    {
+      "user": "yaron2",
+      "body": "I think it's a great idea to add such a binding, but I think the opportunity here is greater than what an output binding can provide.\r\n\r\nFor example, a really useful use case would be to invoke WASM modules/functions with events coming in from pub/sub and allowing the module to reach back to the runtime (Dapr) and save state. Dapr has all the security and productivity APIs for augmenting WASM modules. While invoking a module with an output binding is useful, it limits all the other Dapr functionality that can make WASM microservices extremely lucrative to run in a Daprized environment.\r\n\r\nThis is outside the scope of this binding proposal which I support, but I'd like to see a Dapr WASM runtime that is a process separate to Dapr and that has first class WASM module loading capabilities and can provide the glue and integration between `daprd` and executing WASM modules.",
+      "created_at": "2022-11-11T22:49:27Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "I agree with your extended proposal (which I think doesn't have to be an either-or with this, and would love to hear @codefromthecrypt 's thoughts since they've been championing Wasm in Dapr).\r\n\r\nI would add that @artursouza and I had a brief chat a few weeks ago about whether we could push even further and have some integrations between Dapr and [Workerd](https://github.com/cloudflare/workerd), now that's open source. It would support not just Wasm, but also JS (and so TS) and has a nice programming model. However, because workerd is built on V8 we can't integrate it in the Dapr runtime directly (CGo), so it would have to be an out-of-process thing. But, it would deliver on your vision and perhaps even more.",
+      "created_at": "2022-11-12T02:14:49Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "Back in my time at MS we had a lot of discussions about a potential \"Dapr Functions\" project with early PoCs taking place. To me, this is no different than Dapr Actors, other than this is Dapr providing all it's APIs and productivity gains to a FaaS model.\r\n\r\nThe drawback we saw back then was that it would be \"yet another programming model\" in terms of FaaS. Building Dapr integrations into things like Knative Functions, Workerd and OpenFaaS seems like a good approach to me.",
+      "created_at": "2022-11-12T02:23:37Z"
+    },
+    {
+      "user": "codefromthecrypt",
+      "body": "If this is about non-web arbitrary functions, I think if folks are looking for arbitrary wasm, one pattern is things compiled like a CLI with WASI (ex main class with args or env variables to control it). You would load something and allow people to execute it perhaps in a pipeline. Here's how wasi looks, https://github.com/tetratelabs/wazero/tree/main/imports/wasi_snapshot_preview1/example\r\n\r\n(note I'll be offline a couple days for follow-up)",
+      "created_at": "2022-11-12T07:06:46Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "> If this is about non-web arbitrary functions, I think if folks are looking for arbitrary wasm\r\n\r\nThat was the idea.\r\n\r\nFrom Dapr, there'd be an output binding which supports one action \"invoke\". You can pass arguments that are then passed to the WASI CLI. The output is returned to the user.",
+      "created_at": "2022-11-12T22:10:34Z"
+    },
+    {
+      "user": "codefromthecrypt",
+      "body": "ok I think this is not difficult to POC and at least if we prove the concept the rest is easier to reason with.",
+      "created_at": "2022-11-21T07:35:42Z"
+    },
+    {
+      "user": "Taction",
+      "body": "That's a great idea. And I have an idea of wasm which is not within the scope of this proposal, but is close to what yarn2's extended proposal. If we can add a wasm engine that allows \"actors\" to run as webassembly, and provide a set of abi definitions for wasm actor. That means the wasm actor can use all dapr components.",
+      "created_at": "2022-11-30T03:24:22Z"
+    },
+    {
+      "user": "codefromthecrypt",
+      "body": "ps we put a lot of work into wasi in the upcoming wazero release. there's still more to go, especially with compilers supporting much of it. for example, tinygo doesn't yet support fd_readdir and there are issues with some other compilers. That said, we will still be deciding which parts of wasi dapr supports. Anyway getting closer to a point of comfort to start implementing a POC, but stalled due to some back work to get wasi better and better tested.",
+      "created_at": "2022-12-01T01:22:03Z"
+    },
+    {
+      "user": "codefromthecrypt",
+      "body": "PS the [last wazero release is out](https://github.com/tetratelabs/wazero/releases/tag/v1.0.0-pre.4), but I am working on something to [make wasi very observable](https://github.com/tetratelabs/wazero/pull/890). Ex allow someone to see what a clock returned etc. This is directly in preparation for implementing this as any issues around wasi otherwise are hard to debug, and would be harder in a sidecar. TL;DR; I'll be on this soon.",
+      "created_at": "2022-12-06T08:16:26Z"
+    },
+    {
+      "user": "codefromthecrypt",
+      "body": "TL;DR; help wanted if this should start before the end of jan\r\n\r\nI need to personally decouple from this if it is needed this month. We still have a lot of work to do on WASI in wazero and I need to focus on it. Until we have tests in various places in multiple languages, I won't have time to stop and work on something else. at any rate there is progress. https://github.com/tetratelabs/wazero/releases/tag/v1.0.0-pre.6",
+      "created_at": "2023-01-03T00:08:18Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "@codefromthecrypt Thanks for looking into this :) I personally have no problem with waiting till when you have more time, if you still want to contribute this! It\u2019s going to be nice to have, but not something P0.",
+      "created_at": "2023-01-03T16:29:53Z"
+    },
+    {
+      "user": "codefromthecrypt",
+      "body": "Thanks, I do want to help with this as it is also nice for a showcase!",
+      "created_at": "2023-01-03T23:19:36Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-02-02T23:27:30Z"
+    },
+    {
+      "user": "codefromthecrypt",
+      "body": "so finally getting to where I can work on this. [wazero is launching this week](https://tetrate.io/blog/introducing-wazero-from-tetrate/), which is good as it will stop annoying people with so many pre-release nags :) I will try to spike something on the way to wasmio, just in case someone is there and we can chat about it.",
+      "created_at": "2023-03-20T01:38:24Z"
+    },
+    {
+      "user": "codefromthecrypt",
+      "body": "https://github.com/dapr/components-contrib/pull/2685",
+      "created_at": "2023-03-20T10:25:43Z"
+    },
+    {
+      "user": "codefromthecrypt",
+      "body": "I wonder if this should stay open until integrated with dapr? wdyt?",
+      "created_at": "2023-04-13T04:45:49Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    1747,
+    2685
+  ],
+  "referenced_issue_numbers": [
+    770
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2274",
+  "is_seed": false,
+  "partial": false
+}

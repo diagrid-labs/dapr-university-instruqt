@@ -1,0 +1,31 @@
+{
+  "type": "issue",
+  "number": 3236,
+  "title": "MongoDB Query Serialization Issue [Query API]",
+  "state": "open",
+  "body": "\r\n## Expected Behavior\r\nResults from a MongoDB query should return the datatypes that were originally serialized. \r\n \r\n## Actual Behavior\r\nResults from a MongoDB query will have integers returned as decimals which causes serialization issues.  Serialized data such as `{\"title\": null, \"comments\": null, \"id\": 1, \"name\": \"TestUser\" }`, will be returned as `{\"title\": null, \"comments\": null, \"id\": 1.0, \"name\": \"TestUser\" }`.\r\n\r\n## Steps to Reproduce the Problem\r\n[AuthorCommentCollector.zip](https://github.com/dapr/components-contrib/files/13397599/AuthorCommentCollector.zip) contains a simple application which can be used to reproduce the issue.\r\n\r\nOpen the project using Visual Studio 2022, change the startup project to docker-compose\r\n![image](https://github.com/dapr/components-contrib/assets/54407796/ece9bda0-22ed-4ae9-a373-453da3aa530a) and run the project.\r\n\r\nOnce containers have all be started open the Https folder \r\n![image](https://github.com/dapr/components-contrib/assets/54407796/9e4c5975-df44-42d9-98e4-ed41e71fd3af) and open the `AuthorsService.http` file. \r\n\r\nUse the http post to add an author \r\n![image](https://github.com/dapr/components-contrib/assets/54407796/d8669d57-2399-4e9d-8c0f-91b84a2a603a)\r\n\r\nNext use the http get to query author by name \r\n![image](https://github.com/dapr/components-contrib/assets/54407796/83da49a7-227c-49ba-bce2-ec0ddeab6679)\r\n\r\nWhich will result in the following exception:\r\n```\r\nSystem.InvalidOperationException: The type 'System.Threading.ExecutionContext&' of property 'Context' on type 'System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[System.Collections.Generic.IEnumerable`1[AuthorsService.Models.Author],AuthorsService.Services.AuthorsStorage+<GetAuthorByNameAsync>d__1]' is invalid for serialization or deserialization because it is a pointer type, is a ref struct, or contains generic parameters that have not been replaced by specific types.\r\n   at System.Text.Json.ThrowHelper.ThrowInvalidOperationException_CannotSerializeInvalidType(Type typeToConvert, Type declaringType, MemberInfo memberInfo)\r\n   at System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver.CreatePropertyInfo(JsonTypeInfo typeInfo, Type typeToConvert, MemberInfo memberInfo, JsonSerializerOptions options, Boolean shouldCheckForRequiredKeyword, Boolean hasJsonIncludeAttribute)\r\n   at System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver.AddMembersDeclaredBySuperType(JsonTypeInfo typeInfo, Type currentType, Boolean constructorHasSetsRequiredMembersAttribute, PropertyHierarchyResolutionState& state)\r\n   at System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver.PopulateProperties(JsonTypeInfo typeInfo)\r\n   at System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver.CreateTypeInfoCore(Type type, JsonConverter converter, JsonSerializerOptions options)\r\n   at System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver.GetTypeInfo(Type type, JsonSerializerOptions options)\r\n   at System.Text.Json.JsonSerializerOptions.GetTypeInfoNoCaching(Type type)\r\n   at System.Text.Json.JsonSerializerOptions.CachingContext.CreateCacheEntry(Type type, CachingContext context)\r\n--- End of stack trace from previous location ---\r\n   at System.Text.Json.JsonSerializerOptions.GetTypeInfoInternal(Type type, Boolean ensureConfigured, Nullable`1 ensureNotNull, Boolean resolveIfMutable, Boolean fallBackToNearestAncestorType)\r\n   at System.Text.Json.JsonSerializerOptions.GetTypeInfoForRootType(Type type, Boolean fallBackToNearestAncestorType)\r\n   at System.Text.Json.JsonSerializerOptions.TryGetPolymorphicTypeInfoForRootType(Object rootValue, JsonTypeInfo& polymorphicTypeInfo)\r\n   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.SerializeAsync(Stream utf8Json, T rootValue, CancellationToken cancellationToken, Object rootValueBoxed)\r\n   at Microsoft.AspNetCore.Http.HttpResponseJsonExtensions.WriteAsJsonAsyncSlow[TValue](Stream body, TValue value, JsonSerializerOptions options, CancellationToken cancellationToken)\r\n   at Microsoft.AspNetCore.Http.RequestDelegateFactory.ExecuteTaskResult[T](Task`1 task, HttpContext httpContext)\r\n   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)\r\n   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)\r\n   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)\r\n```\r\n\r\nAlternate method would be to use docker compose up, then use a browser to `http://localhost:9000/swagger/index.html`, use swagger document to add and query author.\r\n\r\nThanks!\r\n\r\n\r\n",
+  "labels": [
+    "kind/bug",
+    "pinned"
+  ],
+  "user": "rainman-306",
+  "created_at": "2023-11-17T21:50:11Z",
+  "updated_at": "2023-12-20T20:21:19Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "Was looking into this a bunch of Friday and will continue to do so.",
+      "created_at": "2023-11-20T18:10:32Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-12-20T18:17:57Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3236",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,46 @@
+{
+  "type": "issue",
+  "number": 3038,
+  "title": "can pubsub.azure.servicebus.topics control connection type?",
+  "state": "open",
+  "body": "Scanning the code base i do not find any way to specify that the servicebus client be created with the AmpqWebSockets transport type.\r\n\r\nI dont think that this is possible via metadata for the component, but wanted to double-check.\r\n\r\nWe are not able to connect for pub or sub via Dapr from an on-prem component due to firewall restrictions. But I can code up my own subscriber and make this connection outside of Dapr by specifying the client options transport type as AmpqWebSockets.\r\n\r\nObviously I would have preferred having the ability to control this with pubsub component spec, but possibly there are design reasons that this is not the case. If not, I can re-raise this as a feature request.\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted"
+  ],
+  "user": "MarkClouden",
+  "created_at": "2023-08-03T17:48:29Z",
+  "updated_at": "2025-08-11T21:55:51Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "Dapr does not support websockets in general (anywhere) at this time.\r\n\r\nWe use this SDK in our implementations of service bus components.\r\nhttps://github.com/Azure/azure-sdk-for-go/blob/main/sdk/messaging/azservicebus/README.md\r\n\r\nThere seems to be a websockets example:\r\nhttps://github.com/Azure/azure-sdk-for-go/blob/main/sdk/messaging/azservicebus/example_websockets_and_proxies_test.go\r\n\r\nHow would you expect this feature to work? Provide a websocket URL accessible to `daprd` (so must be localhost) in the form of `wss://localhost:$SOMEPORT/socketserver` ?\r\n\r\nThe Dapr runtime does not support websockets, so if we implemented this websocket support in this component this would bypass a lot Dapr features like Deadletter Queues, retries, dropping of messages etc.\r\n\r\nIt does not seem likely that we can actually implement this.",
+      "created_at": "2023-08-25T00:09:32Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "Adding @ItalyPaleAle for his thoughts / input (note he's out for 2 weeks).",
+      "created_at": "2023-08-25T00:09:54Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "I'll add this to the 1.13 milestone - not as a commitment this will get worked on, but to make sure we don't forget this discussion.",
+      "created_at": "2023-08-25T00:10:43Z"
+    },
+    {
+      "user": "MarkClouden",
+      "body": "Sorry, possibly some confusion - I refer only to the pubsub component and its ServiceBus connection.\r\n\r\nI can only reference the C# ServiceBusClientOptions type, and its Azure.Messaging.ServiceBus.ServiceBusTransportType property. The default for this is AmqpTcp, but AmqpWebSockets is an option as well. In our scenario, only connections made with transport type AmqpWebSockets is possible.\r\n\r\nI only ask that this be a configurable choice that may be used for the servicebus client options.\r\n\r\nSomething like\r\n\r\n```yaml\r\napiVersion: dapr.io/v1alpha1\r\nkind: Component\r\nmetadata:\r\n  name: servicebus-pubsub\r\nspec:\r\n  type: pubsub.azure.servicebus.topics\r\n  version: v1\r\n  metadata:\r\n  # Required when not using Azure AD Authentication\r\n  - name: connectionString\r\n    value: \"Endpoint=sb://{ServiceBusNamespace}.servicebus.windows.net/;SharedAccessKeyName={PolicyName};SharedAccessKey={Key};EntityPath={ServiceBus}\"\r\n  - name: transportType\r\n    value: [ amqpWebSockets | amqpTcp ]\r\n```\r\n\r\nAnd having the transportType utilized in the servicebus client options at create",
+      "created_at": "2023-08-25T00:17:07Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "This is not supported today and must be implemented as a feature.\r\n\r\nA good starting point:\r\nhttps://github.com/Azure/azure-sdk-for-go/blob/5f029fd307e2b078175c29bf09667a19f26fbf53/sdk/messaging/azservicebus/example_websockets_and_proxies_test.go#L6-L39\r\n\r\nIn short, the AMP transport type must be exposed as a new component metadata property, say `transportType` with values `tcp` (the default) and `websockets`.\r\n\r\nIf the value is set to `websockets` the websocket connection info must be set on the client options.",
+      "created_at": "2023-09-14T21:02:59Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3038",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,29 @@
+{
+  "type": "issue",
+  "number": 3179,
+  "title": "Non-K8s name resolvers need to support namespacing",
+  "state": "open",
+  "body": "> Spin-off from https://github.com/dapr/components-contrib/pull/3178#discussion_r1359104181\r\n\r\nCurrently, all name resolvers except the K8s one do not support namespacing. This includes: consul, mDNS, and the upcoming SQLite (#3178).\r\n\r\nAlthough those resolvers are primarily meant for local development, where namespacing is perhaps less used, it should still be implemented to support advanced scenarios and improve security.\r\n\r\nImplementing namespacing is currently not possible unless the runtime participates too.\r\n\r\n- [X] Update `nameresolution.Metadata` to add a [pre-defined constant](https://github.com/dapr/components-contrib/blob/master/nameresolution/metadata.go#L18) for NAMESPACE (_as a side note, we should probably use something with stronger typing than just a map of strings with pre-defined keys_)\r\n  - Implemented in #3178\r\n- [ ] Update the runtime to pass the namespace when [registering with a name resolver](https://github.com/dapr/dapr/blob/b6540a1c464d71e5afeecc143d8a3a64bf0f5c03/pkg/runtime/runtime.go#L1105-L1110)\r\n- [ ] Update the mDNS component to register the app using namespaces\r\n- [ ] Update the Consul component to register the app using namespaces\r\n- [ ] Update the SQLite component to register the app using namespaces\r\n\r\n**Important:** To preserve backwards-compat, with mDNS and Consul if the namespace is the default one (\"default\") we must register the app both with **and** without a namespace. Or older versions of Dapr won't be able to invoke this app. This behavior must be supported for at least N+2 releases.",
+  "labels": [
+    "kind/bug",
+    "P0",
+    "pinned"
+  ],
+  "user": "ItalyPaleAle",
+  "created_at": "2023-10-14T16:29:53Z",
+  "updated_at": "2026-03-02T14:35:34Z",
+  "comments": [
+    {
+      "user": "JoshVanL",
+      "body": "I think we should make this a high priority item. Ignoring namespaces in name resolution means that any app can spoof the App ID of any other in another namespace, meaning they can receive traffic on their behalf. Even with mTLS enabled in 1.12 Dapr clusters, daprd will continue to send traffic to fraudulent daprds because of the legacy mTLS servers & clients accepting generic `cluster.local` DNS identities.\r\n\r\nGiven the severity of this vulnerability, I think having backwards compat for N+1 is more appropriate imo.",
+      "created_at": "2023-10-16T10:26:26Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    3178
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3179",
+  "is_seed": false,
+  "partial": false
+}

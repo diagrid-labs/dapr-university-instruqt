@@ -1,0 +1,53 @@
+{
+  "type": "issue",
+  "number": 2329,
+  "title": "MQTT pubsub component supportability in Dapr",
+  "state": "open",
+  "body": "Currently MQTT pubsub component supports MQTT 3 spec. Since Dapr gives at-least-once guarantee for messages published, it can only be achieved if broker re-sends messages which are not acknowledged. (In MQTT there is no concept of NACK). However, MQTT 3 spec doesn't make it necessary for brokers to resend unacknowledged messages after a fixed period, instead it only requires brokers to resend unacked messages on reconnection: http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718103\r\nAnd so unless there is reconnection from dapr sidecar to broker, there is no guarantee from mqtt that unacked messages will be re-delivered. Also worth noting is the fact that MQTT v5 spec necessitates that the brokers *must not* resend messages in any scenario other than reconnection: https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901238\r\n\r\nHowever, whether brokers actually retry messages or not (without reconnection) vary from broker to broker. \r\n1. Mosquitto: Mosquitto **does not** retry unacked messages after a given time: https://github.com/eclipse/mosquitto/blob/a8448a9c7b14bdaee6ec80419d43fd6544e789b6/ChangeLog.txt#L1447. Due to this, conformance test is also failing in PR https://github.com/dapr/components-contrib/pull/2320, as re-publishing logic is being removed in this. \r\n2. EMQX: I have tested with EMQX 5.0.11 and it **does** retries unacknowledged messages after a time. It is also mentioned here: https://www.emqx.com/en/blog/introduction-to-mqtt-qos#working-principle. However, EMQX also claims that it supports mqtt v5 and ideally as per mqtt v5 spec, it shouldn't. I have created an issue in emqx for the same: https://github.com/emqx/emqx/discussions/9447\r\n3. VerneMQ: I have tested with vernemq 1.11.0 and it **does** retries unacked messages after a time. It is mentioned here: https://docs.vernemq.com/configuring-vernemq/options#retry-interval, https://vernemq.com/intro/mqtt-primer/quality_of_service.html#at-least-once-(qos-1). But again, vernemq supports mqtt 5: https://vernemq.com/mqttv5.html and so ideally it shouldn't ack. I have created the issue in vernemq issue for the same: https://github.com/vernemq/vernemq/discussions/2058\r\n\r\nSo in summary as of now, Mosquitto doesn't support retrying on unacknowledged messages without reconnection, while EMQX and Vernemq do. However, whether they will continue to support this in future is unsure given MQTT v5 spec. \r\n\r\nI can think of following approaches to resolve this: \r\n\r\n1. Remove mosquitto from conformance tests in pubsub and also document the list of supported brokers in mqtt here: https://docs.dapr.io/reference/components-reference/supported-pubsub/setup-mqtt/. If in future, other brokers also remove retry support altogether, we might have to deprecate mqtt component as worst-case scenario.\r\n2. Deprecate complete MQTT component since as per mqtt specification, we seemingly can't guarantee at-least-once delivery.\r\n3. Dapr sidecar periodically disconnects and reconnects from mqtt broker as per a configurable timeout so that all unacknowledged messages are re-sent again from the broker. (I am not sure of feasibility of this) Note that using this we could support both MQTT3 and MQTT5 and all brokers would be compliant with it as well.\r\n\r\nThoughts?",
+  "labels": [
+    "pinned"
+  ],
+  "user": "shivamkm07",
+  "created_at": "2022-11-29T19:55:39Z",
+  "updated_at": "2023-01-19T01:59:16Z",
+  "comments": [
+    {
+      "user": "shivamkm07",
+      "body": "cc @artursouza @yaron2 @ItalyPaleAle ",
+      "created_at": "2022-11-29T19:57:41Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "(Also CC @berndverst for when he's back)\r\n\r\nThanks @shivamkm07 for the detailed writeup and good work on the analysis :)\r\n\r\nI know MQTT is a rather popular broker (anecdotally, based on the number of inquiries we see), so IMHO deprecating it entirely should be a worst-case scenario only (option 2). Also, I would consider your option 3 a non-starter.\r\n\r\nAt the very first, I think we should document that MQTT is not to be considered a \"first-choice\" and steer Dapr users towards other brokers whenever possible.",
+      "created_at": "2022-11-29T20:26:36Z"
+    },
+    {
+      "user": "shivamkm07",
+      "body": "I tried implementing re-connection scenario for mqtt in #2333. Basically, in case of handler failures, instead of re-publishing messages (what we do now), do a disconnect and re-connect to mqtt broker. But this would lead to other issues:\r\n\r\n1. Retained messages would be re-sent again and again in case of handler failure\r\n2. Due to re-connection, assuming 100 messages are in-flight and one of the message handlers failed, all of the messages would be re-sent due to re-connection\r\n3. Might not be an efficient solution for brokers which support re-sending unacked messages after a time.\r\n\r\nSo unless we have another efficient solution, I think this could be dropped off. Also deprecating mqtt component as a whole isn't favourable given it being used in production scenarios. So I think the way forward could be removing `mosquitto` from the list of supported brokers for now. Thoughts? @artursouza @yaron2 @berndverst ",
+      "created_at": "2022-12-02T10:21:06Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-01-01T10:27:40Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2023-01-08T10:27:56Z"
+    },
+    {
+      "user": "shivamkm07",
+      "body": "As discussed in community discussions, we are removing mosquitto from the list of supported brokers in mqtt pubsub.(See https://github.com/dapr/components-contrib/pull/2446). EMQX and vernemq for now supports the retrying of messages after a timeout, so they will be supported. \r\n\r\ncc @artursouza @yaron2 @berndverst @DeepanshuA ",
+      "created_at": "2023-01-18T10:06:12Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    12,
+    2333
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2329",
+  "is_seed": false,
+  "partial": false
+}

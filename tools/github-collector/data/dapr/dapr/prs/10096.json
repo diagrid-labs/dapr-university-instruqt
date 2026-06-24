@@ -1,0 +1,37 @@
+{
+  "type": "pr",
+  "number": 10096,
+  "title": "fix: bump filippo.io/edwards25519 to v1.1.1 (CVE-2026-26958)",
+  "state": "open",
+  "body": "## Description\r\n\r\nBumps the indirect dependency `filippo.io/edwards25519` from **v1.1.0 \u2192 v1.1.1** to remediate **CVE-2026-26958** (`GHSA-fw7p-63qq-7hpr`).\r\n\r\nHygiene bump only\r\n\r\n## Changes\r\n\r\n- `go.mod` / `go.sum`: `filippo.io/edwards25519 v1.1.0` \u2192 `v1.1.1` (still `// indirect`)\r\n- Applied via `go get filippo.io/edwards25519@v1.1.1` + `go mod tidy`\r\n- **No source changes.**\r\n\r\n## Notes\r\n\r\n## Issue reference\r\n\r\nCVE-2026-26958 / GHSA-fw7p-63qq-7hpr\r\n\r\n## Checklist\r\n\r\n- [x] Code compiles correctly (`go mod verify` passes; no source changes)\r\n- [x] Commit messages are signed-off (DCO)\r\n",
+  "labels": [],
+  "user": "vaibhavatlan",
+  "created_at": "2026-06-12T15:27:18Z",
+  "updated_at": "2026-06-12T15:47:05Z",
+  "additions": 3,
+  "deletions": 3,
+  "changed_files": 2,
+  "linked_issue_numbers": [],
+  "comments": [],
+  "html_url": "https://github.com/dapr/dapr/pull/10096",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "go.mod",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -106,7 +106,7 @@ require (\n \tcodeberg.org/go-latex/latex v0.1.0 // indirect\n \tcodeberg.org/go-pdf/fpdf v0.10.0 // indirect\n \tdubbo.apache.org/dubbo-go/v3 v3.0.3-0.20230118042253-4f159a2b38f3 // indirect\n-\tfilippo.io/edwards25519 v1.1.0 // indirect\n+\tfilippo.io/edwards25519 v1.1.1 // indirect\n \tgit.sr.ht/~sbinet/gg v0.6.0 // indirect\n \tgithub.com/AthenZ/athenz v1.12.13 // indirect\n \tgithub.com/Azure/azure-sdk-for-go v68.0.0+incompatible // indirect",
+      "patch_truncated": false
+    },
+    {
+      "filename": "go.sum",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "patch": "@@ -81,8 +81,8 @@ dario.cat/mergo v1.0.2/go.mod h1:E/hbnu0NxMFBjpMIE34DRGLWqDy0g5FuKDhCb31ngxA=\n dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=\n dubbo.apache.org/dubbo-go/v3 v3.0.3-0.20230118042253-4f159a2b38f3 h1:j08GKvXilDMHuVuGy+X0CMTL+Wxrte5a4XrWGDypZf0=\n dubbo.apache.org/dubbo-go/v3 v3.0.3-0.20230118042253-4f159a2b38f3/go.mod h1:bxe6StRQ4PVbZa+B5nsREuez4agzmWiELS9NhEoDscI=\n-filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=\n-filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=\n+filippo.io/edwards25519 v1.1.1 h1:YpjwWWlNmGIDyXOn8zLzqiD+9TyIlPhGFG96P39uBpw=\n+filippo.io/edwards25519 v1.1.1/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=\n git.sr.ht/~sbinet/cmpimg v0.1.0 h1:E0zPRk2muWuCqSKSVZIWsgtU9pjsw3eKHi8VmQeScxo=\n git.sr.ht/~sbinet/cmpimg v0.1.0/go.mod h1:FU12psLbF4TfNXkKH2ZZQ29crIqoiqTZmeQ7dkp/pxE=\n git.sr.ht/~sbinet/gg v0.6.0 h1:RIzgkizAk+9r7uPzf/VfbJHBMKUr0F5hRFxTUGMnt38=",
+      "patch_truncated": false
+    }
+  ]
+}

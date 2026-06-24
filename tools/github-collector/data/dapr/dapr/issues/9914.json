@@ -1,0 +1,30 @@
+{
+  "type": "issue",
+  "number": 9914,
+  "title": "Flaky tests: TestV1DirectMessagingEndpointsWithResiliency subtests failing intermittently",
+  "state": "open",
+  "body": "## Description\n\nThe `TestV1DirectMessagingEndpointsWithResiliency` test in `pkg/api/http` is flaking with multiple subtest failures. Errors indicate `context canceled` rather than the expected resiliency behavior (retries, circuit breaker tripping, etc.), suggesting a timing/race condition in the test setup.\n\n## Where it showed up\n\nShowing up on PR #9731 (unrelated changes):\n- PR: https://github.com/dapr/dapr/pull/9731\n- Failing job: https://github.com/dapr/dapr/actions/runs/25569842345/job/75063083221?pr=9731\n\n## Failing subtests\n\nAll under `pkg/api/http TestV1DirectMessagingEndpointsWithResiliency`:\n\n- `Test_invoke_direct_message_retries_with_resiliency` \u2014 got HTTP 500 instead of 200; only 1 call made instead of 2\n- `Test_invoke_direct_message_retries_on_unsuccessful_statuscode_with_resiliency` \u2014 got 500 instead of 450; 0 calls instead of 2; response body shows `ERR_DIRECT_INVOKE: failed to invoke, id: failingApp, err: context canceled`\n- `Test_invoke_direct_message_fails_with_timeout` \u2014 0 calls instead of 2; `superfluous response.WriteHeader call` warning at directmessaging.go:255\n- `Test_invoke_direct_messages_fails_after_exhausting_retries` \u2014 0 calls instead of 2; same `superfluous response.WriteHeader` warning\n- `Test_invoke_direct_messages_can_trip_circuit_breaker` \u2014 1 call instead of 5; never received \"circuit breaker is open\" error; got `context canceled` instead\n\n## Sample failure output\n\n```\n=== FAIL: pkg/api/http TestV1DirectMessagingEndpointsWithResiliency/Test_invoke_direct_message_retries_on_unsuccessful_statuscode_with_resiliency\n    directmessaging_test.go:973:\n        Error: Not equal:\n            expected: \"failingKey2\"\n            actual  : \"{\\\"errorCode\\\":\\\"ERR_DIRECT_INVOKE\\\",\\\"message\\\":\\\"failed to invoke, id: failingApp, err: context canceled\\\"}\"\n\n=== FAIL: pkg/api/http TestV1DirectMessagingEndpointsWithResiliency/Test_invoke_direct_messages_can_trip_circuit_breaker\n    directmessaging_test.go:1015:\n        Error: \"{...err: context canceled\\\"}\" does not contain \"circuit breaker is open\"\n        Messages: Should have received a circuit breaker open error.\n```\n\n## Impact\n\nBlocking unrelated PRs from getting a green CI. The PR in question (#9731) does not touch direct messaging, HTTP API, or resiliency code.\n\n## Suspected cause\n\nThe repeated `context canceled` errors and `superfluous response.WriteHeader call` at [directmessaging.go:255](https://github.com/dapr/dapr/blob/master/pkg/api/http/directmessaging.go#L255) suggest the request context is being canceled before the resiliency policy can execute its retries \u2014 likely a test-level timeout or context lifetime issue rather than a production bug.",
+  "labels": [],
+  "user": "sicoyle",
+  "created_at": "2026-05-08T18:46:10Z",
+  "updated_at": "2026-06-16T13:54:06Z",
+  "comments": [
+    {
+      "user": "puneetdixit200",
+      "body": "I\u2019d like to investigate this. I can stabilize a repro for the direct messaging resiliency flakes, inspect the context cancellation path, and patch the test or runtime behavior depending on root cause. Please assign this to me.",
+      "created_at": "2026-05-16T19:41:11Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "> I\u2019d like to investigate this. I can stabilize a repro for the direct messaging resiliency flakes, inspect the context cancellation path, and patch the test or runtime behavior depending on root cause. Please assign this to me.\n\nThank you so much for your interest in the Dapr Open Source project and in helping on this issue!! \ud83c\udf89 Please lmk if you need any assistance here :) ",
+      "created_at": "2026-06-16T13:54:06Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    9731
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9914",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,20 @@
+{
+  "type": "issue",
+  "number": 3110,
+  "title": "Support specifying number of partitions for Kafka pubsub component",
+  "state": "open",
+  "body": "## Describe the feature\r\n\r\n[As discussed with Bernd on discord](https://discord.com/channels/778680217417809931/901141467840524289/1146918875443757216) \r\n\r\nIt would be highly convenient in dev/test scenarios, if dapr provided a metadata configuration to specify the default number of partitions for a given kafka pubsub component (The default would apply to all Topics created within the component)\r\n\r\nThe kafka server env var to configure the default partition count is  `KAFKA_NUM_PARTITIONS` so maybe a familiar metadata property name could be `numPartitions`\r\n\r\n\r\n```yaml\r\napiVersion: dapr.io/v1alpha1\r\nkind: Component\r\nmetadata:\r\n  name: kafka-pubsub\r\nspec:\r\n  type: pubsub.kafka\r\n  version: v1\r\n  metadata:\r\n  - name: brokers # Required. Kafka broker connection setting\r\n    value: \"kafka:29092\"\r\n  - name: consumerGroup\r\n    value: \"{namespace}\"\r\n  - name: clientID \r\n    value: \"workflow-client\"\r\n  - name: numPartitions\r\n  - value: [int, greater than 0] [if not specified, assume default behaviour of sarama client]\r\n```\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted"
+  ],
+  "user": "olitomlinson",
+  "created_at": "2023-09-01T07:15:01Z",
+  "updated_at": "2025-08-11T21:55:53Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3110",
+  "is_seed": false,
+  "partial": false
+}

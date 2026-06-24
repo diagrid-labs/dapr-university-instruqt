@@ -1,0 +1,48 @@
+{
+  "type": "issue",
+  "number": 2852,
+  "title": "Event Hub: Providing Partition Key in Event Metadata Not Working",
+  "state": "open",
+  "body": "## In what area(s)?\r\n\r\n/area runtime\r\n\r\n## What version of Dapr?\r\n\r\n1.10.5\r\n\r\n## Expected Behavior\r\n\r\nUsing the Dapr .NET SDK, I am trying to bulk publish events to an Azure event hub, while providing a partition key. I am expecting my event hub to receive events whose metadata includes this partition key.\r\n\r\n## Actual Behavior\r\n\r\nEvents received by the event hub do not have a partition key in their metadata.\r\n\r\n\r\n## Steps to Reproduce the Problem\r\n\r\n```\r\nvar metadata = new Dictionary<string, string>\r\n{\r\n    [\"partitionKey\"] = <partition key>\r\n};\r\n\r\nawait _daprClient.BulkPublishEventAsync(<pub sub name>, <event hub name>, telemetryMessages, metadata);\r\n```\r\n\r\n## Release Note\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/bug",
+    "pinned"
+  ],
+  "user": "wrichardson-moog",
+  "created_at": "2023-05-22T18:45:12Z",
+  "updated_at": "2025-08-11T21:55:48Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "@yaron2 from our prior investigation into this in Discord this is an implementation issue in either DotNet SDK or runtime.\r\n\r\n@mukundansundar please take a look again and transfer to the appropriate repo. Please do also double-check the EventHubs implementation though that does not seem to be the issue.",
+      "created_at": "2023-05-25T05:20:40Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "This works without the Bulk Operations and the Bulk Operations are Alpha APIs right now. Therefore this will not be a release blocker.\r\n\r\n@mukundansundar please do investigate what is going on here.",
+      "created_at": "2023-05-25T16:49:29Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "cc @DeepanshuA (and ping @mukundansundar )\r\n\r\nThis issue is about DotNet SDK + EventHubs PubSub. Metadata (here the crucial eventhubs partition key) does not appear to be applied correctly during bulk publish.",
+      "created_at": "2023-06-20T22:55:23Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-07-30T00:49:23Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2023-08-06T01:16:49Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    2849
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2852",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,55 @@
+{
+  "type": "pr",
+  "number": 10108,
+  "title": "fix(api): standardize health API errors to gRPC rich error model",
+  "state": "open",
+  "body": "# Description\n\nReplace the legacy `messages.ErrHealth*` predefined errors in the healthz HTTP handlers with rich errors built using the `pkg/api/errors` builder, following the pattern established for the State API ([#7257](https://github.com/dapr/dapr/pull/7257)) and PubSub API ([#7322](https://github.com/dapr/dapr/pull/7322)).\n\n**New file:** `pkg/api/errors/health.go` \u2014 package-level functions (no receiver needed, as health checks have no store name):\n- `HealthNotReady(targets string)` \u2014 `codes.Internal` / 500 / `ERR_HEALTH_NOT_READY`\n- `HealthAppIDNotMatch()` \u2014 `codes.Internal` / 500 / `ERR_HEALTH_APPID_NOT_MATCH`\n- `HealthOutboundNotReady()` \u2014 `codes.Internal` / 500 / `ERR_OUTBOUND_HEALTH_NOT_READY`\n\n**Updated:** `pkg/api/http/healthz.go` \u2014 all three `messages.Err*` call sites replaced.\n\n**Integration test** added covering `HealthAppIDNotMatch` \u2014 the only error triggerable without putting daprd itself into an unhealthy state during a test run.\n\n## Issue reference\n\nPlease reference the issue this PR will close: #7488\n\n## Checklist\n\n- [x] Code compiles correctly\n- [x] Created/updated tests\n- [x] Unit tests passing\n- [ ] End-to-end tests passing (integration test added for app-id mismatch case; the not-ready cases require orchestrating an unhealthy daprd state)\n- [ ] Extended the documentation / Created issue in the https://github.com/dapr/docs/ repo: n/a \u2014 no user-facing API change\n- [ ] Specification has been updated: n/a\n- [ ] Provided sample for the feature: n/a",
+  "labels": [],
+  "user": "Goutham-Annem",
+  "created_at": "2026-06-16T02:33:19Z",
+  "updated_at": "2026-06-16T02:33:20Z",
+  "additions": 171,
+  "deletions": 10,
+  "changed_files": 4,
+  "linked_issue_numbers": [
+    7488
+  ],
+  "comments": [],
+  "html_url": "https://github.com/dapr/dapr/pull/10108",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pkg/api/errors/health.go",
+      "status": "added",
+      "additions": 64,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,64 @@\n+/*\n+Copyright 2024 The Dapr Authors\n+Licensed under the Apache License, Version 2.0 (the \"License\");\n+you may not use this file except in compliance with the License.\n+You may obtain a copy of the License at\n+    http://www.apache.org/licenses/LICENSE-2.0\n+Unless required by applicable law or agreed to in writing, software\n+distributed under the License is distributed on an \"AS IS\" BASIS,\n+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+See the License for the specific language governing permissions and\n+limitations under the License.\n+*/\n+\n+package errors\n+\n+import (\n+\t\"fmt\"\n+\t\"net/http\"\n+\n+\t\"google.golang.org/grpc/codes\"\n+\n+\t\"github.com/dapr/dapr/pkg/messages/errorcodes\"\n+\tkiterrors \"github.com/dapr/kit/errors\"\n+)\n+\n+func HealthNotReady(targets string) error {\n+\tmsg := \"dapr is not ready\"\n+\tif targets != \"\" {\n+\t\tmsg = fmt.Sprintf(\"dapr is not ready: %s\", targets)\n+\t}\n+\treturn kiterrors.NewBuilder(\n+\t\tcodes.Internal,\n+\t\thttp.StatusInternalServerError,\n+\t\tmsg,\n+\t\t\"\",\n+\t\tstring(errorcodes.HealthNotReady.Category),\n+\t).\n+\t\tWithErrorInfo(errorcodes.HealthNotReady.Code, nil).\n+\t\tBuild()\n+}\n+\n+func HealthAppIDNotMatch() error {\n+\treturn kiterrors.NewBuilder(\n+\t\tcodes.Internal,\n+\t\thttp.StatusInternalServerError,\n+\t\t\"dapr app-id does not match\",\n+\t\t\"\",\n+\t\tstring(errorcodes.HealthAppidNotMatch.Category),\n+\t).\n+\t\tWithErrorInfo(errorcodes.HealthAppidNotMatch.Code, nil).\n+\t\tBuild()\n+}\n+\n+func HealthOutboundNotReady() error {\n+\treturn kiterrors.NewBuilder(\n+\t\tcodes.Internal,\n+\t\thttp.StatusInternalServerError,\n+\t\t\"dapr outbound is not ready\",\n+\t\t\"\",\n+\t\tstring(errorcodes.HealthOutboundNotReady.Category),\n+\t).\n+\t\tWithErrorInfo(errorcodes.HealthOutboundNotReady.Code, nil).\n+\t\tBuild()\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/api/http/healthz.go",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 10,
+      "patch": "@@ -16,8 +16,8 @@ package http\n import (\n \t\"net/http\"\n \n+\tapierrors \"github.com/dapr/dapr/pkg/api/errors\"\n \t\"github.com/dapr/dapr/pkg/api/http/endpoints\"\n-\t\"github.com/dapr/dapr/pkg/messages\"\n )\n \n var endpointGroupHealthzV1 = &endpoints.EndpointGroup{\n@@ -57,19 +57,19 @@ func (a *api) constructHealthzEndpoints() []endpoints.Endpoint {\n \n func (a *api) onGetHealthz(w http.ResponseWriter, r *http.Request) {\n \tif !a.healthz.IsReady() {\n-\t\tmsg := messages.ErrHealthNotReady.WithFormat(a.healthz.GetUnhealthyTargets())\n-\t\trespondWithError(w, msg)\n-\t\tlog.Debug(msg)\n+\t\terr := apierrors.HealthNotReady(a.healthz.GetUnhealthyTargets())\n+\t\trespondWithError(w, err)\n+\t\tlog.Debug(err)\n \t\treturn\n \t}\n \n \t// If we have an \"appid\" parameter in the query string, we will return an error if the ID of this app is not the value of the requested \"appid\"\n \t// This is used by some components (e.g. Consul nameresolver) to check if the app was replaced with a different one\n \tqs := r.URL.Query()\n \tif qs.Has(\"appid\") && qs.Get(\"appid\") != a.universal.AppID() {\n-\t\tmsg := messages.ErrHealthAppIDNotMatch\n-\t\trespondWithError(w, msg)\n-\t\tlog.Debug(msg)\n+\t\terr := apierrors.HealthAppIDNotMatch()\n+\t\trespondWithError(w, err)\n+\t\tlog.Debug(err)\n \t\treturn\n \t}\n \n@@ -78,9 +78,9 @@ func (a *api) onGetHealthz(w http.ResponseWriter, r *http.Request) {\n \n func (a *api) onGetOutboundHealthz(w http.ResponseWriter, r *http.Request) {\n \tif !a.outboundHealthz.IsReady() {\n-\t\tmsg := messages.ErrOutboundHealthNotReady\n-\t\trespondWithError(w, msg)\n-\t\tlog.Debug(msg)\n+\t\terr := apierrors.HealthOutboundNotReady()\n+\t\trespondWithError(w, err)\n+\t\tlog.Debug(err)\n \t\treturn\n \t}\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/integration/suite/daprd/daprd.go",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "patch": "@@ -18,6 +18,7 @@ import (\n \t_ \"github.com/dapr/dapr/tests/integration/suite/daprd/binding\"\n \t_ \"github.com/dapr/dapr/tests/integration/suite/daprd/config\"\n \t_ \"github.com/dapr/dapr/tests/integration/suite/daprd/conversation\"\n+\t_ \"github.com/dapr/dapr/tests/integration/suite/daprd/health\"\n \t_ \"github.com/dapr/dapr/tests/integration/suite/daprd/hotreload\"\n \t_ \"github.com/dapr/dapr/tests/integration/suite/daprd/httpendpoints\"\n \t_ \"github.com/dapr/dapr/tests/integration/suite/daprd/httpserver\"",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/integration/suite/daprd/health/errors.go",
+      "status": "added",
+      "additions": 96,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,96 @@\n+/*\n+Copyright 2024 The Dapr Authors\n+Licensed under the Apache License, Version 2.0 (the \"License\");\n+you may not use this file except in compliance with the License.\n+You may obtain a copy of the License at\n+    http://www.apache.org/licenses/LICENSE-2.0\n+Unless required by applicable law or agreed to in writing, software\n+distributed under the License is distributed on an \"AS IS\" BASIS,\n+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+See the License for the specific language governing permissions and\n+limitations under the License.\n+*/\n+\n+package health\n+\n+import (\n+\t\"context\"\n+\t\"encoding/json\"\n+\t\"fmt\"\n+\t\"io\"\n+\t\"net/http\"\n+\t\"testing\"\n+\n+\t\"github.com/stretchr/testify/assert\"\n+\t\"github.com/stretchr/testify/require\"\n+\n+\t\"github.com/dapr/dapr/tests/integration/framework\"\n+\t\"github.com/dapr/dapr/tests/integration/framework/client\"\n+\tprocdaprd \"github.com/dapr/dapr/tests/integration/framework/process/daprd\"\n+\t\"github.com/dapr/dapr/tests/integration/suite\"\n+)\n+\n+const (\n+\terrInfoType = \"type.googleapis.com/google.rpc.ErrorInfo\"\n+)\n+\n+func init() {\n+\tsuite.Register(new(errors))\n+}\n+\n+type errors struct {\n+\tdaprd *procdaprd.Daprd\n+}\n+\n+func (e *errors) Setup(t *testing.T) []framework.Option {\n+\te.daprd = procdaprd.New(t, procdaprd.WithAppID(\"my-test-app\"))\n+\treturn []framework.Option{\n+\t\tframework.WithProcesses(e.daprd),\n+\t}\n+}\n+\n+func (e *errors) Run(t *testing.T, ctx context.Context) {\n+\te.daprd.WaitUntilRunning(t, ctx)\n+\thttpClient := client.HTTP(t)\n+\n+\t// Covers apierrors.HealthAppIDNotMatch: a caller checks the appid query\n+\t// param and gets an error if this daprd's app-id doesn't match.\n+\tt.Run(\"app id not match\", func(t *testing.T) {\n+\t\turl := fmt.Sprintf(\"http://localhost:%d/v1.0/healthz?appid=wrong-app-id\", e.daprd.HTTPPort())\n+\t\treq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)\n+\t\trequire.NoError(t, err)\n+\n+\t\tresp, err := httpClient.Do(req)\n+\t\trequire.NoError(t, err)\n+\t\tdefer resp.Body.Close()\n+\n+\t\trequire.Equal(t, http.StatusInternalServerError, resp.StatusCode)\n+\n+\t\tb, err := io.ReadAll(resp.Body)\n+\t\trequire.NoError(t, err)\n+\n+\t\tvar data map[string]any\n+\t\trequire.NoError(t, json.Unmarshal(b, &data))\n+\n+\t\tassert.Equal(t, \"ERR_HEALTH_APPID_NOT_MATCH\", data[\"errorCode\"])\n+\t\tassert.Equal(t, \"dapr app-id does not match\", data[\"message\"])\n+\n+\t\tdetails, ok := data[\"details\"].([]any)\n+\t\trequire.True(t, ok, \"details field missing or not an array\")\n+\t\trequire.NotEmpty(t, details)\n+\n+\t\tvar foundErrInfo bool\n+\t\tfor _, d := range details {\n+\t\t\tdm, ok := d.(map[string]any)\n+\t\t\tif !ok {\n+\t\t\t\tcontinue\n+\t\t\t}\n+\t\t\tif dm[\"@type\"] == errInfoType {\n+\t\t\t\tassert.Equal(t, \"ERR_HEALTH_APPID_NOT_MATCH\", dm[\"reason\"])\n+\t\t\t\tfoundErrInfo = true\n+\t\t\t\tbreak\n+\t\t\t}\n+\t\t}\n+\t\trequire.True(t, foundErrInfo, \"ErrorInfo detail not found in response\")\n+\t})\n+}",
+      "patch_truncated": false
+    }
+  ]
+}

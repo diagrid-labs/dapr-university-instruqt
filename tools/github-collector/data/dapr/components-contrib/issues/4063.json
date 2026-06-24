@@ -1,0 +1,53 @@
+{
+  "type": "issue",
+  "number": 4063,
+  "title": "Add Akeyless Secret Store Component",
+  "state": "open",
+  "body": "## Describe the feature\nAdd Akeyless as a secret store. https://docs.akeyless.io/docs/akeyless-overview.\n\n## Release Note\n**ADD** Akeyless Secret Store component. \n\n",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "kgal-akl",
+  "created_at": "2025-10-20T17:48:06Z",
+  "updated_at": "2026-06-16T14:41:09Z",
+  "comments": [
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-11-19T17:53:46Z"
+    },
+    {
+      "user": "kgal-akl",
+      "body": "Still waiting for review of https://github.com/dapr/components-contrib/pull/4036.",
+      "created_at": "2025-11-20T14:29:51Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-12-20T14:44:31Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2025-12-27T14:45:04Z"
+    },
+    {
+      "user": "kgal-akl",
+      "body": "@cicoyle @sicoyle can we please reopen this issue as there's a [new PR](https://github.com/dapr/components-contrib/pull/4385/)?",
+      "created_at": "2026-06-15T15:57:46Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "> @cicoyle @sicoyle can we please reopen this issue as there's a https://github.com/dapr/components-contrib/pull/4385/?\n\namazingggggg!! \ud83d\ude4c  I will review later today!",
+      "created_at": "2026-06-16T14:40:55Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    4036,
+    4385
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4063",
+  "is_seed": false,
+  "partial": false
+}

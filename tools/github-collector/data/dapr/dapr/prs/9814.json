@@ -1,0 +1,39 @@
+{
+  "type": "pr",
+  "number": 9814,
+  "title": "fix(runtime): align bulk HTTP pubsub empty status response with single delivery",
+  "state": "open",
+  "body": "Fixes #8737\n\nBulk HTTP pubsub delivery currently treats an app response with `status == \"\"` as RETRY even when the app returned a response entry for that message. Single HTTP delivery and gRPC flows both interpret an empty status as SUCCESS, so the HTTP bulk path is inconsistent and can trigger unnecessary retries.\n\nThis change aligns that contract by moving `case \"\"` onto the SUCCESS branch in `DeliverBulk`. Missing response entries are still handled as RETRY, so the behavior change is limited to explicit empty-status responses from the app.\n\nA regression test covers the empty-status bulk response case, and unit tests passed:\n\n- `go test -tags=unit,allcomponents ./pkg/runtime/subscription/...`\n",
+  "labels": [],
+  "user": "Kunalbehbud",
+  "created_at": "2026-04-22T08:53:36Z",
+  "updated_at": "2026-04-22T13:58:35Z",
+  "additions": 70,
+  "deletions": 5,
+  "changed_files": 2,
+  "linked_issue_numbers": [
+    8737
+  ],
+  "comments": [],
+  "html_url": "https://github.com/dapr/dapr/pull/9814",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pkg/runtime/subscription/postman/http/http.go",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 5,
+      "patch": "@@ -296,19 +296,19 @@ func (h *http) DeliverBulk(ctx context.Context, req *postman.DeliverBulkRequest)\n \t\t\tif _, ok := (*bscData.EntryIdIndexMap)[response.EntryId]; ok {\n \t\t\t\tswitch response.Status {\n \t\t\t\tcase \"\":\n-\t\t\t\t\t// When statusCode 2xx, Consider empty status field OR not receiving status for an item as retry\n+\t\t\t\t\t// When statusCode is 2xx, consider empty status field as success.\n \t\t\t\t\tfallthrough\n+\t\t\t\tcase contribpubsub.Success:\n+\t\t\t\t\tbscData.BulkSubDiag.StatusWiseDiag[string(contribpubsub.Success)]++\n+\t\t\t\t\tentryRespReceived[response.EntryId] = true\n+\t\t\t\t\ttodo.AddBulkResponseEntry(&bsrr.Entries, response.EntryId, nil)\n \t\t\t\tcase contribpubsub.Retry:\n \t\t\t\t\tbscData.BulkSubDiag.StatusWiseDiag[string(contribpubsub.Retry)]++\n \t\t\t\t\tentryRespReceived[response.EntryId] = true\n \t\t\t\t\ttodo.AddBulkResponseEntry(&bsrr.Entries, response.EntryId,\n \t\t\t\t\t\tfmt.Errorf(\"RETRY required while processing bulk subscribe event for entry id: %v\", response.EntryId))\n \n \t\t\t\t\thasAnyError = true\n-\t\t\t\tcase contribpubsub.Success:\n-\t\t\t\t\tbscData.BulkSubDiag.StatusWiseDiag[string(contribpubsub.Success)]++\n-\t\t\t\t\tentryRespReceived[response.EntryId] = true\n-\t\t\t\t\ttodo.AddBulkResponseEntry(&bsrr.Entries, response.EntryId, nil)\n \t\t\t\tcase contribpubsub.Drop:\n \t\t\t\t\tbscData.BulkSubDiag.StatusWiseDiag[string(contribpubsub.Drop)]++\n \t\t\t\t\tentryRespReceived[response.EntryId] = true",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/runtime/subscription/postman/http/http_test.go",
+      "status": "modified",
+      "additions": 65,
+      "deletions": 0,
+      "patch": "@@ -33,6 +33,8 @@ import (\n \t\"github.com/dapr/dapr/pkg/runtime/channels\"\n \trterrors \"github.com/dapr/dapr/pkg/runtime/errors\"\n \truntimePubsub \"github.com/dapr/dapr/pkg/runtime/pubsub\"\n+\t\"github.com/dapr/dapr/pkg/runtime/subscription/postman\"\n+\t\"github.com/dapr/dapr/pkg/runtime/subscription/todo\"\n \t\"github.com/dapr/kit/logger\"\n )\n \n@@ -438,3 +440,66 @@ func TestOnNewPublishedMessage(t *testing.T) {\n \t\tmockAppChannel.AssertNumberOfCalls(t, \"InvokeMethod\", 1)\n \t})\n }\n+\n+func TestDeliverBulkTreatsEmptyStatusAsSuccess(t *testing.T) {\n+\tentryID := \"entry-1\"\n+\ttopic := \"topic1\"\n+\n+\tmockAppChannel := new(channelt.MockAppChannel)\n+\th := New(Options{\n+\t\tChannels: new(channels.Channels).WithAppChannel(mockAppChannel),\n+\t})\n+\n+\tfakeResp := invokev1.NewInvokeMethodResponse(200, \"OK\", nil).\n+\t\tWithRawDataString(`{\"statuses\":[{\"entryId\":\"entry-1\",\"status\":\"\"}]}`).\n+\t\tWithContentType(\"application/json\")\n+\tdefer fakeResp.Close()\n+\n+\tmockAppChannel.On(\"InvokeMethod\", mock.Anything, mock.Anything).Return(fakeResp, nil)\n+\n+\tentryIDIndexMap := map[string]int{entryID: 0}\n+\tbulkSubDiag := todo.NewBulkSubIngressDiagnostics()\n+\treq := &postman.DeliverBulkRequest{\n+\t\tBulkSubCallData: &todo.BulkSubscribeCallData{\n+\t\t\tBulkSubDiag:     &bulkSubDiag,\n+\t\t\tEntryIdIndexMap: &entryIDIndexMap,\n+\t\t\tPsName:          \"testpubsub\",\n+\t\t\tTopic:           topic,\n+\t\t},\n+\t\tBulkSubMsg: &todo.BulkSubscribedMessage{\n+\t\t\tPubSubMessages: []todo.Message{\n+\t\t\t\t{\n+\t\t\t\t\tCloudEvent: map[string]any{},\n+\t\t\t\t\tRawData: &runtimePubsub.BulkSubscribeMessageItem{\n+\t\t\t\t\t\tEntryId:     entryID,\n+\t\t\t\t\t\tEvent:       map[string]any{\"value\": \"payload\"},\n+\t\t\t\t\t\tMetadata:    map[string]string{\"k\": \"v\"},\n+\t\t\t\t\t\tContentType: \"application/json\",\n+\t\t\t\t\t},\n+\t\t\t\t\tEntry: &contribpubsub.BulkMessageEntry{\n+\t\t\t\t\t\tEntryId:     entryID,\n+\t\t\t\t\t\tEvent:       []byte(`{\"value\":\"payload\"}`),\n+\t\t\t\t\t\tMetadata:    map[string]string{\"k\": \"v\"},\n+\t\t\t\t\t\tContentType: \"application/json\",\n+\t\t\t\t\t},\n+\t\t\t\t},\n+\t\t\t},\n+\t\t\tTopic:    topic,\n+\t\t\tMetadata: map[string]string{\"pubsubName\": \"testpubsub\"},\n+\t\t\tPubsub:   \"testpubsub\",\n+\t\t\tPath:     topic,\n+\t\t},\n+\t\tBulkSubResiliencyRes: &todo.BulkSubscribeResiliencyRes{\n+\t\t\tEntries:  make([]contribpubsub.BulkSubscribeResponseEntry, 0, 1),\n+\t\t\tEnvelope: map[string]any{},\n+\t\t},\n+\t}\n+\n+\trequire.NoError(t, h.DeliverBulk(t.Context(), req))\n+\trequire.Len(t, req.BulkSubResiliencyRes.Entries, 1)\n+\tassert.Equal(t, entryID, req.BulkSubResiliencyRes.Entries[0].EntryId)\n+\tassert.NoError(t, req.BulkSubResiliencyRes.Entries[0].Error)\n+\tassert.EqualValues(t, 1, bulkSubDiag.StatusWiseDiag[string(contribpubsub.Success)])\n+\tassert.Zero(t, bulkSubDiag.StatusWiseDiag[string(contribpubsub.Retry)])\n+\tmockAppChannel.AssertNumberOfCalls(t, \"InvokeMethod\", 1)\n+}",
+      "patch_truncated": false
+    }
+  ]
+}

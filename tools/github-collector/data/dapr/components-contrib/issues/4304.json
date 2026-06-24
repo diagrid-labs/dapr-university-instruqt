@@ -1,0 +1,40 @@
+{
+  "type": "issue",
+  "number": 4304,
+  "title": "Azure App Configuration GetConfiguration overwrites items with same key across different labels",
+  "state": "open",
+  "body": "## Expected Behavior\n\nWhen retrieving configuration items without specifying a label, all entries from Azure App Configuration should be returned, including those with the same key but different labels.\n\nEach unique combination of key and label should be preserved.\n\n## Actual Behavior\n\nWhen no label is provided, the component retrieves settings across all labels. However, items are stored in a map keyed only by the configuration key.\n\nAs a result:\n- entries with the same key but different labels overwrite each other  \n- only one item per key is returned  \n- the result is non-deterministic depending on iteration order  \n- data from other labels is lost  \n\nIf this behavior is by design, it would be helpful to explicitly document this limitation and clarify that callers should scope requests by label to avoid unintended data loss.\n\nI could not find any info about this behavior here:\nhttps://docs.dapr.io/reference/components-reference/supported-configuration-stores/azure-appconfig-configuration-store/\n\n## Steps to Reproduce the Problem\n\n1. Create two configuration entries in Azure App Configuration:\n\n   - key: `Config1`, label: `Development`, value: `value-dev`  \n   - key: `Config1`, label: `Production`, value: `value-prod`  \n\n2. Call `GetConfiguration` with an empty keys list and without specifying a label.\n\n3. Observe that:\n   - only one item is returned for `Config1`  \n   - the returned value corresponds to only one of the labels (e.g., `Development` or `Production`)  \n   - the other labeled entry is overwritten and lost  \n\n## Release Note\n\nRELEASE NOTE:\n",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "mtaghavi2005",
+  "created_at": "2026-03-23T00:17:42Z",
+  "updated_at": "2026-05-26T15:35:57Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-04-22T00:58:47Z"
+    },
+    {
+      "user": "mtaghavi2005",
+      "body": "@dapr-bot ping.",
+      "created_at": "2026-04-26T11:19:53Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-05-26T13:17:52Z"
+    },
+    {
+      "user": "mtaghavi2005",
+      "body": "@dapr-bot ping.",
+      "created_at": "2026-05-26T14:40:45Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4304",
+  "is_seed": false,
+  "partial": false
+}

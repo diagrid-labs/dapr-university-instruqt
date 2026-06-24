@@ -1,0 +1,33 @@
+{
+  "type": "issue",
+  "number": 7893,
+  "title": "Enable OpenSSF Scorecard to enhance security practices across the project",
+  "state": "open",
+  "body": "Hi, I'm Harshita. I\u2019m working with [CNCF and the Google Open Source Security Team for the GSoC 2024 term](https://github.com/cncf/mentoring/issues/1196). We are collaborating to enhance security practices across various CNCF projects. The goal is to improve security for all CNCF projects by both using OpenSSF Scorecards and implementing its security improvements.\r\n\r\nThe [Open Source Security Foundation](https://openssf.org/) (OpenSSF) [Scorecard](https://github.com/ossf/scorecard) is a tool designed to evaluate the security posture of open-source projects. This has the [Scorecard GitHub Action](https://github.com/ossf/scorecard-action), which automates the process by running security checks on the GitHub repository. By integrating this Action into the repository's workflow, developers can continuously monitor the project\u2019s security posture. The Scorecard checks cover various security best practices and provide scores for multiple categories. Some checks include Code Reviews, Branch Protection, Signed Releases, etc.\r\n\r\nThe workflow runs on every change in the main branch. It publishes the Scorecard checks' results to the project's security dashboard and includes suggestions on how to solve any issues. This Action has already been adopted by 1800+ projects, with prominent users like [Tensorflow](https://github.com/tensorflow/tensorflow), [Angular](https://github.com/angular/angular), [sos.dev](http://sos.dev/), [deps.dev](http://deps.dev/), and many CNCF projects.\r\n\r\nOnce the Scorecard GitHub Action is set up and running, the results can be displayed as a badge in the repository's README file. This badge serves as a quick indicator of the project's security posture, helping users and contributors evaluate the project's security practices quickly.\r\n\r\n**Why is this needed:**\r\n\r\nThe OpenSSF Scorecard improves open-source project's security by providing automated, transparent assessments of their security practices. It will help you identify vulnerabilities, adhere to best practices, and continuously enhance your security posture, increasing user trust and reducing the risk of security exploits.\r\n\r\nI'll be the one to create the PR to add the scorecard GitHub action, and I will also work with you to remediate the identified vulnerabilities. I'll go through each [scorecard check](https://github.com/ossf/scorecard/blob/main/docs/checks.md) to see where the score has dropped and how it can be improved.\r\n\r\nWould you be interested in a PR which adds this Action?\r\n\r\n/cc @joycebrum @diogoteles08 @pnacht @nate-double-u",
+  "labels": [
+    "good first issue",
+    "P2"
+  ],
+  "user": "harshitasao",
+  "created_at": "2024-07-04T20:02:48Z",
+  "updated_at": "2026-03-24T12:09:14Z",
+  "comments": [
+    {
+      "user": "enesyesil",
+      "body": "Hey, is this still open? I'd like to take it. Thanks\n",
+      "created_at": "2026-03-10T02:48:12Z"
+    },
+    {
+      "user": "ogulcanaydogan",
+      "body": "Hi! I'd like to work on this \u2014 adding the OpenSSF Scorecard GitHub Action.\n\nMy approach:\n1. Add `.github/workflows/scorecard.yml` based on the official [ossf/scorecard-action](https://github.com/ossf/scorecard-action) template\n2. Configure it to run on `main` branch pushes and on a weekly schedule\n3. Upload results to GitHub's Security tab via SARIF and to the OpenSSF REST API\n4. Set proper token permissions (`security-events: write`, `id-token: write`)\n\nI'll keep the PR minimal \u2014 just the workflow file. Happy to adjust based on maintainer preferences.",
+      "created_at": "2026-03-24T12:09:14Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    9677
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/7893",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,103 @@
+{
+  "type": "issue",
+  "number": 7886,
+  "title": "[Proposal] New Building Block: Centralized Cache Store",
+  "state": "open",
+  "body": "## In what area(s)?\r\n/area runtime\r\n\r\n## Describe the proposal\r\nThis is a working proposal mentioned during a recent conversation on Discord about my proposal for a new and specialized key/value store and how there are a number of providers though to be key/value implementations that wouldn't clear my bar for inclusion because of lack of support for core functionalities. Enter this proposal then that seeks to offer a lower bar for key/value store-like functionality but, as it's another of my [specialized store proposals](https://github.com/dapr/dapr/issues/7338), it features an API specific to a distinct type of key/value store: the centralized cache.\r\n\r\nThis proposal rethinks the existing state store to imagine a world in which the store API can be free of ill-fated design decisions and from which a fresh start can be enjoyed that favors a concise, simple API that provides a cache capability and nothing more. Should a developer want something more from the API such as a mechanism to do prefix key queries or query the values for some constraint, they're encouraged to turn to specialized stores for that functionality, such as the proposed [Key/Value Store](https://github.com/dapr/dapr/issues/7338) and [Document Store](https://github.com/dapr/dapr/issues/5146), respectively.\r\n\r\n## What's the purpose of a cache?\r\nA cache should temporarily store some data (typically something not too large) alongside a key for some specified amount of time. While there are variations of the concept that distribute the cache across multiple points of failure (introducing the CAP theorem trade-off of limiting consistency in favor of availability) or even just implement a local in-memory cache accessible to perhaps even just a single class, this proposal seeks to implement a cache offering using a centralized provider and not trying to implement the sidecar as some sort of distributed cache provider (though this could just as easily be the focus of another specialized state store proposal).\r\n\r\n## What does this proposal involve and how does it differ from the key/value store proposal?\r\nWe're looking to target an ever-so-slightly different piece of the key/value store pie with this proposal in that it targets those developers who expect to have small chunks of data that expire over time, who know the keys they'll be engaging with and who need increment/decrement support for in-place updates.\r\n\r\nAs caches are often designed for rapid retrieval, they're often hosted in-memory which means that developers aren't intended to necessarily store enormous values alongside their keys. As such, this proposal will not support streaming operations, but will instead set and return whole values. Perhaps the API should enforce a maximum size for operations so as not to overwhelm the sidecar?\r\n\r\nThe providers for this proposal will differ from the Key/Value Store proposal as memcached might be a good fit here where it's not there since it doesn't support key prefix queries. But it does support TTL and has increment/decrement support, so it'd be a better fit in this space.\r\n\r\nThis proposal might support ETag (or at least a consistency value) pending further research into just how many providers support it natively. TBD.\r\n\r\n## What will this proposal not cover?\r\nWe're looking to build a very specialized state building block here that emphasizes temporary reads and occasional writes and updates of small chunks of data that can be manipulated in minute ways, but this will not cover the following supported by today's state management building block:\r\n\r\n- Any sort of query against keys\r\n- Transactions\r\n- Consistency operations\r\n- Won't be compatible with actors (and thus workflows) because of lack of ETag and transaction support\r\n\r\n## Interface\r\nThe Centralized Cache components should be able to implement all of the following capabilities using asynchronous methods that minimize back and forth operations with the sidecar. While the key should be represented as a string, the value should be stored as a `byte[]` leaving all aspects of serialization to the developer and SDK (e.g. formatting, serialization strategy, encoding, etc.). Ideally, the various maintainers can develop some uniform approach to this (one such POC exists for .NET [here](https://github.com/dapr/dotnet-sdk/pull/1378) so that data that's encoded in C# is easily decoded in JavaScript and vice versa.\r\n\r\nNo additional metadata should be collected regarding the various types of data stored or other operations performed based on the type being operated on, unless it's maintained in the payload itself - this store is simply an abstraction for storing strings as keys and value to and from the provider.\r\n\r\nIf the user desires more elaborate provider-specific functionality, they should be advised to use either a binding, pluggable component or the SDK for that provider rather than this abstraction as it is not intended to be a kitchen sink for all state operations.\r\n\r\nA note about the expiration of values. The values should be expressed in ISO 8601 duration format and will reflect both a sliding and absolute expiration, as desired. A sliding expiration puts a bounds on the inactivity of any given state before it's removed, but resets the expiration value upon access (e.g. a value is set at noon with a sliding expiration of 2 hours, so with an expiry of 2:00. At 1:00, the value is accessed, meaning that the sliding expiration will not elapse now for another 2 hours, at 3:00). An absolute expiration indicates an optional maximum period a value should be cached and overrides any sliding expiration value, when set.\r\n\r\nThe naming in the following tables matches the naming used in the Key/Value store proposal for consistency.\r\n\r\n| Name | Description | Return Values | Notes |\r\n| -- | -- | -- | -- |\r\n| TryAdd | Adds the specified string-based key and `byte[]` value to the store along with a timespan expressed in ISO 8601 duration format (relative to now) that indicates both/either a sliding expiration and/or an absolute expiration. | If a key already exists with a value, this will not overwrite it or change the expiration values and will return false. If there is no key already set, this will set the key, value and the expiration and return a value of true. | |\r\n| Set | Adds the specified key/value to the store, overwriting any already existing information if a key already exists. It does not need to return any values.  | |\r\n| TryGet | Attempts to get the value for a given key. | Returns true and the value expressed as `byte[]` if the result is retrievable and if the value cannot be retrieved, this returns a value of false. | This provides more information than returning a null or empty byte array and is less likely to confuse both downstream developers and SDK contributors. |\r\n| TryRefresh | Similar to `TryGet`, this should attempt to get the value for a given key, but should only reset the sliding expiration, if any is set. It is intended to preserve bandwidth by merely touching the key for expiration purposes and does not return the value. | This returns true if an unexpired key is found (regardless of whether it has a sliding expiration set) and updated and returns false otherwise.  | This is intended purely to provide an option that preserves bandwidth when the value isn't needed, but the developer wants to reset the sliding expiration value. |\r\n| TryRemove | Attempts to remove the value with the specified key from the store. | If the value is successfully removed, this should return true. If not (because the key has expired, isn't found, whatever), it should instead return false. | |\r\n\r\n\r\n## Thoughts about the SDKs\r\nI'm generally going to speak about the .NET SDK here as it's the only one I'm personally familiar with, but I'd urge the same principals to be applied to the other language SDKs as make sense.\r\n\r\nFrom the .NET SDK, I would support this in a separate dedicated `Dapr.State` package taking advantage of the split already being performed for the rest of the Dapr functionality (e.g. `Dapr.Jobs`, `Dapr.Workflow`, `Dapr.AI`, etc.) instead of putting still more methods into `Dapr.Client`. This approach frees us from any naming collisions with the existing state functionality and means we can build out a purpose-specific `Dapr.State.CentralizedCacheClient` specific to these cache-based operations. It would support and offer dependency-injection extension methods (e.g. `builder.Services.AddCentralizedCacheStateStore()` taking advantage of the changes introduced in the .NET SDK for the 1.15 release.\r\n\r\nThis is preferred for the following reasons:\r\n1) Makes it easier for developers to call the right methods pertaining to what they're doing (e.g. Intellisense doesn't overwhelm them with every possible state-related action as they're narrowed instead only to the few based on the installed SDKs).\r\n2) Makes ongoing maintenance and testing easier since all the code not directly shared between pieces is isolated (e.g. you don't have a single test file with umpteen tests), simplifying contributors' load.\r\n3) Speaks to developer concern about bloated installs containing 90% more code than the limited functionality they were intending to use. \r\n4) Facilitates and lowers burden to use modern .NET functionality - a new package means we can more readily support AOT by ensuring there are minimal dependencies on reflection (e.g. favor code generation), start with nullability annotation support and generally make the package as slim and lightweight as possible.\r\n\r\n## Final Thoughts\r\nThis seeks to provide a narrow and purpose-driven API specific to developers looking to augment their applications with cache support for the standard features they want to abstract across a collection of providers.\r\n\r\nThank you for the consideration!",
+  "labels": [],
+  "user": "WhitWaldo",
+  "created_at": "2024-07-03T08:33:46Z",
+  "updated_at": "2026-05-02T21:39:24Z",
+  "comments": [
+    {
+      "user": "philliphoff",
+      "body": "@WhitWaldo I wonder about the notion of not having *some* sort of \"list keys\" operation, even if perhaps optional (for those backing stores that truly cannot support it) or well understood to be potentially inefficient and therefore not recommended for use in production.  One of the significant limitations of providing tooling for Dapr is the lack of observability of its stores.  While I wouldn't want to try to create a \"one size fits all\" query API, providing *no* ability to understand what's in a store feels like repeating a past mistake.",
+      "created_at": "2024-07-05T19:46:00Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "@philliphoff, I had a conversation with @berndverst this last week in Discord regarding my other proposal for a key/value store and my larger approach to more specialized state stores, and they were quite adamant about not supporting optional interfaces any longer. Given the great many specialization opportunities, I'm inclined to agree. And precisely not all stores support some sort of key-list operation, I'm inclined to not make it a part of the proposal. \r\n\r\nIf developers need some key observability, turn to my proposal at #7338 where I suggest there be key-prefix filtering (beats a full key dump) and precious little else. And in lieu of that, there's no reason why one couldn't build a pluggable component that combines both the cache store and the key/value store and makes their own key index complete with any sort of non-native filtering they want.\r\n\r\nHere though, I'm targeting a use case where the key is derived through something else (e.g. shopping cart ID or some time-dependent hash with an identifier) and a lookup isn't really necessarily since the values aren't long-lived enough for them to accumulate much. There's TTL support and tentatively ETag as well as inc/dec single-trip operations, but that's about it.",
+      "created_at": "2024-07-06T00:13:52Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-09-04T00:29:44Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "/assign",
+      "created_at": "2024-09-04T03:07:17Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-11-03T03:17:46Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "/nostale",
+      "created_at": "2024-11-04T16:49:47Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-01-04T02:37:16Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "/nostale",
+      "created_at": "2025-01-05T19:49:21Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "\ud83d\udc4b @whitwaldo, my apologies but I can't perform this action for you because your username is not in the allowlist in the file `.github/scripts/dapr_bot.js`.",
+      "created_at": "2025-01-05T19:49:36Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-03-06T20:34:51Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "Stop it bot",
+      "created_at": "2025-03-06T23:58:27Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-05-06T00:11:56Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-08-04T16:49:29Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-11-02T17:25:05Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-02-01T00:58:58Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-05-02T21:32:18Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    61
+  ],
+  "referenced_issue_numbers": [
+    7338,
+    7339
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/7886",
+  "is_seed": false,
+  "partial": false
+}

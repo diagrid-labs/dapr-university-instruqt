@@ -1,0 +1,41 @@
+{
+  "type": "pr",
+  "number": 4343,
+  "title": "chore(deps): bump github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssm from 1.0.732 to 1.3.71",
+  "state": "open",
+  "body": "Bumps [github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssm](https://github.com/tencentcloud/tencentcloud-sdk-go) from 1.0.732 to 1.3.71.\n<details>\n<summary>Commits</summary>\n<ul>\n<li><a href=\"https://github.com/TencentCloud/tencentcloud-sdk-go/commit/9261d076ddcd40e2f40f3d26fa17c5880a029c80\"><code>9261d07</code></a> release v1.3.71</li>\n<li><a href=\"https://github.com/TencentCloud/tencentcloud-sdk-go/commit/165b0301a1ec7be3735dcca7dd80548a2f053426\"><code>165b030</code></a> release v1.3.70</li>\n<li><a href=\"https://github.com/TencentCloud/tencentcloud-sdk-go/commit/d88b4052dfc3177ef880d98e1967eabd95838a11\"><code>d88b405</code></a> release v1.3.69</li>\n<li><a href=\"https://github.com/TencentCloud/tencentcloud-sdk-go/commit/8fb529f718d7b31f9bf745bf76f56286fe372955\"><code>8fb529f</code></a> release v1.3.68</li>\n<li><a href=\"https://github.com/TencentCloud/tencentcloud-sdk-go/commit/ce05bb9bb3b7693ca38f0cb5aa3e22be7591b4c4\"><code>ce05bb9</code></a> release v1.3.67</li>\n<li><a href=\"https://github.com/TencentCloud/tencentcloud-sdk-go/commit/e5fd768d018a41b1ac8effe47c1c32100b10faec\"><code>e5fd768</code></a> release v1.3.66</li>\n<li><a href=\"https://github.com/TencentCloud/tencentcloud-sdk-go/commit/bdcf37f3c9c0b28776d3d4b1cf523e33d8cead8e\"><code>bdcf37f</code></a> release v1.3.65</li>\n<li><a href=\"https://github.com/TencentCloud/tencentcloud-sdk-go/commit/c63a1c73c38dfded6608e7673b02c8324b83a319\"><code>c63a1c7</code></a> release v1.3.64</li>\n<li><a href=\"https://github.com/TencentCloud/tencentcloud-sdk-go/commit/33dcbb0d92295af9d057ff258ed312562a42b5fa\"><code>33dcbb0</code></a> release v1.3.63</li>\n<li><a href=\"https://github.com/TencentCloud/tencentcloud-sdk-go/commit/b45c233b2b6a57750f895f17f6b0b412e56605e6\"><code>b45c233</code></a> release v1.3.62</li>\n<li>Additional commits viewable in <a href=\"https://github.com/tencentcloud/tencentcloud-sdk-go/compare/v1.0.732...v1.3.71\">compare view</a></li>\n</ul>\n</details>\n<br />\n\n\n[![Dependabot compatibility score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssm&package-manager=go_modules&previous-version=1.0.732&new-version=1.3.71)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)\n\nYou can trigger a rebase of this PR by commenting `@dependabot rebase`.\n\n[//]: # (dependabot-automerge-start)\n[//]: # (dependabot-automerge-end)\n\n---\n\n<details>\n<summary>Dependabot commands and options</summary>\n<br />\n\nYou can trigger Dependabot actions by commenting on this PR:\n- `@dependabot rebase` will rebase this PR\n- `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it\n- `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency\n- `@dependabot ignore this major version` will close this PR and stop Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it yourself)\n- `@dependabot ignore this minor version` will close this PR and stop Dependabot creating any more for this minor version (unless you reopen the PR or upgrade to it yourself)\n- `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for this dependency (unless you reopen the PR or upgrade to it yourself)\n\n\n</details>\n\n> **Note**\n> Automatic rebases have been disabled on this pull request as it has been open for over 30 days.\n",
+  "labels": [
+    "stale",
+    "dependencies",
+    "go"
+  ],
+  "user": "dependabot[bot]",
+  "created_at": "2026-04-17T14:14:20Z",
+  "updated_at": "2026-06-17T18:32:06Z",
+  "additions": 6,
+  "deletions": 6,
+  "changed_files": 2,
+  "linked_issue_numbers": [],
+  "comments": [],
+  "html_url": "https://github.com/dapr/components-contrib/pull/4343",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "go.mod",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "patch": "@@ -125,8 +125,8 @@ require (\n \tgithub.com/stealthrocket/wasi-go v0.8.1-0.20230912180546-8efbab50fb58\n \tgithub.com/stretchr/testify v1.11.1\n \tgithub.com/supplyon/gremcos v0.1.40\n-\tgithub.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.732\n-\tgithub.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssm v1.0.732\n+\tgithub.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.71\n+\tgithub.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssm v1.3.71\n \tgithub.com/testcontainers/testcontainers-go v0.40.0\n \tgithub.com/tetratelabs/wazero v1.8.0\n \tgithub.com/tmc/langchaingo v0.1.15-0.20251029190607-e35755df7084",
+      "patch_truncated": false
+    },
+    {
+      "filename": "go.sum",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "patch": "@@ -1665,10 +1665,10 @@ github.com/supplyon/gremcos v0.1.40/go.mod h1:LI6lxKObicSoIw1N04rHyjz9tGSaevM6Yd\n github.com/tchap/go-patricia/v2 v2.3.2 h1:xTHFutuitO2zqKAQ5rCROYgUb7Or/+IC3fts9/Yc7nM=\n github.com/tchap/go-patricia/v2 v2.3.2/go.mod h1:VZRHKAb53DLaG+nA9EaYYiaEx6YztwDlLElMsnSHD4k=\n github.com/tebeka/strftime v0.1.3/go.mod h1:7wJm3dZlpr4l/oVK0t1HYIc4rMzQ2XJlOMIUJUJH6XQ=\n-github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.732 h1:19TNf4ATZQLFDSKNsJ+FE86rc2HlqkFeIO6wNw2Hj6g=\n-github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.732/go.mod h1:7sCQWVkxcsR38nffDW057DRGk8mUjK1Ing/EFOK8s8Y=\n-github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssm v1.0.732 h1:JcnkgQlkfUYWl21YHGXdQKmmfpvp+ynG/c8ClF/euIE=\n-github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssm v1.0.732/go.mod h1:WRkZJqoHH9P4KixWWLdUng99v8X5sr0BQglhVffornM=\n+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.71 h1:8tFF0fuSlrSD/1vTrEBYdmpc3D9wcxGyHo/7uIJxq+I=\n+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.71/go.mod h1:r5r4xbfxSaeR04b166HGsBa/R4U3SueirEUpXGuw+Q0=\n+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssm v1.3.71 h1:zARuFnj5r3ogpjBwGj6w26iYut9FC5fn0Kn9WFFg+K0=\n+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssm v1.3.71/go.mod h1:xJ9cTUHADaib7ayW/duEF9Adi6sp/46MISzIkDLTzaA=\n github.com/testcontainers/testcontainers-go v0.40.0 h1:pSdJYLOVgLE8YdUY2FHQ1Fxu+aMnb6JfVz1mxk7OeMU=\n github.com/testcontainers/testcontainers-go v0.40.0/go.mod h1:FSXV5KQtX2HAMlm7U3APNyLkkap35zNLxukw9oBi/MY=\n github.com/tetratelabs/wazero v1.8.0 h1:iEKu0d4c2Pd+QSRieYbnQC9yiFlMS9D+Jr0LsRmcF4g=",
+      "patch_truncated": false
+    }
+  ]
+}

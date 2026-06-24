@@ -1,0 +1,27 @@
+{
+  "type": "issue",
+  "number": 3373,
+  "title": "[State CosmosDB] Preserve property order",
+  "state": "open",
+  "body": "When reading an entry from a CosmosDB backed state store, properties are returned in seemingly random order, often shuffled differently on each fetch.\r\n\r\nThis breaks `System.Text.Json` polymorphism, as the `$type` (or other delimiter) **must** be the first property read in an object.\r\n\r\n\r\n## Expected Behavior\r\n\r\nThe JSON should not be modified or altered, when read from the state store.\r\n\r\nWhen the value:\r\n\r\n```json\r\n{\r\n    \"$type\": \"some-type\",\r\n    \"value\": \"some-value\"\r\n}\r\n```\r\n\r\nIs stored in the state store, _get state_ should return: \r\n\r\n```json\r\n{\r\n    \"$type\": \"some-type\",\r\n    \"value\": \"some-value\"\r\n}\r\n```\r\n\r\n## Actual Behavior\r\nWhen the value:\r\n\r\n```json\r\n{\r\n    \"$type\": \"some-type\",\r\n    \"value\": \"some-value\"\r\n}\r\n```\r\n\r\nIs stored in the state store, _get state_ will _randomly_ return either:\r\n\r\n```json\r\n{\r\n    \"$type\": \"some-type\",\r\n    \"value\": \"some-value\"\r\n}\r\n```\r\nor\r\n```json\r\n{\r\n    \"value\": \"some-value\"\r\n    \"$type\": \"some-type\"\r\n}\r\n```\r\n\r\n## Steps to Reproduce the Problem\r\n\r\n1. Store JSON value in `state.azure.cosmosdb` state store\r\n2. Read value from state store\r\n3. Compare JSON property order\r\n\r\n\r\n## Release Note\r\n\r\nRELEASE NOTE: **FIX** CosmosDB state returns shuffled JSON\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted",
+    "size/XS"
+  ],
+  "user": "robbss",
+  "created_at": "2024-03-04T13:04:24Z",
+  "updated_at": "2025-08-11T21:55:56Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "The Dapr API does not make any guarantees about the ordering of fields. This is not part of our API contract @RobertConanMcMillan. Therefore I do not see this as a bug.\r\n\r\nHowever, I'm happy to accept PRs.",
+      "created_at": "2024-03-07T02:33:06Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3373",
+  "is_seed": false,
+  "partial": false
+}

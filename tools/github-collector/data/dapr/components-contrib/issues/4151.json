@@ -1,0 +1,70 @@
+{
+  "type": "issue",
+  "number": 4151,
+  "title": "Cloudflare Queues Input binding",
+  "state": "open",
+  "body": "## Describe the feature\n\nI'd like to see the cloudflare queues binding become bi-directional, as I see it there's a couple different approaches that can be used for this:\n\n1. Use [pull consumers](https://developers.cloudflare.com/queues/configuration/pull-consumers/) to periodically (configurable interval) poll the queue for new messages, and once seen deliver to the binding\n1. Use the existing deployed worker to listen to queues and somehow push them back to dapr.\n\nIn particular with the great pricing model of Cloudflare R2 this would allow us to listen to storage events such as new file created/updated via a signed upload link allowing the backend to populate the database with metadata or perform additional processing\n\n## Release Note\n\nRELEASE NOTE: **UPDATE** Cloudflare Queus binding can now receive incoming events\n",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "swantzter",
+  "created_at": "2025-12-30T23:36:44Z",
+  "updated_at": "2026-06-09T15:17:28Z",
+  "comments": [
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-01-29T23:48:09Z"
+    },
+    {
+      "user": "swantzter",
+      "body": "Wouldn't call it stale when noone has seemingly even taken a moment to look at it",
+      "created_at": "2026-01-30T00:21:12Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-03-01T00:54:00Z"
+    },
+    {
+      "user": "swantzter",
+      "body": "Same thought as last - could at least look at it first",
+      "created_at": "2026-03-03T09:01:04Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-04-10T12:29:18Z"
+    },
+    {
+      "user": "swantzter",
+      "body": "I'm sorry to hear you've opted for such a user hostile approach as a stale bot.",
+      "created_at": "2026-04-10T12:30:35Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-05-10T13:04:07Z"
+    },
+    {
+      "user": "swantzter",
+      "body": "You have misconfigured your stale bot to mark issues stale before someone has looked at them. Please fix",
+      "created_at": "2026-05-10T13:12:52Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-06-09T14:02:25Z"
+    },
+    {
+      "user": "swantzter",
+      "body": "It sure is disheartening to see issues closed without someone even looking at them once",
+      "created_at": "2026-06-09T14:54:20Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4151",
+  "is_seed": false,
+  "partial": false
+}

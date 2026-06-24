@@ -1,0 +1,37 @@
+{
+  "type": "issue",
+  "number": 587,
+  "title": "feat: MCPServer integration via Python SDK DaprMCPWorkflowClient",
+  "state": "open",
+  "body": "## MCPServer Integration via Python SDK Client\n\ndapr-agents consumes `DaprMCPWorkflowClient` from the Python SDK ([AI-536](https://linear.app/diagrid/issue/AI-536/feat-daprmcpworkflowclient-and-mcp-workflow-helpers)).\n\n### Scope\n\n* Remove old `MCPClient` from dapr-agents (replaced by SDK's `DaprMCPWorkflowClient`)\n* Integrate SDK client into agent tool discovery: `DurableAgent` uses `DaprMCPWorkflowClient.get_all_tools()`\n* Tools returned as `WorkflowContextInjectedTool` instances for agent use\n* Quickstart example: DurableAgent + MCPServer CRD\n* Dapr Agents docs: how to use MCPServer tools with agents\n* Unit tests\n\n### Related\n\n* dapr/dapr#9731 (MCPServer workflow engine)\n* [dapr/proposals#100](<https://github.com/dapr/proposals/issues/100>) (proposal - merged)",
+  "labels": [
+    "enhancement"
+  ],
+  "user": "sicoyle",
+  "created_at": "2026-04-27T16:50:55Z",
+  "updated_at": "2026-05-14T18:37:03Z",
+  "comments": [
+    {
+      "user": "Rishabh-git10",
+      "body": "Hi @sicoyle, I noticed you have this self-assigned, but since it has the `help wanted` tag, I'd love to take this off your plate if you're not already working on it. \n\nI've been reviewing the proposal and the current `MCPClient` implementation. My plan for the `DaprMCPWorkflowClient` is to have `connect()` trigger the sidecar's `dapr.mcp.<name>.ListTools` orchestration to fetch and cache the schemas, and reuse `create_pydantic_model_from_schema` for the validation models. I'll then expose them as `WorkflowContextInjectedTool` instances where the inner executor just delegates execution to the sidecar via `ctx.call_child_workflow(\"dapr.mcp.<server_name>.CallTool\", input={\"tool\": tool_name, \"arguments\": kwargs})`.\n\nIf this aligns with your vision, assign it over and I can get a draft PR up shortly.",
+      "created_at": "2026-05-14T18:20:33Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "> Hi @sicoyle, I noticed you have this self-assigned, but since it has the help wanted tag, I'd love to take this off your plate if you're not already working on it.\n\nHi!!! I appreciate your interest! I have the changes locally that I need to push so this is already done for the most part now :)",
+      "created_at": "2026-05-14T18:36:05Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "I will make more issues soon - it's on my todo list @Rishabh-git10 !!",
+      "created_at": "2026-05-14T18:37:03Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    100
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr-agents/issues/587",
+  "is_seed": false,
+  "partial": false
+}

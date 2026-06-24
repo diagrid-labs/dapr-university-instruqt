@@ -1,0 +1,48 @@
+{
+  "type": "pr",
+  "number": 4354,
+  "title": "chore(deps): bump github.com/apache/dubbo-go-hessian2 from 1.11.5 to 1.13.1 in /tests/certification",
+  "state": "open",
+  "body": "Bumps [github.com/apache/dubbo-go-hessian2](https://github.com/apache/dubbo-go-hessian2) from 1.11.5 to 1.13.1.\n<details>\n<summary>Release notes</summary>\n<p><em>Sourced from <a href=\"https://github.com/apache/dubbo-go-hessian2/releases\">github.com/apache/dubbo-go-hessian2's releases</a>.</em></p>\n<blockquote>\n<h2>v1.13.1</h2>\n<h3>Bugfixes</h3>\n<ul>\n<li>fix: validate low surrogate before combining surrogate pair in decode2utf8. <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/pull/393\">#393</a></li>\n</ul>\n<h2>v1.13.0</h2>\n<h3>Breaking Changes</h3>\n<ul>\n<li>remove dubbo protocol impl which replaced by the impl in dubbo-go project. <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/pull/364\">#364</a></li>\n</ul>\n<h3>Enhancement</h3>\n<ul>\n<li>upgrade go version from 1.17 to 1.25. <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/pull/381\">#381</a></li>\n<li>upgrade golangci-lint and add import-formatter check CI. <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/pull/380\">#380</a></li>\n<li>add benchmark test. <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/pull/375\">#375</a></li>\n<li>bump gopkg.in/yaml.v3 to 3.0.1. <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/pull/390\">#390</a></li>\n</ul>\n<h3>Bugfixes</h3>\n<ul>\n<li>fix decode performance issue, run refHolders.notify() only at the outermost level. <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/pull/375\">#375</a></li>\n<li>fix CI failures and improve code quality. <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/pull/389\">#389</a></li>\n</ul>\n<h2>v1.12.5</h2>\n<h3>Bugfixes</h3>\n<ul>\n<li>fix memory leak issue. <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/pull/374\">#374</a></li>\n</ul>\n<h2>v1.12.4</h2>\n<h3>Bugfixes</h3>\n<ul>\n<li>fix null encoding for nil pointer. <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/pull/368\">#368</a></li>\n</ul>\n<h2>v1.12.3</h2>\n<h3>Bugfixes</h3>\n<ul>\n<li>fix Decoder failed to decode int8/int16 type values of map field in struct. <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/pull/366\">#366</a></li>\n</ul>\n<h2>v1.12.2</h2>\n<h3>Bugfixes</h3>\n<ul>\n<li>fix pointer value set. <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/pull/361\">#361</a></li>\n</ul>\n<h2>v1.12.1</h2>\n<h3>Bugfixes</h3>\n<ul>\n<li>fix ref to wrong type of map for nil value. <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/pull/357\">#357</a></li>\n</ul>\n<h2>v1.12.0</h2>\n<ul>\n<li>upgrade go from v1.13 to v1.17</li>\n<li>using <code>time.UnixMills</code> api to release time scope limit</li>\n<li>Deprecate these array types, including hessian.IntegerArray, hessian.ByteArray, hessian.ShortArray, hessian.BooleanArray, hessian.LongArray, hessian.FloatArray, hessian.DoubleArray, hessian.CharacterArray.</li>\n<li>Support java wrapper types:</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>hessian type</th>\n<th>java type</th>\n<th>golang type</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>Integer</strong></td>\n<td>java.lang.Integer</td>\n<td>*int32</td>\n</tr>\n<tr>\n<td><strong>Byte</strong></td>\n<td>java.lang.Byte</td>\n<td>*byte</td>\n</tr>\n<tr>\n<td><strong>Short</strong></td>\n<td>java.lang.Short</td>\n<td>*int16</td>\n</tr>\n</tbody>\n</table>\n<!-- raw HTML omitted -->\n</blockquote>\n<p>... (truncated)</p>\n</details>\n<details>\n<summary>Commits</summary>\n<ul>\n<li><a href=\"https://github.com/apache/dubbo-go-hessian2/commit/d08d614428789c07d9e0f3147323093ec03afcd2\"><code>d08d614</code></a> release note for v1.13.1</li>\n<li><a href=\"https://github.com/apache/dubbo-go-hessian2/commit/9a624aa44ec9f3525d6a9de4303c047569402439\"><code>9a624aa</code></a> Merge pull request <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/issues/393\">#393</a> from xingcici/fix/high_surrogate</li>\n<li><a href=\"https://github.com/apache/dubbo-go-hessian2/commit/f734b442a431092709b9dfc7aeaeac71b903028c\"><code>f734b44</code></a> Merge pull request <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/issues/392\">#392</a> from tiltwind/readme</li>\n<li><a href=\"https://github.com/apache/dubbo-go-hessian2/commit/57f636290a71f223ce243366d67e72d3cec32bef\"><code>57f6362</code></a> fix: validate low surrogate before combining surrogate pair in decode2utf8</li>\n<li><a href=\"https://github.com/apache/dubbo-go-hessian2/commit/39ca0c3ada56989c3709cc01e7f3d7a364f74795\"><code>39ca0c3</code></a> update readme for better structure</li>\n<li><a href=\"https://github.com/apache/dubbo-go-hessian2/commit/9e789a0fefbaa39efd8b910abf238160f35ee500\"><code>9e789a0</code></a> release note for v1.13.0</li>\n<li><a href=\"https://github.com/apache/dubbo-go-hessian2/commit/6ec768dd3056aea9bda2f061cfaaa9751ed1de59\"><code>6ec768d</code></a> Merge pull request <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/issues/390\">#390</a> from apache/dependabot/go_modules/gopkg.in/yaml.v3-3.0.1</li>\n<li><a href=\"https://github.com/apache/dubbo-go-hessian2/commit/850536ff64081491f4cc3c6132b48d0ead3af819\"><code>850536f</code></a> Bump gopkg.in/yaml.v3 from 3.0.0-20210107192922-496545a6307b to 3.0.1</li>\n<li><a href=\"https://github.com/apache/dubbo-go-hessian2/commit/f34d30d7a2aac196164e9a6c6f66f7eb85352f5f\"><code>f34d30d</code></a> Merge pull request <a href=\"https://redirect.github.com/apache/dubbo-go-hessian2/issues/389\">#389</a> from MoChengqian/fix-pr382-ci</li>\n<li><a href=\"https://github.com/apache/dubbo-go-hessian2/commit/6965a4e4d49fa20ab29575046b2c1633bc78699e\"><code>6965a4e</code></a> fix(ci): address staticcheck and java runtime checks</li>\n<li>Additional commits viewable in <a href=\"https://github.com/apache/dubbo-go-hessian2/compare/v1.11.5...v1.13.1\">compare view</a></li>\n</ul>\n</details>\n<br />\n\n\n> **Note**\n> Automatic rebases have been disabled on this pull request as it has been open for over 30 days.\n",
+  "labels": [
+    "dependencies",
+    "go"
+  ],
+  "user": "dependabot[bot]",
+  "created_at": "2026-04-23T14:21:53Z",
+  "updated_at": "2026-05-26T09:06:08Z",
+  "additions": 3,
+  "deletions": 3,
+  "changed_files": 2,
+  "linked_issue_numbers": [
+    357,
+    364,
+    366,
+    374,
+    375,
+    381,
+    390
+  ],
+  "comments": [],
+  "html_url": "https://github.com/dapr/components-contrib/pull/4354",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "tests/certification/go.mod",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -8,7 +8,7 @@ require (\n \tgithub.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.3.2\n \tgithub.com/IBM/sarama v1.45.2\n \tgithub.com/a8m/documentdb v1.3.0\n-\tgithub.com/apache/dubbo-go-hessian2 v1.11.5\n+\tgithub.com/apache/dubbo-go-hessian2 v1.13.1\n \tgithub.com/apache/pulsar-client-go v0.18.0\n \tgithub.com/apache/thrift v0.19.0\n \tgithub.com/aws/aws-sdk-go-v2 v1.41.1",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/certification/go.sum",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "patch": "@@ -166,8 +166,8 @@ github.com/apache/dubbo-getty v1.4.9-0.20220610060150-8af010f3f3dc/go.mod h1:cPJ\n github.com/apache/dubbo-go-hessian2 v1.9.1/go.mod h1:xQUjE7F8PX49nm80kChFvepA/AvqAZ0oh/UaB6+6pBE=\n github.com/apache/dubbo-go-hessian2 v1.9.3/go.mod h1:xQUjE7F8PX49nm80kChFvepA/AvqAZ0oh/UaB6+6pBE=\n github.com/apache/dubbo-go-hessian2 v1.11.0/go.mod h1:7rEw9guWABQa6Aqb8HeZcsYPHsOS7XT1qtJvkmI6c5w=\n-github.com/apache/dubbo-go-hessian2 v1.11.5 h1:rcK22+yMw2Hejm6GRG7WrdZ0DinW2QMZc01c7YVZjcQ=\n-github.com/apache/dubbo-go-hessian2 v1.11.5/go.mod h1:QP9Tc0w/B/mDopjusebo/c7GgEfl6Lz8jeuFg8JA6yw=\n+github.com/apache/dubbo-go-hessian2 v1.13.1 h1:xhJufH9Ntg8gUASsFXVS75hjrAAarUl2KQENi3VnLBw=\n+github.com/apache/dubbo-go-hessian2 v1.13.1/go.mod h1:BBLS7rwDB/q+xPJs5T66iyUI6TuAQC/m0mqok+JtEj0=\n github.com/apache/pulsar-client-go v0.18.0 h1:YsySoOds7WCXkRcOKHb85gk/v1Jndp+2oCkkRQEowUA=\n github.com/apache/pulsar-client-go v0.18.0/go.mod h1:GKmTD1u5YLuhUnoVTNGdhdGNAYhoglWNWgwLJZTljAw=\n github.com/apache/thrift v0.13.0 h1:5hryIiq9gtn+MiLVn0wP37kb/uTeRZgN08WoCsAhIhI=",
+      "patch_truncated": false
+    }
+  ]
+}

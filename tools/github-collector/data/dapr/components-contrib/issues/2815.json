@@ -1,0 +1,26 @@
+{
+  "type": "issue",
+  "number": 2815,
+  "title": "New component: WeChat Enterprise push message binding",
+  "state": "open",
+  "body": "Need to access the function of enterprise WeChat push messages\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted"
+  ],
+  "user": "huxingye",
+  "created_at": "2023-04-28T07:51:23Z",
+  "updated_at": "2023-05-02T01:35:04Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "Feel free to create a PR for a new Binding component for this.\r\n\r\nYou might want to consider using pluggable components instead however:\r\nhttps://docs.dapr.io/developing-applications/develop-components/pluggable-components/\r\n\r\nSDKs:\r\nhttps://github.com/dapr-sandbox/components-go-sdk\r\nhttps://github.com/dapr-sandbox/components-java-sdk\r\nhttps://github.com/dapr-sandbox/components-dotnet-sdk\r\n",
+      "created_at": "2023-05-02T01:34:42Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2815",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,39 @@
+{
+  "type": "pr",
+  "number": 4359,
+  "title": "feat(oracle): use TABLE(:bind_array) for bulk get chunks >= 900 keys",
+  "state": "open",
+  "body": "## Summary\nImplements the optimization described in dapr/components-contrib#4041.\n\n### What changed\nIn \bulkGetChunk, when the number of keys is >= 900, the query now uses Oracle's TABLE(:bind_array) syntax instead of the standard IN (:1, :2, ...) syntax:\n\n\\\\\\sql\nSELECT key, value, binary_yn, etag, expiration_time\nFROM state_table\nWHERE key IN (SELECT COLUMN_VALUE FROM TABLE(:1))\n\\\\\\\n\nThis passes goora.StringArray(keys) as a bind variable, leveraging the go_ora driver's native Oracle ARRAY support.\n\n### Threshold\n- **< 900 keys**: standard IN-list with individual bind variables (existing behavior)\n- **>= 900 keys**: TABLE(:bind_array) with StringArray bind (new optimization)\n\nThe 900-key threshold leaves a safe margin below Oracle's 1000-expression hard limit.\n\n### Testing\nExisting unit tests cover chunking behavior and edge cases. The existing mock-based tests should continue to pass as the logic path is determined at runtime based on key count.\n\nCloses #4041",
+  "labels": [
+    "stale"
+  ],
+  "user": "D2758695161",
+  "created_at": "2026-04-23T19:14:53Z",
+  "updated_at": "2026-06-21T09:05:50Z",
+  "additions": 26,
+  "deletions": 12,
+  "changed_files": 1,
+  "linked_issue_numbers": [
+    4041
+  ],
+  "comments": [
+    {
+      "user": "javier-aliaga",
+      "body": "goora.StringArray(keys) does this exist?",
+      "created_at": "2026-05-22T08:10:27Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/pull/4359",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "state/oracledatabase/oracledatabaseaccess.go",
+      "status": "modified",
+      "additions": 26,
+      "deletions": 12,
+      "patch": "@@ -408,22 +408,36 @@ func (o *oracleDatabaseAccess) BulkGet(ctx context.Context, req []state.GetReque\n // bulkGetChunk executes a single IN-clause query for the given requests.\n // Pre-condition: req is non-empty and all keys are non-empty.\n func (o *oracleDatabaseAccess) bulkGetChunk(ctx context.Context, req []state.GetRequest) ([]state.BulkGetResponse, error) {\n-\t// Oracle supports the IN operator for bulk operations\n-\t// Build the IN clause with bind variables\n-\t// Oracle uses :1, :2, etc. for bind variables in the IN clause\n-\tparams := make([]any, len(req))\n-\tbindVars := make([]string, len(req))\n+\tkeys := make([]string, len(req))\n \tfor i, r := range req {\n-\t\tparams[i] = r.Key\n-\t\tbindVars[i] = \":\" + strconv.Itoa(i+1)\n+\t\tkeys[i] = r.Key\n \t}\n \n-\tinClause := strings.Join(bindVars, \",\")\n-\t// Concatenation is required for table name because sql.DB does not substitute parameters for table names.\n-\t//nolint:gosec\n-\tquery := \"SELECT key, value, binary_yn, etag, expiration_time FROM \" + o.metadata.TableName + \" WHERE key IN (\" + inClause + \") AND (expiration_time IS NULL OR expiration_time > systimestamp)\"\n+\t// Use TABLE(:bind_array) when keys approach Oracle's 1000-expression limit\n+\t// to avoid bind variable capacity issues with large IN lists.\n+\tuseTableFunc := len(keys) >= 900\n+\n+\tvar rows *sql.Rows\n+\tvar err error\n \n-\trows, err := o.db.QueryContext(ctx, query, params...)\n+\tif useTableFunc {\n+\t\t// Oracle's TABLE(:bind_array) syntax binds a string array as an Oracle\n+\t\t// collection type, avoiding the 1000-expression IN-list limit.\n+\t\tquery := \"SELECT key, value, binary_yn, etag, expiration_time FROM \" + o.metadata.TableName + \" WHERE key IN (SELECT COLUMN_VALUE FROM TABLE(:1)) AND (expiration_time IS NULL OR expiration_time > systimestamp)\"\n+\t\trows, err = o.db.QueryContext(ctx, query, goora.StringArray(keys))\n+\t} else {\n+\t\t// Standard IN-list with individual bind variables for smaller sets.\n+\t\tbindVars := make([]string, len(req))\n+\t\tparams := make([]any, len(req))\n+\t\tfor i, k := range keys {\n+\t\t\tparams[i] = k\n+\t\t\tbindVars[i] = \":\" + strconv.Itoa(i+1)\n+\t\t}\n+\t\tinClause := strings.Join(bindVars, \",\")\n+\t\t//nolint:gosec\n+\t\tquery := \"SELECT key, value, binary_yn, etag, expiration_time FROM \" + o.metadata.TableName + \" WHERE key IN (\" + inClause + \") AND (expiration_time IS NULL OR expiration_time > systimestamp)\"\n+\t\trows, err = o.db.QueryContext(ctx, query, params...)\n+\t}\n \tif err != nil {\n \t\t// If the query fails, return per-key error entries instead of\n \t\t// propagating the error, for consistency with other state stores",
+      "patch_truncated": false
+    }
+  ]
+}

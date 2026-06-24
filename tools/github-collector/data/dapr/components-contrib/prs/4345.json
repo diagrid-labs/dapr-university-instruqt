@@ -1,0 +1,41 @@
+{
+  "type": "pr",
+  "number": 4345,
+  "title": "chore(deps): bump github.com/huaweicloud/huaweicloud-sdk-go-obs from 3.23.4+incompatible to 3.25.9+incompatible",
+  "state": "open",
+  "body": "Bumps [github.com/huaweicloud/huaweicloud-sdk-go-obs](https://github.com/huaweicloud/huaweicloud-sdk-go-obs) from 3.23.4+incompatible to 3.25.9+incompatible.\n<details>\n<summary>Release notes</summary>\n<p><em>Sourced from <a href=\"https://github.com/huaweicloud/huaweicloud-sdk-go-obs/releases\">github.com/huaweicloud/huaweicloud-sdk-go-obs's releases</a>.</em></p>\n<blockquote>\n<p>Version 3.25.9</p>\n<p>New Features:</p>\n<p>Documentation &amp; Demo:</p>\n<p>Resolved Issues:</p>\n<ol>\n<li>Fixed an issue where the first byte could not be downloaded using range.</li>\n</ol>\n<p>Version 3.25.4</p>\n<p>New Features:</p>\n<ol>\n<li>Supports passing metadata when use UploadFile method.</li>\n</ol>\n<p>Documentation &amp; Demo:</p>\n<p>Resolved Issues:</p>\n<p>Version 3.25.3</p>\n<p>New Features:</p>\n<ol>\n<li>Added BPA feature.</li>\n<li>Added intelligent tiering feature.</li>\n</ol>\n<p>Documentation &amp; Demo:</p>\n<ol>\n<li>Added descriptions about BPA APIs.</li>\n</ol>\n<p>Resolved Issues:</p>\n<p>Version 3.24.9</p>\n<p>New Features:</p>\n<ol>\n<li>Added list POSIX Object API.</li>\n</ol>\n<p>Documentation &amp; Demo:</p>\n<p>Resolved Issues:</p>\n<ol>\n<li>Optimize error log printing.</li>\n</ol>\n<h2>Version 3.24.6</h2>\n<p>New Features:</p>\n<ol>\n<li>Supports passing metadata when use CopyObject and InitiateMultipartUpload mehod.</li>\n</ol>\n<p>Documentation &amp; Demo:</p>\n<p>Resolved Issues:</p>\n<ol>\n<li>Fixed the issue where bucket acl configuration failed in some scenarios.</li>\n<li>Fixed the issue where data transmission exception in retry scenarios.</li>\n</ol>\n<!-- raw HTML omitted -->\n</blockquote>\n<p>... (truncated)</p>\n</details>\n<details>\n<summary>Commits</summary>\n<ul>\n<li><a href=\"https://github.com/huaweicloud/huaweicloud-sdk-go-obs/commit/745aa9814b4367638ca1cd2322fa9716227e87d3\"><code>745aa98</code></a> update 3.25.9</li>\n<li><a href=\"https://github.com/huaweicloud/huaweicloud-sdk-go-obs/commit/b10dc52c813791e92b1ca8b6973d2e091696293b\"><code>b10dc52</code></a> update 3.25.4</li>\n<li><a href=\"https://github.com/huaweicloud/huaweicloud-sdk-go-obs/commit/3bc4138ba73ec60e15cd3536ad6f44ce3f4a7f0b\"><code>3bc4138</code></a> update 3.25.3</li>\n<li><a href=\"https://github.com/huaweicloud/huaweicloud-sdk-go-obs/commit/2092dc5b51adc5f2bfacf065aa9f73c445a1e40f\"><code>2092dc5</code></a> update 3.24.9</li>\n<li><a href=\"https://github.com/huaweicloud/huaweicloud-sdk-go-obs/commit/5105f9c820b8f6a2017da873a9b283bd4e95f5ea\"><code>5105f9c</code></a> update 3.24.6</li>\n<li><a href=\"https://github.com/huaweicloud/huaweicloud-sdk-go-obs/commit/fed907b98ca359fb8be1c7188054035c4db8824c\"><code>fed907b</code></a> update 3.24.3</li>\n<li><a href=\"https://github.com/huaweicloud/huaweicloud-sdk-go-obs/commit/ecf74b369a8604b55757101ffe3fab7bc70c10d5\"><code>ecf74b3</code></a> update 3.23.12</li>\n<li><a href=\"https://github.com/huaweicloud/huaweicloud-sdk-go-obs/commit/7c22360cc3afc3e3f9acb9a1e2faaea46d600658\"><code>7c22360</code></a> update 3.23.9</li>\n<li><a href=\"https://github.com/huaweicloud/huaweicloud-sdk-go-obs/commit/bc6f9dc8cdf28d85d843ce5d1c377981e66f1e07\"><code>bc6f9dc</code></a> delete release</li>\n<li>See full diff in <a href=\"https://github.com/huaweicloud/huaweicloud-sdk-go-obs/compare/v3.23.4...v3.25.9\">compare view</a></li>\n</ul>\n</details>\n<br />\n\n\n[![Dependabot compatibility score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=github.com/huaweicloud/huaweicloud-sdk-go-obs&package-manager=go_modules&previous-version=3.23.4+incompatible&new-version=3.25.9+incompatible)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)\n\nYou can trigger a rebase of this PR by commenting `@dependabot rebase`.\n\n[//]: # (dependabot-automerge-start)\n[//]: # (dependabot-automerge-end)\n\n---\n\n<details>\n<summary>Dependabot commands and options</summary>\n<br />\n\nYou can trigger Dependabot actions by commenting on this PR:\n- `@dependabot rebase` will rebase this PR\n- `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it\n- `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency\n- `@dependabot ignore this major version` will close this PR and stop Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it yourself)\n- `@dependabot ignore this minor version` will close this PR and stop Dependabot creating any more for this minor version (unless you reopen the PR or upgrade to it yourself)\n- `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for this dependency (unless you reopen the PR or upgrade to it yourself)\n\n\n</details>\n\n> **Note**\n> Automatic rebases have been disabled on this pull request as it has been open for over 30 days.\n",
+  "labels": [
+    "stale",
+    "dependencies",
+    "go"
+  ],
+  "user": "dependabot[bot]",
+  "created_at": "2026-04-17T14:14:37Z",
+  "updated_at": "2026-06-17T18:32:09Z",
+  "additions": 3,
+  "deletions": 3,
+  "changed_files": 2,
+  "linked_issue_numbers": [],
+  "comments": [],
+  "html_url": "https://github.com/dapr/components-contrib/pull/4345",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "go.mod",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -87,7 +87,7 @@ require (\n \tgithub.com/hashicorp/golang-lru/v2 v2.0.7\n \tgithub.com/hazelcast/hazelcast-go-client v0.0.0-20190530123621-6cf767c2f31a\n \tgithub.com/http-wasm/http-wasm-host-go v0.7.0\n-\tgithub.com/huaweicloud/huaweicloud-sdk-go-obs v3.23.4+incompatible\n+\tgithub.com/huaweicloud/huaweicloud-sdk-go-obs v3.25.9+incompatible\n \tgithub.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.56\n \tgithub.com/influxdata/influxdb-client-go/v2 v2.12.3\n \tgithub.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa",
+      "patch_truncated": false
+    },
+    {
+      "filename": "go.sum",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "patch": "@@ -1034,8 +1034,8 @@ github.com/hazelcast/hazelcast-go-client v0.0.0-20190530123621-6cf767c2f31a/go.m\n github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=\n github.com/http-wasm/http-wasm-host-go v0.7.0 h1:+1KrRyOO6tWiDB24QrtSYyDmzFLBBs3jioKaUT0mq1c=\n github.com/http-wasm/http-wasm-host-go v0.7.0/go.mod h1:adXKcLmL7yuavH/e0kBAp7b3TgAHTo/enCduyN5bXGM=\n-github.com/huaweicloud/huaweicloud-sdk-go-obs v3.23.4+incompatible h1:XRAk4HBDLCYEdPLWtKf5iZhOi7lfx17aY0oSO9+mcg8=\n-github.com/huaweicloud/huaweicloud-sdk-go-obs v3.23.4+incompatible/go.mod h1:l7VUhRbTKCzdOacdT4oWCwATKyvZqUOlOqr0Ous3k4s=\n+github.com/huaweicloud/huaweicloud-sdk-go-obs v3.25.9+incompatible h1:T9+wBrjfJUrWKppRwXhDNjf6vAJy7DfZYWgkjNbxkIU=\n+github.com/huaweicloud/huaweicloud-sdk-go-obs v3.25.9+incompatible/go.mod h1:l7VUhRbTKCzdOacdT4oWCwATKyvZqUOlOqr0Ous3k4s=\n github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.56 h1:ULzGSSe95hkOdh17NsiPV3lw58D0SC6M/6askOwF12Q=\n github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.56/go.mod h1:bsqx6o47Kl4YsniIjPwuoeqiIB5Fc3JbSpB2b3o3WFQ=\n github.com/hudl/fargo v1.3.0/go.mod h1:y3CKSmjA+wD2gak7sUSXTAoopbhU08POFhmITJgmKTg=",
+      "patch_truncated": false
+    }
+  ]
+}

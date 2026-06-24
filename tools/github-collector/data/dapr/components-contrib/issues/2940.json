@@ -1,0 +1,50 @@
+{
+  "type": "issue",
+  "number": 2940,
+  "title": "Azure Service Bus queues pubsub component as stable ",
+  "state": "open",
+  "body": "## Describe the feature\r\nThe Azure Service Bus Queues pubsub component requires certification tests to be moved from Beta to Stable.\r\nhttps://docs.dapr.io/reference/components-reference/supported-pubsub/setup-azure-servicebus-queues/\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE: ADD Azure Service Bus Queues pubsub component as stable.",
+  "labels": [
+    "kind/enhancement",
+    "P1",
+    "pinned"
+  ],
+  "user": "alicejgibbons",
+  "created_at": "2023-06-28T20:34:50Z",
+  "updated_at": "2026-03-25T08:20:14Z",
+  "comments": [
+    {
+      "user": "Sarah-Aly",
+      "body": "Hi, could you please clarify the current status of Azure Service Bus Queue in Dapr pub/sub? Is it considered preview, stable, or GA? Also wondering if there\u2019s a roadmap or known limitations for production use. Thanks!",
+      "created_at": "2025-09-02T17:35:28Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "Hey @Sarah-Aly  its still officially in beta support as per docs [here](https://docs.dapr.io/reference/components-reference/supported-pubsub/). It is used in production fairly heavily however, but the test coverage isn't as completed as say Azure service bus topics.",
+      "created_at": "2025-09-19T09:35:00Z"
+    },
+    {
+      "user": "jmfloreszazo",
+      "body": "I will be working over the coming weeks on adding the certification tests required to meet the Stable criteria, focusing on:\n\n- Pub/sub conformance scenarios aligned with Dapr certification guidelines.\n- Behavior and reliability under failure conditions (retries, lock expiration, message redelivery).\n- Coverage parity with the existing tests for Azure Service Bus Topics.\n\nThe goal is to provide sufficient automated evidence so the component can be promoted from Beta to Stable with confidence.\n\nRegards\n",
+      "created_at": "2025-12-29T17:19:05Z"
+    },
+    {
+      "user": "jmfloreszazo",
+      "body": "Hello @alicejgibbons & @Sarah-Aly  I have already created the PRs to certify the component. Regards.",
+      "created_at": "2025-12-30T11:34:17Z"
+    },
+    {
+      "user": "DmitriiSablinDev",
+      "body": "Hi, are there expectation date when it will go to stable? ",
+      "created_at": "2026-03-25T08:19:54Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    350,
+    4150
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2940",
+  "is_seed": false,
+  "partial": false
+}

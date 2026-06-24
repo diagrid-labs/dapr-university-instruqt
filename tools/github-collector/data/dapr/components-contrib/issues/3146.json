@@ -1,0 +1,49 @@
+{
+  "type": "issue",
+  "number": 3146,
+  "title": "Azure blob output binding storage account level auth option",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\nToday, the Azure Blob storage output binding uses authentication mechanisms that sit at the blob container level.  This causes Dapr users to have to use a different blob storage component for every blob container that sits in the same Azure storage account which can mean managing many component manifests and many authentication keys in some cases.\r\n\r\nThe component implementation should add the option to authenticate at the Azure storage account level instead of at the container level. Since all calls to blob storage will still require a blob container name, it could be provided as metadata in the request to the Binding API instead of in the component manifest.\r\n\r\nThis would allow greater flexibility for Dapr users and allow for less management of component manifests and storage access keys.\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE: **ADD:** Auth option for Azure Blob output binding at the storage account level. \r\n",
+  "labels": [
+    "kind/enhancement",
+    "P2",
+    "pinned"
+  ],
+  "user": "alicejgibbons",
+  "created_at": "2023-09-22T03:08:27Z",
+  "updated_at": "2023-11-14T21:00:39Z",
+  "comments": [
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-10-22T03:16:58Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "not stale",
+      "created_at": "2023-10-23T14:44:11Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "We will have to contemplate this carefully. The existing behavior must be retained as the default for security reason. What we do not want is to allow an application or person to read or write data from a container to which they should not have access. Request metadata is very insecure in this way.\r\n\r\n*If* we go with enabling this use case, it would need to be exposed via a non-default, advanced option - e.g. a new metadata option called \"useAccountLevelAuth\" (bool). Only if this option is explicitly enabled would we then use the request metadata to infer the desired storage account.\r\n\r\n@alicejgibbons can you provide user / customer evidence for this request? This adds complexity and is not without risk.\r\n\r\n@fabistb would you like to speak toward this on behalf of your company?",
+      "created_at": "2023-11-08T00:20:43Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "@berndverst yes this has been requested by a Dapr end-user who has had to create/manage a huge amount of dapr components since this option isnt available. I think your approach with an additional metadata option sounds good for backward compatibility.",
+      "created_at": "2023-11-13T18:01:13Z"
+    },
+    {
+      "user": "fabistb",
+      "body": "@berndverst  sorry for the late reply.\r\n\r\nIn my specific case an file / asset manage application has currently > 50 components.\r\nThis makes it more and more cumbersome to manage it. Enabling this functionality would make this easier.\r\n\r\n\r\nThe approach you described with the metadata as advanced option sounds good.\r\n",
+      "created_at": "2023-11-14T21:00:38Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    2358
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3146",
+  "is_seed": false,
+  "partial": false
+}

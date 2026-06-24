@@ -1,0 +1,38 @@
+{
+  "type": "issue",
+  "number": 9263,
+  "title": "[Workflows] Quality of Life Opportunities",
+  "state": "open",
+  "body": "I think we have some opportunities to modify the SDKs and perhaps the runtime to include some changes to workflows to improve the experience using them, whether rethinking syntax or expanding on what's available in any given context. \n\nThis issue serves as a parent to a collection of such issues that may be under consideration in a future release.",
+  "labels": [],
+  "user": "WhitWaldo",
+  "created_at": "2026-01-06T18:39:38Z",
+  "updated_at": "2026-06-22T19:17:42Z",
+  "comments": [
+    {
+      "user": "atrauzzi",
+      "body": "@WhitWaldo -- I'm thinking of opening a ticket regarding querying not just the state store, but also somehow getting a picture of what's happening in scheduler's state for a workflow (actor stuff I presume).\n\nAt the very least, would love to see methods to query if they're in alignment.  Wondering if something like this could end up helping with the \"stuck workflow\" scenarios that keep coming up.\n\n(In fact, just recently in a personal project, I had a workflow that had state in the state store, showing it as \"active\". But at runtime was basically never looked at and somehow abandoned by Dapr...)\n\nBeing able to analyze both the state-store state as well as the scheduler state to do analysis would be mega helpful in troubleshooting.",
+      "created_at": "2026-03-06T14:08:04Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "@atrauzzi Would that be better as a public API you can query or as something else that should just be managed by the runtime? I mean, all things being equal, the system should Just Work. Diagnostic tools are certainly useful, but I wonder to what extent the time would be better suited to improving the existing flow and making it more resilient vs providing greater visibility into what's happening under the hood (but with no ability to do anything about it).",
+      "created_at": "2026-03-06T20:44:27Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-06-04T20:52:32Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it was marked stale with no further activity for 7 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-06-11T21:20:57Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9263",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,62 @@
+{
+  "type": "issue",
+  "number": 8559,
+  "title": "Actor Reminder name not RFC1123",
+  "state": "open",
+  "body": "## In what area(s)?\n/area runtime\n\n## What version of Dapr?\n1.15.3\n\n## Expected Behavior\nAn actor ID that is valid for actor creation should also be accepted as valid for creating actor reminders.\n\n## Actual Behavior\nCreating an actor reminder with a valid actor ID fails when the actor ID contains characters that are not compliant with RFC 1123.\n\nThe actor can be created with the following ID : Hexalith-PipeConnectionType-BSTF%E2%8C%80400\nBut the reminder will fail.\n\nException encountered:\n```\nDapr.DaprApiException: 'error creating actor reminder: rpc error: code = Unknown desc = job name is invalid \"actorreminder||default||PipeConnectionTypeAggregate||HexalithPipeConnectionTypePVC8\u2300250||ContinuePublish\": a lowercase RFC 1123 subdomain must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com', regex used for validation is '[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*')'\n```\n\nFor example, an actor managing users identified by email (e.g., `john.doe@dapr.com`) will have the actor ID sanitized to `john.doe%40dapr.com`, which works correctly for actor creation but fails when setting actor reminders.\n\nThis behavior is a regression introduced in version 1.15.3, as previous versions supported such sanitized actor IDs for reminders.\n\n## Steps to Reproduce the Problem\n1. Create an actor with an ID containing characters not compliant with RFC 1123 (e.g., `john.doe@dapr.com`).\n2. Attempt to create a reminder for this actor.\n\n## Release Note\nActor reminder identifiers should adhere to the same constraints as actor IDs to avoid unexpected validation errors.\n\n",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "jpiquot",
+  "created_at": "2025-03-07T15:22:25Z",
+  "updated_at": "2026-06-15T16:36:05Z",
+  "comments": [
+    {
+      "user": "jpiquot",
+      "body": "Hi, any news on this issue?",
+      "created_at": "2025-03-14T10:48:52Z"
+    },
+    {
+      "user": "jpiquot",
+      "body": "bump",
+      "created_at": "2025-03-28T16:00:41Z"
+    },
+    {
+      "user": "jpiquot",
+      "body": "Any update on this issue?",
+      "created_at": "2025-04-25T07:00:13Z"
+    },
+    {
+      "user": "jpiquot",
+      "body": "Any update on this issue?",
+      "created_at": "2025-06-12T05:10:34Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "It's not assigned on the release board, so it's not being actively worked on. If it's something you really want to see in the next release, I'd encourage to contribute it yourself - otherwise, it's not likely to be picked up until at least the next 1.17 release or later.",
+      "created_at": "2025-06-12T17:12:38Z"
+    },
+    {
+      "user": "jpiquot",
+      "body": "> It's not assigned on the release board, so it's not being actively worked on. If it's something you really want to see in the next release, I'd encourage to contribute it yourself - otherwise, it's not likely to be picked up until at least the next 1.17 release or later.\n\nIs there any documentation on this change? I only found this contraint for app-id but not for actors. https://github.com/dapr/dapr/pull/5566",
+      "created_at": "2025-07-03T15:09:29Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-10-01T15:15:27Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 97 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2025-10-08T15:15:43Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    1573
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/8559",
+  "is_seed": false,
+  "partial": false
+}

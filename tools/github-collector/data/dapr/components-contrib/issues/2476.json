@@ -1,0 +1,22 @@
+{
+  "type": "issue",
+  "number": 2476,
+  "title": "Delete old AWS resources daily",
+  "state": "open",
+  "body": "For AWS certification infrastructure we may have dangling resources if the test fails before cleanup. We should run a daily task to delete all old resources - this can be a new workflow.\r\n\r\nThe following tool would allow us to easily delete everything. We can filter by resource type and date, e.g. only delete Queues, Topics, Subscriptions created more than 24 hours ago.\r\n\r\nhttps://github.com/rebuy-de/aws-nuke",
+  "labels": [
+    "kind/enhancement",
+    "help wanted",
+    "good first issue",
+    "pinned"
+  ],
+  "user": "berndverst",
+  "created_at": "2023-01-26T19:41:34Z",
+  "updated_at": "2025-08-11T21:55:43Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2476",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,26 @@
+{
+  "type": "issue",
+  "number": 9675,
+  "title": "Return workflow status back to workflow API",
+  "state": "open",
+  "body": "## Present setup\n\nToday we expose the `/agent/run` in Dapr Agents for initializing an agent workflow and subsequently `/agent/run/<workflow_id>` for the workflow status (it's also here we have `/purge`, `/stop`, etc.).\nThe status however does not tell much about where in the execution the agent is which means polling the endpoint is either \"still running\" or \"done\" with no details in between. For long running agents - and especially orchestration scenarios - this gives a less than ideal experience as the user may wonder whether anything is actually happening.\n\n## Proposed solution\n\nWe should bubble out the `last_activity` + relevant metadata to the workflow API that we consume from Dapr Agents API and expose to the `/agent/run/<workflow_id>` endpoint so the user can get a better understanding on where the agent is in its execution flow.\n\nThis could also benefit workflows in general as we don't believe this to be an Agent specific thing.",
+  "labels": [
+    "P1",
+    "stale"
+  ],
+  "user": "CasperGN",
+  "created_at": "2026-03-23T21:07:50Z",
+  "updated_at": "2026-06-21T21:28:17Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-06-21T21:28:17Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9675",
+  "is_seed": false,
+  "partial": false
+}

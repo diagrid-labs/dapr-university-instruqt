@@ -1,0 +1,27 @@
+{
+  "type": "issue",
+  "number": 3685,
+  "title": "Update Readme and component contrib writing examples",
+  "state": "open",
+  "body": "- Update the repos ReadMe to include all the component types https://github.com/dapr/components-contrib?tab=readme-ov-file#components-contrib \n\n- Update the examples here https://github.com/dapr/components-contrib/blob/main/docs/developing-component.md#writing-new-component for the more recent components. For example Conversation, Crypto components are missing.\n",
+  "labels": [
+    "good first issue"
+  ],
+  "user": "msfussell",
+  "created_at": "2025-03-04T05:42:58Z",
+  "updated_at": "2026-03-13T12:57:53Z",
+  "comments": [
+    {
+      "user": "stywzn",
+      "body": "Hi @msfussell, I would love to pick this up as my first contribution to the Dapr community! Could you please assign this issue to me? I will start working on updating the ReadMe and the `developing-component.md` examples.",
+      "created_at": "2026-03-13T11:08:47Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    4279
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3685",
+  "is_seed": false,
+  "partial": false
+}

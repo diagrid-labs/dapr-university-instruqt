@@ -1,0 +1,104 @@
+{
+  "type": "pr",
+  "number": 10093,
+  "title": "perf: store raw perf reports per version and automate chart publishing",
+  "state": "open",
+  "body": "Rendered chart PNGs were committed to the repo for each version (several MB of immutable binary per release) while the raw perf data was lost when CI artifacts expired after 90 days. This flips what gets preserved: keep the small, reprocessable JSON reports in the repo and publish the rendered charts to the GitHub release instead.\r\n\r\n- charts.go now takes -input and -version flags instead of hardcoded paths, and reads gzipped reports transparently, so it can run in CI and against any perf run's report.\r\n\r\n- The compressed gotestsum JSON report is committed per version under tests/perf/report/data (a few hundred KB each), so charts can be regenerated with current chart code at any time and cross-version comparisons can be scripted from exact numbers. Adds the v1.18.0 report from the release-1.18 dapr-perf run 27352299329 (2026-06-11).\r\n\r\n- Every dapr-perf run now renders charts from its own report and uploads them as a perf_charts workflow artifact.\r\n\r\n- New dapr-perf-publish-charts workflow (workflow_dispatch) downloads a chosen run's report, renders the charts, and attaches the charts zip and compressed report to the matching GitHub release, replacing hand-committed PNG sets for new releases.",
+  "labels": [],
+  "user": "JoshVanL",
+  "created_at": "2026-06-12T11:46:32Z",
+  "updated_at": "2026-06-19T14:23:27Z",
+  "additions": 278,
+  "deletions": 18,
+  "changed_files": 9,
+  "linked_issue_numbers": [],
+  "comments": [
+    {
+      "user": "Copilot",
+      "body": "`workflow_dispatch` inputs are interpolated into shell commands without validation/quoting. A malformed `run_id` or `version` could break the workflow, and unvalidated values can be abused for shell injection or writing files outside the expected directory (e.g., via spaces or `../`). Add a small validation step and quote the inputs where used.",
+      "created_at": "2026-06-12T11:49:45Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "`inputs.version` is used in multiple filesystem paths and in `gh release upload` without quoting. Even with validation, quoting prevents accidental breakage if the input ever contains unexpected characters and avoids word-splitting issues.",
+      "created_at": "2026-06-12T11:49:46Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/dapr/pull/10093",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": ".github/workflows/dapr-perf-publish-charts.yml",
+      "status": "added",
+      "additions": 85,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,85 @@\n+#\n+# Copyright 2026 The Dapr Authors\n+# Licensed under the Apache License, Version 2.0 (the \"License\");\n+# you may not use this file except in compliance with the License.\n+# You may obtain a copy of the License at\n+#     http://www.apache.org/licenses/LICENSE-2.0\n+# Unless required by applicable law or agreed to in writing, software\n+# distributed under the License is distributed on an \"AS IS\" BASIS,\n+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+# See the License for the specific language governing permissions and\n+# limitations under the License.\n+#\n+\n+name: dapr-perf-publish-charts\n+\n+on:\n+  workflow_dispatch:\n+    inputs:\n+      run_id:\n+        description: \"ID of the dapr-perf workflow run to take the test report from\"\n+        required: true\n+        type: string\n+      version:\n+        description: \"Release tag the charts belong to, e.g. v1.18.0. Used as the release to upload to and the charts output folder.\"\n+        required: true\n+        type: string\n+\n+permissions:\n+  contents: write\n+  actions: read\n+\n+jobs:\n+  publish:\n+    name: Generate and publish perf charts\n+    runs-on: ubuntu-latest\n+    env:\n+      GH_TOKEN: ${{ github.token }}\n+      RUN_ID: ${{ inputs.run_id }}\n+      VERSION: ${{ inputs.version }}\n+    steps:\n+      - name: Validate inputs\n+        run: |\n+          if ! [[ \"$RUN_ID\" =~ ^[0-9]+$ ]]; then\n+            echo \"run_id must be numeric, got: $RUN_ID\" >&2\n+            exit 1\n+          fi\n+          if ! [[ \"$VERSION\" =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+(-rc\\.[0-9]+)?$ ]]; then\n+            echo \"version must be a release tag like v1.18.0 or v1.18.0-rc.1, got: $VERSION\" >&2\n+            exit 1\n+          fi\n+      - name: Check out code\n+        uses: actions/checkout@v4\n+      - name: Set up Go\n+        uses: actions/setup-go@v6\n+        with:\n+          go-version-file: 'go.mod'\n+      - name: Download perf test report\n+        run: |\n+          gh run download \"$RUN_ID\" \\\n+            --repo \"$GITHUB_REPOSITORY\" \\\n+            --name test_perf.json \\\n+            --dir /tmp/perf-report\n+      - name: Generate charts\n+        working-directory: ./tests/perf/report\n+        # Keep the -infra description in sync with the linux node pool in tests/test-infra/azure-aks.bicep\n+        run: |\n+          go run . -input /tmp/perf-report/test_report_perf.json -version \"$VERSION\" \\\n+            -infra \"Azure AKS, 3x Standard_D2s_v6 (2 vCPU, 8 GiB) Linux nodes\"\n+      - name: Package charts and report\n+        working-directory: ./tests/perf/report\n+        run: |\n+          zip -r \"/tmp/perf-charts-$VERSION.zip\" \"charts/$VERSION\"\n+          gzip -9 -c /tmp/perf-report/test_report_perf.json > \"/tmp/test-report-perf-$VERSION.json.gz\"\n+      - name: Upload charts and report to release\n+        run: |\n+          gh release upload \"$VERSION\" \\\n+            \"/tmp/perf-charts-$VERSION.zip\" \\\n+            \"/tmp/test-report-perf-$VERSION.json.gz\" \\\n+            --repo \"$GITHUB_REPOSITORY\" \\\n+            --clobber\n+      - name: Upload charts as workflow artifact\n+        uses: actions/upload-artifact@v4\n+        with:\n+          name: perf_charts_${{ inputs.version }}\n+          path: /tmp/perf-charts-${{ inputs.version }}.zip",
+      "patch_truncated": false
+    },
+    {
+      "filename": ".github/workflows/dapr-perf.yml",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "patch": "@@ -486,6 +486,21 @@ jobs:\n           #TODO: .json suffix can be removed from artifact name after test analytics scripts are updated\n           name: test_perf.json\n           path: ${{ env.TEST_OUTPUT_FILE_PREFIX }}_perf*.*\n+      - name: Generate perf charts\n+        if: always() && env.TEST_PREFIX != ''\n+        continue-on-error: true\n+        working-directory: ./tests/perf/report\n+        # Keep the -infra description in sync with the linux node pool in tests/test-infra/azure-aks.bicep\n+        run: |\n+          go run . -input ${{ env.TEST_OUTPUT_FILE_PREFIX }}_perf.json -version ${{ github.ref_name }} \\\n+            -infra \"Azure AKS, 3x Standard_D2s_v6 (2 vCPU, 8 GiB) Linux nodes\"\n+      - name: Upload perf charts\n+        if: always() && env.TEST_PREFIX != ''\n+        continue-on-error: true\n+        uses: actions/upload-artifact@v4\n+        with:\n+          name: perf_charts\n+          path: tests/perf/report/charts/${{ github.ref_name }}/\n       - name: Add job test summary\n         if: always()\n         uses: test-summary/action@v2",
+      "patch_truncated": false
+    },
+    {
+      "filename": ".gitignore",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "patch": "@@ -20,6 +20,8 @@ google\n dapr.sln\n \n test_report*\n+# Compressed perf reports committed per version are the source data for perf charts\n+!tests/perf/report/data/*/test_report_perf.json.gz\n coverage.txt\n \n # Go Workspaces (introduced in Go 1.18+)",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/docs/running-perf-tests.md",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "patch": "@@ -164,6 +164,20 @@ export DAPR_PERF_TEST=\"actor_id_scale workflows\"\n make test-perf-all\n ```\n \n+### Generate performance charts\n+\n+Charts can be generated from the `gotestsum` JSON report of any perf run\n+(local `test_report_perf*.json` output or the `test_perf.json` artifact of a\n+CI run):\n+\n+```bash\n+cd tests/perf/report\n+go run . -input <path-to-report.json[.gz]> -version <output-folder>\n+```\n+\n+See [the charts README](../perf/report/charts/README.md) for how reports and\n+charts are stored and published per release.\n+\n ### Remove all tests data\n Once you finished your testing, it's recommended to remove old test data, so it's easier to find the new tests. \n You can run",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/perf/report/charts.go",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 10,
+      "patch": "@@ -15,8 +15,11 @@ package main\n \n import (\n \t\"bufio\"\n+\t\"compress/gzip\"\n \t\"encoding/json\"\n+\t\"flag\"\n \t\"fmt\"\n+\t\"io\"\n \t\"log\"\n \t\"os\"\n \t\"path/filepath\"\n@@ -101,8 +104,10 @@ type goTestEvent struct {\n \tOutput  string `json:\"Output,omitempty\"`\n }\n \n-const (\n-\tinputPath = \"./test_report_perf.json\"\n+var (\n+\tinputPath = flag.String(\"input\", \"./test_report_perf.json\", \"path to the gotestsum JSON report from a perf run (plain or .gz)\")\n+\tversion   = flag.String(\"version\", \"master\", \"Dapr version the report belongs to, used as the charts output subdirectory\")\n+\tinfra     = flag.String(\"infra\", \"\", \"description of the infrastructure the perf run executed on, included in generated READMEs\")\n )\n \n // Variant comparison aggregation for pubsub tests & can be expanded on in the\n@@ -118,22 +123,33 @@ var pubsubComparisons = make(map[string]variantComparison)\n \n // create charts based on perf json output\n func main() {\n-\t// TODO: cassie update inputPath once automated & running in CI\n-\tf, err := os.Open(inputPath)\n+\tflag.Parse()\n+\n+\tf, err := os.Open(*inputPath)\n \tif err != nil {\n-\t\tfmt.Fprintf(os.Stderr, \"error opening %s: %v\\n\", inputPath, err)\n+\t\tfmt.Fprintf(os.Stderr, \"error opening %s: %v\\n\", *inputPath, err)\n \t\tos.Exit(1)\n \t}\n \tdefer f.Close()\n \n+\tvar input io.Reader = f\n+\tif strings.HasSuffix(*inputPath, \".gz\") {\n+\t\tgz, gerr := gzip.NewReader(f)\n+\t\tif gerr != nil {\n+\t\t\tfmt.Fprintf(os.Stderr, \"error reading gzip %s: %v\\n\", *inputPath, gerr)\n+\t\t\tos.Exit(1)\n+\t\t}\n+\t\tdefer gz.Close()\n+\t\tinput = gz\n+\t}\n+\n \t// used for local debugging of charts\n \tdebugEnabled = strings.TrimSpace(os.Getenv(\"CHARTS_DEBUG\")) != \"\"\n \tif debugEnabled {\n-\t\tdebugf(\"reading %s\", inputPath)\n+\t\tdebugf(\"reading %s\", *inputPath)\n \t}\n \n-\t// TODO: cassie update this once automated based on release version\n-\tbaseOutputDir := filepath.Join(\"charts\", \"v1.17.0\")\n+\tbaseOutputDir := filepath.Join(\"charts\", *version)\n \tif err = os.MkdirAll(baseOutputDir, 0o755); err != nil {\n \t\tfmt.Fprintf(os.Stderr, \"error creating charts directory %s: %v\\n\", baseOutputDir, err)\n \t\tos.Exit(1)\n@@ -144,7 +160,7 @@ func main() {\n \tif debugEnabled {\n \t\tdebugf(\"test modes: %v\", testModes)\n \t}\n-\tscanner := bufio.NewScanner(f)\n+\tscanner := bufio.NewScanner(input)\n \tvar (\n \t\tcurrentTest     string\n \t\tcurrentPkg      string\n@@ -158,7 +174,7 @@ func main() {\n \tfor scanner.Scan() {\n \t\tvar ev goTestEvent\n \t\tif err = json.Unmarshal(scanner.Bytes(), &ev); err != nil {\n-\t\t\t// bad line in the json \u2014 just skip it...\n+\t\t\t// bad line in the json, just skip it...\n \t\t\tcontinue\n \t\t}\n \n@@ -398,6 +414,7 @@ func main() {\n \t\t\tif ru != nil {\n \t\t\t\tmakeResourceCPUChart(*ru, prefix, result.outDir)\n \t\t\t\tmakeResourceMemChart(*ru, prefix, result.outDir)\n+\t\t\t\trecordEfficiency(result.outDir, result.name, agg, ru)\n \t\t\t}\n \t\t}\n \t}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/perf/report/charts/README.md",
+      "status": "modified",
+      "additions": 49,
+      "deletions": 8,
+      "patch": "@@ -151,16 +151,57 @@ This chart focuses on core latency p50 (median) and tail latency (p95).\n \n This will be extended to other APIs in the future.\n \n-### How to run locally\n+### Where the data and charts live\n+\n+The source of truth for perf results is the `gotestsum` JSON report produced\n+by a perf CI run, not the rendered PNGs. Per released version:\n+\n+- The compressed report is committed to this repo under\n+  `tests/perf/report/data/<version>/test_report_perf.json.gz` (a few hundred KB).\n+- The rendered charts are published as assets on the matching GitHub release\n+  (`perf-charts-<version>.zip`), via the `dapr-perf-publish-charts` workflow.\n+\n+Full chart sets should not be committed for new versions: a full set is\n+several MB of immutable binary per release, and PNGs cannot be regenerated or\n+corrected later, whereas the JSON report can re-render charts at any time with\n+current chart code. The chart folders already in this directory predate this\n+policy and are kept for reference.\n \n-Charts are produced by:\n+### How charts are generated in CI\n+\n+- Every `dapr-perf` run generates charts from its own report and uploads them\n+  as the `perf_charts` workflow artifact (90 day retention).\n+- For a release, trigger the `dapr-perf-publish-charts` workflow with the\n+  `dapr-perf` run ID and the release tag. It downloads the run's report,\n+  renders the charts, and uploads both the charts zip and the compressed\n+  report to the GitHub release. Then commit the compressed report under\n+  `data/<version>/` in a PR.\n+\n+### How to run locally\n \n-- Program (from `tests/perf/report/`): `charts.go`\n-- Json input: `./test_report_perf.json` (`gotestsum` JSON from perf CI)\n-- Output: `charts/v1.16.3/workflows/*.png`\n+Charts are produced by `charts.go` (from `tests/perf/report/`). It reads a\n+`gotestsum` JSON report (plain or gzipped) and writes PNGs to\n+`charts/<version>/<api>/`:\n \n ```bash\n cd tests/perf/report\n-rm -rf charts/v1.16.3/workflows/*\n-go run .\n-```\n\\ No newline at end of file\n+go run . -input data/v1.18.0/test_report_perf.json.gz -version v1.18.0\n+```\n+\n+Flags:\n+\n+- `-input`: path to the report, `.gz` is decompressed transparently\n+  (default `./test_report_perf.json`)\n+- `-version`: output subdirectory under `charts/` (default `master`)\n+- `-infra`: description of the infrastructure the run executed on, shown at\n+  the top of generated READMEs. CI passes the AKS node pool description from\n+  `tests/test-infra/azure-aks.bicep`; set it to your own cluster spec for\n+  local runs so results stay comparable.\n+\n+Each generated per-API README starts with a \"Throughput per resource\" table:\n+iterations/sec for each scenario alongside the app and sidecar CPU/memory it\n+consumed, plus derived iterations/sec per CPU core and per GB of memory\n+(app + sidecar combined). This is the headline efficiency metric for\n+comparing scenarios and versions on the same infrastructure.\n+\n+Set `CHARTS_DEBUG=1` for verbose output on how tests are classified.\n\\ No newline at end of file",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/perf/report/data/v1.18.0/test_report_perf.json.gz",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "patch": null,
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/perf/report/efficiency.go",
+      "status": "added",
+      "additions": 80,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,80 @@\n+/*\n+Copyright 2026 The Dapr Authors\n+Licensed under the Apache License, Version 2.0 (the \"License\");\n+you may not use this file except in compliance with the License.\n+You may obtain a copy of the License at\n+    http://www.apache.org/licenses/LICENSE-2.0\n+Unless required by applicable law or agreed to in writing, software\n+distributed under the License is distributed on an \"AS IS\" BASIS,\n+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+See the License for the specific language governing permissions and\n+limitations under the License.\n+*/\n+\n+package main\n+\n+import (\n+\t\"fmt\"\n+\t\"sort\"\n+\t\"strings\"\n+)\n+\n+// efficiencyRow captures throughput against the resources consumed to achieve\n+// it, so scenarios and versions can be compared on iterations/sec per CPU\n+// core and per GB of memory (app + sidecar combined).\n+type efficiencyRow struct {\n+\ttest         string\n+\titPerSec     float64\n+\tappCPUm      float64\n+\tappMemMB     float64\n+\tsidecarCPUm  float64\n+\tsidecarMemMB float64\n+}\n+\n+// efficiencyByDir collects rows per chart output folder so the folder README\n+// can render a summary table next to the charts.\n+var efficiencyByDir = make(map[string][]efficiencyRow)\n+\n+func recordEfficiency(dir, test string, agg Runner, ru *ResourceUsage) {\n+\tif ru == nil || agg.Iterations.Values.Rate == 0 {\n+\t\treturn\n+\t}\n+\tefficiencyByDir[dir] = append(efficiencyByDir[dir], efficiencyRow{\n+\t\ttest:         test,\n+\t\titPerSec:     agg.Iterations.Values.Rate,\n+\t\tappCPUm:      ru.AppCPUm,\n+\t\tappMemMB:     ru.AppMemMB,\n+\t\tsidecarCPUm:  ru.SidecarCPUm,\n+\t\tsidecarMemMB: ru.SidecarMemMB,\n+\t})\n+}\n+\n+// writeEfficiencyTable renders the throughput-per-resource table for one\n+// chart folder. Per-core and per-GB figures divide throughput by the combined\n+// app + sidecar usage.\n+func writeEfficiencyTable(b *strings.Builder, rows []efficiencyRow) {\n+\tif len(rows) == 0 {\n+\t\treturn\n+\t}\n+\tsort.Slice(rows, func(i, j int) bool { return rows[i].test < rows[j].test })\n+\tb.WriteString(\"### Throughput per resource\\n\\n\")\n+\tb.WriteString(\"Iterations/sec relative to the CPU and memory consumed by the app and its Dapr sidecar combined.\\n\")\n+\tb.WriteString(\"Resource figures are point-in-time samples taken at the end of each run: memory is steady-state and comparable across runs, but treat the per-core column as indicative only until resource usage is sampled continuously during the run.\\n\\n\")\n+\tb.WriteString(\"| Test | Iterations/sec | App CPU (m) | App Mem (MB) | Sidecar CPU (m) | Sidecar Mem (MB) | Iter/s per core | Iter/s per GB |\\n\")\n+\tb.WriteString(\"| --- | --- | --- | --- | --- | --- | --- | --- |\\n\")\n+\tfor _, r := range rows {\n+\t\ttotalCores := (r.appCPUm + r.sidecarCPUm) / 1000\n+\t\ttotalGB := (r.appMemMB + r.sidecarMemMB) / 1024\n+\t\tperCore := \"n/a\"\n+\t\tif totalCores > 0 {\n+\t\t\tperCore = fmt.Sprintf(\"%.1f\", r.itPerSec/totalCores)\n+\t\t}\n+\t\tperGB := \"n/a\"\n+\t\tif totalGB > 0 {\n+\t\t\tperGB = fmt.Sprintf(\"%.1f\", r.itPerSec/totalGB)\n+\t\t}\n+\t\tfmt.Fprintf(b, \"| %s | %.2f | %.0f | %.0f | %.0f | %.0f | %s | %s |\\n\",\n+\t\t\tr.test, r.itPerSec, r.appCPUm, r.appMemMB, r.sidecarCPUm, r.sidecarMemMB, perCore, perGB)\n+\t}\n+\tb.WriteString(\"\\n\")\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/perf/report/readme.go",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "patch": "@@ -78,6 +78,12 @@ func writeFolderReadme(dir string, imagePrefix string) error {\n \t}\n \tgroups := groupPngsByTest(names)\n \tvar b strings.Builder\n+\tif *infra != \"\" {\n+\t\tb.WriteString(\"**Test environment:** \")\n+\t\tb.WriteString(*infra)\n+\t\tb.WriteString(\"\\n\\n\")\n+\t}\n+\twriteEfficiencyTable(&b, efficiencyByDir[dir])\n \tfor _, group := range groups {\n \t\tb.WriteString(\"### \")\n \t\tb.WriteString(group.baseName)",
+      "patch_truncated": false
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "type": "issue",
+  "number": 9729,
+  "title": "Expose advanced workflow management APIs (list, history, rewind) in all Dapr SDKs",
+  "state": "open",
+  "body": "## In what area(s)?\n\n> /area runtime\n> /area sdk\n\n## Describe the feature\n\nThe workflow runtime already exposes these operations:\n\n- `ListInstanceIDs` \u2014 list workflow instances with pagination\n- `GetInstanceHistory` \u2014 get full execution history for a workflow instance\n- Rerun API \u2014 rerun failed workflow instances from history\n\nThese should be wrapped in all Dapr SDKs so users can access them without directly using the gRPC channel.\n\n## Release Note\n\nRELEASE NOTE: **ADD** workflow management APIs (list, history, rewind) to Dapr SDKs",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "nelson-parente",
+  "created_at": "2026-03-31T15:45:32Z",
+  "updated_at": "2026-06-11T15:27:57Z",
+  "comments": [
+    {
+      "user": "1Ninad",
+      "body": "Hi @nelson-parente, I would like to work on this issue. I plan to implement these APIs in the Python SDK. Please let me know if I can start working on it.",
+      "created_at": "2026-04-02T18:04:17Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "@1Ninad if you comment /assign then you should be able to be assigned! thanks!",
+      "created_at": "2026-05-12T10:29:42Z"
+    },
+    {
+      "user": "viswapriya22",
+      "body": "@alicejgibbons @nelson-parente Is there any chance this feature will be prioritized for the 1.19 release?",
+      "created_at": "2026-06-11T15:27:44Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9729",
+  "is_seed": false,
+  "partial": false
+}

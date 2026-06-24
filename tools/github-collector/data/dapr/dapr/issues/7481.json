@@ -1,0 +1,25 @@
+{
+  "type": "issue",
+  "number": 7481,
+  "title": "Error Standardization: State API",
+  "state": "open",
+  "body": "Richer errors in Dapr for the **State API**.\r\n\r\n**Note**: Please clone this issue and assign the clone of this issue to yourself if you would like to contribute to the error standardization efforts.\r\n\r\n# Scope of work\r\n\r\n- [ ] Choose 5-10 errors in the State API to enrich. Ideally, cover as many errors as possible from the API.\r\n- [ ] Follow the steps outlined in [this README](https://github.com/dapr/dapr/blob/master/pkg/api/errors/README.md) for each error being updated\r\n\r\n# Definition of done\r\n\r\n- [ ] Update 5-10 errors in the State API\r\n- [ ] Update the unit tests, if necessary\r\n- [ ] Write integration tests to cover each updated errors\r\n\r\n# Keep in mind\r\n\r\nUnless a major version is being released and there is a solid reason for introducing backwards incompatibility, we can't change the API, meaning the HTTP and gRPC status codes, and the error codes must stay the same. An exception to this is the gRPC `StatusCode.UNKNOWN` which should be converted to a specific status.\r\n\r\nSee the [kit errors pkg README](https://github.com/dapr/kit/blob/main/errors/README.md) for another usage example. For each error being updated, you can use the following helper functions to add error details, see the kit [errors pkg](https://github.com/dapr/kit/tree/main/errors) for more details:\r\n\r\n- `WithHelpLink()`\r\n-  `WithHelp()`\r\n-  `WithErrorInfo()` - **Required**\r\n-  `WithFieldViolation()`\r\n-  `WithDetails()`\r\n\r\n# Reference PRs\r\nExisting error standardization for: \r\n- [State API](https://github.com/dapr/dapr/pull/7257)\r\n- [PubSub API](https://github.com/dapr/dapr/pull/7322)",
+  "labels": [
+    "good first issue"
+  ],
+  "user": "cicoyle",
+  "created_at": "2024-02-02T19:51:00Z",
+  "updated_at": "2026-06-06T11:44:31Z",
+  "comments": [
+    {
+      "user": "lghuy05",
+      "body": "Hi! I'm a student in the CodePath AI301 open source program and I'd like to work on this issue. I'll start by reviewing the error standardization README and the reference PRs this week. Let me know if this is still available!",
+      "created_at": "2026-06-06T11:44:31Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/7481",
+  "is_seed": false,
+  "partial": false
+}

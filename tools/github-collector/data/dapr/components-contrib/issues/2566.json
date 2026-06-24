@@ -1,0 +1,31 @@
+{
+  "type": "issue",
+  "number": 2566,
+  "title": "Multi-topic subscriptions using regular expressions for the Apache Pulsar Pub/Sub Building Block",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\n<!-- Please also discuss possible business value -->\r\nWhen a consumer subscribes to a Pulsar topic, by default it subscribes to one specific topic, such as persistent://public/default/my-topic. However, Pulsar consumers can simultaneously subscribe to multiple topics using two methods:\r\n\r\na) By explicitly defining a list of topics. This is the only method Dapr supports today.\r\nb) On the basis of a [regular expression](https://en.wikipedia.org/wiki/Regular_expression)) (regex), for example, persistent://public/default/finance-.*\r\n\r\nSource: [Apache Pulsar - Multi-topic subscriptions](https://pulsar.apache.org/docs/2.11.x/concepts-messaging/#multi-topic-subscriptions)\r\n\r\nThis feature request is for implementing method b). The benefit is apparent when a consumer needs to subscribe to a large number of topics that comply with a naming convention. Apache Pulsar automatically discovers new topics meeting the regular expression to maintain consumer subscriptions current. The Apache Pulsar community is working on [PIP-145](https://github.com/apache/pulsar/issues/14505) to further improve performance of the topic discovery protocol thus making the use of regular expression more attractive. \r\n\r\nOne possible way to implement this feature request is by adding logic to the Dapr [Subscription](https://github.com/apache/pulsar/issues/14505) custom resource controller to handle regular expressions in the \"topic\" clause.\r\n\r\nNote: Although this feature is requested specifically for Apache Pulsar, other Pub/Sub products supporting regular expressions like Apache Kafka, would benefit as well.\r\n\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted"
+  ],
+  "user": "hugosmitter",
+  "created_at": "2023-02-22T17:12:51Z",
+  "updated_at": "2023-02-23T20:31:54Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "Any changes to the way subscriptions work will be difficult to justify unless you can show how other pubsub components will also benefit from this change.\r\n\r\nCan you provide some specific evidence that explains how Kafka benefits from this? Are any of the other existing Pubsub components able to benefit from this?\r\n\r\nIf you can find that info I encourage you to open an issue in github.com/dapr/dapr to request support regular expressions in subscriptions (both programmatic and declarative [via the CRD]) and reference this issue here.\r\n\r\nI would transfer this issue to the runtime repo, but cannot because it is Pulsar specific - and a specific implementation issue for Pulsar needs to exist as well. A runtime issue on which this very issue would then depend would be best. Thanks.",
+      "created_at": "2023-02-23T19:05:56Z"
+    },
+    {
+      "user": "hugosmitter",
+      "body": "For Kafka: Here's an example on how to use regular expressions in Go using the Sarama client library, which is the library Dapr uses today: https://github.com/Shopify/sarama/issues/1382. As with Pulsar, Kafka gives you a choice of subscribing to a list of topics or constructing a regular expression for the topics of interest.\r\n\r\nFor NATS: Similar objective, but NATS uses wildcards instead of regular expressions (https://docs.nats.io/using-nats/developer/receiving/wildcards?q=bits)\r\n\r\nThanks for your suggestion. I'll open an issue in dapr/dapr.\r\n\r\n",
+      "created_at": "2023-02-23T20:31:53Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2566",
+  "is_seed": false,
+  "partial": false
+}

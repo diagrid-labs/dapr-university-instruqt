@@ -1,0 +1,53 @@
+{
+  "type": "issue",
+  "number": 10065,
+  "title": "Has v1.18 been released recently? About when?",
+  "state": "open",
+  "body": "Has v1.18 been released recently? About when?\n",
+  "labels": [],
+  "user": "bbhxwl",
+  "created_at": "2026-06-08T01:27:11Z",
+  "updated_at": "2026-06-08T05:32:47Z",
+  "comments": [
+    {
+      "user": "WhitWaldo",
+      "body": "Aiming for this week",
+      "created_at": "2026-06-08T03:58:25Z"
+    },
+    {
+      "user": "bbhxwl",
+      "body": "> Aiming for this week\n\nok\uff0c I am still in version 1.16 and do not want to upgrade to version 1.17. I will wait for version 1.18 to update.\n",
+      "created_at": "2026-06-08T03:59:32Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "I believe the recommended guidance is to upgrade in order. Might I ask why you don't want to upgrade to 1.17?",
+      "created_at": "2026-06-08T04:24:24Z"
+    },
+    {
+      "user": "bbhxwl",
+      "body": "> I believe the recommended guidance is to upgrade in order. Might I ask why you don't want to upgrade to 1.17?\n\nBecause I integrated 1.16, but didn't actually use it. It's too difficult for small companies to deploy with only three servers.\nSo I want to wait until 1.18 to see if there are any improvements.\n",
+      "created_at": "2026-06-08T04:35:18Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "We've got several pretty straightforward guides [published](https://docs.dapr.io/operations/hosting/kubernetes/cluster/) and unless you're really getting into the weeds of the customization, it really shouldn't be _that_ complicated to set up. To my knowledge, nothing is changing on the install front - it's workflow and actor updates, some new components and some CLI improvements.\n\nDo feel free to reach out on our [Discord channel](http://bit.ly/dapr-discord) if you're having any issues - I or someone else can certainly try to chime in and set you on the right path.",
+      "created_at": "2026-06-08T04:55:20Z"
+    },
+    {
+      "user": "bbhxwl",
+      "body": "> We've got several pretty straightforward guides [published](https://docs.dapr.io/operations/hosting/kubernetes/cluster/) and unless you're really getting into the weeds of the customization, it really shouldn't be _that_ complicated to set up. To my knowledge, nothing is changing on the install front - it's workflow and actor updates, some new components and some CLI improvements.\n> \n> Do feel free to reach out on our [Discord channel](http://bit.ly/dapr-discord) if you're having any issues - I or someone else can certainly try to chime in and set you on the right path.\n\nI looked at it and it was the same issue before. Without k8s, I had to configure and deploy three internal network servers on my own, which seemed difficult to implement. My program was deployed using Docker Composer by myself.\n",
+      "created_at": "2026-06-08T05:20:09Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "It is certainly intended to be used as a sidecar pattern using an orchestrator like Kubernetes, but there are a few alternative deployment styles. I've heard of several people that use [Docker Compose](https://docs.dapr.io/operations/hosting/self-hosted/self-hosted-with-docker/#run-using-docker-compose).  If the setup itself is a little too much, you might also look at using [Diagrid's Catalyst](https://www.diagrid.io/catalyst) solution - it's a hosted version of Dapr so all you need to do is configure and connect to it, no local setup required.",
+      "created_at": "2026-06-08T05:32:47Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/10065",
+  "is_seed": false,
+  "partial": false
+}
