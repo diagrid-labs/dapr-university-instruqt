@@ -1,0 +1,83 @@
+{
+  "type": "issue",
+  "number": 8831,
+  "title": "Ability to configure the Publish metadata for DLQ in Subscription spec",
+  "state": "open",
+  "body": "\n\n<!-- Remove the '> ' to select -->\n\n /area runtime\n\n> /area operator\n\n> /area placement\n\n> /area docs\n\n> /area test-and-release\n\n> /area injector\n\n> /area scheduler\n\n> /area sentry\n\n## Describe the proposal\n<!-- Please use this for a concrete design proposal for functionality. -->\n<!-- If you just want to request a new feature and discuss the possible business value, create a Feature Request. -->\n\nAbility to configure Publish metadata for DLQ in Subscription spec:\n- Currently, it is not possible to configure DLQ publish metadata other than the DLQ topic name itself. This is limiting as there is some important per-component type metadata config (e.g. rawPayload, serialization, etc...).\n- There is a current convoluted and confusing loophole for components supporting headers and converting metadata to header in the publish message. These headers are converted back to metadata and have impact to the DLQ publishing but there is a high variability of the behavior depending on HOW these messages are published...\n- The recommendation is therefore to allow configuring DLQ publish metadata within the subscription itself. Here is a suggested spec that is backwards compatible:\n```\napiVersion: dapr.io/v2alpha1\nkind: Subscription\nmetadata:\n  name: <REPLACE-WITH-NAME>\nspec:\n  topic: <REPLACE-WITH-TOPIC-NAME> # Required\n  routes: # Required\n    rules:\n      - match: <REPLACE-WITH-CEL-FILTER>\n        path: <REPLACE-WITH-PATH>\n  pubsubname: <REPLACE-WITH-PUBSUB-NAME> # Required\n  deadLetterTopic: <REPLACE-WITH-DEADLETTERTOPIC-NAME> # Optional\n  deadLetterTopicPublishMetadata:\n     - name: valueSchemaType\n        value: Avro\n     - name: rawPayload\n        value: true\n  # [...]\nscopes:\n- <REPLACE-WITH-SCOPED-APPIDS>\n```\nIf we wanted to introduce a 'cleaner' `v3alpha1` version:\n```\napiVersion: dapr.io/v2alpha1\nkind: Subscription\nmetadata:\n  name: <REPLACE-WITH-NAME>\nspec:\n  topic: <REPLACE-WITH-TOPIC-NAME> # Required\n  routes: # Required\n    rules:\n      - match: <REPLACE-WITH-CEL-FILTER>\n        path: <REPLACE-WITH-PATH>\n  pubsubname: <REPLACE-WITH-PUBSUB-NAME> # Required\n  deadLetterTopic: # Optional\n    name:  <REPLACE-WITH-DLQ-TOPIC-NAME>\n    publishMetadata:\n     - name: valueSchemaType\n        value: Avro\n     - name: rawPayload\n        value: true\n  # [...]\nscopes:\n- <REPLACE-WITH-SCOPED-APPIDS>\n```",
+  "labels": [],
+  "user": "passuied",
+  "created_at": "2025-06-24T00:24:47Z",
+  "updated_at": "2026-04-10T13:52:58Z",
+  "comments": [
+    {
+      "user": "alicejgibbons",
+      "body": "@passuied I think this is a valuable feature. Specifically this has come up before within the context of having metadata specific to the subscription itself (not limited to the DLQ). Curious what your thoughts are on expanding this to allow both metadata in the `topic` section as well as in the `deadLetterTopic` section.\n\nFor instance, to subscribe to a specific messageKey (representing partition number). This would be the ability to subscribe to specific partitions, related to publishing to specific partitions: https://github.com/dapr/components-contrib/issues/3860\n",
+      "created_at": "2025-06-25T00:45:05Z"
+    },
+    {
+      "user": "passuied",
+      "body": "@alicejgibbons it is already possible to set `metadata` for a given topic so that part is not new... We already leverage it to drive the serialization strategy and other aspects specific to the subscription...\n```\napiVersion: dapr.io/v2alpha1\nkind: Subscription\nmetadata:\n  name: <REPLACE-WITH-NAME>\n[...]\n```",
+      "created_at": "2025-06-25T17:01:45Z"
+    },
+    {
+      "user": "passuied",
+      "body": "> This would be the ability to subscribe to specific partitions, related to publishing to specific partitions: https://github.com/dapr/components-contrib/issues/3860\n\nUnfortunately, Kafka doesn't allow a consumer to choose which partition it is associated to. However sarama does support configuring a static `group.instance.id` that would stabilize the assignment of a given consumer when stability is important... This could be helpful to add support for but in the `component metadata` itself I think along with `consumerGroup` ",
+      "created_at": "2025-06-25T18:00:03Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "@passuied thanks for the clarification, we need a docs update for this for sure - at least for the metadata at the topic level..",
+      "created_at": "2025-07-04T18:53:51Z"
+    },
+    {
+      "user": "passuied",
+      "body": "@alicejgibbons sure. Would you prefer the bw compatible model or the breaking change?\n\nNot sure we can make the better model be compatible in theory we should be able to. Essentially accepting either a string or an object. ",
+      "created_at": "2025-07-04T18:56:16Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "Backward compatible for sure for the DLQ metadata.\n\nMy docs comment was around the fact that you could provide metadata for the topic on the subscription object, is that documented anywhere currently? ",
+      "created_at": "2025-07-04T19:14:40Z"
+    },
+    {
+      "user": "passuied",
+      "body": "\n> My docs comment was around the fact that you could provide metadata for the topic on the subscription object, is that documented anywhere \n\nDefinitely not clearly documented in the spec but much clearer in the sdks\n",
+      "created_at": "2025-07-04T20:47:32Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-10-02T20:51:40Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "not stale",
+      "created_at": "2025-10-06T10:11:31Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-01-04T10:28:42Z"
+    },
+    {
+      "user": "passuied",
+      "body": "Not stale",
+      "created_at": "2026-01-04T17:51:53Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-04-10T12:24:28Z"
+    },
+    {
+      "user": "passuied",
+      "body": "Not stale",
+      "created_at": "2026-04-10T13:18:04Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/8831",
+  "is_seed": false,
+  "partial": false
+}

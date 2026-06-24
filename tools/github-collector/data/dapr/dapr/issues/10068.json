@@ -1,0 +1,27 @@
+{
+  "type": "issue",
+  "number": 10068,
+  "title": "Respect resiliency retry matching on pub/sub publish errors",
+  "state": "open",
+  "body": "_Creating this ticket for #10062 to track against._\n\nResiliency retry matching is currently ignored on the pubsub publish path - the retry runner only checks the configured status codes when the error is a resiliency.CodeError, but unlike the other runners (service invocation, gRPC proxy, bindings, subscriber delivery) the publish path returns the raw broker error, so the match never hits and every publish error retries up to maxRetries no matter what codes you configure.",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "atrauzzi",
+  "created_at": "2026-06-08T16:32:10Z",
+  "updated_at": "2026-06-08T21:08:34Z",
+  "comments": [
+    {
+      "user": "cicoyle",
+      "body": "contrib patches were cut for 1.18.0-rc.2 and 1.17.7. \n\ndapr PRs are here:\n[1.17](https://github.com/dapr/dapr/pull/10071)\n[1.18](https://github.com/dapr/dapr/pull/10070)\n\nOnce merged we can cut the next dapr versions accordingly for v1.18.0-rc.6 && v1.17.10",
+      "created_at": "2026-06-08T21:08:34Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    10062
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/10068",
+  "is_seed": false,
+  "partial": false
+}

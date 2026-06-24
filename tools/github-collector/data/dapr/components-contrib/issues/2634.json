@@ -1,0 +1,52 @@
+{
+  "type": "issue",
+  "number": 2634,
+  "title": "Oauth2 Middleware control over redirect at end of auth code grant flow",
+  "state": "open",
+  "body": "## Describe the feature\r\nDuring auth code grant flow, Oauth2 middleware saves the incoming URL at the beginning of the flow. It then redirects to that URL at the end of the flow. However, this incoming URL may be a rewrite at ingress or some other internal cluster URL. \r\n\r\nThis is where incoming URL is saved: https://github.com/dapr/components-contrib/blob/f2a9e30cddca28d4888475fcf40da1a8ab12ef1b/middleware/http/oauth2/oauth2_middleware.go#LL105C5-L105C37\r\n\r\nThis feature would allow for control over the redirect at the end of the flow either by providing a fixed redirect in the middleware metadata or by looking for a redirect URL in the the queryString of the incoming request. \r\n\r\n## Release Note\r\nRELEASE NOTE: ADD Ability to specify redirect after authorization in Oauth2 Middleware.\r\n",
+  "labels": [
+    "kind/enhancement",
+    "good first issue",
+    "P2",
+    "pinned"
+  ],
+  "user": "drewby",
+  "created_at": "2023-03-06T02:48:41Z",
+  "updated_at": "2023-10-27T08:26:26Z",
+  "comments": [
+    {
+      "user": "SpikeWong",
+      "body": "/assign",
+      "created_at": "2023-03-19T01:32:25Z"
+    },
+    {
+      "user": "SpikeWong",
+      "body": "To confirm, what I need to do is allow the user to define a fixed redirect url in the meta, and if the user also provides a redirect url in the query param, I'll use the redirect url in the query param",
+      "created_at": "2023-03-19T01:35:06Z"
+    },
+    {
+      "user": "SpikeWong",
+      "body": "@ItalyPaleAle ",
+      "created_at": "2023-03-26T14:40:28Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "@SpikeWong I'm ok with that if you want to work on it! Thanks :)\r\n\r\nNote that we also have a bunch of work schedule for this middleware for 1.11: #2635 ",
+      "created_at": "2023-03-26T15:13:48Z"
+    },
+    {
+      "user": "ParrySMS",
+      "body": "any solution idea or fixing in progress?",
+      "created_at": "2023-10-27T08:26:25Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    2736
+  ],
+  "referenced_issue_numbers": [
+    2635
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2634",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,47 @@
+{
+  "type": "issue",
+  "number": 8188,
+  "title": "Release Expectations: Clarify discrepancies and update to be easier for end users to understand",
+  "state": "open",
+  "body": "The Dapr project has a robust and healthy release process, however, some of the release process may be confusing for end users looking to adopt the project.\r\n\r\nThe TOC recommends the Dapr project update the release process and documentation to make it more clear and in line with [expectations for Graduated projects](https://github.com/cncf/toc/pull/1269):\r\n\r\n- There is a discrepancy between the Release Process document and the Support Release Policy document, please update to be more precise in the supported language between the two documents\r\n- There is a lifecycle tagging discrepancy between core Dapr releases and supported components. Please align the maturity tagging of each to be more clear.\r\n- There is no Tagging policy document. Please update a current policy page with the information or create a new page to specify the Tagging policy for core Dapr releases and component releases.\r\n- Releases are not currently clearly tagged as stable, unstable and security/bug release. Please update tagging and documentation to clearly specify stable, unstable and security/bug release.\r\n\r\nxref: [cncf/toc#1354](https://github.com/cncf/toc/issues/1354)",
+  "labels": [
+    "good first issue",
+    "pinned",
+    "docs-needed"
+  ],
+  "user": "angellk",
+  "created_at": "2024-10-10T17:46:53Z",
+  "updated_at": "2025-02-21T20:04:31Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-12-09T17:51:47Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 67 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2024-12-16T18:03:11Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-02-14T18:39:42Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 67 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2025-02-21T18:39:53Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    1354
+  ],
+  "referenced_issue_numbers": [
+    703,
+    4549
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/8188",
+  "is_seed": false,
+  "partial": false
+}

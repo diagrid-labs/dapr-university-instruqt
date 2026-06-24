@@ -1,0 +1,45 @@
+{
+  "type": "issue",
+  "number": 9085,
+  "title": "[Workflows] Incorrect value being set on output during failed workflow",
+  "state": "open",
+  "body": "When a Workflow throws an exception which puts the workflow into a `failed` state, the value of `dapr.workflow.failure.error_message` is copied into `dapr.workflow.output` which I believe is wrong behaviour.\n\nIMO If a workflow has not completed successfully, the `output` should be undefined/null\n\n## In what area(s)?\n\n/area runtime\n\n## What version of Dapr?\n\n1.16\n\n## Expected Behavior\n\n`\"dapr.workflow.output\"` is set to empty value or something that represents null e.g.`\"\"`\n\n## Actual Behavior\n\n```json\n{\n    \"instanceID\": \"0-210\",\n    \"workflowName\": \"FanOutWorkflow\",\n    \"createdAt\": \"2025-09-26T21:48:05.974667500Z\",\n    \"lastUpdatedAt\": \"2025-09-26T21:48:07.122787625Z\",\n    \"runtimeStatus\": \"FAILED\",\n    \"properties\": {\n        \"dapr.workflow.failure.error_message\": \"Task 'SuperSlowActivity' (#0) failed with an unhandled exception: bomb\",\n        \"dapr.workflow.failure.error_type\": \"Dapr.Workflow.WorkflowTaskFailedException\",\n        \"dapr.workflow.input\": \"{\\\"RandomData\\\":\\\"b4cf9ba7-f925-4190-831f-fa1bdf77d40f\\\",\\\"Itterations\\\":200,\\\"Data\\\":null}\",\n        \"dapr.workflow.output\": \"Task 'SuperSlowActivity' (#0) failed with an unhandled exception: bomb\"\n    }\n}\n```\n\ncc @JoshVanL \n\n<!-- Briefly describe what is actually happening -->\n\n\n## Steps to Reproduce the Problem\n\n<!-- How can a maintainer reproduce this issue (be detailed) -->\n\n## Release Note\n\n<!-- How should the fix for this issue be communicated in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE:\n",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "olitomlinson",
+  "created_at": "2025-09-27T07:33:45Z",
+  "updated_at": "2026-04-10T13:18:05Z",
+  "comments": [
+    {
+      "user": "rich7420",
+      "body": "I\u2019d like to work on this issue if that\u2019s okay. ",
+      "created_at": "2025-10-06T13:11:33Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-01-04T13:13:59Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "Bump",
+      "created_at": "2026-01-04T19:50:41Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-04-10T12:24:31Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "bump",
+      "created_at": "2026-04-10T12:56:34Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9085",
+  "is_seed": false,
+  "partial": false
+}

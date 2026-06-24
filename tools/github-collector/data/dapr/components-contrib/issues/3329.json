@@ -1,0 +1,26 @@
+{
+  "type": "issue",
+  "number": 3329,
+  "title": "Add support for pagination with Query API in Redis State Store",
+  "state": "open",
+  "body": "It seems that the paginated Query API is not being unit tested for Redis as - for example - is done here for Postgresql: \r\nhttps://github.com/dapr/components-contrib/blob/c693061efb732c538d4c3a09e9936f8bc49c8726/common/component/postgresql/v1/postgresql_query_test.go#L36-L43 \r\n\r\n## Expected Behavior\r\n\r\nAdd a unit test that checks that pagination works with Query API on Redis State Store\r\n\r\n## Actual Behavior\r\n\r\nQuery API on Redis State store seems not to be working correctly (at least on 1.12.4) when using \"limit\" and \"token\" parameters.\r\n\r\n## Steps to Reproduce the Problem\r\n\r\nTry Query API with pagination parameters (token and limit) on a Redis State Store anche check that the correct responses are received. \r\n\r\n## Release Note\r\n\r\nRELEASE NOTE: **FIX** Pagination management on Query API for Redis.\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted"
+  ],
+  "user": "gspadotto",
+  "created_at": "2024-02-02T12:05:42Z",
+  "updated_at": "2024-02-07T01:09:35Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "Query API is poorly designed and will never become stable, so I don't advise relying on this. It will remain Alpha forever. Some other maintainers didn't agree labeling it as deprecated - but in reality, it's quasi deprecated.\r\n\r\nSome features like pagination only works for a subset of the few state stores that implement Query API support. This is expected. From our understanding, Redis has no mechanism that would allow us to implement pagination - and we also do not consider this to be a priority.\r\n\r\nEDIT: We use `HGET` and `JSON.GET` functions from REDIS which do not support paging. To support paging in Query API properly we would also have to change how Dapr stores data in redis using indices.\r\n\r\nOne option is to create an index from your search parameters using https://redis.io/commands/ft.create/ and then using https://redis.io/commands/ft.aggregate/ with Cursor to begin the search on that index, and then paging via https://redis.io/commands/ft.cursor-read/\r\n\r\nPRs welcome.",
+      "created_at": "2024-02-07T00:51:16Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3329",
+  "is_seed": false,
+  "partial": false
+}

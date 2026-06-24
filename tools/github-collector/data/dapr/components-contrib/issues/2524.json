@@ -1,0 +1,41 @@
+{
+  "type": "issue",
+  "number": 2524,
+  "title": "Postgres State Store - Support GIN indexes in Query API",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\nCertain databases like CosmosDB automatically index every key of a document, and benefit from improved query times on larger tables because of it\r\n\r\nIt would be nice if we could take advantage of the similar GIN index in Postgres. \r\n\r\nFrom what I can tell, it's just a matter of exposing a toggle and a slightly different translateFieldToFilter function.\r\n\r\nThe current syntax for queries generated something like \r\n\r\n`SELECT * FROM public.state WHERE value->>'somefield' = 'somevalue' `\r\n\r\nTaking advantage of a GIN index is as simple as \r\n\r\n`SELECT * FROM public.state WHERE value @> '{\"somefield\": \"somevalue\"}';`\r\n\r\nI can contribute to this, but looking for some feedback on whether we have already considered something like this, and if no is it a good idea? Seems like a simple enough change with a big enough payday to be worthwhile. In some local testing I saw upwards of 7000x better performance on the above queries and a table with 10M record. \r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\nEnable it on the State Store component, it would be nice if we could create the GIN index as well while creating the table if the setting is enabled. \r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted"
+  ],
+  "user": "joshuadmatthews",
+  "created_at": "2023-02-11T00:21:24Z",
+  "updated_at": "2023-02-15T16:39:00Z",
+  "comments": [
+    {
+      "user": "ItalyPaleAle",
+      "body": "I can totally see the value of using GIN indexes, but I am not sure we want to enable this by default. Two reasons:\r\n\r\n1. The Query APIs in the state store are going to be revamped and moved to a [separate building block](https://github.com/dapr/dapr/issues/5146). The current state store building block is very generic and needs to support a lot of use cases.\r\n1. An index on the value is not free and it does cost a lot in terms of memory, storage, and write speed. Precisely because this building block is generic, adding an index by default would be a \"tax\" on everyone using the component.\r\n\r\nYou're obviously more than welcome to add the index to your own tables. At the end of the day, they're just tables in Postgres and you can add your indexes as well. In fact, in Dapr 1.10 we are adding support for TTLs in the Postgres state store, but not adding an index by default, and instead we encourage users to [add it manually](https://v1-10.docs.dapr.io/reference/components-reference/supported-state-stores/setup-postgresql/#ttls-and-cleanups) if they need it.",
+      "created_at": "2023-02-12T06:58:48Z"
+    },
+    {
+      "user": "joshuadmatthews",
+      "body": "To clarify I wasn\u2019t suggesting changing the default behavior, I am proposing a setting on the state store component to allow opting into GIN indexing. \r\n\r\nSetting a GIN index manually would be a fruitless effort because, as I pointed out, the query format of the where condition needs to change to take advantage of containment queries to leverage the index properly on a jsonb column. See https://pganalyze.com/blog/gin-index",
+      "created_at": "2023-02-12T07:10:25Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "> To clarify I wasn\u2019t suggesting changing the default behavior, I am proposing a setting on the state store component to allow opting into GIN indexing.\r\n> \r\n> Setting a GIN index manually would be a fruitless effort because, as I pointed out, the query format of the where condition needs to change to take advantage of containment queries to leverage the index properly on a jsonb column. See https://pganalyze.com/blog/gin-index\r\n\r\nPRs are welcome but keep in mind that the Query API in State Store will not be made Stable.\r\n\r\nOnce the Document Store Building Block proposal is completed (no ETA right now) the deprecation of Query API in State Store will be announced. Eventually there may be a Document Store implementation for Postgres - but this is not interchangeable with the State Store, and not intended to be able to read/write the same keys (across state store and document store implementations)",
+      "created_at": "2023-02-13T22:29:19Z"
+    },
+    {
+      "user": "joshuadmatthews",
+      "body": "@berndverst I understand, this isn't something that needs to be rushed, maybe just something we could include in the DocumentStore Postgres component whenever it comes along. The syntax for both types of where condition are so similar it seems like a toggle would be relatively easy to implement. \r\n\r\nThe performance benefits are substantial, and because of the fastupdate mechanism of postgres GIN index there is very little effect on write speed until you get to really high throughput write tables where the fastupdate mechanism can't keep up.",
+      "created_at": "2023-02-15T16:37:34Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2524",
+  "is_seed": false,
+  "partial": false
+}

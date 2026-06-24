@@ -1,0 +1,42 @@
+{
+  "type": "issue",
+  "number": 2879,
+  "title": "Add built-in dead letter support for rabbitmq binding",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\nAdd built-in dead letter support for rabbitmq binding. The dead letter queue name should be able to be defined via metadata, in order to support using an existing rabbitMQ Queue with a predefined dead letter queue.\r\n\r\nOriginal context from [discord chat message](https://discord.com/channels/778680217417809931/901141509267685436/1111169521252835409).\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE: Add built-in dead letter support for rabbitmq binding.\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted",
+    "good first issue"
+  ],
+  "user": "Taction",
+  "created_at": "2023-06-01T02:52:53Z",
+  "updated_at": "2025-12-18T13:24:38Z",
+  "comments": [
+    {
+      "user": "SpikeWong",
+      "body": "/assign",
+      "created_at": "2023-06-04T06:34:11Z"
+    },
+    {
+      "user": "SpikeWong",
+      "body": "@Taction  I'm sorry I didn't spend time on this issue because I was too busy a while ago. As I understand it, do we allow the user to declare the name of the dead letter exchange/queue in the metadata, and check if it exists before declaring the exchange/queue, and if it exists, do nothing, if not, declare it (this relates to whether we allow the user to customize the dlx/ dlq parameters, perhaps we can just stick with the existing configuration `r.ensureExchangeDeclared(channel, dlxName, fanoutExchngeKind, true, r.metadata.DeleteWhenUnused)`/`channel.QueueDeclare(dlqName, true, r.metadata.DeleteWhenUnused, false, false, dlqArgs)`).  Is I understand correctly?",
+      "created_at": "2023-07-02T12:40:52Z"
+    },
+    {
+      "user": "akstron",
+      "body": "/assign",
+      "created_at": "2023-09-10T14:50:55Z"
+    },
+    {
+      "user": "jcnewman83",
+      "body": "Hey, is this something that is in the roadmap for introduction any time soon. I have a number of bindings that have dead letter queue requirements. I guess my only recorse at the moment is to switch to the pub/sub component? \ud83d\ude42 ",
+      "created_at": "2025-12-18T13:24:37Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2879",
+  "is_seed": false,
+  "partial": false
+}

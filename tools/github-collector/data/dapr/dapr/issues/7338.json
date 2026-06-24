@@ -1,0 +1,146 @@
+{
+  "type": "issue",
+  "number": 7338,
+  "title": "[Proposal] New Building Block: Key/Value Store",
+  "state": "open",
+  "body": "## In what area(s)?\r\n/area runtime\r\n\r\n## Describe the proposal\r\nBut wait, don't we already have this with the state store? Yes, sort of, but think of the existing state store building block as a generic v1 get/set thing and this as a narrower and more specialized key/value store. It's not striving to be the kitchen sink of store APIs, but should offer features that are more aligned specifically with key/value stores.  This proposal rethinks the existing state store to add forward-looking streaming support when returning potentially large data sets (like all the keys responsive to a prefix filter), key querying and event subscriptions (e.g. fire a pub/sub event when a set or delete operation is performed).\r\n\r\nThis proposal specifically rethinks how the state store works today and re-imagines it with a next-generation API specific to key/value stores suitable to future iterations of Dapr. Several of the store providers already implemented with the state building block today would be ideal candidates for this implementation, but a great many of them might be better suited to still other specialized state building blocks.\r\n\r\n### What is a key/value store?\r\nA Key/Value Store allows arbitrarily typed values to be stored alongside a given key. While keys can be queried, values cannot be queried and are accessed only by their associated key. The querying of this key is one of the primary differences between this proposal and the existing state store building block. The goal isn't to support complex or convoluted key queries (especially those that might be better suited to a [document](https://github.com/dapr/dapr/issues/5146) or [relational](https://github.com/dapr/dapr/issues/3059) store), but is to support high-performance reads with occasional writes and updates storing relatively smaller values of data and allow keys to be retrieved given a simple prefix filter.\r\n\r\n### What isn't this proposal?\r\nThis isn't seeking to build a more elaborate version of the existing state store. Rather, this is seeking to pare down the capabilities to those strictly needed to run a bare-bones, high performance key/value store for storing keys and fairly small byte arrays of data with key prefix filtering to assist with data access. In effect, this gives the Dapr project a collective fresh start to continue iterating on valuable features for state stores once again without some of the maintenance and overhead that comes from previous design decisions while targeting certain store implementation with functionality specific to purpose.\r\n\r\nNo additional metadata will be collected alongside the values. It's expected that the various SDKs implementing this specialized store will perform any user-intended serialization (e.g. JSON, DataContract, BSON, etc.) on the client-side and emit an array of bytes for the values that will then be stored until retrieved by the sidecar and deserialized once again on the client. There will be no special operations performed based on whether the data being saved is `text/plain` or `application/json` as the sidecar won't know or care.\r\n\r\nSeveral of the functionalities made possible with the existing state store will not be possible in this implementation because fundamentally, it will only be supporting providers that facilitate the below operations on the server itself without manipulation in the sidecar. The following features in the existing state store will not be available on this building block:\r\n\r\n- TTL\r\n- Transactions\r\n- ETag\r\n- Query\r\n- Consistency\r\n- Won't be compatible with actors (and thus workflows) because of lack of ETag and transaction support\r\n\r\n### So what's left? What _will_ this support?\r\nThis implementation will provide a bare-bones key/value store that minimizes memory overhead on the sidecar and strictly builds commands (via the provider implementations) and passes them to the providers. This implementation will not support optional feature sets atop the base building block - all providers will need to support the base minimum functionality.\r\n\r\nUnlike the current state store, this will support a single operation to list the keys on the state store that match a provided prefix. The matching keys will be streamed back to the client.\r\n\r\nAlso unlike the current state store, this building block will support streaming as a first-order principal. Modern key/value stores can store an awful lot of data in the value linked with any given single key, so while there's a threshold at which (I'll cite it when I can find it again) it's less performant to stream over gRPC than strict HTTP requests, there's not an easy way to switch between them on the fly based on how large the data winds up being - as such, all values will be streamed to the sidecar and vice versa (including receipt of the keys responsive to a key prefix query) via unidirectional chunked streams. The .NET Cryptography client [currently uses](https://github.com/dapr/dotnet-sdk/blob/ddce8a2972c4ba4a9f5a7d7c6cd7a22412294d5b/src/Dapr.Client/CryptographyOptions.cs#L25) chunks of 4 KB, but there's plenty of time to mull over the default size before implementation is complete here.\r\n\r\nDevelopers are welcome to implement abstractions over this and other building blocks in the APIs that recreate the TTL, transaction and other missing support but they will not be provided as part of this building block either as a core or optional feature.\r\n\r\n## Interface\r\nThe Key/Value Store components should be able to implement all of the following capabilities using asynchronous methods that minimize back and forth operations with the sidecar. While the key should be represented as a string, the various SDKs should be responsible for serializing the value to an array of bytes that are persisted. No additional metadata should be collected regarding the various types of data stored or other operations performed based on whatever type is being operated on - this key/value store is simply an abstraction for storing arrays of bytes (values) alongside specified strings (keys) streamed to and from the provider. \r\n\r\nIf the user desires more elaborate provider-specific functionality, they should be advised to use the SDK for that provider rather than this abstraction.\r\n\r\n| Name | Description | Notes |\r\n| -- | -- | -- |\r\n| TryAdd | Adds the specified key and streamed value to the store, returns true if successfully added or false if key already exists | In other words, this doesn't seek to overwrite an existing key. |\r\n| Set | Adds the specified key/value to the store, updates with the given streamed value if the key already exists | Saves some round tripping with the sidecar and the backing store. |\r\n| TryGet | Attempts to get the value for a given key | Returns true and the streams the value back if the result is retrievable or false if not. This is an alternative to returning null when the value isn't found (as it's possible the user could have stored a null value, making the result of such a call ambiguous). |\r\n| TryRemove | Tries to remove the value(s) with the specified key(s) from the store | This is one of the few bulk operations available in that it facilitates removal of the value for each of the keys provided in the request. |\r\n| TryRemoveByPrefix | Tries to remove the value(s) associated with matching key prefixes from the store | This is one of the few bulk operations available in that it will facilitate the deletion of all values matching the keys that match a given key prefix. |\r\n| Exists | Validates that the store contains a key precisely matching the provided value and returns a boolean accordingly. | - |\r\n| ScanKeys | The only operation available for filtering the keys, this simply performs a prefix match for a given key and streams the collection of keys that are responsive to the filter. | - |\r\n\r\nIt'd be great to also be able to subscribe to an event from the Dapr runtime itself (e.g. not from a pub/sub provider per se) and potentially from other applications to receive a notification whenever the store was changed (per some scope and via the Dapr runtime) along with the key, the current value and a description of the changed state (e.g. added, removed, modified) - I haven't seen a proposal for this functionality specifically though.\r\n\r\n### Thoughts about the SDKs\r\nI'm generally going to speak to the .NET SDK here as it's the only one I'm personally familiar with, but I'd urge the same principals to be applied the other language SDKs as makes sense.\r\n\r\nI propose that as this is the first of several proposed specialty state building blocks, the SDKs take advantage of the clean split to similarly break out specific support for the functionality from a single unified `DaprClient` with an increasingly dense method space and instead implement a specific `DaprKeyValueClient` suited specifically for this purpose. \r\n\r\nToday, there's a `Dapr.Client` and `Dapr.Client.AspNetCore` NuGet package wherein the latter primarily just includes dependency injection registration support with `Microsoft.Extensions.DependencyInjection`. I would bundle these into a single `Dapr.State.KeyValue` NuGet package that includes the DI extension methods for anyone that wants to use them while also keeping the `DaprKeyValueClient` public and accessible if not.\r\n\r\nIn other words, after installing the `Dapr.State.KeyValue` package to their project, they can call `builder.Services.AddDaprClient().AddKeyValueStateStore()` or `builder.Services.AddDaprKeyValueStateStore()` to register the `DaprKeyValueClient` which is a narrow SDK implementation of only those functionalities necessary to facilitate interaction with this new Key/Value state store via Dapr.\r\n\r\nThis is the approach taken by newer .NET packages that span a lot of common pluggable operations like [.NET Aspire](https://github.com/dotnet/aspire/tree/main/src) because it:\r\n\r\n1) Makes it easier for developers to call the right methods pertaining to what they're doing (e.g. Intellisense doesn't overwhelm them with every possible action as only the narrow few available to their specific SDK are available).\r\n2) Makes ongoing maintenance and testing easier since the all the code not directly shared between pieces is sectioned off to wholly separate directories (e.g. you don't have a single file with umpteen tests in it since all the methods it calls are in the one file).\r\n3) Speaks to developer concern about bloated installs containing 90% more code than the limited functionality they were seeking to use (I don't know to what degree the Dapr .NET or other SDKs are trimmable/tree-shakable/whatever other languages do)\r\n4) We're already doing this with Workflow, one of the newest building blocks in that in the .NET SDK, it is implemented via its own dependency injection extension and workflow-specific client from the same package.\r\n\r\n\r\n### Final Thoughts\r\nI don't propose that this should be a stand-in replacement for the current state store for actors to use or even to replace it so much as complement it like other proposed document and relational data stores. This is intended simply to enable users to use Dapr to engage with a key/value store from services using the various capabilities one might generally expect from such a store with an API specific to key/value stores that is more performant and feature-specific than the current state management API can offer.\r\n\r\nThank you for the consideration!",
+  "labels": [],
+  "user": "WhitWaldo",
+  "created_at": "2024-01-02T08:36:25Z",
+  "updated_at": "2026-05-07T11:11:49Z",
+  "comments": [
+    {
+      "user": "gspadotto",
+      "body": "It would be nice to also be able to get **Values** based on selection criteria, see my comment here: \r\nhttps://github.com/dapr/components-contrib/pull/3218#issuecomment-1909675063\r\n\r\nI am not an expert at all in key-values repositories, so I do not know what the tipical Use Cases are, but I wonder what's the use of having a repository whose values you cannot retrieve unless you know beforehand which keys are \"relevant\" (where, by \"relevant\", I mean \"matching some criteria on the values\"). ",
+      "created_at": "2024-01-25T09:13:03Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-03-25T09:14:27Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "I'll circle back on this as I have some free time to write up a more formal proposal for this and my other specialized store proposals.",
+      "created_at": "2024-03-25T09:27:27Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "> It would be nice to also be able to get **Values** based on selection criteria, see my comment here: [dapr/components-contrib#3218 (comment)](https://github.com/dapr/components-contrib/pull/3218#issuecomment-1909675063)\r\n> \r\n> I am not an expert at all in key-values repositories, so I do not know what the tipical Use Cases are, but I wonder what's the use of having a repository whose values you cannot retrieve unless you know beforehand which keys are \"relevant\" (where, by \"relevant\", I mean \"matching some criteria on the values\").\r\n\r\nRedis-like APIs tend to support a SCAN operator that let you query keys based on a given prefix. I think that'd be a worthwhile addition to this API for those key/value stores that support it. \r\n\r\nThat said, they do tend to be optimized in such a way that queries against the values aren't necessarily fitting the use-case. There, you might have better luck with a NoSQL database like Cosmos that does more on-the-fly indexing of those values allowing for the values to be more readily queried than they could here.",
+      "created_at": "2024-03-25T09:30:21Z"
+    },
+    {
+      "user": "gspadotto",
+      "body": "> dapr/components-contrib#3218 (comment)\r\n\r\nWell... Redis State Store (just to name one) already supports querying on values (via Dapr' Query API), see: \r\nhttps://docs.dapr.io/reference/components-reference/supported-state-stores/setup-redis/#querying-json-objects-optional\r\n\r\nThe point is - IMHO - that the proposed Interface should be rich enough to cover all typical key/value store use-cases, but still be implementable from a wide set of providers. \r\n\r\nAt the moment I am not sure if querying **on the values** should or should not be part of the proposed interface, even though it would make key/value stores much more useful. \r\n\r\nMaybe querying on values should be part of a different, specific API as the one outlined [here](https://github.com/dapr/dapr/issues/5146).",
+      "created_at": "2024-03-25T13:29:33Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-05-24T13:31:39Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "The Dapr Query API has been effectively discontinued and only works if you explicitly mark the data type as JSON when you populate the underlying data store. This proposal attempts to revive and improve on this explicitly in the key/value store context. Again, while I'm sure some key/value stores support querying values, my experience is that it's far more common that the keys themselves can be queried. In the interest of a broader set of applicable components, I think I'd favor limiting this proposal to key queries and saving any queries against the values to some more specific relational/NoSQL data store that's better positioned to facilitate that.",
+      "created_at": "2024-05-26T16:47:47Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "To me this sounds a bit related to https://github.com/dapr/dapr/issues/5146\r\n\r\nIf you want Querying - I think the DocumentStore building block is the correct way to go instead.",
+      "created_at": "2024-07-02T16:30:06Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "@berndverst I've got an older topic in which I cover this in more detail, but I think there should be a rigorous second-generation rethink of how state is realized in Dapr and that there should be [specialized state store building blocks](#7339) instead of lumping it all under the current umbrella (and giving us a clean break from ideas like the current query capability that are effectively discontinued).\r\n\r\nUnder the guise of #7339 , this proposal is a rethink of what should minimally be offered through a second generation key/value store in Dapr in that it offers nearly what's available today, but also includes key-focused querying (which nearly every key/value store provider I've used supports), but which Dapr doesn't presently have any support for. So yes, I do want querying, but I want it optimized for key/value stores and I want it limited only to keys as that's what it expected in a key/value store.\r\n\r\nShould a user want to be able to run queries against values, they can turn to the specialized API to query a Document Store or a Relational DB store or perhaps execute some sort of query against the metadata of the objects in an Object Store, but here, I propose that the building block be strictly an abstraction for Key/Value stores and have the limited querying (and other operations specific to key/value stores) to do with it.",
+      "created_at": "2024-07-02T21:35:16Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "@berndverst I've updated the proposal to reflect the latest thinking on the proposal (especially following our [chat in Discord](https://discord.com/channels/778680217417809931/901141713089863710/1257856754570625106) today). I've narrowed the proposed methods, thought about and opted to support streaming for all values + key responses, more richly detailed what this _does not_ seek to do especially in contrast with the existing state store implementation, and shared my thoughts around the shape of the SDKs.",
+      "created_at": "2024-07-03T07:29:53Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-09-01T08:34:31Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "I haven't had the opportunity to build on this proposal, but I fully intend to make a PR for it in the future.",
+      "created_at": "2024-09-02T02:47:14Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "/assign",
+      "created_at": "2024-09-02T02:47:17Z"
+    },
+    {
+      "user": "soisyourface",
+      "body": "@WhitWaldo , this is very exciting. If you need any help or a tester or something, let me know. Would be willing to assist in any way i can.",
+      "created_at": "2024-09-05T21:25:29Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "@soisyourface I appreciate that - this is something I intend to focus on more in the coming months as the proposed API has had time to settle a little bit and I'll certainly reach out when there are some bits to experiment with.",
+      "created_at": "2024-09-05T21:52:22Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-11-21T21:15:06Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "keep alive",
+      "created_at": "2024-11-21T21:53:23Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-01-20T22:02:30Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 67 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2025-01-27T22:02:37Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-05-09T13:10:07Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-08-09T22:53:29Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-11-07T23:25:02Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-02-05T23:54:26Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-05-07T06:25:04Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    61,
+    3218
+  ],
+  "referenced_issue_numbers": [
+    7339,
+    7886,
+    8553,
+    8675
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/7338",
+  "is_seed": false,
+  "partial": false
+}

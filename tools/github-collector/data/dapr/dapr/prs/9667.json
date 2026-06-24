@@ -1,0 +1,39 @@
+{
+  "type": "pr",
+  "number": 9667,
+  "title": "fix: preserve trailing slash in direct messaging path sanitization",
+  "state": "open",
+  "body": "## What this does\n\nFixes `path.Clean` stripping trailing slashes from request paths in `findTargetIDAndMethod`, which caused incorrect method routing when service consumers intentionally include them (e.g. `POST /api/items/`).\n\n**Root cause:** `path.Clean(\"/foo/bar/\")` returns `\"/foo/bar\"` \u2014 the trailing slash is silently dropped. This affects two invocation modes:\n1. `dapr-app-id` header (line 369)\n2. Basic auth header (line 379)\n\nThe URL parameter case (`/v1.0/invoke/<app-id>/method/<method>`) was already unaffected as it uses `strings.Index` directly.\n\n## Changes\n\n- Added `cleanPath` helper that applies `path.Clean` and re-appends a trailing slash if the original path had one (and the cleaned result is not root `\"/\"`).\n- Updated both affected code paths in `findTargetIDAndMethod` to use `cleanPath`.\n- Added 3 new test cases in `TestFindTargetIDAndMethod`:\n  - trailing slash preserved for `dapr-app-id` header\n  - trailing slash preserved for basic auth\n  - root path `/` does not get a double slash\n\n## Related issue\n\nCloses #7686",
+  "labels": [],
+  "user": "Mentigen",
+  "created_at": "2026-03-20T20:56:39Z",
+  "updated_at": "2026-06-19T11:51:20Z",
+  "additions": 16,
+  "deletions": 2,
+  "changed_files": 2,
+  "linked_issue_numbers": [
+    7686
+  ],
+  "comments": [],
+  "html_url": "https://github.com/dapr/dapr/pull/9667",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pkg/api/http/directmessaging.go",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 2,
+      "patch": "@@ -357,13 +357,24 @@ func (a *api) onDirectMessage(w http.ResponseWriter, r *http.Request) {\n \t}\n }\n \n+// cleanPath applies path.Clean to sanitize the path while preserving a trailing slash\n+// if the original path ended with one (and the cleaned result is not the root \"/\").\n+func cleanPath(p string) string {\n+\tcleaned := path.Clean(p)\n+\tif strings.HasSuffix(p, \"/\") && cleaned != \"/\" {\n+\t\tcleaned += \"/\"\n+\t}\n+\treturn cleaned\n+}\n+\n // findTargetIDAndMethod finds ID of the target service and method from the following three places:\n // 1. HTTP header 'dapr-app-id' (path is method)\n // 2. Basic auth header: `http://dapr-app-id:<service-id>@localhost:3500/<method>`\n // 3. URL parameter: `http://localhost:3500/v1.0/invoke/<app-id>/method/<method>`\n func findTargetIDAndMethod(reqPath string, headers http.Header) (targetID string, method string) {\n \tif appID := headers.Get(consts.DaprAppIDHeader); appID != \"\" {\n-\t\ttargetID, method = appID, strings.TrimPrefix(path.Clean(reqPath), \"/\")\n+\t\tcleaned := cleanPath(reqPath)\n+\t\ttargetID, method = appID, strings.TrimPrefix(cleaned, \"/\")\n \t\t// Delete the header as it should not be passed forward with the request and is only used by the Dapr API\n \t\theaders.Del(consts.DaprAppIDHeader)\n \t\treturn targetID, method\n@@ -373,7 +384,7 @@ func findTargetIDAndMethod(reqPath string, headers http.Header) (targetID string\n \t\tif s, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(auth, \"Basic \")); err == nil {\n \t\t\tpair := strings.Split(string(s), \":\")\n \t\t\tif len(pair) == 2 && strings.EqualFold(pair[0], consts.DaprAppIDHeader) {\n-\t\t\t\treturn pair[1], strings.TrimPrefix(path.Clean(reqPath), \"/\")\n+\t\t\t\treturn pair[1], strings.TrimPrefix(cleanPath(reqPath), \"/\")\n \t\t\t}\n \t\t}\n \t}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/api/http/directmessaging_test.go",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "patch": "@@ -1074,6 +1074,9 @@ func TestFindTargetIDAndMethod(t *testing.T) {\n \t\t{name: \"path with https target escaped\", path: \"/v1.0/invoke/https%3A%2F%2Fexample.com/method/foo\", wantTargetID: \"https://example.com\", wantMethod: \"foo\"},\n \t\t{name: \"path with https target partly escaped\", path: \"/v1.0/invoke/https%3A/%2Fexample.com/method/foo\", wantTargetID: \"https://example.com\", wantMethod: \"foo\"},\n \t\t{name: \"extra slashes are removed\", path: \"///foo//bar\", headers: http.Header{\"Dapr-App-Id\": []string{\"myapp\"}}, wantTargetID: \"myapp\", wantMethod: \"foo/bar\"},\n+\t\t{name: \"dapr-app-id header trailing slash preserved\", path: \"/foo/bar/\", headers: http.Header{\"Dapr-App-Id\": []string{\"myapp\"}}, wantTargetID: \"myapp\", wantMethod: \"foo/bar/\"},\n+\t\t{name: \"basic auth trailing slash preserved\", path: \"/foo/bar/\", headers: http.Header{\"Authorization\": []string{\"Basic ZGFwci1hcHAtaWQ6YXV0aA==\"}}, wantTargetID: \"auth\", wantMethod: \"foo/bar/\"},\n+\t\t{name: \"dapr-app-id header root path trailing slash not duplicated\", path: \"/\", headers: http.Header{\"Dapr-App-Id\": []string{\"myapp\"}}, wantTargetID: \"myapp\", wantMethod: \"\"},\n \t}\n \tfor _, tt := range tests {\n \t\tt.Run(tt.name, func(t *testing.T) {",
+      "patch_truncated": false
+    }
+  ]
+}

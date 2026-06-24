@@ -1,0 +1,26 @@
+{
+  "type": "issue",
+  "number": 2301,
+  "title": "Two bugs in state.oracledatabase related to TTL",
+  "state": "open",
+  "body": "There are two (small) bugs in the Oracle Database state store related to TTLs:\r\n\r\n1. There's currently no \"garbage collection\" to delete expired records. See an example of how it's implemented in the SQLite state store: https://github.com/ItalyPaleAle/dapr-sqlite-statestore/blob/0800ba2a39d0e4967145865a6f799bfc52348b04/component/sqlite_dbaccess.go#L357-L358\r\n2. When updating a record, the TLL column needs to be updated too: https://github.com/dapr/components-contrib/blob/d8c2ce47fdb49db8e9ba3ad825d0f9492c0e6f27/state/oracledatabase/oracledatabaseaccess.go#L202",
+  "labels": [
+    "kind/bug",
+    "pinned"
+  ],
+  "user": "ItalyPaleAle",
+  "created_at": "2022-11-22T01:32:02Z",
+  "updated_at": "2022-12-22T02:04:09Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2022-12-22T01:52:33Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2301",
+  "is_seed": false,
+  "partial": false
+}

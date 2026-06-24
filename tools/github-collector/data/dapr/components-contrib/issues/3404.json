@@ -1,0 +1,32 @@
+{
+  "type": "issue",
+  "number": 3404,
+  "title": "Cosmos State Store - Improve emulator usage - Component configuration",
+  "state": "open",
+  "body": "It would be create to either set more meta data, emulator mode, OR support connection strings.\r\n\r\nWhen using the Aspire Cosmos component, I learnt that there are more parameters set through the connection string.\r\n\r\n`AccountKey=xxx;AccountEndpoint=https://127.0.0.1:65236;DisableServerCertificateValidation=True;`\r\n",
+  "labels": [
+    "kind/enhancement",
+    "triaged/resolved",
+    "working as intended"
+  ],
+  "user": "perokvist",
+  "created_at": "2024-04-26T08:38:34Z",
+  "updated_at": "2024-05-03T10:32:34Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "We use the Cosmos DB Azure SDK for Go. Take a look at their emulator tests: https://github.com/Azure/azure-sdk-for-go/blob/main/sdk/data/azcosmos/emulator_tests.go\r\n\r\nIt appears that simply specifying a host like `https://localhost:8903/` end the `masterKey` (accountKey) for the emulator should work.\r\n\r\nThat's what the Azure SDK team does. They use this emulator: https://aka.ms/cosmosdb-emulator\r\nAnd here is their script to launch the emulator: https://github.com/Azure/azure-sdk-for-go/blob/84361e7de430729bf174593eba3760b5422359be/eng/common/scripts/Cosmos-Emulator.ps1\r\n\r\n\r\nThe Dapr component lets you specify these properties.\r\n\r\nSet the component metadata:\r\n```\r\n  - name: url\r\n    value: https://localhost:65236\r\n  - name: masterKey\r\n    value: theaccountkey\r\n```\r\n\r\nThis Azure SDK for Go does not have an option like `DisableServerCertificateValidation`\r\n\r\nThis SDK's method to provide a connection string only can extract accountKey and accountEndpoint from the connection string. So a connectionString option would not give you any additional functionality here. See for yourself:\r\n\r\nhttps://github.com/Azure/azure-sdk-for-go/blob/84361e7de430729bf174593eba3760b5422359be/sdk/data/azcosmos/cosmos_client.go#L81\r\n\r\nI believe the Go SDK can already work with the emulator, but given that the Azure SDK for Go does not have any further configuration options, Dapr cannot expand the support for the emulator.\r\n\r\nYou may consider filing a feature request at https://github.com/Azure/azure-sdk-for-go",
+      "created_at": "2024-05-01T23:36:50Z"
+    },
+    {
+      "user": "perokvist",
+      "body": "The scenario I came across was when using the Aspire Cosmos component It uses https://hub.docker.com/r/microsoft/azure-cosmos-emulator-linux as it container for the emulator, that seems to have a certificate or the connectionString setting to work.\r\n\r\nI'm guessing this will work with the dapr component if certificates are setup prior to running.",
+      "created_at": "2024-05-03T10:31:49Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3404",
+  "is_seed": false,
+  "partial": false
+}

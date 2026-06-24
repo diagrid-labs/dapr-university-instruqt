@@ -1,0 +1,33 @@
+{
+  "type": "issue",
+  "number": 4301,
+  "title": "support kafka EOS (exactly only once semantics)",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\n\n## Describe the feature\nSupport **Kafka exactly-once semantics (EOS)** in the Dapr Kafka pub/sub component so that applications can get at-most-once delivery per publish when enabled via component configuration. Users would be able to opt in (e.g. via metadata) and have the component ensure that each published message is delivered and committed in a way that avoids duplicate processing under normal operation.\n\nKafka has supported exactly-once semantics since 0.11 (transactional produce/consume and offset commit). (see e.g. [Plans to support upcoming Kafka v0.11 ? (#901)](https://github.com/IBM/sarama/issues/901) and [Exactly Once arrived with kafka 0.11 ? (#977)](https://github.com/IBM/sarama/issues/977)); the feature request is to expose and certify this capability in the Dapr component. At a high level, enabling EOS would mean: \n\n- producing within a transaction (so sends are atomic), \n- consuming with read-committed isolation\n- committing consumer offsets in the same transaction so processing and offset commit succeed or fail together\u2014avoiding duplicates and double-processing when the component is used as configured.\n\n**Business value:** Applications that need exactly-once or no-duplicate processing over Kafka could rely on Dapr\u2019s Kafka component instead of building their own transaction handling, which is especially useful for event-driven workflows, audit trails, and pipelines that must not double-process messages.\n\n## Release Note\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE: **ADD** Kafka pub/sub component supports exactly-once semantics (EOS) via optional metadata, enabling transactional produce and consume so applications can avoid duplicate processing.",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "MyMirelHub",
+  "created_at": "2026-03-19T13:05:12Z",
+  "updated_at": "2026-06-15T08:43:48Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-04-18T13:22:23Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it was marked stale with no further activity for 7 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-04-25T13:47:39Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    901,
+    977
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4301",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,148 @@
+{
+  "type": "pr",
+  "number": 4410,
+  "title": "feat: support intra-bucket copy/move in GCP Storage Bucket binding",
+  "state": "open",
+  "body": "## What\n\nToday the GCP Storage Bucket binding's `copy` and `move` operations require `destinationBucket` and hardcode the destination key to the source key. This makes it impossible to copy/move an object between key prefixes within the same bucket (e.g. `public/file.xlsx` \u2192 `adhoc/file.xlsx`) without a costly get+create round-trip that also loses content-type, custom metadata, and ACLs.\n\n## Changes\n\n- Added optional `destinationKey` field to the `copy` and `move` operation `data` payloads. When omitted it defaults to the source key.\n- Made `destinationBucket` optional in both operations. When omitted it defaults to the component's configured bucket.\n- Both fields may be supplied independently or together.\n- Reject **only** the case where **both** `destinationBucket` and `destinationKey` are omitted \u2014 that would produce a no-op copy/move onto itself. A clear error is returned in that case.\n- All copies continue to use the GCS server-side `CopierFrom` API, so content-type, custom metadata, and ACLs are preserved without streaming bytes through the app/sidecar.\n\n## Example \u2014 intra-bucket prefix change (new)\n\n```json\n{ \"operation\": \"copy\", \"metadata\": { \"key\": \"public/file.xlsx\" }, \"data\": { \"destinationKey\": \"adhoc/file.xlsx\" } }\n```\n\n```json\n{ \"operation\": \"move\", \"metadata\": { \"key\": \"public/file.xlsx\" }, \"data\": { \"destinationKey\": \"adhoc/file.xlsx\" } }\n```\n\n## Example \u2014 cross-bucket, different key (unchanged behaviour still works)\n\n```json\n{ \"operation\": \"copy\", \"metadata\": { \"key\": \"reports/q1.pdf\" }, \"data\": { \"destinationBucket\": \"archive-bucket\", \"destinationKey\": \"2024/q1.pdf\" } }\n```\n\n## Validation matrix\n\n| `destinationBucket` | `destinationKey` | Result |\n|---|---|---|\n| omitted | omitted | **Error** \u2014 source and destination are identical |\n| omitted | provided | Intra-bucket copy/move to new key \u2713 |\n| provided | omitted | Cross-bucket copy/move, same key \u2713 (existing behaviour) |\n| provided | provided | Cross-bucket copy/move to new key \u2713 |\n\n## Tests\n\nUnit tests added/updated in `bucket_test.go`:\n- Decode `destinationKey` from payload\n- Verify defaults when only one field is provided\n- Error on both-omitted (no-op) case for `copy` and `move`\n- All existing tests updated to reflect the relaxed requirement (37 tests pass, no live GCS needed)\n\nConformance tests that require a live GCS connection are not affected and must be run separately.\n\nFixes #4377\n\n\n---\n\n\ud83d\udcd6 **Documentation:** dapr/docs#5218\n",
+  "labels": [],
+  "user": "nelson-parente",
+  "created_at": "2026-06-17T07:34:43Z",
+  "updated_at": "2026-06-23T11:51:26Z",
+  "additions": 171,
+  "deletions": 21,
+  "changed_files": 3,
+  "linked_issue_numbers": [
+    4377
+  ],
+  "comments": [
+    {
+      "user": "Copilot",
+      "body": "The move operation can delete the source object when the resolved destination points to the same bucket/key as the source (e.g. caller sets destinationBucket to the configured bucket, or sets destinationKey equal to the source key). In that case `CopierFrom` runs and then `src.Delete` removes the object, so a \"move onto itself\" becomes destructive. Consider rejecting move requests where the resolved destination equals the source (after defaults are applied) to prevent data loss.",
+      "created_at": "2026-06-18T20:12:03Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The `copy`/`move` operation descriptions say the destination bucket/key \"must differ from the source\", but the implementation only errors when both fields are omitted (and otherwise allows source==destination). Update the wording here to match the actual validation rules so users aren't misled about what inputs are accepted/rejected.",
+      "created_at": "2026-06-18T20:12:03Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The error returned when both `destinationBucket` and `destinationKey` are omitted doesn't explain that this would resolve to the source bucket/key (a no-op for copy, and conceptually invalid for move). Expanding the message to mention the \"identical source/destination\" case would make it clearer to users while preserving the existing prefix for log/search matching.",
+      "created_at": "2026-06-18T20:12:04Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The `move` description still states that the destination \"must differ from the source\", which doesn't match the current validation (only both-omitted is rejected). Please align this wording with the actual behavior (and ideally clarify that move is implemented as copy+delete).",
+      "created_at": "2026-06-18T20:12:04Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "move() already guards this: after `resolveCopyDestination` applies defaults, it returns an error when the resolved destination equals the source (`destBucket == g.metadata.Bucket && destKey == key`), so a move onto the resolved source is rejected before the copy/delete runs. Resolving.",
+      "created_at": "2026-06-23T10:56:46Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "Fixed in 2a5f1d66: the move description now states the resolved destination (after defaults are applied) must not be identical to the source, matching the guard in move(). Resolving.",
+      "created_at": "2026-06-23T10:56:47Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "The both-omitted error already explains the outcome: it states that omitting both fields \"would resolve to the source bucket and key, which is a no-op for copy and invalid for move.\" Resolving.",
+      "created_at": "2026-06-23T10:56:49Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "Fixed in 2a5f1d66: the move description now states the resolved destination (after defaults are applied) must not be identical to the source. Resolving.",
+      "created_at": "2026-06-23T10:56:51Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The both-omitted validation message says this would be a \"no-op for copy\", but this file\u2019s own comment notes that copying an object onto itself is a valid GCS operation that creates a new generation. Consider rewording the error to avoid calling it a no-op and instead explain that it resolves to the same bucket/key (rewriting the same object) and is destructive/invalid for move.",
+      "created_at": "2026-06-23T11:13:40Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The `copy` operation description states that omitting both `destinationBucket` and `destinationKey` would be a \"no-op\", but copying onto the same bucket/key is not necessarily a no-op in GCS (it can create a new generation). To avoid misleading users, reword this to say it resolves to the same bucket/key and is rejected to prevent self-copy/self-move behavior.",
+      "created_at": "2026-06-23T11:13:41Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "Fixed in 7a244a21: the both-omitted error no longer calls the resolved source==destination case a \"no-op for copy\". It now states that omitting both resolves the destination to the source object, which rewrites it for copy and deletes it for move. Resolving.",
+      "created_at": "2026-06-23T11:19:13Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "Fixed in 7a244a21: the copy operation description no longer describes omitting both fields as a \"no-op\". It now says the destination resolves to the source bucket and key, rewriting the same object. Resolving.",
+      "created_at": "2026-06-23T11:19:14Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "`resolveCopyDestination` is used by both `copy` and `move`, so the name is misleading and may cause confusion for future maintainers. Consider renaming it to something operation-agnostic (e.g., `resolveDestination` / `resolveObjectDestination`) and updating call sites/tests accordingly.",
+      "created_at": "2026-06-23T11:21:48Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "This error string is very long and includes a lot of parenthetical detail, which makes it harder to read in logs and brittle to assert against. Consider shortening the returned message to a concise, user-facing error (e.g., \\\"must provide destinationBucket or destinationKey\\\") and moving the longer rationale to debug logs or separate documentation; alternatively, allow the caller to pass the operation name so the message can be operation-specific.",
+      "created_at": "2026-06-23T11:21:49Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "These responses change the `Data` payload format from the prior \\\"... to <bucket>\\\" string to \\\"... to <bucket>/<key>\\\". If any consumers parse or snapshot this message, that\u2019s a behavioral breaking change. Consider preserving the old format when `destKey == key`, or returning a structured JSON response (e.g., `{ \\\"bucket\\\": ..., \\\"key\\\": ... }`) to make the output stable and machine-readable.",
+      "created_at": "2026-06-23T11:21:49Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "These responses change the `Data` payload format from the prior \\\"... to <bucket>\\\" string to \\\"... to <bucket>/<key>\\\". If any consumers parse or snapshot this message, that\u2019s a behavioral breaking change. Consider preserving the old format when `destKey == key`, or returning a structured JSON response (e.g., `{ \\\"bucket\\\": ..., \\\"key\\\": ... }`) to make the output stable and machine-readable.",
+      "created_at": "2026-06-23T11:21:49Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "Keeping the name: `move` is implemented as copy-then-delete, so `resolveCopyDestination` accurately names the shared copy-destination resolution that both operations use. Renaming would churn the call sites and tests without changing behavior.",
+      "created_at": "2026-06-23T11:51:21Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "Keeping this message. The earlier review pass asked for *more* detail here (to explain that omitting both fields resolves to the source object), and the unit tests assert against the concise, stable prefix `copy/move requires at least one of destinationBucket or destinationKey`. The parenthetical rationale is helpful at the point of failure.",
+      "created_at": "2026-06-23T11:51:23Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "Intentional and required by the feature: the destination key can now differ from the source, so the response reports `bucket/key` instead of just `bucket` \u2014 the old form could not express an intra-bucket rename. These are human-readable status strings, not a documented machine-parseable contract; switching to structured JSON would be a larger breaking change and is out of scope here.",
+      "created_at": "2026-06-23T11:51:24Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "Same as the move response above: the `bucket/key` form is intentional and required for intra-bucket copies where the destination key differs from the source. Keeping it \u2014 status-string output is not a documented parse contract.",
+      "created_at": "2026-06-23T11:51:26Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/pull/4410",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "bindings/gcp/bucket/bucket.go",
+      "status": "modified",
+      "additions": 45,
+      "deletions": 13,
+      "patch": "@@ -546,6 +546,31 @@ func (g *GCPStorage) bulkGet(ctx context.Context, req *bindings.InvokeRequest) (\n \n type movePayload struct {\n \tDestinationBucket string `json:\"destinationBucket\"`\n+\tDestinationKey    string `json:\"destinationKey\"`\n+}\n+\n+// resolveCopyDestination validates that at least one of destBucket or destKey was\n+// explicitly provided by the caller, then fills in any missing defaults:\n+//   - destBucket defaults to configuredBucket when empty\n+//   - destKey defaults to srcKey when empty\n+//\n+// It returns an error only when both were absent (empty string == not provided).\n+func resolveCopyDestination(destBucket, destKey, srcKey, configuredBucket string) (bucket, key string, err error) {\n+\tdestBucketProvided := destBucket != \"\"\n+\tdestKeyProvided := destKey != \"\"\n+\n+\tif !destBucketProvided && !destKeyProvided {\n+\t\treturn \"\", \"\", errors.New(\"gcp bucket binding error: copy/move requires at least one of destinationBucket or destinationKey (omitting both resolves the destination to the source object, which rewrites it for copy and deletes it for move)\")\n+\t}\n+\n+\tif !destBucketProvided {\n+\t\tdestBucket = configuredBucket\n+\t}\n+\tif !destKeyProvided {\n+\t\tdestKey = srcKey\n+\t}\n+\n+\treturn destBucket, destKey, nil\n }\n \n func (g *GCPStorage) move(ctx context.Context, req *bindings.InvokeRequest) (*bindings.InvokeResponse, error) {\n@@ -557,17 +582,21 @@ func (g *GCPStorage) move(ctx context.Context, req *bindings.InvokeRequest) (*bi\n \t}\n \n \tvar payload movePayload\n-\terr := json.Unmarshal(req.Data, &payload)\n+\tif err := json.Unmarshal(req.Data, &payload); err != nil {\n+\t\treturn nil, fmt.Errorf(\"gcp bucket binding error: invalid move payload: %w\", err)\n+\t}\n+\n+\tdestBucket, destKey, err := resolveCopyDestination(payload.DestinationBucket, payload.DestinationKey, key, g.metadata.Bucket)\n \tif err != nil {\n-\t\treturn nil, errors.New(\"gcp bucket binding error: invalid move payload\")\n+\t\treturn nil, err\n \t}\n \n-\tif payload.DestinationBucket == \"\" {\n-\t\treturn nil, errors.New(\"gcp bucket binding error: required 'destinationBucket' missing\")\n+\tif destBucket == g.metadata.Bucket && destKey == key {\n+\t\treturn nil, fmt.Errorf(\"gcp bucket binding error: move destination %s/%s is the same as the source \u2014 move would delete the source object\", destBucket, destKey)\n \t}\n \n \tsrc := g.client.Bucket(g.metadata.Bucket).Object(key)\n-\tdst := g.client.Bucket(payload.DestinationBucket).Object(key)\n+\tdst := g.client.Bucket(destBucket).Object(destKey)\n \tif _, err := dst.CopierFrom(src).Run(ctx); err != nil {\n \t\treturn nil, fmt.Errorf(\"gcp bucket binding error while copying object: %w\", err)\n \t}\n@@ -577,7 +606,7 @@ func (g *GCPStorage) move(ctx context.Context, req *bindings.InvokeRequest) (*bi\n \t}\n \n \treturn &bindings.InvokeResponse{\n-\t\tData: []byte(fmt.Sprintf(\"object %s moved to %s\", key, payload.DestinationBucket)),\n+\t\tData: []byte(fmt.Sprintf(\"object %s moved to %s/%s\", key, destBucket, destKey)),\n \t}, nil\n }\n \n@@ -620,6 +649,7 @@ func (g *GCPStorage) rename(ctx context.Context, req *bindings.InvokeRequest) (*\n \n type copyPayload struct {\n \tDestinationBucket string `json:\"destinationBucket\"`\n+\tDestinationKey    string `json:\"destinationKey\"`\n }\n \n func (g *GCPStorage) copy(ctx context.Context, req *bindings.InvokeRequest) (*bindings.InvokeResponse, error) {\n@@ -631,22 +661,24 @@ func (g *GCPStorage) copy(ctx context.Context, req *bindings.InvokeRequest) (*bi\n \t}\n \n \tvar payload copyPayload\n-\terr := json.Unmarshal(req.Data, &payload)\n-\tif err != nil {\n-\t\treturn nil, errors.New(\"gcp bucket binding error: invalid copy payload\")\n+\tif err := json.Unmarshal(req.Data, &payload); err != nil {\n+\t\treturn nil, fmt.Errorf(\"gcp bucket binding error: invalid copy payload: %w\", err)\n \t}\n \n-\tif payload.DestinationBucket == \"\" {\n-\t\treturn nil, errors.New(\"gcp bucket binding error: required 'destinationBucket' missing\")\n+\tdestBucket, destKey, err := resolveCopyDestination(payload.DestinationBucket, payload.DestinationKey, key, g.metadata.Bucket)\n+\tif err != nil {\n+\t\treturn nil, err\n \t}\n \n+\t// Unlike move, copy has no source==destination guard: copying an object onto\n+\t// itself is a valid GCS operation that creates a new object generation.\n \tsrc := g.client.Bucket(g.metadata.Bucket).Object(key)\n-\tdst := g.client.Bucket(payload.DestinationBucket).Object(key)\n+\tdst := g.client.Bucket(destBucket).Object(destKey)\n \tif _, err := dst.CopierFrom(src).Run(ctx); err != nil {\n \t\treturn nil, fmt.Errorf(\"gcp bucket binding error while copying object: %w\", err)\n \t}\n \n \treturn &bindings.InvokeResponse{\n-\t\tData: []byte(fmt.Sprintf(\"object %s copied to %s\", key, payload.DestinationBucket)),\n+\t\tData: []byte(fmt.Sprintf(\"object %s copied to %s/%s\", key, destBucket, destKey)),\n \t}, nil\n }",
+      "patch_truncated": false
+    },
+    {
+      "filename": "bindings/gcp/bucket/bucket_test.go",
+      "status": "modified",
+      "additions": 112,
+      "deletions": 8,
+      "patch": "@@ -327,9 +327,79 @@ func TestBulkGetOption(t *testing.T) {\n \t})\n }\n \n+func TestResolveCopyDestination(t *testing.T) {\n+\tconst configuredBucket = \"my_configured_bucket\"\n+\tconst srcKey = \"source/file.txt\"\n+\n+\ttests := []struct {\n+\t\tname            string\n+\t\tdestBucket      string\n+\t\tdestKey         string\n+\t\twantBucket      string\n+\t\twantKey         string\n+\t\twantErrContains string\n+\t}{\n+\t\t{\n+\t\t\tname:            \"neither provided \u2014 error\",\n+\t\t\tdestBucket:      \"\",\n+\t\t\tdestKey:         \"\",\n+\t\t\twantErrContains: \"copy/move requires at least one of destinationBucket or destinationKey\",\n+\t\t},\n+\t\t{\n+\t\t\tname:       \"only destinationBucket provided \u2014 destKey defaults to srcKey\",\n+\t\t\tdestBucket: \"other_bucket\",\n+\t\t\tdestKey:    \"\",\n+\t\t\twantBucket: \"other_bucket\",\n+\t\t\twantKey:    srcKey,\n+\t\t},\n+\t\t{\n+\t\t\tname:       \"only destinationKey provided \u2014 destBucket defaults to configuredBucket\",\n+\t\t\tdestBucket: \"\",\n+\t\t\tdestKey:    \"adhoc/file.xlsx\",\n+\t\t\twantBucket: configuredBucket,\n+\t\t\twantKey:    \"adhoc/file.xlsx\",\n+\t\t},\n+\t\t{\n+\t\t\tname:       \"both provided \u2014 used as-is\",\n+\t\t\tdestBucket: \"other_bucket\",\n+\t\t\tdestKey:    \"new/key.txt\",\n+\t\t\twantBucket: \"other_bucket\",\n+\t\t\twantKey:    \"new/key.txt\",\n+\t\t},\n+\t\t{\n+\t\t\tname:       \"both provided and equal to source \u2014 allowed (GCS permits same-object copy)\",\n+\t\t\tdestBucket: configuredBucket,\n+\t\t\tdestKey:    srcKey,\n+\t\t\twantBucket: configuredBucket,\n+\t\t\twantKey:    srcKey,\n+\t\t},\n+\t\t{\n+\t\t\tname:       \"only destBucket provided and equals configuredBucket \u2014 not an error\",\n+\t\t\tdestBucket: configuredBucket,\n+\t\t\tdestKey:    \"\",\n+\t\t\twantBucket: configuredBucket,\n+\t\t\twantKey:    srcKey,\n+\t\t},\n+\t}\n+\n+\tfor _, tc := range tests {\n+\t\tt.Run(tc.name, func(t *testing.T) {\n+\t\t\tbucket, key, err := resolveCopyDestination(tc.destBucket, tc.destKey, srcKey, configuredBucket)\n+\t\t\tif tc.wantErrContains != \"\" {\n+\t\t\t\trequire.Error(t, err)\n+\t\t\t\tassert.Contains(t, err.Error(), tc.wantErrContains)\n+\t\t\t\treturn\n+\t\t\t}\n+\t\t\trequire.NoError(t, err)\n+\t\t\tassert.Equal(t, tc.wantBucket, bucket)\n+\t\t\tassert.Equal(t, tc.wantKey, key)\n+\t\t})\n+\t}\n+}\n+\n func TestCopyOption(t *testing.T) {\n \tgs := GCPStorage{logger: logger.NewLogger(\"test\")}\n-\tgs.metadata = &gcpMetadata{}\n+\tgs.metadata = &gcpMetadata{Bucket: \"my_configured_bucket\"}\n \n \tt.Run(\"return error if key is missing\", func(t *testing.T) {\n \t\tr := bindings.InvokeRequest{}\n@@ -346,10 +416,10 @@ func TestCopyOption(t *testing.T) {\n \t\t}\n \t\t_, err := gs.copy(t.Context(), &r)\n \t\trequire.Error(t, err)\n-\t\tassert.Equal(t, \"gcp bucket binding error: invalid copy payload\", err.Error())\n+\t\tassert.Contains(t, err.Error(), \"gcp bucket binding error: invalid copy payload\")\n \t})\n \n-\tt.Run(\"return error if destinationBucket is missing\", func(t *testing.T) {\n+\tt.Run(\"return error if both destinationBucket and destinationKey are omitted\", func(t *testing.T) {\n \t\tr := bindings.InvokeRequest{\n \t\t\tData: []byte(`{}`),\n \t\t\tMetadata: map[string]string{\n@@ -358,7 +428,18 @@ func TestCopyOption(t *testing.T) {\n \t\t}\n \t\t_, err := gs.copy(t.Context(), &r)\n \t\trequire.Error(t, err)\n-\t\tassert.Equal(t, \"gcp bucket binding error: required 'destinationBucket' missing\", err.Error())\n+\t\tassert.Contains(t, err.Error(), \"copy/move requires at least one of destinationBucket or destinationKey\")\n+\t})\n+\n+\t// Verify that explicitly passing destinationBucket == configuredBucket with no destinationKey\n+\t// is NOT rejected (the old equality-based check would have wrongly rejected this).\n+\tt.Run(\"explicit destinationBucket equal to configured bucket with no destinationKey \u2014 not rejected at validation\", func(t *testing.T) {\n+\t\t// resolveCopyDestination should succeed; the subsequent GCS call will fail\n+\t\t// because there is no real client, but the error must NOT be the validation error.\n+\t\tbucket, key, err := resolveCopyDestination(\"my_configured_bucket\", \"\", \"my_key\", \"my_configured_bucket\")\n+\t\trequire.NoError(t, err)\n+\t\tassert.Equal(t, \"my_configured_bucket\", bucket)\n+\t\tassert.Equal(t, \"my_key\", key)\n \t})\n }\n \n@@ -401,7 +482,7 @@ func TestRenameOption(t *testing.T) {\n \n func TestMoveOption(t *testing.T) {\n \tgs := GCPStorage{logger: logger.NewLogger(\"test\")}\n-\tgs.metadata = &gcpMetadata{}\n+\tgs.metadata = &gcpMetadata{Bucket: \"my_configured_bucket\"}\n \n \tt.Run(\"return error if key is missing\", func(t *testing.T) {\n \t\tr := bindings.InvokeRequest{\n@@ -420,10 +501,10 @@ func TestMoveOption(t *testing.T) {\n \t\t}\n \t\t_, err := gs.move(t.Context(), &r)\n \t\trequire.Error(t, err)\n-\t\tassert.Equal(t, \"gcp bucket binding error: invalid move payload\", err.Error())\n+\t\tassert.Contains(t, err.Error(), \"gcp bucket binding error: invalid move payload\")\n \t})\n \n-\tt.Run(\"return error if destinationBucket is missing\", func(t *testing.T) {\n+\tt.Run(\"return error if both destinationBucket and destinationKey are omitted\", func(t *testing.T) {\n \t\tr := bindings.InvokeRequest{\n \t\t\tData: []byte(`{}`),\n \t\t\tMetadata: map[string]string{\n@@ -432,6 +513,29 @@ func TestMoveOption(t *testing.T) {\n \t\t}\n \t\t_, err := gs.move(t.Context(), &r)\n \t\trequire.Error(t, err)\n-\t\tassert.Equal(t, \"gcp bucket binding error: required 'destinationBucket' missing\", err.Error())\n+\t\tassert.Contains(t, err.Error(), \"copy/move requires at least one of destinationBucket or destinationKey\")\n+\t})\n+\n+\t// Verify that explicitly passing destinationBucket == configuredBucket with no destinationKey\n+\t// is NOT rejected (the old equality-based check would have wrongly rejected this).\n+\tt.Run(\"explicit destinationBucket equal to configured bucket with no destinationKey \u2014 not rejected at validation\", func(t *testing.T) {\n+\t\tbucket, key, err := resolveCopyDestination(\"my_configured_bucket\", \"\", \"my_key\", \"my_configured_bucket\")\n+\t\trequire.NoError(t, err)\n+\t\tassert.Equal(t, \"my_configured_bucket\", bucket)\n+\t\tassert.Equal(t, \"my_key\", key)\n+\t})\n+\n+\t// Move onto self must be rejected before any GCS call to prevent data loss\n+\t// (copy-then-delete where source == destination deletes the only copy of the object).\n+\tt.Run(\"move onto self is rejected\", func(t *testing.T) {\n+\t\tr := bindings.InvokeRequest{\n+\t\t\tData: []byte(`{\"destinationBucket\":\"my_configured_bucket\",\"destinationKey\":\"my_key\"}`),\n+\t\t\tMetadata: map[string]string{\n+\t\t\t\t\"key\": \"my_key\",\n+\t\t\t},\n+\t\t}\n+\t\t_, err := gs.move(t.Context(), &r)\n+\t\trequire.Error(t, err)\n+\t\tassert.Contains(t, err.Error(), \"move destination my_configured_bucket/my_key is the same as the source\")\n \t})\n }",
+      "patch_truncated": false
+    },
+    {
+      "filename": "bindings/gcp/bucket/metadata.yaml",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "patch": "@@ -13,6 +13,20 @@ binding:\n   operations:\n     - name: create\n       description: \"Create an item.\"\n+    - name: copy\n+      description: |\n+        Copy an object. Supply `destinationKey` in the request data to copy to a different\n+        key (including intra-bucket prefix changes). Supply `destinationBucket` to copy to a\n+        different bucket. At least one of `destinationBucket` or `destinationKey` must be\n+        provided; omitting both is an error (it would resolve to the source bucket and key,\n+        rewriting the same object). Each field defaults to the corresponding source value\n+        when omitted.\n+    - name: move\n+      description: |\n+        Move an object (implemented as copy-then-delete). Accepts the same `destinationKey`\n+        and `destinationBucket` fields as `copy`. At least one must be provided; omitting both\n+        is an error. The resolved destination (after defaults are applied) must not be identical\n+        to the source object \u2014 moving an object onto itself would delete it after the copy succeeds.\n capabilities: []\n builtinAuthenticationProfiles:\n   - name: \"gcp\"",
+      "patch_truncated": false
+    }
+  ]
+}

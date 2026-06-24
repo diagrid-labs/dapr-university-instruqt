@@ -1,0 +1,30 @@
+{
+  "type": "issue",
+  "number": 2955,
+  "title": "Authenticate MySQL components using Azure AD",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\n\r\nJust like #2595 is for Postgres, we should add support for authenticating with Azure AD to MySQL components.\r\n\r\nDocs:\r\n\r\n- Single server: https://learn.microsoft.com/en-us/azure/mysql/single-server/concepts-azure-ad-authentication\r\n- Flexible server: https://learn.microsoft.com/en-us/azure/mysql/flexible-server/concepts-azure-ad-authentication\r\n\r\n## Release Note\r\n\r\nRELEASE NOTE: **ADD** Support for Azure AD authentication to MySQL components\r\n",
+  "labels": [
+    "kind/enhancement",
+    "P1",
+    "pinned"
+  ],
+  "user": "ItalyPaleAle",
+  "created_at": "2023-06-30T00:34:13Z",
+  "updated_at": "2025-08-11T21:55:49Z",
+  "comments": [
+    {
+      "user": "ItalyPaleAle",
+      "body": "This is currently blocked by a required change in an upstream dependency: https://github.com/go-sql-driver/mysql/pull/1469",
+      "created_at": "2023-08-02T23:39:36Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    1469,
+    2595
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2955",
+  "is_seed": false,
+  "partial": false
+}

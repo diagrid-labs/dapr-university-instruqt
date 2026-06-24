@@ -1,0 +1,21 @@
+{
+  "type": "issue",
+  "number": 4397,
+  "title": "Add retriable/terminal error classification for pubsub publish",
+  "state": "open",
+  "body": "_Creating this ticket for #4395 to track against._\n\nPubsub components return plain Go errors from Publish/BulkPublish (the raw broker SDK error or a fmt.Errorf wrap). These carry no status code, so Dapr's resiliency layer cannot distinguish a transient failure (broker unavailable timeout) from a terminal one (invalid topic, component closed) & it retries every publish error up to maxRetries and silently ignores any configured retry matching (httpStatusCodes / gRPCStatusCodes).",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "atrauzzi",
+  "created_at": "2026-06-08T16:37:41Z",
+  "updated_at": "2026-06-08T16:53:38Z",
+  "comments": [],
+  "linked_pr_numbers": [
+    4395
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4397",
+  "is_seed": false,
+  "partial": false
+}

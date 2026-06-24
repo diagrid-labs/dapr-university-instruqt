@@ -1,0 +1,106 @@
+{
+  "type": "pr",
+  "number": 3307,
+  "title": "Postgres v2: Add support for DeleteWithPrefix",
+  "state": "open",
+  "body": "Related to #3262\r\n\r\nAdds DeleteWithPrefix to the PostgreSQL state store v2.\r\n\r\nNotes:\r\n\r\n1. This cannot work with CockroachDB, because CockroachDB does not offer sufficient support for UDFs which are needed to implement this. We will investigate how to add support for CockroachDB later. For now, the component can be instantiated without support for DeleteWithPrefix, so it can be used with CockroachDB\r\n2. Because of lack of CockroachDB support, this has not been implemented in v1, due to the fact that the components for v1 are more \"intertwined\". Will be done in a separate PR.\r\n3. Added conformance tests for YugabyteDB\r\n   - Note that using YugabyteDB requires installing the \"crypto\" extension. See: https://yugabytedb.tips/?p=2178 We should investigate if we can have Dapr do that automatically.",
+  "labels": [
+    "stale",
+    "pinned"
+  ],
+  "user": "ItalyPaleAle",
+  "created_at": "2024-01-06T00:52:52Z",
+  "updated_at": "2025-12-09T20:55:33Z",
+  "additions": 168,
+  "deletions": 24,
+  "changed_files": 10,
+  "linked_issue_numbers": [
+    3262
+  ],
+  "comments": [],
+  "html_url": "https://github.com/dapr/components-contrib/pull/3307",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": ".github/infrastructure/docker-compose-cockroachdb.yml",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "patch": "@@ -1,9 +1,9 @@\n version: '2'\n services:\n   cockroachdb:\n-    image: cockroachdb/cockroach:v21.2.3\n+    image: cockroachdb/cockroach:v23.1.13\n     hostname: cockroachdb\n-    command: start-single-node --cluster-name=single-node --logtostderr=WARNING --log-file-verbosity=WARNING --insecure\n+    command: start-single-node --cluster-name=single-node --insecure\n     restart: always\n     ports:\n       - \"26257:26257\"",
+      "patch_truncated": false
+    },
+    {
+      "filename": ".github/infrastructure/docker-compose-yugabytedb.yml",
+      "status": "added",
+      "additions": 13,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,13 @@\n+version: '3'\n+\n+services:\n+  yugabyte:\n+    image: yugabytedb/yugabyte:2.19.3.0-b140\n+    command: \"bin/yugabyted start --daemon=false\"\n+    ports:\n+      - 7000:7000\n+      - 9000:9000\n+      - 15433:15433\n+      - 5433:5433\n+      - 9042:9042\n+",
+      "patch_truncated": false
+    },
+    {
+      "filename": "state/cockroachdb/cockroachdb.go",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 13,
+      "patch": "@@ -72,12 +72,13 @@ WHERE\n func ensureTables(ctx context.Context, db pginterfaces.PGXPoolConn, opts postgresql.MigrateOptions) error {\n \texists, err := tableExists(ctx, db, opts.StateTableName)\n \tif err != nil {\n-\t\treturn err\n+\t\treturn fmt.Errorf(\"failed to check if table '%s' exists: %w\", opts.StateTableName, err)\n \t}\n \n \tif !exists {\n \t\topts.Logger.Info(\"Creating CockroachDB state table\")\n-\t\t_, err = db.Exec(ctx, fmt.Sprintf(`CREATE TABLE %s (\n+\t\t_, err = db.Exec(ctx, fmt.Sprintf(`\n+CREATE TABLE %s (\n   key text NOT NULL PRIMARY KEY,\n   value jsonb NOT NULL,\n   isbinary boolean NOT NULL,\n@@ -86,37 +87,40 @@ func ensureTables(ctx context.Context, db pginterfaces.PGXPoolConn, opts postgre\n   updatedate TIMESTAMP WITH TIME ZONE NULL,\n   expiredate TIMESTAMP WITH TIME ZONE NULL,\n \tINDEX expiredate_idx (expiredate)\n-);`, opts.StateTableName))\n+)`,\n+\t\t\topts.StateTableName))\n \t\tif err != nil {\n-\t\t\treturn err\n+\t\t\treturn fmt.Errorf(\"failed to create state table: %w\", err)\n \t\t}\n \t}\n \n \t// If table was created before v1.11.\n \t_, err = db.Exec(ctx, fmt.Sprintf(\n \t\t`ALTER TABLE %s ADD COLUMN IF NOT EXISTS expiredate TIMESTAMP WITH TIME ZONE NULL;`, opts.StateTableName))\n \tif err != nil {\n-\t\treturn err\n+\t\treturn fmt.Errorf(\"failed to add expiredate column to state table: %w\", err)\n \t}\n \t_, err = db.Exec(ctx, fmt.Sprintf(\n \t\t`CREATE INDEX IF NOT EXISTS expiredate_idx ON %s (expiredate);`, opts.StateTableName))\n \tif err != nil {\n-\t\treturn err\n+\t\treturn fmt.Errorf(\"failed to create expiredate index on state table: %w\", err)\n \t}\n \n \texists, err = tableExists(ctx, db, opts.MetadataTableName)\n \tif err != nil {\n-\t\treturn err\n+\t\treturn fmt.Errorf(\"failed to check if table '%s' exists: %w\", opts.MetadataTableName, err)\n \t}\n \n \tif !exists {\n \t\topts.Logger.Info(\"Creating CockroachDB metadata table\")\n-\t\t_, err = db.Exec(ctx, fmt.Sprintf(`CREATE TABLE %s (\n-\t\t\tkey text NOT NULL PRIMARY KEY,\n-\t\t\tvalue text NOT NULL\n-);`, opts.MetadataTableName))\n+\t\t_, err = db.Exec(ctx, fmt.Sprintf(`\n+CREATE TABLE %s (\n+  key text NOT NULL PRIMARY KEY,\n+  value text NOT NULL\n+);`,\n+\t\t\topts.MetadataTableName))\n \t\tif err != nil {\n-\t\t\treturn err\n+\t\t\treturn fmt.Errorf(\"failed to create metadata table: %w\", err)\n \t\t}\n \t}\n \n@@ -125,6 +129,6 @@ func ensureTables(ctx context.Context, db pginterfaces.PGXPoolConn, opts postgre\n \n func tableExists(ctx context.Context, db pginterfaces.PGXPoolConn, tableName string) (bool, error) {\n \texists := false\n-\terr := db.QueryRow(ctx, \"SELECT EXISTS (SELECT * FROM pg_tables where tablename = $1)\", tableName).Scan(&exists)\n+\terr := db.QueryRow(ctx, \"SELECT EXISTS (SELECT * FROM pg_tables WHERE tablename = $1)\", tableName).Scan(&exists)\n \treturn exists, err\n }",
+      "patch_truncated": false
+    },
+    {
+      "filename": "state/cockroachdb/metadata.yaml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -9,11 +9,11 @@ urls:\n   - title: Reference\n     url: https://docs.dapr.io/reference/components-reference/supported-state-stores/setup-cockroachdb/\n capabilities:\n+  - actorStateStore\n   - crud\n   - transactional\n   - etag\n   - ttl\n-  - actorStateStore\n authenticationProfiles:\n   - title: \"Connection string\"\n     description: \"Authenticate using a Connection String\"",
+      "patch_truncated": false
+    },
+    {
+      "filename": "state/postgresql/v2/metadata.go",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 1,
+      "patch": "@@ -23,10 +23,15 @@ import (\n \t\"github.com/dapr/kit/ptr\"\n )\n \n-type pgTable string\n+type (\n+\tpgTable    string\n+\tpgFunction string\n+)\n \n const (\n \tpgTableState pgTable = \"state\"\n+\n+\tpgFunctionKeyPrefix pgFunction = \"key_prefix\"\n )\n \n const (\n@@ -85,3 +90,7 @@ func (m *pgMetadata) InitWithMetadata(meta state.Metadata, azureADEnabled bool)\n func (m pgMetadata) TableName(table pgTable) string {\n \treturn m.TablePrefix + string(table)\n }\n+\n+func (m pgMetadata) FunctionName(function pgFunction) string {\n+\treturn m.TablePrefix + string(function)\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "state/postgresql/v2/metadata.yaml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "patch": "@@ -15,6 +15,7 @@ capabilities:\n   - transactional\n   - etag\n   - ttl\n+  - deleteWithPrefix\n builtinAuthenticationProfiles:\n   - name: \"azuread\"\n     metadata:",
+      "patch_truncated": false
+    },
+    {
+      "filename": "state/postgresql/v2/postgresql.go",
+      "status": "modified",
+      "additions": 98,
+      "deletions": 4,
+      "patch": "@@ -20,6 +20,7 @@ import (\n \t\"fmt\"\n \t\"reflect\"\n \t\"strconv\"\n+\t\"strings\"\n \t\"time\"\n \n \t\"github.com/google/uuid\"\n@@ -47,13 +48,22 @@ type PostgreSQL struct {\n \n \tgc sqlinternal.GarbageCollector\n \n-\tenableAzureAD bool\n+\tenableAzureAD    bool\n+\tdeleteWithPrefix bool\n+}\n+\n+// PostgreSQLDeleteWithPrefix extends PostgreSQL and adds support for DeleteWithPrefix.\n+type PostgreSQLDeleteWithPrefix struct {\n+\t*PostgreSQL\n }\n \n type Options struct {\n \t// Disables support for authenticating with Azure AD\n \t// This should be set to \"false\" when targeting different databases than PostgreSQL (such as CockroachDB)\n \tNoAzureAD bool\n+\t// Disables support for DeleteWithPrefix\n+\t// This should be set to \"false\" when targeting CockroachDB and other PostgreSQL-compatible database that don't offer the necessary capabilities\n+\tNoDeleteWithPrefix bool\n }\n \n // NewPostgreSQLStateStore creates a new instance of PostgreSQL state store v2 with the default options.\n@@ -66,11 +76,20 @@ func NewPostgreSQLStateStore(logger logger.Logger) state.Store {\n // NewPostgreSQLStateStoreWithOptions creates a new instance of PostgreSQL state store with options.\n func NewPostgreSQLStateStoreWithOptions(logger logger.Logger, opts Options) state.Store {\n \ts := &PostgreSQL{\n-\t\tlogger:        logger,\n-\t\tenableAzureAD: !opts.NoAzureAD,\n+\t\tlogger:           logger,\n+\t\tenableAzureAD:    !opts.NoAzureAD,\n+\t\tdeleteWithPrefix: !opts.NoDeleteWithPrefix,\n \t}\n \ts.BulkStore = state.NewDefaultBulkStore(s)\n-\treturn s\n+\n+\t// If we want DeleteWithPrefix support, wrap into a PostgreSQLDeleteWithPrefix object\n+\tif opts.NoDeleteWithPrefix {\n+\t\treturn s\n+\t}\n+\n+\treturn &PostgreSQLDeleteWithPrefix{\n+\t\tPostgreSQL: s,\n+\t}\n }\n \n // Init sets up Postgres connection and performs migrations\n@@ -151,6 +170,7 @@ func (p *PostgreSQL) performMigrations(ctx context.Context) error {\n \t}\n \n \tstateTable := p.metadata.TableName(pgTableState)\n+\tkeyPrefixFunction := p.metadata.FunctionName(pgFunctionKeyPrefix)\n \n \treturn m.Perform(ctx, []sqlinternal.MigrationFn{\n \t\t// Migration 1: create the table for state\n@@ -175,6 +195,39 @@ CREATE INDEX ON %[1]s (expires_at);\n \t\t\t}\n \t\t\treturn nil\n \t\t},\n+\t\t// Migration 2: add the \"key_prefix\" function and \"prefix\" index to the state table\n+\t\t// If DeleteWithPrefix support is disabled, this is a no-op, but we keep the migration here because we want the migration level to increase, or bad things will happen if another migration is added in the future\n+\t\tfunc(ctx context.Context) error {\n+\t\t\tif !p.deleteWithPrefix {\n+\t\t\t\treturn nil\n+\t\t\t}\n+\n+\t\t\t// Create the \"key_prefix\" function\n+\t\t\t// Then add the \"prefix\" index to the state table that can be used by DeleteWithPrefix\n+\t\t\tp.logger.Infof(\"Creating function '%s' and adding 'prefix' index to table '%s'\", keyPrefixFunction, stateTable)\n+\t\t\t_, err := p.db.Exec(\n+\t\t\t\tctx,\n+\t\t\t\tfmt.Sprintf(\n+\t\t\t\t\t`\n+CREATE FUNCTION %[1]s(k text) RETURNS text\n+LANGUAGE SQL\n+IMMUTABLE\n+LEAKPROOF\n+RETURNS NULL ON NULL INPUT\n+AS $$\n+  SELECT array_to_string(trim_array(string_to_array(k, '||'),1), '||');\n+$$;\n+\n+CREATE INDEX %[2]s_prefix_idx ON %[2]s (%[1]s(\"key\")) WHERE %[1]s(\"key\") <> '';\n+`,\n+\t\t\t\t\tkeyPrefixFunction, stateTable,\n+\t\t\t\t),\n+\t\t\t)\n+\t\t\tif err != nil {\n+\t\t\t\treturn err\n+\t\t\t}\n+\t\t\treturn nil\n+\t\t},\n \t})\n }\n \n@@ -187,6 +240,16 @@ func (p *PostgreSQL) Features() []state.Feature {\n \t}\n }\n \n+// Features returns the features available in this state store.\n+func (p *PostgreSQLDeleteWithPrefix) Features() []state.Feature {\n+\treturn []state.Feature{\n+\t\tstate.FeatureETag,\n+\t\tstate.FeatureTransactional,\n+\t\tstate.FeatureTTL,\n+\t\tstate.FeatureDeleteWithPrefix,\n+\t}\n+}\n+\n func (p *PostgreSQL) GetDB() *pgxpool.Pool {\n \t// We can safely cast to *pgxpool.Pool because this method is never used in unit tests where we mock the DB\n \treturn p.db.(*pgxpool.Pool)\n@@ -536,3 +599,34 @@ func (p *PostgreSQL) GetComponentMetadata() (metadataInfo metadata.MetadataMap)\n \tmetadata.GetMetadataInfoFromStructType(reflect.TypeOf(metadataStruct), &metadataInfo, metadata.StateStoreType)\n \treturn\n }\n+\n+func (p *PostgreSQLDeleteWithPrefix) DeleteWithPrefix(ctx context.Context, req state.DeleteWithPrefixRequest) (state.DeleteWithPrefixResponse, error) {\n+\terr := req.Validate()\n+\tif err != nil {\n+\t\treturn state.DeleteWithPrefixResponse{}, err\n+\t}\n+\n+\tctx, cancel := context.WithTimeout(ctx, p.metadata.Timeout)\n+\tdefer cancel()\n+\n+\t// Trim the trailing \"||\" from the prefix\n+\tresult, err := p.db.Exec(ctx, \"DELETE FROM \"+p.metadata.TableName(pgTableState)+\" WHERE \"+p.metadata.FunctionName(pgFunctionKeyPrefix)+`(\"key\") = $1`, strings.TrimSuffix(req.Prefix, \"||\"))\n+\tif err != nil {\n+\t\treturn state.DeleteWithPrefixResponse{}, err\n+\t}\n+\n+\treturn state.DeleteWithPrefixResponse{\n+\t\tCount: result.RowsAffected(),\n+\t}, nil\n+}\n+\n+// Compile-time interface assertions\n+var (\n+\t_ state.Store              = (*PostgreSQL)(nil)\n+\t_ state.TransactionalStore = (*PostgreSQL)(nil)\n+\t_ state.BulkStore          = (*PostgreSQL)(nil)\n+\t_ state.Store              = (*PostgreSQLDeleteWithPrefix)(nil)\n+\t_ state.TransactionalStore = (*PostgreSQLDeleteWithPrefix)(nil)\n+\t_ state.BulkStore          = (*PostgreSQLDeleteWithPrefix)(nil)\n+\t_ state.DeleteWithPrefix   = (*PostgreSQLDeleteWithPrefix)(nil)\n+)",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/config/state/tests.yml",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 2,
+      "patch": "@@ -45,12 +45,17 @@ components:\n       # This component requires etags to be numeric\n       badEtag: \"1\"\n   - component: postgresql.v2.docker\n-    operations: [ \"transaction\", \"etag\", \"first-write\", \"ttl\" ]\n+    operations: [ \"transaction\", \"etag\",  \"first-write\", \"ttl\", \"delete-with-prefix\" ]\n     config:\n       # This component requires etags to be UUIDs\n       badEtag: \"e9b9e142-74b1-4a2e-8e90-3f4ffeea2e70\"\n   - component: postgresql.v2.azure\n-    operations: [ \"transaction\", \"etag\", \"first-write\", \"ttl\" ]\n+    operations: [ \"transaction\", \"etag\",  \"first-write\", \"ttl\", \"delete-with-prefix\" ]\n+    config:\n+      # This component requires etags to be UUIDs\n+      badEtag: \"e9b9e142-74b1-4a2e-8e90-3f4ffeea2e70\"\n+  - component: yugabytedb.v2\n+    operations: [ \"transaction\", \"etag\",  \"first-write\", \"ttl\", \"delete-with-prefix\" ]\n     config:\n       # This component requires etags to be UUIDs\n       badEtag: \"e9b9e142-74b1-4a2e-8e90-3f4ffeea2e70\"",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/config/state/yugabytedb/v2/statestore.yml",
+      "status": "added",
+      "additions": 12,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,12 @@\n+apiVersion: dapr.io/v1alpha1\n+kind: Component\n+metadata:\n+  name: statestore\n+spec:\n+  type: state.yugabytedb\n+  version: v2\n+  metadata:\n+    - name: connectionString\n+      value: \"host=localhost user=yugabyte password=yugabyte port=5433 connect_timeout=10 database=yugabyte\"\n+    - name: tablePrefix\n+      value: \"confv2_\"",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/conformance/state_test.go",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 1,
+      "patch": "@@ -100,6 +100,8 @@ func loadStateStore(name string) state.Store {\n \t\treturn s_postgresql_v2.NewPostgreSQLStateStore(testLogger)\n \tcase \"postgresql.v2.azure\":\n \t\treturn s_postgresql_v2.NewPostgreSQLStateStore(testLogger)\n+\tcase \"yugabytedb.v2\":\n+\t\treturn s_postgresql_v2.NewPostgreSQLStateStore(testLogger)\n \tcase \"sqlite\":\n \t\treturn s_sqlite.NewSQLiteStateStore(testLogger)\n \tcase \"mysql.mysql\":\n@@ -121,7 +123,11 @@ func loadStateStore(name string) state.Store {\n \tcase \"cockroachdb.v2\":\n \t\t// v2 of the component is an alias for the PostgreSQL state store\n \t\t// We still have a conformance test to validate that the component works with CockroachDB\n-\t\treturn s_postgresql_v2.NewPostgreSQLStateStoreWithOptions(testLogger, s_postgresql_v2.Options{NoAzureAD: true})\n+\t\t// CockroachDB does not support Azure AD authentication or the DeleteWithPrefix interface\n+\t\treturn s_postgresql_v2.NewPostgreSQLStateStoreWithOptions(testLogger, s_postgresql_v2.Options{\n+\t\t\tNoAzureAD:          true,\n+\t\t\tNoDeleteWithPrefix: true,\n+\t\t})\n \tcase \"memcached\":\n \t\treturn s_memcached.NewMemCacheStateStore(testLogger)\n \tcase \"rethinkdb\":",
+      "patch_truncated": false
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "type": "issue",
+  "number": 3254,
+  "title": "Support Amazon Aurora within Dapr",
+  "state": "open",
+  "body": "## Describe the feature\r\nThere currently is no support for Amazon Aurora within Dapr, ie. there is no `state.aws.aurora`. I wanted to create an issue to discuss the 2 options to introduce support for Amazon Aurora as a component.\r\n1. Update the PostgreSQL component with a light wrapper adding the required AWS auth fields\r\n2. Add a specific component for `state.aws.aurora`\r\n\r\nWhat would be the preferred approach here?\r\n\r\n## Release Note\r\n\r\nRELEASE NOTE: Add Amazon Aurora support within Dapr\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted",
+    "good first issue"
+  ],
+  "user": "sicoyle",
+  "created_at": "2023-12-05T18:51:36Z",
+  "updated_at": "2024-03-01T21:19:39Z",
+  "comments": [
+    {
+      "user": "sicoyle",
+      "body": "Documenting the discussion on discord over to here:\r\n\r\nAmazon Aurora supports multiple database technologies. \r\nAdding a generic Aurora component would introduce maintenance overhead that is unideal, and so there is a way to support it for the existing PostgreSQL component. Alternatively, this can become a new component that under the hood uses the shared postgres implementation (see CockroachDB for reference).\r\n\r\nReference code thanks to @berndverst \r\n- https://github.com/dapr/components-contrib/tree/main/common/component/postgresql\r\n\r\nAdditionally, Azure Postgres is supported using a new `enableAzureAD` metadata field. See below for reference for a corresponding \"Amazon Postgres\" implementation:\r\n- https://github.com/dapr/components-contrib/pull/2970\r\n- https://github.com/dapr/components-contrib/pull/2971\r\n\r\n\r\nThe above summary is compiled from the Discord discussion here:\r\nhttps://discord.com/channels/778680217417809931/781589820128493598/1181670307065499678",
+      "created_at": "2023-12-05T19:45:47Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "If someone could add the help wanted label, then that would be much appreciated!",
+      "created_at": "2023-12-05T19:46:04Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "Its best to use the existing component and add the required AWS configuration to it. If it can work transparently than great, if not then it can be set using metadata.",
+      "created_at": "2023-12-06T05:03:23Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "> Its best to use the existing component and add the required AWS configuration to it. If it can work transparently than great, if not then it can be set using metadata.\r\n\r\nYup. That was exactly my recommendation.\r\n\r\nSee entire thread starting here: https://discord.com/channels/778680217417809931/781589820128493598/1181677547818328134",
+      "created_at": "2023-12-07T19:18:27Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "/assign",
+      "created_at": "2024-03-01T21:19:24Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    2885,
+    3324,
+    4100
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3254",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,43 @@
+{
+  "type": "issue",
+  "number": 2591,
+  "title": "Implement OIDC Authentication against Keycloak for Apache Pulsar",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\n<!-- Please also discuss possible business value -->\r\nOIDC provides a more flexible, modern and standard-based approach to authentication. \r\nCurrently, the Apache Pulsar PubSub [component](https://github.com/dapr/components-contrib/blob/master/pubsub/pulsar/pulsar.go) handles authentication by reading a [Pulsar-generated token](https://pulsar.apache.org/docs/2.11.x/security-jwt/#generate-tokens) defined in a PubSub Component [manifest](https://docs.dapr.io/reference/components-reference/supported-pubsub/setup-pulsar/).\r\n\r\nThis request is to add an OIDC [Client Credentials grant](https://developers.onelogin.com/openid-connect/api/client-credentials-grant) authentication flow to the Apache Pulsar PubSub component. \r\n\r\nReferences:\r\n[Keycloak - Identity and Access Management for Modern Applications - Packt Publishing](https://www.packtpub.com/product/keycloak-identity-and-access-management-for-modern-applications/9781800562493) \r\n[Go authentication example program from book above](https://github.com/PacktPublishing/Keycloak-Identity-and-Access-Management-for-Modern-Applications/tree/master/ch7/golang)\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted"
+  ],
+  "user": "hugosmitter",
+  "created_at": "2023-02-23T00:41:29Z",
+  "updated_at": "2025-08-11T21:55:44Z",
+  "comments": [
+    {
+      "user": "ItalyPaleAle",
+      "body": "Although I'm not necessarily against this if someone wanted to submit a PR, from a security standpoint using OIDC with client credentials doesn't really improve the security of the system much IMHO.\r\n\r\nCurrent authentication method uses a token, which is a static, pre-shared key. Aside from being able to establish a network connection to Pulsar, knowing the token is both sufficient and necessary to authenticate with Pulsar.\r\n\r\nIn the case of OIDC, authentication with Pulsar is performed with a JWT that is issued by an IdP (in this case Keycloak, but I think we should support any IdP). The main advantage of the JWT is that it has time validity bounds, so if it's stolen, it can't be used past its expiration time.\r\n\r\nHowever, the problem is how Dapr authenticates itself with the IdP (Keycloak) to obtain the JWT. In the scheme you proposed, which uses the client credentials grant flow, authentication is performed by presenting the IdP the \"client secret\", which is a pre-shared key just like the Pulsar authentication token. So I'm not sure if this really increments the security of the solution after all, as an attacker would steal the client secret in the same way as they'd steal the access token for Pulsar.\r\n\r\nThe real advantage of using OIDC would be when you can rely on something like the platform to authenticate your app. For example, cloud providers like Azure or AWS have endpoints that applications can invoke to obtain a signed token (a JWT), and they are authenticated by virtue of running on a certain infrastructure, rather than by presenting a pre-shared key (like a client secret). In the case of Azure, for example, that's called [Managed Identities](https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview) (MSI).",
+      "created_at": "2023-03-01T23:56:23Z"
+    },
+    {
+      "user": "hugosmitter",
+      "body": "Thank you for your feedback. You make very good observations. I realize the feature request doesn't achieve an ideal end state and it's not comprehensive. It's a modest step towards a more general approach. The OIDC authentication against an IdP gives Dapr-ized PubSub applications a more enterprise-level authentication approach not tied to Pulsar tokens. As you mentioned, OIDC supports expiring tokens and token re-issue flows. Also, this requests places the OIDC authentication in the PubSub component, but it could be generalized further down the road into its own authentication building block as a horizontal service for other building blocks to leverage. \r\n\r\nI can appreciate hardcoding of sensitive information like tokens and clientID/secrets in the component is a problem. This is not weakness of OIDC. We need in Dapr better original approaches or we need to explore integration to existing approaches. For instance, mounting ephemeral volumes at runtime to hold sensitive information and/or K8s operators to replace CRD -provided values with values stored in secrets stores. We have in the Dapr the Secret Management building block, but the Dapr sidecar can't use it directly AFAIK. Even if it could, some actor must configure a secret identifier accessible to the sidecar, so we're back to square one.\r\n\r\nI agree with your idea about anchoring authentication to the platform, as long as the interface  can be abstracted for multi-cloud support. That is perhaps the cleanest approach, assuming the other parts of the systems/microservices have the mechanisms to trust the authenticated principal.\r\n\r\n",
+      "created_at": "2023-03-08T13:57:13Z"
+    },
+    {
+      "user": "hugosmitter",
+      "body": "If you read the Dapr Component specification for [Kafka](https://docs.dapr.io/reference/components-reference/supported-pubsub/setup-apache-kafka/), you'll have a model for how to implement OIDC for Pulsar.  Also, the Pulsar Component supports storing the Pulsar Token in a Kubernetes Secret, but it's not mentioned in the web page. I'll submit a request to correct the documentation.",
+      "created_at": "2023-03-13T13:02:11Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "> If you read the Dapr Component specification for [Kafka](https://docs.dapr.io/reference/components-reference/supported-pubsub/setup-apache-kafka/), you'll have a model for how to implement OIDC for Pulsar. Also, the Pulsar Component supports storing the Pulsar Token in a Kubernetes Secret, but it's not mentioned in the web page. I'll submit a request to correct the documentation.\r\n\r\nCorrect, there is a precedent here already and this type of authentication is valid. We'll make an effort to have this ready for 1.12.",
+      "created_at": "2023-07-28T13:31:10Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    3023
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2591",
+  "is_seed": false,
+  "partial": false
+}

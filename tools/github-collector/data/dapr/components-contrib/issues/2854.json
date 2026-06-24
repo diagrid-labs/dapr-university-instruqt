@@ -1,0 +1,20 @@
+{
+  "type": "issue",
+  "number": 2854,
+  "title": "Add alternate-exchange support for rabbitmq pubsub.",
+  "state": "open",
+  "body": "Add alternate-exchange support for rabbitmq pubsub\r\n\r\nhttps://rabbitmq.com/ae.html\r\n\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted"
+  ],
+  "user": "malylemireflo",
+  "created_at": "2023-05-23T15:07:22Z",
+  "updated_at": "2023-05-25T05:18:20Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2854",
+  "is_seed": false,
+  "partial": false
+}

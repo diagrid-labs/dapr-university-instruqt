@@ -1,0 +1,61 @@
+{
+  "type": "issue",
+  "number": 2385,
+  "title": "jetstream pubsub: how to subscribe to multiple subjects of one stream?",
+  "state": "open",
+  "body": "How can I subscribe to multiple subjects that are in the same stream.\r\n\r\nI have a stream that contains 3 subjects.\r\n\r\n```\r\nInformation for Stream daprtest created 2022-12-02 18:01:18\r\n\r\n             Subjects: d.1, d.2, d.3\r\n             Replicas: 1\r\n              Storage: File\r\n```\r\n\r\nI want to have a subscriber for subject d.1 and d.2\r\n\r\n```\r\n[Topic(\"pubsub\", \"d.1\")]\r\n[HttpPost(\"/d1\")]\r\npublic async Task<ActionResult> OnTestTopic1( Object o )\r\n{  \r\n    return Ok();\r\n}\r\n\r\n[Topic(\"pubsub\", \"d.2\")]\r\n[HttpPost(\"/d2\")]\r\npublic async Task<ActionResult> OnTestTopic2( Object o )\r\n{\r\n    return Ok();\r\n}\r\n```\r\nthis is the configuration:\r\n![image](https://user-images.githubusercontent.com/117846623/209085685-081de157-ae3c-43c7-be79-f40317c85551.png)\r\n\r\nDapr now creates a consumer for one of these subjects\r\n![image](https://user-images.githubusercontent.com/117846623/209085941-6aa65178-a614-4143-9678-7b536a2d17cb.png)\r\n\r\nThis consumer is random. I tried multiple times, sometimes a consumer for d.1 is created and sometimes a consumer for d.2\r\n\r\ndapr logs this error:\r\n\r\n```\r\ntime=\"2022-12-22T07:49:13.861826617Z\" level=debug msg=\"nats: subscribed to subject d.2\" app_id=bizerba.saas.cloud.provisioning.api instance=488b1af8c100 scope=dapr.contrib type=log ver=1.9.4\r\ntime=\"2022-12-22T07:49:13.962883843Z\" level=error msg=\"error occurred while beginning pubsub for component failed to subscribe to topic d.2: nats: subject does not match consumer: %!s(MISSING)\" app_id=bizerba.saas.cloud.provisioning.api instance=488b1af8c100 scope=dapr.runtime type=log ver=1.9.4\r\n```\r\n\r\nThere is a workaround to solve this problem. If I create a pubsub component for each subscription with a different durable name, then I can subscribe to both subjects.\r\nMy question is, is there an easier way to do this? For example by defining the durable name on the REST endpoint by doing something like this:\r\n\r\n```\r\n[Topic(\"pubsub\", \"d.1\", \"myDurableName\")]\r\n[HttpPost(\"/d1\")]\r\npublic async Task<ActionResult> OnTestTopic1( Object o )\r\n{  \r\n    return Ok();\r\n}\r\n```\r\n",
+  "labels": [
+    "help wanted",
+    "pinned"
+  ],
+  "user": "j4nsp",
+  "created_at": "2022-12-22T08:07:10Z",
+  "updated_at": "2024-02-06T21:50:38Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "@Jarema maybe you have thoughts here",
+      "created_at": "2023-01-18T21:03:54Z"
+    },
+    {
+      "user": "Jarema",
+      "body": "in that case, you can subscribe to `d.*`.",
+      "created_at": "2023-01-18T21:05:45Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-02-17T21:16:42Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "I think regex subscriptions are not supported right now.",
+      "created_at": "2023-02-23T23:54:05Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "This likely depends on https://github.com/dapr/dapr/issues/5984",
+      "created_at": "2023-02-23T23:55:06Z"
+    },
+    {
+      "user": "quality-leftovers",
+      "body": "Starting with `2.10` NATS now supports [FilterSubjects](https://docs.nats.io/nats-concepts/jetstream/consumers#filtersubjects).\r\nIt should probably be possible to map configured subscriptions to this option.\r\n\r\nHowever I'm unsure how easy it is to integrate in the way existing subscribe works since you probably need to set up the `FilterSubjects` in one go opposed to multiple subscribe calls (maybe someone with more NATS / dapr know-how can chime in).",
+      "created_at": "2024-02-06T09:12:03Z"
+    },
+    {
+      "user": "Jarema",
+      "body": "Yes, this is now possible to have one consumer consuming messages for multiple subjects of the same stream.\r\nI will try to find some cycles to implement this one.\r\n\r\nEDIT: Can you assing this one to me?",
+      "created_at": "2024-02-06T21:36:57Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "> Yes, this is now possible to have one consumer consuming messages for multiple subjects of the same stream. I will try to find some cycles to implement this one.\r\n> \r\n> EDIT: Can you assing this one to me?\r\n\r\nAssigned. Thank you ",
+      "created_at": "2024-02-06T21:50:37Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2385",
+  "is_seed": false,
+  "partial": false
+}

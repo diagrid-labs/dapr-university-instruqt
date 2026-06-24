@@ -1,0 +1,39 @@
+{
+  "type": "pr",
+  "number": 9733,
+  "title": "fix: clean up dapr services for non-enabled workloads",
+  "state": "open",
+  "body": "## Description\nThis change deletes Dapr-managed Kubernetes Service resources when the owning workload is no longer Dapr-enabled. Without this cleanup, Services created for Dapr-enabled workloads can remain behind after the Dapr annotations are removed, and they may continue to be recreated unexpectedly.\n\n## Issue reference\nFixes #7933\n\n## Checklist\n- [x] Code compiles correctly\n- [x] Created/updated tests\n- [x] Unit tests passing\n- [ ] End-to-end tests passing\n- [ ] Extended the documentation / Created issue in the https://github.com/dapr/docs/ repo: dapr/docs#7933\n- [ ] Specification has been updated / Created issue in the https://github.com/dapr/docs/ repo: dapr/docs#7933\n- [ ] Provided sample for the feature / Created issue in the https://github.com/dapr/docs/ repo: dapr/docs#7933\n",
+  "labels": [],
+  "user": "abishekgiri",
+  "created_at": "2026-03-31T20:46:31Z",
+  "updated_at": "2026-03-31T20:52:08Z",
+  "additions": 145,
+  "deletions": 0,
+  "changed_files": 2,
+  "linked_issue_numbers": [
+    7933
+  ],
+  "comments": [],
+  "html_url": "https://github.com/dapr/dapr/pull/9733",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pkg/operator/handlers/dapr_handler.go",
+      "status": "modified",
+      "additions": 58,
+      "deletions": 0,
+      "patch": "@@ -189,6 +189,12 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu\n \t\t\tlog.Errorf(\"failed to ensure dapr service present, err: %v\", err)\n \t\t\treturn ctrl.Result{Requeue: true}, err\n \t\t}\n+\t} else {\n+\t\terr := r.cleanupOwnedDaprServices(ctx, req.Namespace, req.Name, wrapper.GetObject())\n+\t\tif err != nil {\n+\t\t\tlog.Errorf(\"failed to cleanup dapr services, err: %v\", err)\n+\t\t\treturn ctrl.Result{Requeue: true}, err\n+\t\t}\n \t}\n \n \treturn ctrl.Result{}, nil\n@@ -263,6 +269,45 @@ func (h *DaprHandler) createDaprService(ctx context.Context, expectedService typ\n \treturn nil\n }\n \n+func (h *DaprHandler) cleanupOwnedDaprServices(ctx context.Context, namespace, ownerName string, ownerObj client.Object) error {\n+\townerKind := ownerKindForObject(ownerObj)\n+\tif ownerKind == \"\" {\n+\t\treturn nil\n+\t}\n+\n+\tvar services corev1.ServiceList\n+\terr := h.List(ctx, &services, client.InNamespace(namespace))\n+\tif err != nil {\n+\t\treturn err\n+\t}\n+\n+\tfor i := range services.Items {\n+\t\tservice := &services.Items[i]\n+\t\tif !strings.IsTruthy(service.Labels[annotations.KeyEnabled]) {\n+\t\t\tcontinue\n+\t\t}\n+\n+\t\towner := metaV1.GetControllerOf(service)\n+\t\tif owner == nil || owner.Name != ownerName || owner.Kind != ownerKind || !h.isReconciled(owner) {\n+\t\t\tcontinue\n+\t\t}\n+\n+\t\terr = h.Delete(ctx, service)\n+\t\tif err != nil && !apierrors.IsNotFound(err) {\n+\t\t\treturn err\n+\t\t}\n+\n+\t\tappID := service.Annotations[annotations.KeyAppID]\n+\t\tif appID == \"\" {\n+\t\t\tappID = ownerName\n+\t\t}\n+\t\tlog.Debugf(\"deleted service: %s/%s\", service.Namespace, service.Name)\n+\t\tmonitoring.RecordServiceDeletedCount(appID)\n+\t}\n+\n+\treturn nil\n+}\n+\n func (h *DaprHandler) createDaprServiceValues(ctx context.Context, expectedService types.NamespacedName, wrapper ObjectWrapper, appID string) *corev1.Service {\n \tenableMetrics := h.getEnableMetrics(wrapper)\n \tmetricsPort := h.getMetricsPort(wrapper)\n@@ -382,3 +427,16 @@ func (h *DaprHandler) isReconciled(owner *metaV1.OwnerReference) bool {\n \n \treturn false\n }\n+\n+func ownerKindForObject(obj client.Object) string {\n+\tswitch obj.(type) {\n+\tcase *appsv1.Deployment:\n+\t\treturn \"Deployment\"\n+\tcase *appsv1.StatefulSet:\n+\t\treturn \"StatefulSet\"\n+\tcase *argov1alpha1.Rollout:\n+\t\treturn rollouts.RolloutKind\n+\tdefault:\n+\t\treturn \"\"\n+\t}\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/operator/handlers/dapr_handler_test.go",
+      "status": "modified",
+      "additions": 87,
+      "deletions": 0,
+      "patch": "@@ -9,11 +9,13 @@ import (\n \t\"github.com/stretchr/testify/require\"\n \tappsv1 \"k8s.io/api/apps/v1\"\n \tcorev1 \"k8s.io/api/core/v1\"\n+\tapierrors \"k8s.io/apimachinery/pkg/api/errors\"\n \tmetaV1 \"k8s.io/apimachinery/pkg/apis/meta/v1\"\n \t\"k8s.io/apimachinery/pkg/runtime\"\n \t\"k8s.io/apimachinery/pkg/types\"\n \t\"k8s.io/apimachinery/pkg/util/intstr\"\n \t\"k8s.io/client-go/kubernetes/scheme\"\n+\tctrl \"sigs.k8s.io/controller-runtime\"\n \t\"sigs.k8s.io/controller-runtime/pkg/client/fake\"\n \n \t\"github.com/dapr/dapr/pkg/injector/annotations\"\n@@ -257,6 +259,91 @@ func TestPatchDaprService(t *testing.T) {\n \tassert.Equal(t, \"app\", actualService.OwnerReferences[0].Name)\n }\n \n+func TestReconcileDeletesOwnedDaprServiceWhenNotAnnotated(t *testing.T) {\n+\ttestDaprHandler := getTestDaprHandler()\n+\n+\ts := runtime.NewScheme()\n+\terr := scheme.AddToScheme(s)\n+\trequire.NoError(t, err)\n+\ttestDaprHandler.Scheme = s\n+\n+\tdeployment := getDeployment(\"myapp\", \"false\")\n+\tcli := fake.NewClientBuilder().WithScheme(s).WithObjects(deployment.GetObject()).Build()\n+\ttestDaprHandler.Client = cli\n+\n+\tctx := t.Context()\n+\tserviceName := types.NamespacedName{\n+\t\tNamespace: \"test\",\n+\t\tName:      testDaprHandler.daprServiceName(\"myapp\"),\n+\t}\n+\n+\terr = testDaprHandler.createDaprService(ctx, serviceName, deployment)\n+\trequire.NoError(t, err)\n+\n+\treconciler := &Reconciler{\n+\t\tDaprHandler: testDaprHandler,\n+\t\tnewWrapper: func() ObjectWrapper {\n+\t\t\treturn &DeploymentWrapper{}\n+\t\t},\n+\t}\n+\n+\t_, err = reconciler.Reconcile(ctx, ctrl.Request{\n+\t\tNamespacedName: types.NamespacedName{\n+\t\t\tNamespace: \"test\",\n+\t\t\tName:      \"app\",\n+\t\t},\n+\t})\n+\trequire.NoError(t, err)\n+\n+\tvar actualService corev1.Service\n+\terr = cli.Get(ctx, serviceName, &actualService)\n+\trequire.True(t, apierrors.IsNotFound(err))\n+}\n+\n+func TestReconcileDeletesOwnedDaprServiceWhenOwnerMissing(t *testing.T) {\n+\ttestDaprHandler := getTestDaprHandler()\n+\n+\ts := runtime.NewScheme()\n+\terr := scheme.AddToScheme(s)\n+\trequire.NoError(t, err)\n+\ttestDaprHandler.Scheme = s\n+\n+\tdeployment := getDeployment(\"myapp\", \"true\")\n+\tcli := fake.NewClientBuilder().WithScheme(s).WithObjects(deployment.GetObject()).Build()\n+\ttestDaprHandler.Client = cli\n+\n+\tctx := t.Context()\n+\tserviceName := types.NamespacedName{\n+\t\tNamespace: \"test\",\n+\t\tName:      testDaprHandler.daprServiceName(\"myapp\"),\n+\t}\n+\n+\terr = testDaprHandler.createDaprService(ctx, serviceName, deployment)\n+\trequire.NoError(t, err)\n+\n+\terr = cli.Delete(ctx, deployment.GetObject())\n+\trequire.NoError(t, err)\n+\n+\treconciler := &Reconciler{\n+\t\tDaprHandler: testDaprHandler,\n+\t\tnewWrapper: func() ObjectWrapper {\n+\t\t\treturn &DeploymentWrapper{}\n+\t\t},\n+\t}\n+\n+\t_, err = reconciler.Reconcile(ctx, ctrl.Request{\n+\t\tNamespacedName: types.NamespacedName{\n+\t\t\tNamespace: \"test\",\n+\t\t\tName:      \"app\",\n+\t\t},\n+\t})\n+\trequire.NoError(t, err)\n+\n+\tvar actualService corev1.Service\n+\terr = cli.Get(ctx, serviceName, &actualService)\n+\trequire.True(t, apierrors.IsNotFound(err))\n+}\n+\n func TestGetGRPCPort(t *testing.T) {\n \ttestDaprHandler := getTestDaprHandler()\n \tt.Run(\"GRPC port override\", func(t *testing.T) {",
+      "patch_truncated": false
+    }
+  ]
+}

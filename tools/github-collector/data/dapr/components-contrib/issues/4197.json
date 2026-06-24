@@ -1,0 +1,33 @@
+{
+  "type": "issue",
+  "number": 4197,
+  "title": "[1.17] wasm e2e test failure",
+  "state": "open",
+  "body": "```\nok  \tgithub.com/dapr/components-contrib/middleware/http/wasm\t0.025s\tcoverage: 53.2% of statements\n--- FAIL: Test_EndToEnd (0.50s)\n    --- FAIL: Test_EndToEnd/http (0.15s)\n        --- FAIL: Test_EndToEnd/http/consoleLog_multiple_requests (0.07s)\n            e2e_test.go:117: \n                \tError Trace:\t/home/runner/work/components-contrib/components-contrib/middleware/http/wasm/internal/e2e_test.go:117\n                \t            \t\t\t\t/home/runner/work/components-contrib/components-contrib/middleware/http/wasm/internal/e2e_test.go:222\n                \tError:      \t\"time=\\\"2026-01-22T17:33:29.829454094Z\\\" level=info msg=\\\"main ConsoleLog\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-22T17:33:29.829712916Z\\\" level=info msg=\\\"main ConsoleLog\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-22T17:33:29.829831528Z\\\" level=info msg=\\\"request[0] ConsoleLog\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-22T17:33:29.829844142Z\\\" level=debug msg=\\\"wasm stdout: main Stdout\\\\nmain Stdout\\\\nrequest[0] Stdout\\\\n\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-22T17:33:29.829867626Z\\\" level=debug msg=\\\"wasm stderr: main Stderr\\\\nmain Stderr\\\\nrequest[0] Stderr\\\\n\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-22T17:33:29.829887864Z\\\" level=info msg=\\\"request[0] ConsoleLog\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-22T17:33:29.829894958Z\\\" level=debug msg=\\\"wasm stdout: request[0] Stdout\\\\n\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-22T17:33:29.829900618Z\\\" level=debug msg=\\\"wasm stderr: request[0] Stderr\\\\n\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-22T17:33:29.829913121Z\\\" level=info msg=\\\"request[1] ConsoleLog\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-22T17:33:29.829919604Z\\\" level=debug msg=\\\"wasm stdout: request[1] Stdout\\\\n\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-22T17:33:29.829924884Z\\\" level=debug msg=\\\"wasm stderr: request[1] Stderr\\\\n\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\n\" does not contain \"level=debug msg=\\\"wasm stdout: main Stdout\\\\nrequest[0] Stdout\\\\n\\\"\"\n                \tTest:       \tTest_EndToEnd/http/consoleLog_multiple_requests\nFAIL\ncoverage: [no statements]\n```",
+  "labels": [
+    "good first issue",
+    "P1"
+  ],
+  "user": "sicoyle",
+  "created_at": "2026-01-22T18:58:31Z",
+  "updated_at": "2026-04-20T16:42:53Z",
+  "comments": [
+    {
+      "user": "stywzn",
+      "body": "Hi team, I would love to look into this WASM e2e test failure.\nIt seems like `main Stdout` is being duplicated in the log output, possibly due to state leakage between tests or the WASM instance initializing twice. Could you please assign this to me?",
+      "created_at": "2026-03-14T05:18:09Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "> Hi team, I would love to look into this WASM e2e test failure.\nIt seems like main Stdout is being duplicated in the log output, possibly due to state leakage between tests or the WASM instance initializing twice. Could you please assign this to me?\n\nDone. Thank you so much for your interest in the Dapr Open Source project, and for your contribution!! \ud83d\ude4c  \ud83d\udc4f \ud83c\udf89 ",
+      "created_at": "2026-04-20T16:40:03Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    4283
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4197",
+  "is_seed": false,
+  "partial": false
+}

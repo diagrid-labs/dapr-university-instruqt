@@ -1,0 +1,45 @@
+{
+  "type": "pr",
+  "number": 9910,
+  "title": "fix(operator): honor -stderrthreshold when -logtostderr is enabled",
+  "state": "open",
+  "body": "Supersedes #9712 (unrebaseable due to extensive upstream changes).\n\n## Summary\n\nMigrate from klog v1 to klog/v2 and opt into the fixed stderrthreshold behavior by setting `legacy_stderr_threshold_behavior=false`. Also pin `stderrthreshold=INFO` to preserve current observable behavior where INFO and WARNING messages appear on stderr.\n\nWithout this fix, klog's legacy behavior causes `-stderrthreshold` to be silently ignored when `-logtostderr=true` (the default), as reported in [kubernetes/klog#212](https://github.com/kubernetes/klog/issues/212).\n\n## Changes\n\n- `cmd/operator/options/options.go`: Replace `k8s.io/klog` import with `k8s.io/klog/v2`, add `legacy_stderr_threshold_behavior=false` and `stderrthreshold=INFO` flag settings\n- `go.mod`: Bump `k8s.io/klog/v2` from v2.130.1 (indirect) to v2.140.0 (direct), remove `k8s.io/klog v1.0.0`\n- `go.sum`: Updated accordingly\n\n## Testing\n\n- All `cmd/` packages compile successfully\n- The fix is a runtime-only change (flag settings at startup) \u2014 no new code paths added\n\n---\n> Status: Ready for review \u2014 rebased onto latest master.",
+  "labels": [],
+  "user": "pierluigilenoci",
+  "created_at": "2026-05-08T13:38:31Z",
+  "updated_at": "2026-06-22T20:16:00Z",
+  "additions": 6,
+  "deletions": 8,
+  "changed_files": 3,
+  "linked_issue_numbers": [],
+  "comments": [],
+  "html_url": "https://github.com/dapr/dapr/pull/9910",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "cmd/operator/options/options.go",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 1,
+      "patch": "@@ -18,7 +18,7 @@ import (\n \t\"strings\"\n \t\"time\"\n \n-\t\"k8s.io/klog\"\n+\t\"k8s.io/klog/v2\"\n \n \t\"github.com/dapr/dapr/pkg/metrics\"\n \tsecurityConsts \"github.com/dapr/dapr/pkg/security/consts\"\n@@ -68,6 +68,8 @@ func New() *Options {\n \tklogFlags := flag.NewFlagSet(\"klog\", flag.ExitOnError)\n \tklog.InitFlags(klogFlags)\n \tklogFlags.Set(\"logtostderr\", \"true\")\n+\tklogFlags.Set(\"legacy_stderr_threshold_behavior\", \"false\")\n+\tklogFlags.Set(\"stderrthreshold\", \"INFO\")\n \n \tflag.StringVar(&opts.Config, \"config\", defaultDaprSystemConfigName, \"Path to config file, or name of a configuration object\")\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "go.mod",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "patch": "@@ -82,7 +82,7 @@ require (\n \tk8s.io/cli-runtime v0.30.2\n \tk8s.io/client-go v0.32.3\n \tk8s.io/code-generator v0.31.0\n-\tk8s.io/klog v1.0.0\n+\tk8s.io/klog/v2 v2.140.0\n \tk8s.io/metrics v0.30.2\n \tk8s.io/utils v0.0.0-20250502105355-0f33e8f1c979\n \tmodernc.org/sqlite v1.34.5\n@@ -493,7 +493,6 @@ require (\n \tgopkg.in/yaml.v2 v2.4.0 // indirect\n \tk8s.io/component-base v0.31.0 // indirect\n \tk8s.io/gengo/v2 v2.0.0-20240826214909-a7b603a56eb7 // indirect\n-\tk8s.io/klog/v2 v2.130.1 // indirect\n \tk8s.io/kube-openapi v0.0.0-20250318190949-c8a335a9a2ff // indirect\n \tmodernc.org/libc v1.61.9 // indirect\n \tmodernc.org/mathutil v1.7.1 // indirect",
+      "patch_truncated": false
+    },
+    {
+      "filename": "go.sum",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 5,
+      "patch": "@@ -690,7 +690,6 @@ github.com/go-logfmt/logfmt v0.4.0/go.mod h1:3RMwSq7FuexP4Kalkev3ejPJsZTpXXBr9+V\n github.com/go-logfmt/logfmt v0.5.0/go.mod h1:wCYkCAKZfumFQihp8CzCvQ3paCTfi41vtzG1KdI/P7A=\n github.com/go-logfmt/logfmt v0.5.1 h1:otpy5pqBCBZ1ng9RQ0dPu4PN7ba75Y/aA+UpowDyNVA=\n github.com/go-logfmt/logfmt v0.5.1/go.mod h1:WYhtIu8zTZfxdn5+rREduYbwxfcBr/Vr6KEVveWlfTs=\n-github.com/go-logr/logr v0.1.0/go.mod h1:ixOQHD9gLJUVQQ2ZOR7zLEifBX6tGkNJF4QyIY7sIas=\n github.com/go-logr/logr v1.2.2/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=\n github.com/go-logr/logr v1.2.3/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=\n github.com/go-logr/logr v1.4.3 h1:CjnDlHq8ikf6E492q6eKboGOC0T8CDaOvkHCIg8idEI=\n@@ -2555,10 +2554,8 @@ k8s.io/component-base v0.31.0 h1:/KIzGM5EvPNQcYgwq5NwoQBaOlVFrghoVGr8lG6vNRs=\n k8s.io/component-base v0.31.0/go.mod h1:TYVuzI1QmN4L5ItVdMSXKvH7/DtvIuas5/mm8YT3rTo=\n k8s.io/gengo/v2 v2.0.0-20240826214909-a7b603a56eb7 h1:cErOOTkQ3JW19o4lo91fFurouhP8NcoBvb7CkvhZZpk=\n k8s.io/gengo/v2 v2.0.0-20240826214909-a7b603a56eb7/go.mod h1:EJykeLsmFC60UQbYJezXkEsG2FLrt0GPNkU5iK5GWxU=\n-k8s.io/klog v1.0.0 h1:Pt+yjF5aB1xDSVbau4VsWe+dQNzA0qv1LlXdC2dF6Q8=\n-k8s.io/klog v1.0.0/go.mod h1:4Bi6QPql/J/LkTDqv7R/cd3hPo4k2DG6Ptcz060Ez5I=\n-k8s.io/klog/v2 v2.130.1 h1:n9Xl7H1Xvksem4KFG4PYbdQCQxqc/tTUyrgXaOhHSzk=\n-k8s.io/klog/v2 v2.130.1/go.mod h1:3Jpz1GvMt720eyJH1ckRHK1EDfpxISzJ7I9OYgaDtPE=\n+k8s.io/klog/v2 v2.140.0 h1:Tf+J3AH7xnUzZyVVXhTgGhEKnFqye14aadWv7bzXdzc=\n+k8s.io/klog/v2 v2.140.0/go.mod h1:o+/RWfJ6PwpnFn7OyAG3QnO47BFsymfEfrz6XyYSSp0=\n k8s.io/kube-openapi v0.0.0-20250318190949-c8a335a9a2ff h1:/usPimJzUKKu+m+TE36gUyGcf03XZEP0ZIKgKj35LS4=\n k8s.io/kube-openapi v0.0.0-20250318190949-c8a335a9a2ff/go.mod h1:5jIi+8yX4RIb8wk3XwBo5Pq2ccx4FP10ohkbSKCZoK8=\n k8s.io/metrics v0.30.2 h1:zj4kIPTCfEbY0RHEogpA7QtlItU7xaO11+Gz1zVDxlc=",
+      "patch_truncated": false
+    }
+  ]
+}

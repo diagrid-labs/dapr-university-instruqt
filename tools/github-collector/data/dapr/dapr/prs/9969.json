@@ -1,0 +1,53 @@
+{
+  "type": "pr",
+  "number": 9969,
+  "title": "tests: wait for workflow actor registration",
+  "state": "open",
+  "body": "## Summary\r\n\r\nFixes #9927.\r\n\r\nThis updates the flaky `workflow/signing/signatureStripped` integration test to wait until the workflow actor type is actually hosted after `daprd` restart and SDK worker startup.\r\n\r\n`WaitUntilRunning` only waits for `/v1.0/healthz`, but workflow actor registration can still be propagating. If `ScheduleWorkflow` runs during that window, workflow reminder setup can fail with:\r\n\r\n`operations on actor reminders are only possible on hosted actor types`\r\n\r\n## Changes\r\n\r\n- Added `Daprd.WaitUntilActorTypesHosted` to poll metadata until the actor runtime is running, host-ready, and includes the expected actor type.\r\n- Updated `signatureStripped` to wait for the workflow actor type after `StartWorker`.\r\n- Added unit coverage for the actor-runtime hosted-type readiness predicate.\r\n\r\n## Testing\r\n\r\n- `go test ./tests/integration/framework/process/daprd -count=1`\r\n- `go test -tags integration ./tests/integration -run Test_Integration -count=1 -timeout 30m -args -focus signatureStripped -integration-parallel=false`",
+  "labels": [],
+  "user": "puneetdixit200",
+  "created_at": "2026-05-16T21:24:04Z",
+  "updated_at": "2026-06-02T22:53:44Z",
+  "additions": 128,
+  "deletions": 0,
+  "changed_files": 3,
+  "linked_issue_numbers": [
+    9927
+  ],
+  "comments": [
+    {
+      "user": "Copilot",
+      "body": "The new predicate has a separate RuntimeStatus guard, but the unit cases don't cover a non-RUNNING status with HostReady true and the expected actor types present. Adding that case would make the advertised readiness behavior less likely to regress independently of the HostReady and missing-type checks.",
+      "created_at": "2026-05-16T21:26:36Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/dapr/pull/9969",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "tests/integration/framework/process/daprd/daprd.go",
+      "status": "modified",
+      "additions": 35,
+      "deletions": 0,
+      "patch": "@@ -263,6 +263,41 @@ func (d *Daprd) WaitUntilRunning(t *testing.T, ctx context.Context) {\n \t}, 30*time.Second, 10*time.Millisecond)\n }\n \n+func (d *Daprd) WaitUntilActorTypesHosted(t *testing.T, ctx context.Context, actorTypes ...string) {\n+\tt.Helper()\n+\trequire.NotEmpty(t, actorTypes)\n+\n+\trequire.EventuallyWithT(t, func(c *assert.CollectT) {\n+\t\tmd := d.GetMetadata(c, ctx)\n+\t\tif !assert.NotNil(c, md) {\n+\t\t\treturn\n+\t\t}\n+\t\tassert.Truef(c, actorRuntimeHostsTypes(md.ActorRuntime, actorTypes...),\n+\t\t\t\"actor runtime did not host actor types %v\", actorTypes)\n+\t}, 60*time.Second, 10*time.Millisecond)\n+}\n+\n+func actorRuntimeHostsTypes(actorRuntime *MetadataActorRuntime, actorTypes ...string) bool {\n+\tif actorRuntime == nil || actorRuntime.RuntimeStatus != rtv1.ActorRuntime_RUNNING.String() || !actorRuntime.HostReady {\n+\t\treturn false\n+\t}\n+\n+\thosted := make(map[string]struct{}, len(actorRuntime.ActiveActors))\n+\tfor _, active := range actorRuntime.ActiveActors {\n+\t\tif active != nil {\n+\t\t\thosted[active.Type] = struct{}{}\n+\t\t}\n+\t}\n+\n+\tfor _, actorType := range actorTypes {\n+\t\tif _, ok := hosted[actorType]; !ok {\n+\t\t\treturn false\n+\t\t}\n+\t}\n+\n+\treturn true\n+}\n+\n func (d *Daprd) WaitUntilAppHealth(t *testing.T, ctx context.Context) {\n \tswitch d.appProtocol {\n \tcase \"http\":",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/integration/framework/process/daprd/daprd_test.go",
+      "status": "added",
+      "additions": 83,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,83 @@\n+/*\n+Copyright 2026 The Dapr Authors\n+Licensed under the Apache License, Version 2.0 (the \"License\");\n+you may not use this file except in compliance with the License.\n+You may obtain a copy of the License at\n+    http://www.apache.org/licenses/LICENSE-2.0\n+Unless required by applicable law or agreed to in writing, software\n+distributed under the License is distributed on an \"AS IS\" BASIS,\n+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+See the License for the specific language governing permissions and\n+limitations under the License.\n+*/\n+\n+package daprd\n+\n+import (\n+\t\"testing\"\n+\n+\t\"github.com/stretchr/testify/assert\"\n+\n+\trtv1 \"github.com/dapr/dapr/pkg/proto/runtime/v1\"\n+)\n+\n+func TestActorRuntimeHostsTypes(t *testing.T) {\n+\ttests := map[string]struct {\n+\t\tactorRuntime *MetadataActorRuntime\n+\t\tactorTypes   []string\n+\t\texp          bool\n+\t}{\n+\t\t\"nil runtime\": {\n+\t\t\tactorTypes: []string{\"workflow\"},\n+\t\t},\n+\t\t\"not ready\": {\n+\t\t\tactorRuntime: &MetadataActorRuntime{\n+\t\t\t\tRuntimeStatus: rtv1.ActorRuntime_RUNNING.String(),\n+\t\t\t\tHostReady:     false,\n+\t\t\t\tActiveActors: []*MetadataActorRuntimeActiveActor{\n+\t\t\t\t\t{Type: \"workflow\"},\n+\t\t\t\t},\n+\t\t\t},\n+\t\t\tactorTypes: []string{\"workflow\"},\n+\t\t},\n+\t\t\"host ready but runtime not running\": {\n+\t\t\tactorRuntime: &MetadataActorRuntime{\n+\t\t\t\tRuntimeStatus: rtv1.ActorRuntime_INITIALIZING.String(),\n+\t\t\t\tHostReady:     true,\n+\t\t\t\tActiveActors: []*MetadataActorRuntimeActiveActor{\n+\t\t\t\t\t{Type: \"activity\"},\n+\t\t\t\t\t{Type: \"workflow\"},\n+\t\t\t\t},\n+\t\t\t},\n+\t\t\tactorTypes: []string{\"workflow\", \"activity\"},\n+\t\t},\n+\t\t\"missing actor type\": {\n+\t\t\tactorRuntime: &MetadataActorRuntime{\n+\t\t\t\tRuntimeStatus: rtv1.ActorRuntime_RUNNING.String(),\n+\t\t\t\tHostReady:     true,\n+\t\t\t\tActiveActors: []*MetadataActorRuntimeActiveActor{\n+\t\t\t\t\t{Type: \"workflow\"},\n+\t\t\t\t},\n+\t\t\t},\n+\t\t\tactorTypes: []string{\"workflow\", \"activity\"},\n+\t\t},\n+\t\t\"all actor types hosted\": {\n+\t\t\tactorRuntime: &MetadataActorRuntime{\n+\t\t\t\tRuntimeStatus: rtv1.ActorRuntime_RUNNING.String(),\n+\t\t\t\tHostReady:     true,\n+\t\t\t\tActiveActors: []*MetadataActorRuntimeActiveActor{\n+\t\t\t\t\t{Type: \"activity\"},\n+\t\t\t\t\t{Type: \"workflow\"},\n+\t\t\t\t},\n+\t\t\t},\n+\t\t\tactorTypes: []string{\"workflow\", \"activity\"},\n+\t\t\texp:        true,\n+\t\t},\n+\t}\n+\n+\tfor name, tc := range tests {\n+\t\tt.Run(name, func(t *testing.T) {\n+\t\t\tassert.Equal(t, tc.exp, actorRuntimeHostsTypes(tc.actorRuntime, tc.actorTypes...))\n+\t\t})\n+\t}\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/integration/suite/daprd/workflow/signing/signaturestripped.go",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "patch": "@@ -15,6 +15,7 @@ package signing\n \n import (\n \t\"context\"\n+\t\"fmt\"\n \t\"testing\"\n \n \t\"github.com/stretchr/testify/assert\"\n@@ -120,6 +121,7 @@ func (s *signatureStripped) scheduleAndComplete(t *testing.T, ctx context.Contex\n \t})\n \tclient := dworkflow.NewClient(s.daprd.GRPCConn(t, ctx))\n \trequire.NoError(t, client.StartWorker(ctx, reg))\n+\ts.waitForWorkflowActorHosted(t, ctx)\n \n \tid, err := client.ScheduleWorkflow(ctx, \"sign-stripped\")\n \trequire.NoError(t, err)\n@@ -137,7 +139,15 @@ func (s *signatureStripped) assertLoadFails(t *testing.T, ctx context.Context, i\n \n \tclient := dworkflow.NewClient(s.daprd.GRPCConn(t, ctx))\n \trequire.NoError(t, client.StartWorker(ctx, dworkflow.NewRegistry()))\n+\ts.waitForWorkflowActorHosted(t, ctx)\n \n \t_, err := client.FetchWorkflowMetadata(ctx, id)\n \trequire.Error(t, err)\n }\n+\n+func (s *signatureStripped) waitForWorkflowActorHosted(t *testing.T, ctx context.Context) {\n+\tt.Helper()\n+\ts.daprd.WaitUntilActorTypesHosted(t, ctx,\n+\t\tfmt.Sprintf(\"dapr.internal.%s.%s.workflow\", s.daprd.Namespace(), s.daprd.AppID()),\n+\t)\n+}",
+      "patch_truncated": false
+    }
+  ]
+}

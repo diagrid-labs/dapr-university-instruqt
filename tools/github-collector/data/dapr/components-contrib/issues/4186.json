@@ -1,0 +1,24 @@
+{
+  "type": "issue",
+  "number": 4186,
+  "title": "[1.17] flakey unit test wasm",
+  "state": "open",
+  "body": "```\nok  \tgithub.com/dapr/components-contrib/middleware/http/wasm\t0.024s\tcoverage: 53.2% of statements\n--- FAIL: Test_EndToEnd (0.56s)\n    --- FAIL: Test_EndToEnd/http (0.17s)\n        --- FAIL: Test_EndToEnd/http/consoleLog_stdout_and_stderr (0.07s)\n            e2e_test.go:90: \n                \tError Trace:\t/home/runner/work/components-contrib/components-contrib/middleware/http/wasm/internal/e2e_test.go:90\n                \t            \t\t\t\t/home/runner/work/components-contrib/components-contrib/middleware/http/wasm/internal/e2e_test.go:222\n                \tError:      \t\"time=\\\"2026-01-19T19:19:44.306988448Z\\\" level=info msg=\\\"main ConsoleLog\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-19T19:19:44.307263319Z\\\" level=info msg=\\\"main ConsoleLog\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-19T19:19:44.307384567Z\\\" level=info msg=\\\"request[0] ConsoleLog\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-19T19:19:44.307399315Z\\\" level=debug msg=\\\"wasm stdout: main Stdout\\\\nmain Stdout\\\\nrequest[0] Stdout\\\\n\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\ntime=\\\"2026-01-19T19:19:44.30740757Z\\\" level=debug msg=\\\"wasm stderr: main Stderr\\\\nmain Stderr\\\\nrequest[0] Stderr\\\\n\\\" instance=runnervmmtnos scope=Test_EndToEnd type=log ver=unknown\\n\" does not contain \"level=debug msg=\\\"wasm stdout: main Stdout\\\\nrequest[0] Stdout\\\\n\\\"\"\n                \tTest:       \tTest_EndToEnd/http/consoleLog_stdout_and_stderr\nFAIL\n```",
+  "labels": [
+    "kind/bug",
+    "good first issue",
+    "P1",
+    "size/XS"
+  ],
+  "user": "sicoyle",
+  "created_at": "2026-01-19T19:23:22Z",
+  "updated_at": "2026-01-19T19:24:05Z",
+  "comments": [],
+  "linked_pr_numbers": [
+    4283
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4186",
+  "is_seed": false,
+  "partial": false
+}

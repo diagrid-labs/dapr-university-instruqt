@@ -1,0 +1,53 @@
+{
+  "type": "issue",
+  "number": 3003,
+  "title": "Require GCP PUBSUB component to support publish or consumer message with custom attributes",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\nThe current GCP PUB/SUB DAPR component does not support publishing or consuming messages with custom attributes. This can be a limitation for applications that need to track additional information about messages, such as the order in which they were received, the source of the message, or the status of the message processing.\r\n\r\nI propose that the GCP PUB/SUB DAPR component be updated to support publishing or consuming messages with custom attributes. This would allow applications to track additional information about messages, which could improve the overall observability and manageability of their applications. The similar feature has been implemented by azure service bus topic pubsub component\r\n\r\nBenefits:\r\n\r\nImproved observability and manageability of applications\r\nIncreased flexibility for applications to track additional information about messages\r\nReduced complexity of applications by eliminating the need to implement custom message-handling logic\r\nUse cases:\r\n\r\nTracking the order in which messages were received\r\nTracking the source of messages\r\nTracking the status of message processing\r\nImplementing custom message filtering\r\nImplementing custom message routing\r\n\r\n",
+  "labels": [
+    "kind/enhancement",
+    "good first issue"
+  ],
+  "user": "iamzhaoxu",
+  "created_at": "2023-07-21T05:38:06Z",
+  "updated_at": "2023-11-16T02:58:59Z",
+  "comments": [
+    {
+      "user": "iamzhaoxu",
+      "body": "Hi, I wonder if anyone can response to this ticket. thanks!",
+      "created_at": "2023-08-11T01:17:32Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-09-10T01:40:03Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "keepalive",
+      "created_at": "2023-09-10T02:13:12Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-10-10T02:27:23Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2023-10-17T02:27:47Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-11-16T02:37:22Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    3786
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3003",
+  "is_seed": false,
+  "partial": false
+}

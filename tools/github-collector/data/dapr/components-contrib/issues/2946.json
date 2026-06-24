@@ -1,0 +1,51 @@
+{
+  "type": "issue",
+  "number": 2946,
+  "title": "Dapr kafka endpoint for azure eventhub receiving duplicated messages",
+  "state": "open",
+  "body": "I am using Dapr kafka endpoint for azure eventhub. I have created 3 partitions in the eventhub. I have 3 pods in kubernetes running to read events from eventhub. When I publish 3 events,  each event is received by all the 3 consumers. \r\n\r\nEvery message is processed by all the three consumers. It is resulting in wastage of resources and duplication of outputs. Sometimes, the event is consumed twice or even thrice by the same consumer.\r\n\r\nEach events take approx. 4 minutes to process.\r\n \r\nAll these three consumers belong to the same consumer group.\r\n\r\nBelow is my yaml file:\r\n\r\n\r\n```\r\napiVersion: dapr.io/v1alpha1\r\nkind: Component\r\nmetadata:\r\n  name: pubsub\r\nspec:\r\n  type: pubsub.kafka\r\n  version: v1\r\n  metadata:\r\n    - name: brokers\r\n      value: \"my_evenhtub_namespace_name.servicebus.windows.net:9093\"\r\n    - name: consumerGroup\r\n      value: \"consumer1\"\r\n    - name: authRequired\r\n      value: \"true\"\r\n    - name: authType\r\n      value: \"password\"\r\n    - name: saslUsername\r\n      value: $ConnectionString\r\n    - name: saslPassword\r\n      secretKeyRef:\r\n        name: eventhub-connection-key\r\n        key: eventhub-connection-key\r\n    - name: version # Optional.\r\n      value: 1.0.0\r\n    - name: initialOffset\r\n      value: \"oldest\"\r\n    - name: consumeRetryInterval\r\n      value: 6s\r\nauth:\r\n  secretStore: secretref\r\n```\r\n\r\n\r\n```\r\napiVersion: dapr.io/v1alpha1\r\nkind: Resiliency\r\nmetadata:\r\n  name: consumer-resiliency\r\nspec:\r\n  policies:\r\n    retries:\r\n      pubsubRetry:\r\n        policy: constant\r\n        duration: 10s\r\n        maxRetries: 1\r\n  targets:\r\n    components:\r\n      pubsub:\r\n        inbound:\r\n          retry: pubsubRetry\r\n```\r\n\r\n```\r\napiVersion: dapr.io/v1alpha1\r\nkind: Subscription\r\nmetadata:\r\n  name: consumer\r\nspec:\r\n  topic: dev\r\n  route: /process\r\n  pubsubname: pubsub\r\n  deadLetterTopic: poison-message\r\nscopes:\r\n- consumer-dev\r\n---\r\napiVersion: dapr.io/v1alpha1\r\nkind: Subscription\r\nmetadata:\r\n  name: recorder-consumer-deadletter\r\nspec:\r\n  topic: dead-message\r\n  route: /dead\r\n  pubsubname: pubsub\r\nscopes:\r\n- consumer-dev\r\n```\r\n",
+  "labels": [
+    "stale",
+    "pinned"
+  ],
+  "user": "pyjads",
+  "created_at": "2023-06-28T11:04:40Z",
+  "updated_at": "2023-07-29T21:25:03Z",
+  "comments": [
+    {
+      "user": "ItalyPaleAle",
+      "body": "This is how Event Hubs works, with or without Kafka. It delivers messages to all subscribers.\r\n\r\nIf you want only one subscriber to receive a message, I would recommend looking into different brokers, such as Azure Service Bus in Queues mode (in \"Topics\" mode, all subscribers receive a message)",
+      "created_at": "2023-06-28T17:48:33Z"
+    },
+    {
+      "user": "pyjads",
+      "body": "@ItalyPaleAle All these three subscribers belong to the same consumer group. If using official library (EventHubConsumerClient), it load balances and ensures only one subscriber register to a partition.\r\n\r\nIf there are multiple subscribers, only one subscriber can take ownership of the partition. Only, in rare cases there will be re processing of events.\r\n\r\nSources:\r\nhttps://stackoverflow.com/questions/61260996/azure-event-hub-there-can-be-at-most-5-concurrent-readers-on-a-partition-per-co\r\n\r\nhttps://learn.microsoft.com/en-us/azure/event-hubs/event-processor-balance-partition-load",
+      "created_at": "2023-06-28T19:12:42Z"
+    },
+    {
+      "user": "pyjads",
+      "body": "Sometimes, the same subscriber consumes the same message more than once in a row.",
+      "created_at": "2023-06-28T19:17:32Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "@skyao @DeepanshuA @mukundansundar you are a lot more knowledgeable about Kafka and Event Hubs since you've been working on it recently. Could you please take a look?\r\n\r\n@pyjads can you confirm which version of Dapr you're using?",
+      "created_at": "2023-06-29T14:47:43Z"
+    },
+    {
+      "user": "pyjads",
+      "body": "I am using version 1.10.7.\r\n\r\nDuplicate processing occurs very frequently. Is it happening because of the time it takes to process each event which is approximately 4 minutes.\r\n\r\nI have to maintain the states by computing hash of the message and update in database and check if the event was already processed. ",
+      "created_at": "2023-06-29T20:57:25Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-07-29T21:04:58Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2946",
+  "is_seed": false,
+  "partial": false
+}

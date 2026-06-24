@@ -1,0 +1,31 @@
+{
+  "type": "issue",
+  "number": 3401,
+  "title": "ttlInSeconds in bindings.rabbitmq failing",
+  "state": "open",
+  "body": "## Expected Behavior\r\nI am trying to bind a queue in rabbit mq using a component attaching the component below\r\n\r\n`apiVersion: dapr.io/v1alpha1\r\nkind: Component\r\nmetadata:\r\n  name: wait-for-thirty-days\r\nspec:\r\n  type: bindings.rabbitmq\r\n  version: v1\r\n  metadata:\r\n  - name: queueName\r\n    value: \"wait-for-thirty-days\"\r\n  - name: host\r\n    value: amqp://guest:guest@rabbit-mq:5672\r\n  - name: durable\r\n    value: \"true\"\r\n  - name: maxPriority\r\n    value: \"10\"\r\n  - name: direction \r\n    value: \"output\"\r\n  - name: ttlInSeconds\r\n    value: \"2592000\"`\r\ni have created the queue in rabbit mq with the correct ttl, i was expecting the queue to bound\r\n\r\n## Actual Behavior\r\ni am getting the following error\r\n\r\n` time=\"2024-04-25T11:40:10.503551172Z\" level=fatal msg=\"Fatal error from runtime: process component wait-for-thirty-days error: [INIT_COMPONENT_FAILURE]: initialization error occurred for wfe-thirty-days (bindings.rabbitmq/v1): [INIT_COMPONENT_FAILURE]: initialization error occurred for wait-for-thirty-days (bindings.rabbitmq/v1): Exception (406) Reason: \\\"PRECONDITION_FAILED - inequivalent arg 'x-message-ttl' for queue 'wait-for-thirty-days' in vhost '/': received '-1703967296' but current is '2592000000'\\\"\" app_id=journey-builder instance=135652a5087c scope=dapr.runtime type=log ver=edge`\r\n\r\ni think there is some overflow happening\r\n\r\n## Steps to Reproduce the Problem\r\n- i spun up a rabbit mq container\r\n- created the queue with ttl and dead letter \r\n- defined the dapr compnent\r\n- ran the dapr pplication",
+  "labels": [
+    "kind/bug",
+    "help wanted"
+  ],
+  "user": "isaacnikon93",
+  "created_at": "2024-04-25T12:19:07Z",
+  "updated_at": "2024-06-03T22:49:26Z",
+  "comments": [
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-05-25T12:20:44Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2024-06-01T12:21:16Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3401",
+  "is_seed": false,
+  "partial": false
+}

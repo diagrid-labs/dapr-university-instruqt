@@ -1,0 +1,105 @@
+{
+  "type": "issue",
+  "number": 8813,
+  "title": "Support Streaming responses in Conversation API",
+  "state": "open",
+  "body": "## In what area(s)?\n\n /area runtime\n\n> /area operator\n\n> /area placement\n\n> /area docs\n\n> /area test-and-release\n\n## Describe the feature\n\nCurrently Conversation API only support batch requests, but it is usually desirable to have streaming output as the batch request can sometimes takes time\n\n## Release Note\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE:\n",
+  "labels": [
+    "stale"
+  ],
+  "user": "filintod",
+  "created_at": "2025-06-19T12:27:31Z",
+  "updated_at": "2026-06-16T23:43:03Z",
+  "comments": [
+    {
+      "user": "filintod",
+      "body": "/assign",
+      "created_at": "2025-06-19T12:27:37Z"
+    },
+    {
+      "user": "bibryam",
+      "body": "PR ready for review\nhttps://github.com/dapr/components-contrib/pull/3846\nhttps://github.com/dapr/components-contrib/pull/3847",
+      "created_at": "2025-06-23T14:12:53Z"
+    },
+    {
+      "user": "Twacqwq",
+      "body": "Hi @filintod @sicoyle \n\nSorry for the direct ping - I know you're both busy! Just wanted to check: Is streaming responses in the Conversation API still being worked on? No pressure, just curious about the progress. \n\nThanks for all your hard work! Have a nice day!",
+      "created_at": "2025-07-31T07:27:05Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "> Sorry for the direct ping - I know you're both busy! Just wanted to check: Is streaming responses in the Conversation API still being worked on? No pressure, just curious about the progress.\n\n> Thanks for all your hard work! Have a nice day!\n\nThank you for your interest in the conversation api and the ping @Twacqwq ! Yes, we are helping to wrap up things for the official Dapr 1.16 release as our main priority, but streaming will be the next thing I look at :) So we'll likely have it wrapped up in August at some point. I can ping back with more updates as they come and keep this issue up to date for ya\ud83d\ude4c \n",
+      "created_at": "2025-07-31T14:24:14Z"
+    },
+    {
+      "user": "Twacqwq",
+      "body": "> > Sorry for the direct ping - I know you're both busy! Just wanted to check: Is streaming responses in the Conversation API still being worked on? No pressure, just curious about the progress.\n> \n> > Thanks for all your hard work! Have a nice day!\n> \n> Thank you for your interest in the conversation api and the ping [@Twacqwq](https://github.com/Twacqwq) ! Yes, we are helping to wrap up things for the official Dapr 1.16 release as our main priority, but streaming will be the next thing I look at :) So we'll likely have it wrapped up in August at some point. I can ping back with more updates as they come and keep this issue up to date for ya\ud83d\ude4c\n\nCurrently, Dapr has already supported some LLM models. Are there any plans to add other LLM models (Minimax, Qwen, Ernie, etc.) in the future? If so, I'd be happy to submit a PR.\ud83d\ude4c",
+      "created_at": "2025-08-01T09:02:27Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "> Currently, Dapr has already supported some LLM models. Are there any plans to add other LLM models (Minimax, Qwen, Ernie, etc.) in the future? If so, I'd be happy to submit a PR.\ud83d\ude4c\n\nOoooo, that's a great idea @Twacqwq . I created issues for each of these components below describing high level the steps to follow. Feel free to comment \"/assign\" on the issue you're interested in working on, and ping here or on those issues or even on Discord if you need assistance along the way :) \nhttps://github.com/dapr/components-contrib/issues/3927\nhttps://github.com/dapr/components-contrib/issues/3928\nhttps://github.com/dapr/components-contrib/issues/3929\n",
+      "created_at": "2025-08-01T13:56:26Z"
+    },
+    {
+      "user": "Twacqwq",
+      "body": "> > Currently, Dapr has already supported some LLM models. Are there any plans to add other LLM models (Minimax, Qwen, Ernie, etc.) in the future? If so, I'd be happy to submit a PR.\ud83d\ude4c\n> \n> Ooooo, that's a great idea [@Twacqwq](https://github.com/Twacqwq) . I created issues for each of these components below describing high level the steps to follow. Feel free to comment \"/assign\" on the issue you're interested in working on, and ping here or on those issues or even on Discord if you need assistance along the way :) [dapr/components-contrib#3927](https://github.com/dapr/components-contrib/issues/3927) [dapr/components-contrib#3928](https://github.com/dapr/components-contrib/issues/3928) [dapr/components-contrib#3929](https://github.com/dapr/components-contrib/issues/3929)\n\ncooool, I will add this part as soon as possible, thanks. \ud83d\udc4d ",
+      "created_at": "2025-08-01T14:31:16Z"
+    },
+    {
+      "user": "filintod",
+      "body": "@Twacqwq some providers do offer compatibility with OpenAI API. If the provider you are interested does provide it (Qwen-Alibaba [seems to](https://www.alibabacloud.com/help/en/model-studio/use-qwen-by-calling-api)), in most cases, it is just as simple as changing the [endpoint](https://github.com/dapr/components-contrib/blob/main/conversation/openai/metadata.yaml#L31) in your component config but it is good to test to see if we need to do any change, and if we do then new PR would be needed, but even if no direct PR is needed a doc PR is welcome to mention that that provider works with the corresponding endpoing url.\n\nThanks for your interest and help",
+      "created_at": "2025-08-04T13:47:56Z"
+    },
+    {
+      "user": "Twacqwq",
+      "body": "> [@Twacqwq](https://github.com/Twacqwq) some providers do offer compatibility with OpenAI API. If the provider you are interested does provide it (Qwen-Alibaba [seems to](https://www.alibabacloud.com/help/en/model-studio/use-qwen-by-calling-api)), in most cases, it is just as simple as changing the [endpoint](https://github.com/dapr/components-contrib/blob/main/conversation/openai/metadata.yaml#L31) in your component config but it is good to test to see if we need to do any change, and if we do then new PR would be needed, but even if no direct PR is needed a doc PR is welcome to mention that that provider works with the corresponding endpoing url.\n> \n> Thanks for your interest and help\n\n@filintod Yes, indeed many providers now offer OpenAI API compatibility - besides Qwen-Alibaba, both Minimax and DeepSeek are also compatible with the OpenAI API. I completely agree that documenting these OpenAI-compatible endpoints would be valuable.\n\nHowever, I'm curious about one thing: even though DeepSeek is OpenAI-compatible, it's implemented as a separate component rather than just an endpoint. Should we be decoupling different LLM providers in this way? This is something I'm currently unclear about and might warrant further discussion.\n\nThank you very much for your response and suggestions!\ncc @sicoyle ",
+      "created_at": "2025-08-04T17:03:33Z"
+    },
+    {
+      "user": "filintod",
+      "body": "@Twacqwq true, deepseek was setup as an independent one but it could have been done via openai compatibility as you mentioned, not sure why it was not at the time though, even though I suspect it was that the endpoint was not part of the initial metadata, again not sure on the history.   The only one advantage of a component per LLM provider is having the endpoint already filled-in but not sure that is enough to deserve having a specific component and maybe we could come up with a different way that accomplish the same.  Recently we have a PR where new metadata was missing but even there we did not have a new component.  Any DevEx design improvement is welcome.",
+      "created_at": "2025-08-05T14:42:38Z"
+    },
+    {
+      "user": "Twacqwq",
+      "body": "I also wanted to know more, so I created a discussion.",
+      "created_at": "2025-08-07T04:05:21Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-11-05T04:09:36Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-03-18T10:25:59Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-06-16T23:43:02Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    1432,
+    1560,
+    3927,
+    3928,
+    8790
+  ],
+  "referenced_issue_numbers": [
+    80,
+    706,
+    810,
+    1559,
+    3929,
+    4687,
+    8817,
+    8967
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/8813",
+  "is_seed": false,
+  "partial": false
+}

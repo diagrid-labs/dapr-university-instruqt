@@ -1,0 +1,74 @@
+{
+  "type": "pr",
+  "number": 9816,
+  "title": "fix: Error Standardization: Bindings API",
+  "state": "open",
+  "body": "# Description\r\n\r\nStandardize Bindings API errors using the rich error model (kiterrors builder), following the pattern already established for the State and PubSub APIs in this series.\r\n\r\n**Changes:**\r\n- Add `pkg/api/errors/binding.go` \u2014 new `BindingError` builder with `InvokeOutputBinding()` method\r\n- Add `DAPR_BINDING_INVOKE_OUTPUT_BINDING` GrpcCode to `pkg/messages/errorcodes/errorcodes.go`\r\n- Update `pkg/api/grpc/grpc.go` `InvokeBinding()` to use `apierrors.Binding(name).InvokeOutputBinding(err)`\r\n- Update `pkg/api/http/http.go` `onOutputBindingMessage()` to use `apierrors.Binding(name).InvokeOutputBinding(err)`\r\n- Add unit tests in `pkg/api/errors/binding_test.go` validating gRPC status code, message, and ErrorInfo details\r\n\r\n## Issue reference\r\n\r\nFixes #7483\r\n\r\n## Checklist\r\n\r\nPlease make sure you've completed the relevant tasks for this PR, out of the following list:\r\n\r\n- [x] Code compiles correctly\r\n- [x] Created/updated tests\r\n- [x] Unit tests passing\r\n- [ ] End-to-end tests passing\r\n- [ ] Extended the documentation / Created issue in the <https://github.com/dapr/docs/> repo: dapr/docs#_[issue number]_\r\n- [ ] Specification has been updated / Created issue in the <https://github.com/dapr/docs/> repo: dapr/docs#_[issue number]_\r\n- [ ] Provided sample for the feature / Created issue in the <https://github.com/dapr/docs/> repo: dapr/docs#_[issue number]_",
+  "labels": [],
+  "user": "mail2sudheerobbu-oss",
+  "created_at": "2026-04-22T12:55:17Z",
+  "updated_at": "2026-06-16T14:11:12Z",
+  "additions": 122,
+  "deletions": 5,
+  "changed_files": 5,
+  "linked_issue_numbers": [
+    7483
+  ],
+  "comments": [
+    {
+      "user": "acroca",
+      "body": "```suggestion\nCopyright 2026 The Dapr Authors\n```",
+      "created_at": "2026-04-22T13:54:08Z"
+    },
+    {
+      "user": "acroca",
+      "body": "```suggestion\r\nCopyright 2026 The Dapr Authors\r\n```",
+      "created_at": "2026-04-22T13:54:16Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/dapr/pull/9816",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pkg/api/errors/binding.go",
+      "status": "added",
+      "additions": 57,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,57 @@\n+/*\n+Copyright 2026 The Dapr Authors\n+Licensed under the Apache License, Version 2.0 (the \"License\");\n+you may not use this file except in compliance with the License.\n+You may obtain a copy of the License at\n+    http://www.apache.org/licenses/LICENSE-2.0\n+Unless required by applicable law or agreed to in writing, software\n+distributed under the License is distributed on an \"AS IS\" BASIS,\n+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+See the License for the specific language governing permissions and\n+limitations under the License.\n+*/\n+\n+package errors\n+\n+import (\n+\t\"fmt\"\n+\t\"net/http\"\n+\n+\t\"google.golang.org/grpc/codes\"\n+\n+\t\"github.com/dapr/dapr/pkg/messages/errorcodes\"\n+\tkiterrors \"github.com/dapr/kit/errors\"\n+)\n+\n+const bindingComponentType = \"binding\"\n+\n+// BindingError builds rich errors for the Bindings API.\n+type BindingError struct {\n+\tname string\n+}\n+\n+// Binding returns a BindingError scoped to the given output binding name.\n+func Binding(name string) *BindingError {\n+\treturn &BindingError{name: name}\n+}\n+\n+// InvokeOutputBinding returns a standardized error for a failed output-binding invocation.\n+func (b *BindingError) InvokeOutputBinding(err error) error {\n+\tmsg := fmt.Sprintf(\"error invoking output binding %s: %s\", b.name, err)\n+\treturn kiterrors.NewBuilder(\n+\t\tcodes.Internal,\n+\t\thttp.StatusInternalServerError,\n+\t\tmsg,\n+\t\terrorcodes.BindingInvokeOutputBinding.Code,\n+\t\tstring(errorcodes.BindingInvokeOutputBinding.Category),\n+\t).\n+\t\tWithResourceInfo(bindingComponentType, b.name, \"\", msg).\n+\t\tWithErrorInfo(\n+\t\t\terrorcodes.BindingInvokeOutputBinding.GrpcCode,\n+\t\t\tmap[string]string{\n+\t\t\t\t\"name\":  b.name,\n+\t\t\t\t\"error\": err.Error(),\n+\t\t\t},\n+\t\t).\n+\t\tBuild()\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/api/errors/binding_test.go",
+      "status": "added",
+      "additions": 60,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,60 @@\n+/*\n+Copyright 2026 The Dapr Authors\n+Licensed under the Apache License, Version 2.0 (the \"License\");\n+you may not use this file except in compliance with the License.\n+You may obtain a copy of the License at\n+    http://www.apache.org/licenses/LICENSE-2.0\n+Unless required by applicable law or agreed to in writing, software\n+distributed under the License is distributed on an \"AS IS\" BASIS,\n+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+See the License for the specific language governing permissions and\n+limitations under the License.\n+*/\n+\n+package errors_test\n+\n+import (\n+\t\"errors\"\n+\t\"testing\"\n+\n+\t\"github.com/stretchr/testify/assert\"\n+\t\"github.com/stretchr/testify/require\"\n+\tepb \"google.golang.org/genproto/googleapis/rpc/errdetails\"\n+\t\"google.golang.org/grpc/codes\"\n+\t\"google.golang.org/grpc/status\"\n+\n+\tapierrors \"github.com/dapr/dapr/pkg/api/errors\"\n+)\n+\n+func TestBindingInvokeOutputBinding(t *testing.T) {\n+\tbindingName := \"my-output-binding\"\n+\tcause := errors.New(\"connection refused\")\n+\n+\terr := apierrors.Binding(bindingName).InvokeOutputBinding(cause)\n+\trequire.Error(t, err)\n+\n+\t// gRPC status code must be Internal\n+\tst, ok := status.FromError(err)\n+\trequire.True(t, ok)\n+\tassert.Equal(t, codes.Internal, st.Code())\n+\n+\t// Error message contains binding name and root cause\n+\tassert.Contains(t, st.Message(), bindingName)\n+\tassert.Contains(t, st.Message(), cause.Error())\n+\n+\t// Status details: ErrorInfo carries the metadata\n+\tdetails := st.Details()\n+\trequire.NotEmpty(t, details)\n+\n+\tvar errInfo *epb.ErrorInfo\n+\tfor _, d := range details {\n+\t\tif ei, ok := d.(*epb.ErrorInfo); ok {\n+\t\t\terrInfo = ei\n+\t\t\tbreak\n+\t\t}\n+\t}\n+\trequire.NotNil(t, errInfo, \"expected ErrorInfo in status details\")\n+\tassert.Equal(t, \"DAPR_BINDING_INVOKE_OUTPUT_BINDING\", errInfo.GetReason())\n+\tassert.Equal(t, bindingName, errInfo.GetMetadata()[\"name\"])\n+\tassert.Equal(t, cause.Error(), errInfo.GetMetadata()[\"error\"])\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/api/grpc/grpc.go",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -570,7 +570,7 @@ func (a *api) InvokeBinding(ctx context.Context, in *runtimev1pb.InvokeBindingRe\n \t}\n \n \tif err != nil {\n-\t\trichError := apierrors.Basic(codes.Internal, http.StatusInternalServerError, errorcodes.BindingInvokeOutputBinding, fmt.Sprintf(messages.ErrInvokeOutputBinding, in.GetName(), err.Error()))\n+\t\trichError := apierrors.Binding(in.GetName()).InvokeOutputBinding(err)\n \t\tapiServerLogger.Debug(richError)\n \t\treturn r, richError\n \t}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/api/http/http.go",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "patch": "@@ -482,9 +482,9 @@ func (a *api) onOutputBindingMessage(w nethttp.ResponseWriter, r *nethttp.Reques\n \t}\n \n \tif err != nil {\n-\t\tresp := messages.NewAPIErrorHTTP(fmt.Sprintf(messages.ErrInvokeOutputBinding, name, err), errorcodes.BindingInvokeOutputBinding, nethttp.StatusInternalServerError)\n-\t\trespondWithError(w, resp)\n-\t\tlog.Debug(resp)\n+\t\trichErr := apierrors.Binding(name).InvokeOutputBinding(err)\n+\t\trespondWithError(w, richErr)\n+\t\tlog.Debug(richErr)\n \t\treturn\n \t}\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/messages/errorcodes/errorcodes.go",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -143,7 +143,7 @@ var (\n \tServiceInvocationDirectInvoke = ErrorCode{\"ERR_DIRECT_INVOKE\", \"\", CategoryServiceInvocation} // Error invoking service\n \n \t// ### Bindings API\n-\tBindingInvokeOutputBinding = ErrorCode{\"ERR_INVOKE_OUTPUT_BINDING\", \"\", CategoryBinding} // Error invoking output binding\n+\tBindingInvokeOutputBinding = ErrorCode{\"ERR_INVOKE_OUTPUT_BINDING\", \"DAPR_BINDING_INVOKE_OUTPUT_BINDING\", CategoryBinding} // Error invoking output binding\n \n \t// ### Distributed Lock API\n \tLockStoreNotConfigured = ErrorCode{\"ERR_LOCK_STORE_NOT_CONFIGURED\", \"\", CategoryLock} // Lock store not configured",
+      "patch_truncated": false
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "type": "issue",
+  "number": 4401,
+  "title": "Implement Infisical SecretStore Provider using Infisical Go SDK",
+  "state": "open",
+  "body": "## Summary\nCreate a new Dapr secretstore component for Infisical, leveraging the official Infisical Go SDK: https://infisical.com/docs/sdks/languages/go\n\n## Background & Motivation\nInfisical (https://infisical.com) is an open source secrets management platform with native support for Kubernetes and cloud/infra integrations. Supporting Infisical as a secretstore provider will enable Dapr users to dynamically fetch secrets from Infisical, both locally and in production.\n\n## Implementation Hints\n- **Directory Structure**: Follow the pattern used for other secretstores such as `secretstores/hashicorp/vault` or `secretstores/aws/secretmanager`. Create a new directory under `secretstores/infisical`.\n- **SDK Integration**: The Infisical Go SDK is available at https://github.com/Infisical/infisical-go. It supports multiple authentication methods. Check the docs for all required and optional metadata parameters (API URL, workspace ID, environment, token/service account, etc.).\n- **Metadata Fields**: Map component metadata fields to the necessary configuration for the Infisical SDK. Provide clear mapping in your component\u2019s docs.\n- **Component Interface**: Implement the `Init`, `GetSecret`, and `BulkGetSecret` methods of the secretstore interface.\n- **Testing**: Add unit tests for error and success flows. Add conformance tests in accordance with [tests/conformance/README.md](https://github.com/dapr/components-contrib/blob/master/tests/conformance/README.md).\n- **Documentation**: Document supported metadata, configuration example YAML, common usage, and troubleshooting.\n- **Sample YAML**:\n    ```yaml\n    apiVersion: dapr.io/v1alpha1\n    kind: Component\n    metadata:\n      name: infisical-secretstore\n    spec:\n      type: secretstores.infisical\n      version: v1\n      metadata:\n      - name: workspaceId\n        value: <workspace-id>\n      - name: environment\n        value: <dev|prod>\n      - name: apiUrl\n        value: <infisical-api-url>\n      - name: token\n        value: <access token or service account>\n    ```\n- **Reference Implementations**: Review how other secretstores handle error reporting, logging, and credential loading.\n- **Go Modules**: Ensure the SDK and dependencies are added to `go.mod`.\n\n## Acceptance Criteria\n- Users can specify an Infisical secretstore in YAML, provide required metadata, and successfully fetch secrets from an Infisical workspace\n- Unit and conformance tests pass\n- Documentation added under `/docs`\n\n### Additional resources\n- [Developing a new component guide](https://github.com/dapr/components-contrib/blob/master/docs/developing-component.md)\n- [Infisical Go SDK Reference](https://infisical.com/docs/sdks/languages/go)\n\nLabels: `secretstore`, `infisical`",
+  "labels": [],
+  "user": "lindner",
+  "created_at": "2026-06-08T23:27:22Z",
+  "updated_at": "2026-06-08T23:27:22Z",
+  "comments": [],
+  "linked_pr_numbers": [
+    1
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4401",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,32 @@
+{
+  "type": "issue",
+  "number": 9710,
+  "title": "e2e test flakiness for metrics",
+  "state": "open",
+  "body": "```\n\n=== Failed\n=== FAIL: tests/e2e/metrics TestMetrics/http_metrics (0.02s)\nHandling connection for 40859\n    metrics_test.go:197: \n        \tError Trace:\t/home/runner/work/dapr/dapr/tests/e2e/metrics/metrics_test.go:197\n        \t            \t\t\t\t/home/runner/work/dapr/dapr/tests/e2e/metrics/metrics_test.go:180\n        \t            \t\t\t\t/home/runner/work/dapr/dapr/tests/e2e/metrics/metrics_test.go:160\n        \tError:      \tShould not be: 0\n        \tTest:       \tTestMetrics/http_metrics\nForwarding from 127.0.0.1:36225 -> 50001\nForwarding from [::1]:36225 -> 50001\nForwarding from 127.0.0.1:44969 -> 9090\nForwarding from [::1]:44969 -> 9090\n    --- FAIL: TestMetrics/http_metrics (0.02s)\n\n=== FAIL: tests/e2e/metrics TestMetrics (2.05s)\nForwarding from 127.0.0.1:40859 -> 3500\nForwarding from [::1]:40859 -> 3500\nUnable to listen on port 40859: Listeners failed to create with the following errors: [unable to create listener: Error listen tcp4 127.0.0.1:40859: bind: address already in use unable to create listener: Error listen tcp6 [::1]:40859: bind: address already in use]\n\nDONE 404 tests, 1 skipped, 2 failures in 1414.975s\nmake: *** [tests/dapr_tests.mk:349: test-e2e-all] Error\n```\n\nhttps://github.com/dapr/dapr/actions/runs/23610155811/job/68763448972?pr=9685\nhttps://github.com/dapr/dapr/pull/9685",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "sicoyle",
+  "created_at": "2026-03-26T19:33:21Z",
+  "updated_at": "2026-03-30T19:27:16Z",
+  "comments": [
+    {
+      "user": "aviralgarg05",
+      "body": "Hi, I would like to solve this issue if someone could assign me",
+      "created_at": "2026-03-30T18:59:36Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "> Hi, I would like to solve this issue if someone could assign me\n\nDone! Thank you for expressing your interest in the Dapr Open Source Project \ud83e\udd17 Let us know if you need any help/assistance along the way @aviralgarg05 !",
+      "created_at": "2026-03-30T19:27:16Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    9720
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9710",
+  "is_seed": false,
+  "partial": false
+}

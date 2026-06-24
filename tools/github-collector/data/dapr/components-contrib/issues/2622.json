@@ -1,0 +1,28 @@
+{
+  "type": "issue",
+  "number": 2622,
+  "title": "Certification test for middleware.http.oauth2clientcredentials",
+  "state": "open",
+  "body": "Create a certification test for middlewares: middleware.http.oauth2clientcredentials",
+  "labels": [
+    "pinned",
+    "area/test/certification"
+  ],
+  "user": "ItalyPaleAle",
+  "created_at": "2023-03-02T23:28:38Z",
+  "updated_at": "2025-08-11T21:55:45Z",
+  "comments": [
+    {
+      "user": "ItalyPaleAle",
+      "body": "Note: component cannot be made stable until #2635 is fixed",
+      "created_at": "2023-03-06T19:51:17Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    2635
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2622",
+  "is_seed": false,
+  "partial": false
+}

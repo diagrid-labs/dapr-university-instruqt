@@ -1,0 +1,39 @@
+{
+  "type": "issue",
+  "number": 2979,
+  "title": "GCP components need a common auth layer",
+  "state": "open",
+  "body": "Currently, GCP components have inconsistent metadata properties, especially for authentication.\r\n\r\nFor example, this is the [GCP Storage Bucket binding](https://docs.dapr.io/reference/components-reference/supported-bindings/gcpbucket/) (alpha). Note the use of snake_case for the auth properties (which is anti-pattern in Dapr) - non-auth properties use camelCase:\r\n\r\n![image](https://github.com/dapr/components-contrib/assets/43508/5d5e4d07-65e4-48e0-9781-216bc050a3af)\r\n\r\nThis instead is the GCP Pub/Sub component. Note that all auth properties use camelCase (correctly), and that some properties like \"type\" are marked as deprecated:\r\n\r\n![image](https://github.com/dapr/components-contrib/assets/43508/572204d1-3497-4788-95b6-71075f9f812f)\r\n\r\nAs per @robertojrojas , using `privateKeyId` is an \"old\" method of authenticating with GCP and users should use \"Application Default Credentials\" instead.\r\n\r\nIn order to support all auth methods, and support various names for the metadata properties, we need a \"common auth layer\" for GCP components, like we have for Azure components (which is used to support all Azure AD auth methods and accepts \"legacy\" metadata names)",
+  "labels": [
+    "kind/bug",
+    "pinned"
+  ],
+  "user": "ItalyPaleAle",
+  "created_at": "2023-07-11T15:48:56Z",
+  "updated_at": "2023-09-14T20:44:47Z",
+  "comments": [
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-08-10T15:53:41Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2023-08-17T15:53:48Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "This also could be a way to address #3129 ",
+      "created_at": "2023-09-14T20:44:46Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    3129,
+    3917
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2979",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,41 @@
+{
+  "type": "issue",
+  "number": 7686,
+  "title": "Service invocation via request header removes trailing slash",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\nHi,\r\n\r\nthis week we tried to implement a Non-Dapr endpoint via HTTP. Normally we use the `dapr-app-id` in the header instead of the `/v1.0/invoke/{appId}/method/{methodName}`, but ran into an issue with one of our endpoints. For this endpoint we need to have a trailing slash, which doesn't arrive at our server. Strangely enough, the dapr logs show the trailing slash. Calling the endpoint with the `/v1.0/invoke/{appId}/method/{methodName}/` version works. So my guess is, that it has something to to with the `dapr-app-id` header version. (Maybe the log is not correct?)\r\n\r\n## In what area(s)?\r\n\r\n<!-- Remove the '> ' to select -->\r\n\r\n/area runtime\r\n\r\n\r\n## What version of Dapr?\r\n\r\n<!-- Delete all but your choice -->\r\n\r\n> 1.13.0\r\n\r\n## Expected Behavior\r\n\r\n<!-- Briefly describe what you expect to happen -->\r\nURL should be send to the endpoint as specified.\r\n\r\n## Actual Behavior\r\n\r\n<!-- Briefly describe what is actually happening -->\r\nTrailing slash is missing. \r\n\r\n## Steps to Reproduce the Problem\r\n\r\n<!-- How can a maintainer reproduce this issue (be detailed) -->\r\n\r\nDapr Kubernetes Sidecar\r\nCalling the HTTPEndpoint via `/v1.0/invoke/{appId}/method/{methodName}/` (including trailing slash), the server returns 200.\r\n\r\nDapr Log\r\n```\r\ntime=\"2024-04-10T13:47:41.873135982Z\" level=info msg=\"HTTP API Called\" app_id=xy code=200 duration=1159 instance=xy-6d5bb584b-s4trc method=\"GET /v1.0/invoke/appId/method/my-demo/route/2024-04-08T00:00:00.0000000/2024-04-08T23:59:59.9990000/\" scope=dapr.runtime.http-info size=4994 type=log ver=1.13.0\r\n```\r\n\r\nServer Log\r\n```\r\n2024-04-10 13:47:41 10.21.1.10 GET /my-demo/route/2024-04-08T00:00:00.0000000/2024-04-08T23:59:59.9990000/ - 443 - 127.0.0.1 Go-http-client/2.0 - 200 0 0 1065 400 6610 800d\r\n```\r\n\r\nCalling the HTTPEndpoint via `/{methodName}/` and `dapr-app-id` header, the server returns 404 (as the trailing slash is missing)\r\n\r\nDapr Log\r\n```\r\ntime=\"2024-04-10T13:50:03.933427538Z\" level=info msg=\"HTTP API Called\" app_id=xy code=404 duration=11 instance=xy-6d5bb584b-s4trc method=\"GET /my-demo/route/2024-04-08T00:00:00.0000000/2024-04-08T23:59:59.9990000/\" scope=dapr.runtime.http-info size=5848 type=log ver=1.13.0\r\n```\r\n\r\nServer Log \r\n```\r\n2024-04-10 13:50:03 10.21.1.10 GET /my-demo/route/2024-04-08T00:00:00.0000000/2024-04-08T23:59:59.9990000 - 443 - 127.0.0.1 Go-http-client/2.0 - 404 0 2 10 400 6610 800d\r\n```\r\n\r\n## Release Note\r\n\r\n<!-- How should the fix for this issue be communicated in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/bug",
+    "good first issue"
+  ],
+  "user": "koell-casa",
+  "created_at": "2024-04-10T14:25:01Z",
+  "updated_at": "2026-04-11T23:21:17Z",
+  "comments": [
+    {
+      "user": "yaron2",
+      "body": "Interesting find, will look into this.\r\n",
+      "created_at": "2024-04-12T17:45:57Z"
+    },
+    {
+      "user": "ckcd",
+      "body": "@yaron2 This may be because `path.Clean` will simplify the path.\r\nhttps://github.com/dapr/dapr/blob/master/pkg/api/http/directmessaging.go#L300\r\n\r\nIn `path.Clean`'s comments it said:\r\n```\r\n// The returned path ends in a slash only if it is the root \"/\".\r\n```\r\n\r\nBut I'm wondering should we change this behavior? since `path.Clean` may be standard solution, is trailing slash reasonable?",
+      "created_at": "2024-04-19T08:48:07Z"
+    },
+    {
+      "user": "ogulcanaydogan",
+      "body": "I've identified the root cause: in `findTargetIDAndMethod` (pkg/api/http/directmessaging.go), `path.Clean(reqPath)` is called for both the `dapr-app-id` header path and Basic auth path. `path.Clean` strips trailing slashes by design (returns a slash-free path except for root \"/\"). The URL-based invocation path doesn't use `path.Clean`, so trailing slashes survive there.\n\nFix: after `path.Clean`, restore the trailing slash if the original path had one. This keeps the deduplication/normalization behavior of `path.Clean` while preserving intentional trailing slashes.\n\nI'll open a PR with the fix.",
+      "created_at": "2026-04-11T23:21:16Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    9664,
+    9667,
+    9786,
+    9833
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/7686",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,30 @@
+{
+  "type": "issue",
+  "number": 10091,
+  "title": "Will future versions support P2P/NAT mode?",
+  "state": "open",
+  "body": "Will future versions support P2P/NAT mode? It would solve the problem where edge devices can only connect to the server, but the server can't connect to the edge devices.\n",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "daodol",
+  "created_at": "2026-06-12T08:24:59Z",
+  "updated_at": "2026-06-15T02:40:26Z",
+  "comments": [
+    {
+      "user": "WhitWaldo",
+      "body": "I can't speak to the question directly presented, but the runtime _is_ gradually shifting to support persistent gRPC connections (e.g. the client opening the connection to the server and just leaving it open for server-side traffic to flow through). I think that would facilitate the idea you have in mind, right?\n\nThis has already been the case for Workflows and was just enabled for Actors in 1.18. I don't know any timelines for if/when it'll be supported for other building blocks as well.",
+      "created_at": "2026-06-13T09:17:02Z"
+    },
+    {
+      "user": "daodol",
+      "body": "\n\n\n\n> I can't speak to the question directly presented, but the runtime _is_ gradually shifting to support persistent gRPC connections (e.g. the client opening the connection to the server and just leaving it open for server-side traffic to flow through). I think that would facilitate the idea you have in mind, right?\n> \n> This has already been the case for Workflows and was just enabled for Actors in 1.18. I don't know any timelines for if/when it'll be supported for other building blocks as well.\n\nthank you for your reply.",
+      "created_at": "2026-06-15T02:40:26Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/10091",
+  "is_seed": false,
+  "partial": false
+}

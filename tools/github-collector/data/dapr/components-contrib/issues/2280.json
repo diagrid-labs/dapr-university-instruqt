@@ -1,0 +1,43 @@
+{
+  "type": "issue",
+  "number": 2280,
+  "title": "Azure EventHub PubSub component drastically reduces event distribution after a while",
+  "state": "open",
+  "body": "## Expected Behavior\r\n\r\nUnhandled events in the Azure EventHub get distributed to the Pods of the ReplicaSet until all events are handled.\r\n\r\n\r\n## Actual Behavior\r\n\r\nAfter (re-)starting the deployment, it runs as expected for a while. All pods receive events and run without issues.  \r\nAfter an hour or two, the first pod starts to only sporadically receive events. With more time, more and more pods display this behaviour until all of them only handle an event every few minutes or so.  \r\nThe strange thing about it is that the amount of unhandled events is still way up, so it's not just that there are no events to handle.  \r\nOther notable details:\r\n- The containers in the pods are healthy. If you could tell me a way to do it, I could also check whether the daprd sidecar responds.\r\n- There are still unhandled events in the hub. I checked by looking at data that should've been changed by the pods, had the events been handled.\r\n- The daprd sidecar shows no errors (debug logging is active).\r\n\r\n\r\n## Steps to Reproduce the Problem\r\n\r\nThis is also a bit spicy. I have the exact same setup running in another namespace connected to another EventHub, running under different names and everything. No issues on this one.\r\n\r\nStill, my setup includes:\r\n\r\n- A Deployment listening via its sidecar to one dapr PubSub binding and publishing to another. It has the following annotations:\r\n  - dapr.io/app-protocol: grpc\r\n  - dapr.io/enable-api-logging: \"true\"\r\n  - dapr.io/enabled: \"true\"\r\n  - dapr.io/log-level: debug\r\n  - dapr.io/app-id: cloud-dev-sidedetection-logic\r\n  - dapr.io/app-port: \"3010\"\r\n- A dapr PubSub component for subscription:\r\n\r\n        apiVersion: dapr.io/v1alpha1\r\n        kind: Component\r\n        metadata:\r\n          name: dev-sidedetection-sub\r\n        spec:\r\n          type: pubsub.azure.eventhubs\r\n          version: v1\r\n          metadata:\r\n            - name: connectionString\r\n              secretKeyRef:\r\n                key: AzureEventHubConnectionStringSubscriber\r\n                name: cloud-dev-sidedetection-logic\r\n            - name: storageAccountName\r\n              value: rwimportermaterialized\r\n            - name: storageAccountKey\r\n              secretKeyRef:\r\n                key: AzureEventCheckpointStorageKey\r\n                name: cloud-dev-sidedetection-logic\r\n            - name: storageContainerName\r\n              value: azure-webjobs-eventhub\r\n- A dapr PubSub component for publishing:\r\n\r\n        apiVersion: dapr.io/v1alpha1\r\n        kind: Component\r\n        metadata:\r\n          name: dev-sidedetection-pub\r\n        spec:\r\n          type: pubsub.azure.eventhubs\r\n          version: v1\r\n          metadata:\r\n            - name: connectionString\r\n              secretKeyRef:\r\n                key: AzureEventHubConnectionStringPublisher\r\n                name: cloud-dev-sidedetection-logic\r\n            - name: storageAccountName\r\n              value: rwimportermaterialized\r\n            - name: storageAccountKey\r\n              secretKeyRef:\r\n                key: AzureEventCheckpointStorageKey\r\n                name: cloud-dev-sidedetection-logic\r\n            - name: storageContainerName\r\n              value: azure-webjobs-eventhub\r\n- A Secret containing the connection strings\r\n- A KEDA ScaledObject Custom Resource for scaling the ReplicaSet according to the amount of unhandled events\r\n- A KEDA TriggerAuthentication CustomResource which just connects the ScaledObject to the secret\r\n- A ClusterRoleBinding for HashicorpVault\r\n\r\nI'd really like to give more information, but I'm highly unsure where to even look for more clues.\r\n\r\n<!-- How can a maintainer reproduce this issue (be detailed) -->\r\n\r\n## Release Note\r\n\r\n<!-- How should the fix for this issue be communicated in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/bug",
+    "pinned"
+  ],
+  "user": "jrehnen",
+  "created_at": "2022-11-15T08:19:19Z",
+  "updated_at": "2023-01-06T12:47:37Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "Possibly will be fixed by #2101 - we will be replacing the underlying SDK used.",
+      "created_at": "2022-11-16T16:22:53Z"
+    },
+    {
+      "user": "wesselkranenborg",
+      "body": "It looks like we are experiencing the same behavior. Is there any way to work around this @berndverst that you are aware of?",
+      "created_at": "2022-11-22T05:58:49Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2022-12-22T06:05:40Z"
+    },
+    {
+      "user": "jrehnen",
+      "body": "![grafik](https://user-images.githubusercontent.com/94835791/211014903-42a61822-e530-4e8c-aec7-4496c76eb909.png)\r\n\r\nSo after I didn't touch the project for what must be months, it just started working today.\r\nI changed nothing. The events are only stored for a week, so it can't be broken events stuck in the hub. The deployments didn't get restarted. Dapr wasn't updated.\r\nIf I ever get behind what sorcery happened here, I'll update this thread, but I wouldn't get my hopes up",
+      "created_at": "2023-01-06T12:47:36Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    2101
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2280",
+  "is_seed": false,
+  "partial": false
+}

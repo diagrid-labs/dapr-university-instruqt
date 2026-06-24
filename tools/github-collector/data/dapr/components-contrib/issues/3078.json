@@ -1,0 +1,21 @@
+{
+  "type": "issue",
+  "number": 3078,
+  "title": "Azure Service Bus Queue / Topic Subscription Filters for high-troughput scenarios",
+  "state": "open",
+  "body": "## Describe the feature\r\nOut of the box the Azure Service Bus topic subscription / queues support filters that are configurable on the Azure side. This way there could be filtering applied where the dapr sidecar doesn't get triggered which could be beneficial for high-throughput scenarios. This means messages are not propogated. (The filters could **only** be applied to message properties, and not message content!)\r\n\r\nAs Oli on the Discord channel described: \r\nBasically Azure Service Bus Subscribers have a way to do filtering, which is essentially filtering at source. In high-throughput scenarios, this is desirable as it means messages won't needlessly propagate to the sidecar just to be dropped anyway.\r\n\r\nhttps://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-filter-examples \r\n\r\nlooks like the go SDK supports filters (or rules as I think they're called) . The filters would be set at the time of establishing the dapr Output channel  for that particular subscriber -- I think i'm using the correct terminology here \ud83d\ude05 \r\n\r\nhttps://github.com/Azure/azure-sdk-for-go/blob/main/sdk/messaging/azservicebus/admin/admin_client_rules.go \r\n\r\n@berndverst replied:\r\nIt wouldn't be an override but an addition I guess... so you would have to refrain from using the runtime filter feature.\r\n\r\nWe would not implement this by reusing the SDK filters that exist today because that is entirely intended for filtering in the runtime after the events are delivered to the sidecar (it is in memory filtering - which only sends the matching events to the app).\r\n\r\nInstead, this would need to be exposed via subscription metadata -- the SDK and declarative subscriptions support metadata for subscriptions... so we'd have to agree on a way to specify it via that metadata, and then implement something in Service Bus which reads that metadata and initializes the right filter on the ServiceBus service side.\r\n\r\nThat would be a feature specific to ServiceBus. You can file a feature request for this - but 1.13 is the first release that could see this feature - and only if someone decides to work on it. \r\n\r\n\r\n## Release Note\r\nRELEASE NOTE: Service bus queue / topic subscription filtering for high troughput scenarios.",
+  "labels": [
+    "kind/enhancement",
+    "help wanted",
+    "good first issue"
+  ],
+  "user": "ferry-j-ispnext",
+  "created_at": "2023-08-14T07:09:14Z",
+  "updated_at": "2025-08-11T21:55:52Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3078",
+  "is_seed": false,
+  "partial": false
+}

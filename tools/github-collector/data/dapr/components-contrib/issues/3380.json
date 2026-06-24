@@ -1,0 +1,52 @@
+{
+  "type": "issue",
+  "number": 3380,
+  "title": "CosmosDB reminder partitioning not storing reminders in partitions",
+  "state": "open",
+  "body": "When using CosmosDB as actor state store with reminder partitioning enabled, the reminders are not stored in the partitions anymore since runtime version 1.10.5 (v1.10.4 or lower is working correctly).\r\n<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Expected Behavior\r\n\r\n<!-- Briefly describe what you expect to happen -->\r\nActor reminders should be stored in partitions to optimize performance with CosmosDB.\r\n\r\n\r\n## Actual Behavior\r\n\r\n<!-- Briefly describe what is actually happening -->\r\nThe actor reminders are stored in a single CosmosDB document, causing high RU usage when many reminders are used.\r\n\r\n\r\n## Steps to Reproduce the Problem\r\n\r\n<!-- How can a maintainer reproduce this issue (be detailed) -->\r\nI have created a sample project that demonstrates the bug:\r\n\r\nhttps://github.com/arnoldpistorius/bug-dapr-cosmosdb-partitioning\r\n\r\nBasically the steps are:\r\n\r\n- Configure CosmosDB Container as actor state.\r\n- In SDK enable actor reminder partitioning (eg. 3).\r\n- Create a bunch of reminders through an actor.\r\n- Observe the CosmosDB container's contents.\r\n  - All reminders are stored in the same document\r\n  - 2 different partitions were made, but both not used\r\n  - After service restart additional partitions are made and some data is migrated, but still new reminders come in a single document.\r\n\r\nWhen the same scenario is done using Redis as actor state store, the partitioning is working as expected.\r\n\r\n## Release Note\r\n\r\n<!-- How should the fix for this issue be communicated in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/bug",
+    "P1",
+    "pinned"
+  ],
+  "user": "arnoldpistorius",
+  "created_at": "2024-03-13T11:34:09Z",
+  "updated_at": "2026-03-02T14:35:37Z",
+  "comments": [
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-04-12T11:43:40Z"
+    },
+    {
+      "user": "arnoldpistorius",
+      "body": "bump",
+      "created_at": "2024-04-12T11:44:56Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-05-12T11:53:38Z"
+    },
+    {
+      "user": "arnoldpistorius",
+      "body": "This is still a valid issue..",
+      "created_at": "2024-05-16T09:18:42Z"
+    },
+    {
+      "user": "VenyaBrodetskiy",
+      "body": "I face same problem with dapr runtime 1.14.4, dotnet sdk 1.14.0\r\n\r\nI use cosmosdb as actor state store. All reminders are saved in 1 document in cosmos db _by default_ with id convention: `actors||<actor type>`\r\n\r\nI faced problem, that under high load (I have a lot of actors running at the same time, and each of them creates several reminders, update them and delete) I got too many 429 (The request rate is too large) and 412 errors (etag missmatch). \r\nSo I decided to enable actor reminders partitioning based on this guide: https://docs.dapr.io/developing-applications/building-blocks/actors/howto-actors-partitioning/\r\nNow I see many documents in actor state store with convention: `actors||<actor type>||<partition guid>||reminders||<N of partition>`. but all of them are empty, all reminders are still stored in `actors||<actor type>` document.\r\n_____\r\n\r\nAdditional strange behaviour, which might be valid, but caught my attention is N of `actors||<actor type>||<partition guid>||reminders||<N of partition>` documents in db. I expected to see same number as I use in configuration when I register actor, which is 10 in my case\r\n```csharp\r\noptions.RemindersStoragePartitions = 10\r\n```\r\nbut instead, I see many groups of documents, each group has 10 documents and same partitionKey. It started with 2 groups, but during application work it created more and more groups, each has it's own partitionKey = partition guid and 10 documents (1 per partition) in it. All of them are empty\r\n\r\n______\r\nany plans to fix issue with partitioning in cosmos db soon? or maybe my understanding is wrong and it is not considered as a bug?",
+      "created_at": "2025-01-07T12:13:48Z"
+    },
+    {
+      "user": "CRidge",
+      "body": "I'm seeing the same as @VenyaBrodetskiy. I'm running on Azure Container Apps, so they are still on version 1.13. Every few seconds (depending on traffic) it creates a complete new set of files. Cleaning them up is difficult, as they get the new partition keys each time.",
+      "created_at": "2025-06-08T00:25:08Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3380",
+  "is_seed": false,
+  "partial": false
+}

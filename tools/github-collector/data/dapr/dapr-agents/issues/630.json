@@ -1,0 +1,22 @@
+{
+  "type": "issue",
+  "number": 630,
+  "title": "[Tracking issue] Add first-class support for Drasi",
+  "state": "open",
+  "body": "This issue tracks all of the Dapr Agents-related tasks for a Drasi integration with Dapr Agents, which helps build business event-driven agent workflows.\n\nProject context: https://summerofcode.withgoogle.com/programs/2026/projects/qbtyohoJ\nDrasi: https://drasi.io/\nDrasi tracking issue: drasi-project/drasi-platform#435\n\n- [ ] #646\n- [ ] #631",
+  "labels": [],
+  "user": "JeffreyJPZ",
+  "created_at": "2026-06-01T20:39:27Z",
+  "updated_at": "2026-06-19T01:06:50Z",
+  "comments": [],
+  "linked_pr_numbers": [
+    435,
+    646
+  ],
+  "referenced_issue_numbers": [
+    631
+  ],
+  "html_url": "https://github.com/dapr/dapr-agents/issues/630",
+  "is_seed": false,
+  "partial": false
+}

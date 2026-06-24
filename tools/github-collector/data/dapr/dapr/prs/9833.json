@@ -1,0 +1,89 @@
+{
+  "type": "pr",
+  "number": 9833,
+  "title": "fix: preserve trailing slash in service invocation method path",
+  "state": "open",
+  "body": "## Description\r\n\r\nFixes #7686\r\n\r\nWhen a client invokes a service using the `dapr-app-id` request header (or Basic Auth or the `/v1.0/invoke/` URL form), any trailing slash in the request path was silently stripped before being forwarded to the target app. This caused routes like `GET /api/events/2024-04-08T00:00:00/` to arrive as `GET /api/events/2024-04-08T00:00:00` \u2014 resulting in 404s on apps that treat the trailing slash as significant.\r\n\r\n## Root cause\r\n\r\nGo's `path.Clean` strips trailing slashes by design. It was used at three independent points in the invocation pipeline:\r\n\r\n1. `findTargetIDAndMethod` in `pkg/api/http/directmessaging.go` \u2014 extracts method from header / Basic Auth / URL\r\n2. `NormalizeMethod` in `pkg/messaging/method/normalize.go` \u2014 normalizes on every dispatch\r\n3. `constructRequest` in `pkg/channel/http/http_channel.go` \u2014 defense-in-depth clean before building the outbound URL\r\n\r\n## Fix\r\n\r\nIntroduce a `cleanPath` helper in each package that calls `path.Clean` but re-attaches the trailing slash when the original path ended with one:\r\n\r\n```go\r\nfunc cleanPath(p string) string {\r\n    if p == \"\" {\r\n        return p\r\n    }\r\n    hasTrailing := p[len(p)-1] == '/'\r\n    cleaned := path.Clean(p)\r\n    if hasTrailing && cleaned != \"/\" {\r\n        cleaned += \"/\"\r\n    }\r\n    return cleaned\r\n}\r\n```\r\n\r\nAll three call sites are updated to use `cleanPath` instead of `path.Clean`, so a trailing slash survives end-to-end regardless of which entry point is used. Path traversal sequences (`../`) are still resolved correctly.\r\n\r\n## Tests\r\n\r\n- `TestFindTargetIDAndMethod`: 3 new cases \u2014 dapr-app-id header, Basic Auth, and `/v1.0/invoke/` URL all preserve trailing slash\r\n- `TestNormalizeMethod`: 3 new cases \u2014 trailing slash preserved, trailing slash preserved after traversal resolution, root-only `/` stays empty string",
+  "labels": [],
+  "user": "mail2sudheerobbu-oss",
+  "created_at": "2026-04-27T21:20:23Z",
+  "updated_at": "2026-06-16T14:11:45Z",
+  "additions": 81,
+  "deletions": 7,
+  "changed_files": 5,
+  "linked_issue_numbers": [
+    7686
+  ],
+  "comments": [
+    {
+      "user": "Copilot",
+      "body": "`cleanPath` will currently turn inputs that clean to \".\" or \"..\" into \"./\" or \"../\" when the original path had a trailing slash (e.g. \"./\" -> \"./\"). That can reintroduce dot-segments after normalization and can also create an explicit \"../\" prefix that later code tries to prevent.",
+      "created_at": "2026-05-29T15:08:09Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The new behavior/tests expect a root-only method of \"/\" to normalize to an empty string, but `NormalizeMethod` currently returns \"/\" (since `path.Clean(\"/\") == \"/\"`). Add an explicit check to map \"/\" to \"\".",
+      "created_at": "2026-05-29T15:08:10Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "`cleanPath` can currently convert inputs that clean to \".\" or \"..\" into \"./\" or \"../\" when the original string ends with '/'. That can reintroduce dot-segments (and even an explicit \"../\" prefix) into the outbound request path.",
+      "created_at": "2026-05-29T15:08:10Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "`cleanPath` can currently convert inputs that clean to \".\" or \"..\" into \"./\" or \"../\" when the original string ends with '/'. That can reintroduce dot-segments (and even an explicit \"../\" prefix) into the derived method path.",
+      "created_at": "2026-05-29T15:08:10Z"
+    },
+    {
+      "user": "mail2sudheerobbu-oss",
+      "body": "Fixed in commit 15b0908a \u2014 all 4 Copilot comments addressed:\r\n\r\n1. **cleanPath dot-segment guard** (normalize.go, http_channel.go, directmessaging.go): added `&& cleaned != \".\" && cleaned != \"..\"` to the trailing-slash condition so inputs like `\"./\"` or `\"../\"` no longer have the slash re-appended after `path.Clean` resolves them to dot-segments.\r\n\r\n2. **NormalizeMethod root-slash** (normalize.go): added `if cleaned == \"/\" { cleaned = \"\" }` after `cleanPath` so a root-only `\"/\"` method normalises to an empty string rather than being forwarded as-is.",
+      "created_at": "2026-05-29T16:46:13Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/dapr/pull/9833",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pkg/api/http/directmessaging.go",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 3,
+      "patch": "@@ -357,13 +357,28 @@ func (a *api) onDirectMessage(w http.ResponseWriter, r *http.Request) {\n \t}\n }\n \n+// cleanPath cleans a URL path like path.Clean but preserves a single trailing\n+// slash so that method names such as \"foo/bar/\" are forwarded to the target\n+// app unchanged.\n+func cleanPath(p string) string {\n+\tif p == \"\" {\n+\t\treturn p\n+\t}\n+\thasTrailing := p[len(p)-1] == '/'\n+\tcleaned := path.Clean(p)\n+\tif hasTrailing && cleaned != \"/\" && cleaned != \".\" && cleaned != \"..\" {\n+\t\tcleaned += \"/\"\n+\t}\n+\treturn cleaned\n+}\n+\n // findTargetIDAndMethod finds ID of the target service and method from the following three places:\n // 1. HTTP header 'dapr-app-id' (path is method)\n // 2. Basic auth header: `http://dapr-app-id:<service-id>@localhost:3500/<method>`\n // 3. URL parameter: `http://localhost:3500/v1.0/invoke/<app-id>/method/<method>`\n func findTargetIDAndMethod(reqPath string, headers http.Header) (targetID string, method string) {\n \tif appID := headers.Get(consts.DaprAppIDHeader); appID != \"\" {\n-\t\ttargetID, method = appID, strings.TrimPrefix(path.Clean(reqPath), \"/\")\n+\t\ttargetID, method = appID, strings.TrimPrefix(cleanPath(reqPath), \"/\")\n \t\t// Delete the header as it should not be passed forward with the request and is only used by the Dapr API\n \t\theaders.Del(consts.DaprAppIDHeader)\n \t\treturn targetID, method\n@@ -373,7 +388,7 @@ func findTargetIDAndMethod(reqPath string, headers http.Header) (targetID string\n \t\tif s, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(auth, \"Basic \")); err == nil {\n \t\t\tpair := strings.Split(string(s), \":\")\n \t\t\tif len(pair) == 2 && strings.EqualFold(pair[0], consts.DaprAppIDHeader) {\n-\t\t\t\treturn pair[1], strings.TrimPrefix(path.Clean(reqPath), \"/\")\n+\t\t\t\treturn pair[1], strings.TrimPrefix(cleanPath(reqPath), \"/\")\n \t\t\t}\n \t\t}\n \t}\n@@ -393,7 +408,7 @@ func findTargetIDAndMethod(reqPath string, headers http.Header) (targetID string\n \t\t// - `http%3A%2F%2Fexample.com/method/mymethod`\n \t\tif idx = strings.Index(reqPath, \"/method/\"); idx > 0 {\n \t\t\ttargetID := reqPath[:idx]\n-\t\t\tmethod := path.Clean(reqPath[(idx + len(\"/method/\")):])\n+\t\t\tmethod := cleanPath(reqPath[(idx + len(\"/method/\")):])\n \t\t\tif method == \".\" {\n \t\t\t\tmethod = \"\"\n \t\t\t}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/api/http/directmessaging_test.go",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "patch": "@@ -1074,6 +1074,10 @@ func TestFindTargetIDAndMethod(t *testing.T) {\n \t\t{name: \"path with https target escaped\", path: \"/v1.0/invoke/https%3A%2F%2Fexample.com/method/foo\", wantTargetID: \"https://example.com\", wantMethod: \"foo\"},\n \t\t{name: \"path with https target partly escaped\", path: \"/v1.0/invoke/https%3A/%2Fexample.com/method/foo\", wantTargetID: \"https://example.com\", wantMethod: \"foo\"},\n \t\t{name: \"extra slashes are removed\", path: \"///foo//bar\", headers: http.Header{\"Dapr-App-Id\": []string{\"myapp\"}}, wantTargetID: \"myapp\", wantMethod: \"foo/bar\"},\n+\t\t// Trailing slash preservation (issue #7686)\n+\t\t{name: \"dapr-app-id header preserves trailing slash\", path: \"/foo/bar/\", headers: http.Header{\"Dapr-App-Id\": []string{\"myapp\"}}, wantTargetID: \"myapp\", wantMethod: \"foo/bar/\"},\n+\t\t{name: \"basic auth preserves trailing slash\", path: \"/foo/bar/\", headers: http.Header{\"Authorization\": []string{\"Basic ZGFwci1hcHAtaWQ6YXV0aA==\"}}, wantTargetID: \"auth\", wantMethod: \"foo/bar/\"},\n+\t\t{name: \"path with trailing slash in method\", path: \"/v1.0/invoke/myapp/method/foo/bar/\", wantTargetID: \"myapp\", wantMethod: \"foo/bar/\"},\n \t}\n \tfor _, tt := range tests {\n \t\tt.Run(tt.name, func(t *testing.T) {",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/channel/http/http_channel.go",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 2,
+      "patch": "@@ -557,14 +557,30 @@ func (h *Channel) invokeMethodV1(ctx context.Context, req *invokev1.InvokeMethod\n \treturn rsp, nil\n }\n \n+// cleanPath cleans a URL path like path.Clean but preserves a single trailing\n+// slash so that method names such as \"foo/bar/\" are forwarded to the target\n+// app unchanged.\n+func cleanPath(p string) string {\n+\tif p == \"\" {\n+\t\treturn p\n+\t}\n+\thasTrailing := p[len(p)-1] == '/'\n+\tcleaned := path.Clean(p)\n+\tif hasTrailing && cleaned != \"/\" && cleaned != \".\" && cleaned != \"..\" {\n+\t\tcleaned += \"/\"\n+\t}\n+\treturn cleaned\n+}\n+\n func (h *Channel) constructRequest(ctx context.Context, req *invokev1.InvokeMethodRequest, appID string) (*http.Request, error) {\n \t// Construct app channel URI: VERB http://localhost:3000/method?query1=value1\n \tmsg := req.Message()\n \tverb := msg.GetHttpExtension().GetVerb().String()\n \t// Defense-in-depth: resolve path traversal before building the outbound\n \t// URL. The caller should have already normalized via NormalizeMethod, but\n-\t// we apply path.Clean here to guarantee no ../ reaches the target app.\n-\tmethod := path.Clean(msg.GetMethod())\n+\t// we apply cleanPath here to guarantee no ../ reaches the target app while\n+\t// preserving any intentional trailing slash in the method path.\n+\tmethod := cleanPath(msg.GetMethod())\n \tif method == \".\" {\n \t\tmethod = \"\"\n \t}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/messaging/method/normalize.go",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 2,
+      "patch": "@@ -39,6 +39,21 @@ func ValidateName(name string) error {\n \treturn nil\n }\n \n+// cleanPath cleans a URL path like path.Clean but preserves a single trailing\n+// slash, so that method names ending with \"/\" are forwarded to the target app\n+// unchanged rather than having the slash silently stripped.\n+func cleanPath(p string) string {\n+\tif p == \"\" {\n+\t\treturn p\n+\t}\n+\thasTrailing := p[len(p)-1] == '/'\n+\tcleaned := path.Clean(p)\n+\tif hasTrailing && cleaned != \"/\" && cleaned != \".\" && cleaned != \"..\" {\n+\t\tcleaned += \"/\"\n+\t}\n+\treturn cleaned\n+}\n+\n // NormalizeMethod validates and cleans a service invocation method name.\n // It rejects methods containing '#', '?', null bytes, or control characters\n // (bytes 0x01-0x1f and 0x7f), then resolves path traversal via path.Clean.\n@@ -56,8 +71,13 @@ func NormalizeMethod(method string) (string, error) {\n \t\t}\n \t}\n \n-\t// Resolve path traversal sequences.\n-\tcleaned := path.Clean(method)\n+\t// Resolve path traversal sequences, preserving a single trailing slash\n+\t// so that invocation targets like \"foo/bar/\" are forwarded correctly.\n+\tcleaned := cleanPath(method)\n+\t// A method of \"/\" is not a valid invocation target; normalize to empty string.\n+\tif cleaned == \"/\" {\n+\t\tcleaned = \"\"\n+\t}\n \n \t// path.Clean on rootless paths can leave leading \"../\" \u2014 strip them.\n \tfor strings.HasPrefix(cleaned, \"../\") {",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/messaging/method/normalize_test.go",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 0,
+      "patch": "@@ -100,6 +100,25 @@ func TestNormalizeMethod(t *testing.T) {\n \t\trequire.NoError(t, err)\n \t\tassert.Equal(t, \"api/v1/users\", got)\n \t})\n+\n+\t// Trailing slash preservation (issue #7686)\n+\tt.Run(\"preserves trailing slash\", func(t *testing.T) {\n+\t\tgot, err := NormalizeMethod(\"foo/bar/\")\n+\t\trequire.NoError(t, err)\n+\t\tassert.Equal(t, \"foo/bar/\", got)\n+\t})\n+\n+\tt.Run(\"preserves trailing slash with traversal resolved\", func(t *testing.T) {\n+\t\tgot, err := NormalizeMethod(\"admin/../public/\")\n+\t\trequire.NoError(t, err)\n+\t\tassert.Equal(t, \"public/\", got)\n+\t})\n+\n+\tt.Run(\"root slash stays as empty\", func(t *testing.T) {\n+\t\tgot, err := NormalizeMethod(\"/\")\n+\t\trequire.NoError(t, err)\n+\t\tassert.Equal(t, \"\", got)\n+\t})\n }\n \n func TestValidateName(t *testing.T) {",
+      "patch_truncated": false
+    }
+  ]
+}

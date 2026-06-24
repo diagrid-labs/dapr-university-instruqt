@@ -1,0 +1,60 @@
+{
+  "type": "issue",
+  "number": 2537,
+  "title": "Add INCR Command to Redis Binding Component",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\nRedis supports an atomic counter using the INCR command, I believe this would be of great value to Dapr! \r\n\r\nhttps://redis.io/commands/incr/\r\n\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted",
+    "good first issue",
+    "pinned"
+  ],
+  "user": "iamadamreed",
+  "created_at": "2023-02-15T18:17:00Z",
+  "updated_at": "2023-11-04T15:40:10Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "I assume you mean in the Redis Binding?",
+      "created_at": "2023-02-15T22:54:59Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-04-08T02:19:48Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2023-04-15T02:34:35Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-05-15T05:53:46Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2023-05-22T06:05:36Z"
+    },
+    {
+      "user": "shivam-51",
+      "body": "/assign shivam-51",
+      "created_at": "2023-11-04T15:38:58Z"
+    },
+    {
+      "user": "shivam-51",
+      "body": "@berndverst I see you already have a merged PR for this. Can you point what's remaining?",
+      "created_at": "2023-11-04T15:40:10Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    2654
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2537",
+  "is_seed": false,
+  "partial": false
+}

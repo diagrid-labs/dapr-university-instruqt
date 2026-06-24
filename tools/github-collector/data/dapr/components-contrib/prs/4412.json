@@ -1,0 +1,163 @@
+{
+  "type": "pr",
+  "number": 4412,
+  "title": "fix: improve error messages for invalid payloads in Zeebe command binding",
+  "state": "open",
+  "body": "## Problem\n\nWhen a duration field in a Zeebe command binding payload contains an invalid value, the error returned is unhelpful. For example, sending `\"timeToLive\": \"PT1M\"` (ISO-8601 \u2014 the format Zeebe itself uses) or `\"timeToLive\": \"1minute\"` produced:\n\n```\nZeebee binding error: Invalid duration\n```\n\nor\n\n```\ntime: invalid duration \"PT1M\"\n```\n\nNeither message tells the user _which_ field failed, _what value_ was rejected, or _what format_ is expected.\n\n## Root cause\n\n`metadata.Duration.UnmarshalJSON` (in `dapr/kit`) returns a bare error from `time.ParseDuration` or `errors.New(\"invalid duration\")` for invalid inputs. The Go JSON decoder propagates this error through `json.Unmarshal` with no field-level context, so callers only see the raw parse error.\n\nAffected operations and fields:\n| Operation | Field |\n|---|---|\n| `publish-message` | `timeToLive` |\n| `activate-jobs` | `timeout`, `requestTimeout` |\n| `fail-job` | `retryBackOff` |\n| `create-instance` | `requestTimeout` |\n\n## Fix\n\nImplemented `UnmarshalJSON` on each affected payload struct. Duration fields are decoded individually via a shadow struct using `json.RawMessage`, allowing parse errors to be wrapped with the field name and a format hint.\n\n**Before:**\n```\ntime: invalid duration \"PT1M\"\n```\n\n**After:**\n```\ninvalid value for field 'timeToLive': time: invalid duration \"PT1M\"; expected a Go duration string (e.g. \"30s\", \"5m\", \"1h30m\")\n```\n\n> Note: The accepted format is a Go [`time.Duration`](https://pkg.go.dev/time#ParseDuration) string \u2014 e.g. `\"30s\"`, `\"5m\"`, `\"1h30m\"`. ISO-8601 duration strings (like `PT1M`) are **not** supported.\n\n## Tests\n\nAdded 14 unit tests (no live broker required) asserting that:\n- Each duration field name appears in the error message\n- The offending value appears in the error message\n- Format guidance (`\"duration string\"`) is present\n- Valid Go duration strings continue to parse without error\n\nAll 80 tests pass (`go test ./bindings/zeebe/...`).\n\nFixes #4093\n\n\n---\n\n\ud83d\udcd6 **Documentation:** dapr/docs#5220\n",
+  "labels": [],
+  "user": "nelson-parente",
+  "created_at": "2026-06-17T07:37:41Z",
+  "updated_at": "2026-06-23T10:40:56Z",
+  "additions": 337,
+  "deletions": 0,
+  "changed_files": 8,
+  "linked_issue_numbers": [
+    4093
+  ],
+  "comments": [
+    {
+      "user": "Copilot",
+      "body": "The wrapped error from metadata.Duration.UnmarshalJSON may be a generic \"invalid duration\" without including the rejected input, so this message does not reliably include the offending value. Also, numeric nanosecond values are accepted (as covered by tests), but the message currently implies only strings are valid. Consider including the raw JSON value and mentioning the numeric nanosecond form in the hint.",
+      "created_at": "2026-06-18T20:12:58Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The wrapped error from metadata.Duration.UnmarshalJSON may be a generic \"invalid duration\" without including the rejected input, so this message does not reliably include the offending value. Also, numeric nanosecond values are accepted (as covered by tests), but the message currently implies only strings are valid. Consider including the raw JSON value and mentioning the numeric nanosecond form in the hint.",
+      "created_at": "2026-06-18T20:12:59Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The wrapped error from metadata.Duration.UnmarshalJSON may be a generic \"invalid duration\" without including the rejected input, so this message does not reliably include the offending value. Also, numeric nanosecond values are accepted (as covered by tests), but the message currently implies only strings are valid. Consider including the raw JSON value and mentioning the numeric nanosecond form in the hint.",
+      "created_at": "2026-06-18T20:12:59Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The wrapped error from metadata.Duration.UnmarshalJSON may be a generic \"invalid duration\" without including the rejected input, so this message does not reliably include the offending value. Also, numeric nanosecond values are accepted (as covered by tests), but the message currently implies only strings are valid. Consider including the raw JSON value and mentioning the numeric nanosecond form in the hint.",
+      "created_at": "2026-06-18T20:12:59Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The wrapped error from metadata.Duration.UnmarshalJSON may be a generic \"invalid duration\" without including the rejected input, so this message does not reliably include the offending value. Also, numeric nanosecond values are accepted (as covered by tests), but the message currently implies only strings are valid. Consider including the raw JSON value and mentioning the numeric nanosecond form in the hint.",
+      "created_at": "2026-06-18T20:12:59Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The raw value is trimmed and then formatted with %q, which will render numeric JSON inputs as quoted strings (and can also obscure the original JSON token). For user-facing parse errors, it\u2019s clearer to include the raw JSON token as-is (e.g., \"\\\"PT1M\\\"\" or 30000000000) and avoid implying everything is a string.",
+      "created_at": "2026-06-18T23:39:33Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The error message builds the rejected value by trimming quotes and then printing it with %q. That can make non-string JSON inputs (numbers) look like strings in the message and hides the exact JSON token the user sent. Prefer including the raw JSON token (string(*shadow.RetryBackOff)) and formatting with %s.",
+      "created_at": "2026-06-18T23:39:33Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "Here the rejected value is trimmed and then formatted with %q, which can make numeric JSON inputs appear as quoted strings and doesn\u2019t preserve the raw JSON token the user sent. Consider including the raw JSON token and formatting with %s to avoid misleading quoting.",
+      "created_at": "2026-06-18T23:39:34Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The rejected value is trimmed and then printed with %q, which can make numeric JSON inputs look like strings and may hide the exact JSON token that was provided. It\u2019s clearer to include the raw JSON token (e.g. \"\\\"PT30S\\\"\" or 30000000000) and print it with %s.",
+      "created_at": "2026-06-18T23:39:34Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "Same as for timeout: trimming quotes and then formatting the value with %q can make numeric JSON inputs appear as quoted strings and doesn\u2019t preserve the exact JSON token. Prefer using the raw JSON token and printing it with %s.",
+      "created_at": "2026-06-18T23:39:34Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "Addressed in c8cc61d7: the duration error now echoes the raw JSON token formatted with `%s` (no quote-trimming, no `%q`), so numeric nanosecond inputs render as-is, and the hint explicitly includes \"a plain integer nanoseconds value\". Resolving as fixed.",
+      "created_at": "2026-06-23T10:40:50Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "Addressed in c8cc61d7: the duration error now echoes the raw JSON token formatted with `%s` (no quote-trimming, no `%q`), so numeric nanosecond inputs render as-is, and the hint explicitly includes \"a plain integer nanoseconds value\". Resolving as fixed.",
+      "created_at": "2026-06-23T10:40:52Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "Addressed in c8cc61d7: the duration error now echoes the raw JSON token formatted with `%s` (no quote-trimming, no `%q`), so numeric nanosecond inputs render as-is, and the hint explicitly includes \"a plain integer nanoseconds value\". Resolving as fixed.",
+      "created_at": "2026-06-23T10:40:53Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "Addressed in c8cc61d7: the duration error now echoes the raw JSON token formatted with `%s` (no quote-trimming, no `%q`), so numeric nanosecond inputs render as-is, and the hint explicitly includes \"a plain integer nanoseconds value\". Resolving as fixed.",
+      "created_at": "2026-06-23T10:40:55Z"
+    },
+    {
+      "user": "nelson-parente",
+      "body": "Addressed in c8cc61d7: the duration error now echoes the raw JSON token formatted with `%s` (no quote-trimming, no `%q`), so numeric nanosecond inputs render as-is, and the hint explicitly includes \"a plain integer nanoseconds value\". Resolving as fixed.",
+      "created_at": "2026-06-23T10:40:56Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/pull/4412",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "bindings/zeebe/command/activate_jobs.go",
+      "status": "modified",
+      "additions": 40,
+      "deletions": 0,
+      "patch": "@@ -40,6 +40,46 @@ type activateJobsPayload struct {\n \tRequestTimeout    *metadata.Duration `json:\"requestTimeout,omitempty\"`\n }\n \n+// UnmarshalJSON implements json.Unmarshaler to provide field-specific error messages for\n+// duration fields. Both timeout and requestTimeout accept either a Go duration string\n+// (e.g. \"30s\", \"5m\", \"1h30m\") or a plain integer representing nanoseconds.\n+func (p *activateJobsPayload) UnmarshalJSON(data []byte) error {\n+\tvar shadow struct {\n+\t\tJobType           string           `json:\"jobType\"`\n+\t\tMaxJobsToActivate *int32           `json:\"maxJobsToActivate\"`\n+\t\tTimeout           *json.RawMessage `json:\"timeout,omitempty\"`\n+\t\tWorkerName        string           `json:\"workerName\"`\n+\t\tFetchVariables    []string         `json:\"fetchVariables\"`\n+\t\tRequestTimeout    *json.RawMessage `json:\"requestTimeout,omitempty\"`\n+\t}\n+\tif err := json.Unmarshal(data, &shadow); err != nil {\n+\t\treturn err\n+\t}\n+\n+\tp.JobType = shadow.JobType\n+\tp.MaxJobsToActivate = shadow.MaxJobsToActivate\n+\tp.WorkerName = shadow.WorkerName\n+\tp.FetchVariables = shadow.FetchVariables\n+\n+\tif shadow.Timeout != nil {\n+\t\tvar d metadata.Duration\n+\t\tif err := d.UnmarshalJSON(*shadow.Timeout); err != nil {\n+\t\t\treturn fmt.Errorf(\"invalid value %s for field 'timeout' (expected a Go duration string, e.g. \\\"30s\\\", \\\"5m\\\", \\\"1h30m\\\", or a plain integer nanoseconds value): %w\", string(*shadow.Timeout), err)\n+\t\t}\n+\t\tp.Timeout = &d\n+\t}\n+\n+\tif shadow.RequestTimeout != nil {\n+\t\tvar d metadata.Duration\n+\t\tif err := d.UnmarshalJSON(*shadow.RequestTimeout); err != nil {\n+\t\t\treturn fmt.Errorf(\"invalid value %s for field 'requestTimeout' (expected a Go duration string, e.g. \\\"30s\\\", \\\"5m\\\", \\\"1h30m\\\", or a plain integer nanoseconds value): %w\", string(*shadow.RequestTimeout), err)\n+\t\t}\n+\t\tp.RequestTimeout = &d\n+\t}\n+\n+\treturn nil\n+}\n+\n func (z *ZeebeCommand) activateJobs(ctx context.Context, req *bindings.InvokeRequest) (*bindings.InvokeResponse, error) {\n \tvar payload activateJobsPayload\n \terr := json.Unmarshal(req.Data, &payload)",
+      "patch_truncated": false
+    },
+    {
+      "filename": "bindings/zeebe/command/activate_jobs_test.go",
+      "status": "modified",
+      "additions": 69,
+      "deletions": 0,
+      "patch": "@@ -98,6 +98,75 @@ func (cmd3 *mockActivateJobsCommandStep3) Send(context.Context) ([]entities.Job,\n \treturn []entities.Job{}, nil\n }\n \n+func TestActivateJobsPayloadUnmarshal(t *testing.T) {\n+\tt.Run(\"invalid timeout produces field-scoped error\", func(t *testing.T) {\n+\t\traw := `{\"jobType\":\"worker\",\"maxJobsToActivate\":10,\"timeout\":\"PT30S\"}`\n+\t\tvar p activateJobsPayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.Error(t, err)\n+\t\tassert.Contains(t, err.Error(), \"timeout\")\n+\t\tassert.Contains(t, err.Error(), \"PT30S\")\n+\t\tassert.Contains(t, err.Error(), \"duration string\")\n+\t})\n+\n+\tt.Run(\"invalid requestTimeout produces field-scoped error\", func(t *testing.T) {\n+\t\traw := `{\"jobType\":\"worker\",\"maxJobsToActivate\":10,\"requestTimeout\":\"2minutes\"}`\n+\t\tvar p activateJobsPayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.Error(t, err)\n+\t\tassert.Contains(t, err.Error(), \"requestTimeout\")\n+\t\tassert.Contains(t, err.Error(), \"2minutes\")\n+\t\tassert.Contains(t, err.Error(), \"duration string\")\n+\t})\n+\n+\tt.Run(\"valid Go duration strings succeed\", func(t *testing.T) {\n+\t\traw := `{\"jobType\":\"worker\",\"maxJobsToActivate\":10,\"timeout\":\"30s\",\"requestTimeout\":\"5m\"}`\n+\t\tvar p activateJobsPayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\trequire.NotNil(t, p.Timeout)\n+\t\tassert.Equal(t, 30*time.Second, p.Timeout.Duration)\n+\t\trequire.NotNil(t, p.RequestTimeout)\n+\t\tassert.Equal(t, 5*time.Minute, p.RequestTimeout.Duration)\n+\t})\n+\n+\tt.Run(\"numeric nanosecond timeout still parses correctly\", func(t *testing.T) {\n+\t\t// Regression guard: numeric (nanosecond) values were accepted before and must remain valid.\n+\t\traw := `{\"jobType\":\"worker\",\"maxJobsToActivate\":10,\"timeout\":30000000000}`\n+\t\tvar p activateJobsPayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\trequire.NotNil(t, p.Timeout)\n+\t\tassert.Equal(t, 30*time.Second, p.Timeout.Duration)\n+\t})\n+\n+\tt.Run(\"numeric nanosecond requestTimeout still parses correctly\", func(t *testing.T) {\n+\t\t// Regression guard: numeric (nanosecond) values were accepted before and must remain valid.\n+\t\traw := `{\"jobType\":\"worker\",\"maxJobsToActivate\":10,\"requestTimeout\":300000000000}`\n+\t\tvar p activateJobsPayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\trequire.NotNil(t, p.RequestTimeout)\n+\t\tassert.Equal(t, 5*time.Minute, p.RequestTimeout.Duration)\n+\t})\n+\n+\tt.Run(\"null timeout leaves pointer nil\", func(t *testing.T) {\n+\t\traw := `{\"jobType\":\"worker\",\"maxJobsToActivate\":10,\"timeout\":null}`\n+\t\tvar p activateJobsPayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\tassert.Nil(t, p.Timeout)\n+\t})\n+\n+\tt.Run(\"null requestTimeout leaves pointer nil\", func(t *testing.T) {\n+\t\traw := `{\"jobType\":\"worker\",\"maxJobsToActivate\":10,\"requestTimeout\":null}`\n+\t\tvar p activateJobsPayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\tassert.Nil(t, p.RequestTimeout)\n+\t})\n+}\n+\n func TestActivateJobs(t *testing.T) {\n \ttestLogger := logger.NewLogger(\"test\")\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "bindings/zeebe/command/create_instance.go",
+      "status": "modified",
+      "additions": 35,
+      "deletions": 0,
+      "patch": "@@ -41,6 +41,41 @@ type createInstancePayload struct {\n \tRequestTimeout       *metadata.Duration `json:\"requestTimeout,omitempty\"`\n }\n \n+// UnmarshalJSON implements json.Unmarshaler to provide a field-specific error message for\n+// the requestTimeout duration field. The requestTimeout field accepts either a Go duration string\n+// (e.g. \"30s\", \"5m\", \"1h30m\") or a plain integer representing nanoseconds.\n+func (p *createInstancePayload) UnmarshalJSON(data []byte) error {\n+\tvar shadow struct {\n+\t\tBpmnProcessID        string           `json:\"bpmnProcessId\"`\n+\t\tProcessDefinitionKey *int64           `json:\"processDefinitionKey\"`\n+\t\tVersion              *int32           `json:\"version\"`\n+\t\tVariables            interface{}      `json:\"variables\"`\n+\t\tWithResult           bool             `json:\"withResult\"`\n+\t\tFetchVariables       []string         `json:\"fetchVariables\"`\n+\t\tRequestTimeout       *json.RawMessage `json:\"requestTimeout,omitempty\"`\n+\t}\n+\tif err := json.Unmarshal(data, &shadow); err != nil {\n+\t\treturn err\n+\t}\n+\n+\tp.BpmnProcessID = shadow.BpmnProcessID\n+\tp.ProcessDefinitionKey = shadow.ProcessDefinitionKey\n+\tp.Version = shadow.Version\n+\tp.Variables = shadow.Variables\n+\tp.WithResult = shadow.WithResult\n+\tp.FetchVariables = shadow.FetchVariables\n+\n+\tif shadow.RequestTimeout != nil {\n+\t\tvar d metadata.Duration\n+\t\tif err := d.UnmarshalJSON(*shadow.RequestTimeout); err != nil {\n+\t\t\treturn fmt.Errorf(\"invalid value %s for field 'requestTimeout' (expected a Go duration string, e.g. \\\"30s\\\", \\\"5m\\\", \\\"1h30m\\\", or a plain integer nanoseconds value): %w\", string(*shadow.RequestTimeout), err)\n+\t\t}\n+\t\tp.RequestTimeout = &d\n+\t}\n+\n+\treturn nil\n+}\n+\n func (z *ZeebeCommand) createInstance(ctx context.Context, req *bindings.InvokeRequest) (*bindings.InvokeResponse, error) {\n \tvar payload createInstancePayload\n \terr := json.Unmarshal(req.Data, &payload)",
+      "patch_truncated": false
+    },
+    {
+      "filename": "bindings/zeebe/command/create_instance_test.go",
+      "status": "modified",
+      "additions": 40,
+      "deletions": 0,
+      "patch": "@@ -17,6 +17,7 @@ import (\n \t\"context\"\n \t\"encoding/json\"\n \t\"testing\"\n+\t\"time\"\n \n \t\"github.com/camunda/zeebe/clients/go/v8/pkg/commands\"\n \t\"github.com/camunda/zeebe/clients/go/v8/pkg/pb\"\n@@ -98,6 +99,45 @@ func (cmd3 *mockCreateInstanceCommandStep3) Send(context.Context) (*pb.CreatePro\n \treturn &pb.CreateProcessInstanceResponse{}, nil\n }\n \n+func TestCreateInstancePayloadUnmarshal(t *testing.T) {\n+\tt.Run(\"invalid requestTimeout produces field-scoped error\", func(t *testing.T) {\n+\t\traw := `{\"bpmnProcessId\":\"order-process\",\"requestTimeout\":\"PT5M\"}`\n+\t\tvar p createInstancePayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.Error(t, err)\n+\t\tassert.Contains(t, err.Error(), \"requestTimeout\")\n+\t\tassert.Contains(t, err.Error(), \"PT5M\")\n+\t\tassert.Contains(t, err.Error(), \"duration string\")\n+\t})\n+\n+\tt.Run(\"valid Go duration string succeeds\", func(t *testing.T) {\n+\t\traw := `{\"bpmnProcessId\":\"order-process\",\"requestTimeout\":\"5m\"}`\n+\t\tvar p createInstancePayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\trequire.NotNil(t, p.RequestTimeout)\n+\t\tassert.Equal(t, 5*time.Minute, p.RequestTimeout.Duration)\n+\t})\n+\n+\tt.Run(\"numeric nanosecond requestTimeout still parses correctly\", func(t *testing.T) {\n+\t\t// Regression guard: numeric (nanosecond) values were accepted before and must remain valid.\n+\t\traw := `{\"bpmnProcessId\":\"order-process\",\"requestTimeout\":300000000000}`\n+\t\tvar p createInstancePayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\trequire.NotNil(t, p.RequestTimeout)\n+\t\tassert.Equal(t, 5*time.Minute, p.RequestTimeout.Duration)\n+\t})\n+\n+\tt.Run(\"null requestTimeout leaves pointer nil\", func(t *testing.T) {\n+\t\traw := `{\"bpmnProcessId\":\"order-process\",\"requestTimeout\":null}`\n+\t\tvar p createInstancePayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\tassert.Nil(t, p.RequestTimeout)\n+\t})\n+}\n+\n func TestCreateInstance(t *testing.T) {\n \ttestLogger := logger.NewLogger(\"test\")\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "bindings/zeebe/command/fail_job.go",
+      "status": "modified",
+      "additions": 31,
+      "deletions": 0,
+      "patch": "@@ -36,6 +36,37 @@ type failJobPayload struct {\n \tVariables    interface{}        `json:\"variables\"`\n }\n \n+// UnmarshalJSON implements json.Unmarshaler to provide a field-specific error message for\n+// the retryBackOff duration field. The retryBackOff field accepts either a Go duration string\n+// (e.g. \"30s\", \"5m\", \"1h30m\") or a plain integer representing nanoseconds.\n+func (p *failJobPayload) UnmarshalJSON(data []byte) error {\n+\tvar shadow struct {\n+\t\tJobKey       *int64           `json:\"jobKey\"`\n+\t\tRetries      *int32           `json:\"retries\"`\n+\t\tErrorMessage string           `json:\"errorMessage\"`\n+\t\tRetryBackOff *json.RawMessage `json:\"retryBackOff,omitempty\"`\n+\t\tVariables    interface{}      `json:\"variables\"`\n+\t}\n+\tif err := json.Unmarshal(data, &shadow); err != nil {\n+\t\treturn err\n+\t}\n+\n+\tp.JobKey = shadow.JobKey\n+\tp.Retries = shadow.Retries\n+\tp.ErrorMessage = shadow.ErrorMessage\n+\tp.Variables = shadow.Variables\n+\n+\tif shadow.RetryBackOff != nil {\n+\t\tvar d metadata.Duration\n+\t\tif err := d.UnmarshalJSON(*shadow.RetryBackOff); err != nil {\n+\t\t\treturn fmt.Errorf(\"invalid value %s for field 'retryBackOff' (expected a Go duration string, e.g. \\\"30s\\\", \\\"5m\\\", \\\"1h30m\\\", or a plain integer nanoseconds value): %w\", string(*shadow.RetryBackOff), err)\n+\t\t}\n+\t\tp.RetryBackOff = &d\n+\t}\n+\n+\treturn nil\n+}\n+\n func (z *ZeebeCommand) failJob(ctx context.Context, req *bindings.InvokeRequest) (*bindings.InvokeResponse, error) {\n \tvar payload failJobPayload\n \terr := json.Unmarshal(req.Data, &payload)",
+      "patch_truncated": false
+    },
+    {
+      "filename": "bindings/zeebe/command/fail_job_test.go",
+      "status": "modified",
+      "additions": 40,
+      "deletions": 0,
+      "patch": "@@ -17,6 +17,7 @@ import (\n \t\"context\"\n \t\"encoding/json\"\n \t\"testing\"\n+\t\"time\"\n \n \t\"github.com/camunda/zeebe/clients/go/v8/pkg/commands\"\n \t\"github.com/camunda/zeebe/clients/go/v8/pkg/pb\"\n@@ -82,6 +83,45 @@ func (cmd3 *mockFailJobCommandStep3) Send(context.Context) (*pb.FailJobResponse,\n \treturn &pb.FailJobResponse{}, nil\n }\n \n+func TestFailJobPayloadUnmarshal(t *testing.T) {\n+\tt.Run(\"invalid retryBackOff produces field-scoped error\", func(t *testing.T) {\n+\t\traw := `{\"jobKey\":1,\"retries\":3,\"retryBackOff\":\"PT10S\"}`\n+\t\tvar p failJobPayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.Error(t, err)\n+\t\tassert.Contains(t, err.Error(), \"retryBackOff\")\n+\t\tassert.Contains(t, err.Error(), \"PT10S\")\n+\t\tassert.Contains(t, err.Error(), \"duration string\")\n+\t})\n+\n+\tt.Run(\"valid Go duration string succeeds\", func(t *testing.T) {\n+\t\traw := `{\"jobKey\":1,\"retries\":3,\"retryBackOff\":\"10s\"}`\n+\t\tvar p failJobPayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\trequire.NotNil(t, p.RetryBackOff)\n+\t\tassert.Equal(t, 10*time.Second, p.RetryBackOff.Duration)\n+\t})\n+\n+\tt.Run(\"numeric nanosecond retryBackOff still parses correctly\", func(t *testing.T) {\n+\t\t// Regression guard: numeric (nanosecond) values were accepted before and must remain valid.\n+\t\traw := `{\"jobKey\":1,\"retries\":3,\"retryBackOff\":30000000000}`\n+\t\tvar p failJobPayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\trequire.NotNil(t, p.RetryBackOff)\n+\t\tassert.Equal(t, 30*time.Second, p.RetryBackOff.Duration)\n+\t})\n+\n+\tt.Run(\"null retryBackOff leaves pointer nil\", func(t *testing.T) {\n+\t\traw := `{\"jobKey\":1,\"retries\":3,\"retryBackOff\":null}`\n+\t\tvar p failJobPayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\tassert.Nil(t, p.RetryBackOff)\n+\t})\n+}\n+\n func TestFailJob(t *testing.T) {\n \ttestLogger := logger.NewLogger(\"test\")\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "bindings/zeebe/command/publish_message.go",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 0,
+      "patch": "@@ -34,6 +34,38 @@ type publishMessagePayload struct {\n \tVariables      interface{}        `json:\"variables\"`\n }\n \n+// UnmarshalJSON implements json.Unmarshaler to provide field-specific error messages for\n+// duration fields. The timeToLive field accepts either a Go duration string (e.g. \"30s\", \"5m\", \"1h30m\")\n+// or a plain integer representing nanoseconds.\n+func (p *publishMessagePayload) UnmarshalJSON(data []byte) error {\n+\t// Use a shadow struct with raw JSON for duration fields so we can provide better errors.\n+\tvar shadow struct {\n+\t\tMessageName    string           `json:\"messageName\"`\n+\t\tCorrelationKey string           `json:\"correlationKey\"`\n+\t\tMessageID      string           `json:\"messageId\"`\n+\t\tTimeToLive     *json.RawMessage `json:\"timeToLive,omitempty\"`\n+\t\tVariables      interface{}      `json:\"variables\"`\n+\t}\n+\tif err := json.Unmarshal(data, &shadow); err != nil {\n+\t\treturn err\n+\t}\n+\n+\tp.MessageName = shadow.MessageName\n+\tp.CorrelationKey = shadow.CorrelationKey\n+\tp.MessageID = shadow.MessageID\n+\tp.Variables = shadow.Variables\n+\n+\tif shadow.TimeToLive != nil {\n+\t\tvar d metadata.Duration\n+\t\tif err := d.UnmarshalJSON(*shadow.TimeToLive); err != nil {\n+\t\t\treturn fmt.Errorf(\"invalid value %s for field 'timeToLive' (expected a Go duration string, e.g. \\\"30s\\\", \\\"5m\\\", \\\"1h30m\\\", or a plain integer nanoseconds value): %w\", string(*shadow.TimeToLive), err)\n+\t\t}\n+\t\tp.TimeToLive = &d\n+\t}\n+\n+\treturn nil\n+}\n+\n func (z *ZeebeCommand) publishMessage(ctx context.Context, req *bindings.InvokeRequest) (*bindings.InvokeResponse, error) {\n \tvar payload publishMessagePayload\n \terr := json.Unmarshal(req.Data, &payload)",
+      "patch_truncated": false
+    },
+    {
+      "filename": "bindings/zeebe/command/publish_message_test.go",
+      "status": "modified",
+      "additions": 50,
+      "deletions": 0,
+      "patch": "@@ -99,6 +99,56 @@ func (cmd3 *mockPublishMessageCommandStep3) Send(context.Context) (*pb.PublishMe\n \treturn &pb.PublishMessageResponse{}, nil\n }\n \n+func TestPublishMessagePayloadUnmarshal(t *testing.T) {\n+\tt.Run(\"invalid timeToLive produces field-scoped error\", func(t *testing.T) {\n+\t\t// ISO-8601 durations are not valid; Go duration strings like \"1m30s\" are required.\n+\t\traw := `{\"messageName\":\"msg\",\"timeToLive\":\"PT1M\"}`\n+\t\tvar p publishMessagePayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.Error(t, err)\n+\t\tassert.Contains(t, err.Error(), \"timeToLive\")\n+\t\tassert.Contains(t, err.Error(), \"PT1M\")\n+\t\tassert.Contains(t, err.Error(), \"duration string\")\n+\t})\n+\n+\tt.Run(\"unknown unit in timeToLive produces field-scoped error\", func(t *testing.T) {\n+\t\traw := `{\"messageName\":\"msg\",\"timeToLive\":\"1minute\"}`\n+\t\tvar p publishMessagePayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.Error(t, err)\n+\t\tassert.Contains(t, err.Error(), \"timeToLive\")\n+\t\tassert.Contains(t, err.Error(), \"1minute\")\n+\t\tassert.Contains(t, err.Error(), \"duration string\")\n+\t})\n+\n+\tt.Run(\"valid Go duration string succeeds\", func(t *testing.T) {\n+\t\traw := `{\"messageName\":\"msg\",\"timeToLive\":\"1m30s\"}`\n+\t\tvar p publishMessagePayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\trequire.NotNil(t, p.TimeToLive)\n+\t\tassert.Equal(t, 90*time.Second, p.TimeToLive.Duration)\n+\t})\n+\n+\tt.Run(\"numeric nanosecond timeToLive still parses correctly\", func(t *testing.T) {\n+\t\t// Regression guard: numeric (nanosecond) values were accepted before and must remain valid.\n+\t\traw := `{\"messageName\":\"msg\",\"timeToLive\":30000000000}`\n+\t\tvar p publishMessagePayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\trequire.NotNil(t, p.TimeToLive)\n+\t\tassert.Equal(t, 30*time.Second, p.TimeToLive.Duration)\n+\t})\n+\n+\tt.Run(\"null timeToLive leaves pointer nil\", func(t *testing.T) {\n+\t\traw := `{\"messageName\":\"msg\",\"timeToLive\":null}`\n+\t\tvar p publishMessagePayload\n+\t\terr := p.UnmarshalJSON([]byte(raw))\n+\t\trequire.NoError(t, err)\n+\t\tassert.Nil(t, p.TimeToLive)\n+\t})\n+}\n+\n func TestPublishMessage(t *testing.T) {\n \ttestLogger := logger.NewLogger(\"test\")\n ",
+      "patch_truncated": false
+    }
+  ]
+}

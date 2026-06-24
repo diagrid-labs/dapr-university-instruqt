@@ -1,0 +1,92 @@
+{
+  "type": "pr",
+  "number": 9747,
+  "title": "Add gauge metric for currently active actors per actor type",
+  "state": "open",
+  "body": "# Description\n\nAdds a new `runtime/actor/active_count` gauge metric that reports the number of currently active (in-memory) actors, broken down by `actor_type` and `app_id`. This helps users monitor actor distribution across replicas and make informed scaling decisions, similar to Microsoft Orleans' `orleans_grains` metric.\n\nThe metric follows the existing pattern used by actor timers and reminders gauges (`view.LastValue()` aggregation with `appIDKey` and `actorTypeKey` tags). An atomic counter in the actor factory is incremented when a new actor is created via `GetOrCreate` and decremented when an actor is deactivated via `Deactivate`.\n\n## Changes\n\n- **`pkg/diagnostics/service_monitoring.go`**: Added `actorActiveCount` measure, view registration with `LastValue` aggregation, and `ActorActiveCount()` recording method\n- **`pkg/actors/targets/app/factory.go`**: Added `activeCount atomic.Int64` to the factory struct; increment and report on new actor creation in `GetOrCreate`\n- **`pkg/actors/targets/app/app.go`**: Decrement and report on actor deactivation in `Deactivate`\n- **`docs/development/dapr-metrics.md`**: Documented the new metric\n- **`pkg/diagnostics/service_monitoring_test.go`**: Added test for the new metric\n\n## Issue reference\n\nPlease reference the issue this PR will close: #9495\n\n## Checklist\n\nPlease make sure you've completed the relevant tasks for this PR, out of the following list:\n\n- [x] Code compiles correctly\n- [x] Created/updated tests\n- [x] Unit tests passing\n- [ ] End-to-end tests passing\n- [ ] Extended the documentation / Created issue in the <https://github.com/dapr/docs/> repo: dapr/docs#_[issue number]_\n- [ ] Specification has been updated / Created issue in the <https://github.com/dapr/docs/> repo: dapr/docs#_[issue number]_\n- [ ] Provided sample for the feature / Created issue in the <https://github.com/dapr/docs/> repo: dapr/docs#_[issue number]_",
+  "labels": [],
+  "user": "officialasishkumar",
+  "created_at": "2026-04-04T09:34:08Z",
+  "updated_at": "2026-04-04T10:13:08Z",
+  "additions": 115,
+  "deletions": 5,
+  "changed_files": 6,
+  "linked_issue_numbers": [
+    9495
+  ],
+  "comments": [
+    {
+      "user": "Copilot",
+      "body": "In GetOrCreate, initApp enqueues the new *app before LoadOrStore. When LoadOrStore returns loaded=true (another goroutine won the race), the discarded app remains enqueued and can later be processed by the idle handler, calling Deactivate on an app that was never stored. With the new activeCount counter this will decrement the counter (and record the gauge) without a corresponding increment, and Deactivate will also call table.Delete(actorID) which can remove the *real* stored actor unexpectedly. To avoid this, ensure the app is only enqueued (and deactivated) when it was actually stored, or add synchronization so only one initApp happens per actorID (e.g., re-check under a write lock and only create/enqueue after confirming insertion).",
+      "created_at": "2026-04-04T09:38:47Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The new activeCount behavior isn\u2019t covered by unit tests to ensure it stays consistent with the number of entries in the factory table. Since this package already has factory tests, please add assertions that activeCount increments/decrements correctly (including a concurrent GetOrCreate race on the same actorID) so the new gauge can\u2019t silently drift or go negative.",
+      "created_at": "2026-04-04T09:38:47Z"
+    },
+    {
+      "user": "officialasishkumar",
+      "body": "Fixed. Moved the `idlerQueue.Enqueue` call out of `initApp` and into `GetOrCreate`, guarded by the `!loaded` branch. Now a discarded app from a lost `LoadOrStore` race is never enqueued and never increments `activeCount`, preventing both counter drift and phantom deactivations.",
+      "created_at": "2026-04-04T10:12:58Z"
+    },
+    {
+      "user": "officialasishkumar",
+      "body": "Added `Test_ActiveCount` (verifying increment on new actors, no increment on existing, and decrement on deactivate) and `Test_ActiveCountConcurrentGetOrCreate` (100 goroutines racing on the same actorID, asserting activeCount ends at exactly 1).",
+      "created_at": "2026-04-04T10:13:08Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/dapr/pull/9747",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "docs/development/dapr-metrics.md",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "patch": "@@ -115,6 +115,7 @@ Dapr uses prometheus process and go collectors by default.\n * dapr_runtime_actor_reminders: The number of actor reminders requests.\n * dapr_runtime_actor_reminders_fired_total: The number of actor reminders fired requests.\n * dapr_runtime_actor_timers_fired_total: The number of actor timers fired requests.\n+* dapr_runtime_actor_active_count: The number of currently active actors per actor type.\n \n #### Resiliency\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/actors/targets/app/app.go",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "patch": "@@ -216,6 +216,8 @@ func (a *app) Deactivate(ctx context.Context) error {\n \n \ta.lock.Close(ctx)\n \ta.table.Delete(a.actorID)\n+\tcount := a.activeCount.Add(-1)\n+\tdiag.DefaultMonitoring.ActorActiveCount(a.actorType, count)\n \n \treq := invokev1.NewInvokeMethodRequest(\"actors/\"+a.actorType+\"/\"+a.actorID).\n \t\tWithActor(a.actorType, a.actorID).",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/actors/targets/app/factory.go",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 5,
+      "patch": "@@ -17,6 +17,7 @@ import (\n \t\"context\"\n \t\"errors\"\n \t\"sync\"\n+\t\"sync/atomic\"\n \t\"time\"\n \n \t\"k8s.io/utils/clock\"\n@@ -57,8 +58,9 @@ type factory struct {\n \t// idleTimeout is the configured max idle time for actors of this kind.\n \tidleTimeout time.Duration\n \n-\ttable sync.Map\n-\tlock  sync.RWMutex\n+\ttable       sync.Map\n+\tactiveCount atomic.Int64\n+\tlock        sync.RWMutex\n }\n \n func New(opts Options) targets.Factory {\n@@ -92,7 +94,13 @@ func (f *factory) GetOrCreate(actorID string) targets.Interface {\n \ta, ok := f.table.Load(actorID)\n \tif !ok {\n \t\tnewApp := f.initApp(actorID)\n-\t\ta, _ = f.table.LoadOrStore(actorID, newApp)\n+\t\tvar loaded bool\n+\t\ta, loaded = f.table.LoadOrStore(actorID, newApp)\n+\t\tif !loaded {\n+\t\t\tf.idlerQueue.Enqueue(newApp)\n+\t\t\tcount := f.activeCount.Add(1)\n+\t\t\tdiag.DefaultMonitoring.ActorActiveCount(f.actorType, count)\n+\t\t}\n \t}\n \n \taa := a.(*app)\n@@ -113,8 +121,6 @@ func (f *factory) initApp(actorID string) *app {\n \n \tapp.idleAt.Store(new(f.clock.Now().Add(f.idleTimeout)))\n \n-\tf.idlerQueue.Enqueue(app)\n-\n \treturn app\n }\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/actors/targets/app/factory_test.go",
+      "status": "modified",
+      "additions": 72,
+      "deletions": 0,
+      "patch": "@@ -178,6 +178,78 @@ func mapLen(ff *factory) int {\n \treturn i\n }\n \n+func Test_ActiveCount(t *testing.T) {\n+\tfact := New(Options{\n+\t\tReentrancy:  reentrancystore.New(),\n+\t\tIdleTimeout: time.Second * 10,\n+\t\tAppChannel: fake.New().WithInvokeMethod(func(context.Context, *invokev1.InvokeMethodRequest, string) (*invokev1.InvokeMethodResponse, error) {\n+\t\t\treturn invokev1.NewInvokeMethodResponse(http.StatusOK, \"\", nil), nil\n+\t\t}),\n+\t})\n+\tff := fact.(*factory)\n+\n+\tt.Run(\"increments on new actors\", func(t *testing.T) {\n+\t\tassert.Equal(t, int64(0), ff.activeCount.Load())\n+\n+\t\tfact.GetOrCreate(\"a1\")\n+\t\tassert.Equal(t, int64(1), ff.activeCount.Load())\n+\n+\t\tfact.GetOrCreate(\"a2\")\n+\t\tassert.Equal(t, int64(2), ff.activeCount.Load())\n+\n+\t\tfact.GetOrCreate(\"a3\")\n+\t\tassert.Equal(t, int64(3), ff.activeCount.Load())\n+\t})\n+\n+\tt.Run(\"does not increment for existing actors\", func(t *testing.T) {\n+\t\tfact.GetOrCreate(\"a1\")\n+\t\tfact.GetOrCreate(\"a2\")\n+\t\tfact.GetOrCreate(\"a3\")\n+\t\tassert.Equal(t, int64(3), ff.activeCount.Load())\n+\t})\n+\n+\tt.Run(\"decrements on deactivate\", func(t *testing.T) {\n+\t\tact := fact.GetOrCreate(\"a1\")\n+\t\trequire.NoError(t, act.Deactivate(t.Context()))\n+\t\tassert.Equal(t, int64(2), ff.activeCount.Load())\n+\n+\t\tact = fact.GetOrCreate(\"a2\")\n+\t\trequire.NoError(t, act.Deactivate(t.Context()))\n+\t\tassert.Equal(t, int64(1), ff.activeCount.Load())\n+\n+\t\tact = fact.GetOrCreate(\"a3\")\n+\t\trequire.NoError(t, act.Deactivate(t.Context()))\n+\t\tassert.Equal(t, int64(0), ff.activeCount.Load())\n+\t})\n+}\n+\n+func Test_ActiveCountConcurrentGetOrCreate(t *testing.T) {\n+\tfact := New(Options{\n+\t\tReentrancy:  reentrancystore.New(),\n+\t\tIdleTimeout: time.Second * 10,\n+\t\tAppChannel: fake.New().WithInvokeMethod(func(context.Context, *invokev1.InvokeMethodRequest, string) (*invokev1.InvokeMethodResponse, error) {\n+\t\t\treturn invokev1.NewInvokeMethodResponse(http.StatusOK, \"\", nil), nil\n+\t\t}),\n+\t})\n+\tff := fact.(*factory)\n+\n+\t// Many goroutines racing to GetOrCreate the same actor ID.\n+\t// activeCount must equal 1 when they all finish, not N.\n+\tconst goroutines = 100\n+\tvar wg sync.WaitGroup\n+\twg.Add(goroutines)\n+\tfor range goroutines {\n+\t\tgo func() {\n+\t\t\tdefer wg.Done()\n+\t\t\tfact.GetOrCreate(\"race-actor\")\n+\t\t}()\n+\t}\n+\twg.Wait()\n+\n+\tassert.Equal(t, 1, mapLen(ff))\n+\tassert.Equal(t, int64(1), ff.activeCount.Load())\n+}\n+\n func Test_DeleteCacheRace(t *testing.T) {\n \tfact := New(Options{\n \t\tReentrancy:  reentrancystore.New(),",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/diagnostics/service_monitoring.go",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "patch": "@@ -65,6 +65,7 @@ type serviceMetrics struct {\n \tactorReminderFiredTotal      *stats.Int64Measure\n \tactorTimers                  *stats.Int64Measure\n \tactorTimerFiredTotal         *stats.Int64Measure\n+\tactorActiveCount             *stats.Int64Measure\n \n \t// Access Control Lists for Service Invocation metrics\n \tappPolicyActionAllowed    *stats.Int64Measure\n@@ -167,6 +168,10 @@ func newServiceMetrics() *serviceMetrics {\n \t\t\t\"runtime/actor/timers_fired_total\",\n \t\t\t\"The number of actor timers fired requests.\",\n \t\t\tstats.UnitDimensionless),\n+\t\tactorActiveCount: stats.Int64(\n+\t\t\t\"runtime/actor/active_count\",\n+\t\t\t\"The number of currently active actors per actor type.\",\n+\t\t\tstats.UnitDimensionless),\n \n \t\t// Access Control Lists for service invocation\n \t\tappPolicyActionAllowed: stats.Int64(\n@@ -242,6 +247,7 @@ func (s *serviceMetrics) Init(meter view.Meter, appID string, latencyDistributio\n \t\tdiagUtils.NewMeasureView(s.actorReminders, []tag.Key{appIDKey, actorTypeKey}, view.LastValue()),\n \t\tdiagUtils.NewMeasureView(s.actorReminderFiredTotal, []tag.Key{appIDKey, actorTypeKey, successKey}, view.Count()),\n \t\tdiagUtils.NewMeasureView(s.actorTimerFiredTotal, []tag.Key{appIDKey, actorTypeKey, successKey}, view.Count()),\n+\t\tdiagUtils.NewMeasureView(s.actorActiveCount, []tag.Key{appIDKey, actorTypeKey}, view.LastValue()),\n \n \t\tdiagUtils.NewMeasureView(s.appPolicyActionAllowed, []tag.Key{appIDKey, trustDomainKey, namespaceKey}, view.Count()),\n \t\tdiagUtils.NewMeasureView(s.globalPolicyActionAllowed, []tag.Key{appIDKey, trustDomainKey, namespaceKey}, view.Count()),\n@@ -434,6 +440,17 @@ func (s *serviceMetrics) ActorTimers(actorType string, timers int64) {\n \t}\n }\n \n+// ActorActiveCount records the current number of active actors for an actor type.\n+func (s *serviceMetrics) ActorActiveCount(actorType string, count int64) {\n+\tif s.enabled {\n+\t\tstats.RecordWithOptions(\n+\t\t\ts.ctx,\n+\t\t\tstats.WithRecorder(s.meter),\n+\t\t\tstats.WithTags(diagUtils.WithTags(s.actorActiveCount.Name(), appIDKey, s.appID, actorTypeKey, actorType)...),\n+\t\t\tstats.WithMeasurements(s.actorActiveCount.M(count)))\n+\t}\n+}\n+\n // ReportActorPendingCalls records the current pending actor locks.\n func (s *serviceMetrics) ReportActorPendingCalls(actorType string, pendingLocks int32) {\n \tif s.enabled {",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/diagnostics/service_monitoring_test.go",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "patch": "@@ -88,6 +88,18 @@ func TestServiceInvocation(t *testing.T) {\n \t})\n }\n \n+func TestActorActiveCount(t *testing.T) {\n+\ts, meter := servicesMetrics()\n+\tt.Cleanup(func() { meter.Stop() })\n+\n+\ts.ActorActiveCount(\"testActorType\", 5)\n+\n+\tviewData, _ := meter.RetrieveData(\"runtime/actor/active_count\")\n+\tv := meter.Find(\"runtime/actor/active_count\")\n+\n+\tallTagsPresent(t, v, viewData[0].Tags)\n+}\n+\n func TestSerivceMonitoringInit(t *testing.T) {\n \tc, meter := servicesMetrics()\n \tt.Cleanup(func() {",
+      "patch_truncated": false
+    }
+  ]
+}

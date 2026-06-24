@@ -1,0 +1,96 @@
+{
+  "type": "pr",
+  "number": 10122,
+  "title": "Integration: fix port exhaustion",
+  "state": "open",
+  "body": "We have started to see port exhaustion issues in our integration tests. Ensure we don't squat ephermal ports and release idle ports sooner. Expand ephemeral port range on MacOS in CI.",
+  "labels": [
+    "autoupdate",
+    "backport release-1.18"
+  ],
+  "user": "JoshVanL",
+  "created_at": "2026-06-23T11:03:31Z",
+  "updated_at": "2026-06-23T11:45:06Z",
+  "additions": 46,
+  "deletions": 19,
+  "changed_files": 9,
+  "linked_issue_numbers": [],
+  "comments": [],
+  "html_url": "https://github.com/dapr/dapr/pull/10122",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": ".github/workflows/dapr.yml",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "patch": "@@ -255,6 +255,17 @@ jobs:\n         if: matrix.target_os == 'darwin'\n         run: |\n           echo \"DAPR_HOST_IP=127.0.0.1\" >>${GITHUB_ENV}\n+      # The integration suite opens a very large number of short-lived\n+      # localhost connections. macOS has a small default ephemeral port range\n+      # and a long TIME_WAIT, so the outbound pool is exhausted under the\n+      # parallel run (surfaces as \"can't assign requested address\"). Widen the\n+      # range and shorten TIME_WAIT as a backstop to the framework-level fixes.\n+      - name: Widen ephemeral port range for MacOS\n+        if: matrix.target_os == 'darwin'\n+        run: |\n+          sudo sysctl -w net.inet.ip.portrange.first=16384\n+          sudo sysctl -w net.inet.ip.portrange.hifirst=16384\n+          sudo sysctl -w net.inet.tcp.msl=1000\n       - name: Run make test-integration-parallel\n         run: make test-integration-parallel\n   build:",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/integration/framework/client/http.go",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 1,
+      "patch": "@@ -29,9 +29,21 @@ func HTTP(t assert.TestingT) *http.Client {\n }\n \n func HTTPWithTimeout(t assert.TestingT, timeout time.Duration) *http.Client {\n+\ttransport := http.DefaultTransport.(*http.Transport).Clone()\n+\t// Integration tests poll a handful of localhost endpoints thousands of\n+\t// times. The default MaxIdleConnsPerHost is 2 and idle connections linger\n+\t// for 90s; under heavy parallelism on macOS (ephemeral range only ~16k\n+\t// ports) short-lived connections accumulate in TIME_WAIT and exhaust the\n+\t// outbound port pool (EADDRNOTAVAIL). Keep more idle keep-alive connections\n+\t// around for reuse and drop them quickly so they do not pin a per-host port\n+\t// for the lifetime of a test.\n+\ttransport.MaxIdleConns = 100\n+\ttransport.MaxIdleConnsPerHost = 32\n+\ttransport.IdleConnTimeout = 10 * time.Second\n+\n \tclient := &http.Client{\n \t\tTimeout:   timeout,\n-\t\tTransport: http.DefaultTransport.(*http.Transport).Clone(),\n+\t\tTransport: transport,\n \t}\n \n \tif tt, ok := t.(interface{ Cleanup(func()) }); ok {",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/integration/framework/metrics/metrics.go",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 4,
+      "patch": "@@ -21,8 +21,6 @@ import (\n \n \t\"github.com/prometheus/common/expfmt\"\n \t\"github.com/stretchr/testify/assert\"\n-\n-\t\"github.com/dapr/dapr/tests/integration/framework/client\"\n )\n \n type Metric struct {\n@@ -34,11 +32,10 @@ type Metrics struct {\n \tmetrics map[string]float64\n }\n \n-func New(t assert.TestingT, ctx context.Context, url string) *Metrics {\n+func New(t assert.TestingT, ctx context.Context, httpclient *http.Client, url string) *Metrics {\n \treq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)\n \tassert.NoError(t, err) //nolint:testifylint\n \n-\thttpclient := client.HTTP(t)\n \tresp, err := httpclient.Do(req)\n \tif !assert.NoError(t, err) { //nolint:testifylint\n \t\treturn nil",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/integration/framework/metrics/metrics_test.go",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -41,7 +41,7 @@ func TestNew(t *testing.T) {\n \t}))\n \tdefer ts.Close()\n \n-\tmetrics := New(t, t.Context(), ts.URL)\n+\tmetrics := New(t, t.Context(), ts.Client(), ts.URL)\n \tmetricsMap := metrics.All()\n \n \trequire.NotNil(t, metricsMap)",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/integration/framework/metrics/withlabels.go",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 4,
+      "patch": "@@ -24,21 +24,18 @@ import (\n \t\"github.com/prometheus/common/expfmt\"\n \t\"github.com/stretchr/testify/assert\"\n \t\"github.com/stretchr/testify/require\"\n-\n-\t\"github.com/dapr/dapr/tests/integration/framework/client\"\n )\n \n type MetricsWithLabels struct {\n \tMetrics map[string]map[string]float64\n }\n \n-func NewWithLabels(t *testing.T, ctx context.Context, url string) *MetricsWithLabels {\n+func NewWithLabels(t *testing.T, ctx context.Context, httpclient *http.Client, url string) *MetricsWithLabels {\n \tt.Helper()\n \n \treq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)\n \trequire.NoError(t, err)\n \n-\thttpclient := client.HTTP(t)\n \tresp, err := httpclient.Do(req)\n \trequire.NoError(t, err)\n \tdefer resp.Body.Close()",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/integration/framework/process/daprd/daprd.go",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -383,7 +383,7 @@ func (d *Daprd) ProfilePort() int {\n \n // Metrics Returns a subset of metrics scraped from the metrics endpoint\n func (d *Daprd) Metrics(t assert.TestingT, ctx context.Context) *metrics.Metrics {\n-\treturn metrics.New(t, ctx, fmt.Sprintf(\"http://%s/metrics\", d.MetricsAddress()))\n+\treturn metrics.New(t, ctx, d.httpClient, fmt.Sprintf(\"http://%s/metrics\", d.MetricsAddress()))\n }\n \n func (d *Daprd) MetricResidentMemoryMi(t *testing.T, ctx context.Context) float64 {",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/integration/framework/process/placement/placement.go",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 5,
+      "patch": "@@ -43,8 +43,9 @@ import (\n )\n \n type Placement struct {\n-\texec  process.Interface\n-\tports *ports.Ports\n+\texec       process.Interface\n+\tports      *ports.Ports\n+\thttpClient *http.Client\n \n \tid                  string\n \tport                int\n@@ -128,6 +129,7 @@ func New(t *testing.T, fopts ...Option) *Placement {\n \t\t\t))...,\n \t\t),\n \t\tports:               fp,\n+\t\thttpClient:          client.HTTP(t),\n \t\tid:                  opts.id,\n \t\tport:                opts.port,\n \t\thealthzPort:         opts.healthzPort,\n@@ -146,18 +148,18 @@ func (p *Placement) Run(t *testing.T, ctx context.Context) {\n \n func (p *Placement) Cleanup(t *testing.T) {\n \tp.cleanupOnce.Do(func() {\n+\t\tp.httpClient.CloseIdleConnections()\n \t\tp.exec.Cleanup(t)\n \t})\n }\n \n func (p *Placement) WaitUntilRunning(t *testing.T, ctx context.Context) {\n \tt.Helper()\n \n-\tclient := client.HTTP(t)\n \treq, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(\"http://127.0.0.1:%d/healthz\", p.healthzPort), nil)\n \trequire.NoError(t, err)\n \tassert.EventuallyWithT(t, func(c *assert.CollectT) {\n-\t\tresp, respErr := client.Do(req)\n+\t\tresp, respErr := p.httpClient.Do(req)\n \t\tif assert.NoError(c, respErr) {\n \t\t\tdefer resp.Body.Close()\n \t\t\tassert.Equal(c, http.StatusOK, resp.StatusCode)\n@@ -187,7 +189,7 @@ func (p *Placement) HealthzPort() int {\n \n // Metrics returns a subset of metrics scraped from the metrics endpoint\n func (p *Placement) Metrics(t assert.TestingT, ctx context.Context) *metrics.Metrics {\n-\treturn metrics.New(t, ctx, fmt.Sprintf(\"http://%s/metrics\", p.MetricsAddress()))\n+\treturn metrics.New(t, ctx, p.httpClient, fmt.Sprintf(\"http://%s/metrics\", p.MetricsAddress()))\n }\n \n func (p *Placement) MetricsAddress() string {",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/integration/framework/process/ports/ports.go",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 1,
+      "patch": "@@ -47,6 +47,14 @@ func portsBase() int {\n \n const blockSize = 500\n \n+// portsCeil is the exclusive upper bound for reservation probing. It is kept\n+// strictly below the OS ephemeral port range (macOS default 49152-65535) so\n+// that held-open reserved listeners never squat on ports the kernel needs to\n+// assign for outbound dials. Exhausting the outbound ephemeral pool surfaces\n+// as EADDRNOTAVAIL (\"can't assign requested address\") and was the dominant\n+// failure mode on the 3-core macos-14 CI runner.\n+const portsCeil = 49000\n+\n // Ports reserves network ports, and then frees them when the test is ready to\n // run so a  process can bind to them at runtime.\n type Ports struct {\n@@ -75,7 +83,7 @@ func Reserve(t *testing.T, count int) *Ports {\n \t\tt.Logf(\"reserving %d more ports\", blockSize)\n \t\tfor i := 0; i < blockSize; i++ {\n \t\t\tlast++\n-\t\t\tif last+i > 65535 {\n+\t\t\tif last+i >= portsCeil {\n \t\t\t\tlast = portsBase()\n \t\t\t}\n \t\t\tln, err := net.Listen(\"tcp\", \"127.0.0.1:\"+strconv.Itoa(last))",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/integration/framework/process/scheduler/scheduler.go",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "patch": "@@ -414,11 +414,11 @@ func (s *Scheduler) MetricsAddress() string {\n \n // Metrics returns a subset of metrics scraped from the metrics endpoint\n func (s *Scheduler) Metrics(t assert.TestingT, ctx context.Context) *metrics.Metrics {\n-\treturn metrics.New(t, ctx, fmt.Sprintf(\"http://%s/metrics\", s.MetricsAddress()))\n+\treturn metrics.New(t, ctx, s.httpClient, fmt.Sprintf(\"http://%s/metrics\", s.MetricsAddress()))\n }\n \n func (s *Scheduler) MetricsWithLabels(t *testing.T, ctx context.Context) *metrics.MetricsWithLabels {\n-\treturn metrics.NewWithLabels(t, ctx, fmt.Sprintf(\"http://%s/metrics\", s.MetricsAddress()))\n+\treturn metrics.NewWithLabels(t, ctx, s.httpClient, fmt.Sprintf(\"http://%s/metrics\", s.MetricsAddress()))\n }\n \n func (s *Scheduler) ETCDClient(t *testing.T, ctx context.Context) *clientv3.Client {",
+      "patch_truncated": false
+    }
+  ]
+}

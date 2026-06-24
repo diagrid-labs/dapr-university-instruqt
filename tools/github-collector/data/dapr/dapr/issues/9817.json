@@ -1,0 +1,23 @@
+{
+  "type": "issue",
+  "number": 9817,
+  "title": "Error Standardization: Bindings API (clone of #7483)",
+  "state": "open",
+  "body": "Richer errors in Dapr for the **Bindings API**.\n\n> **Note:** This is a clone of #7483, assigned to myself to track my contribution to the error standardization efforts.\n\n## Scope of work\n\n- [x] Choose errors in the Bindings API to enrich\n- [x] Follow the steps outlined in the README for each error being updated\n\n## Definition of done\n\n- [x] Update errors in the Bindings API (`InvokeOutputBinding`)\n- [x] Update the unit tests\n- [ ] Write integration tests to cover each updated error\n\n## Keep in mind\n\nUnless a major version is being released, we can't change the API (HTTP/gRPC status codes and error codes must stay the same). An exception is `StatusCode.UNKNOWN` which should be converted to a specific status.\n\nFor each error being updated, use the helper functions:\n- `WithErrorInfo()` - Required\n- `WithResourceInfo()`\n- `WithHelpLink()`\n- `WithFieldViolation()`\n\n## Reference PRs\n\n- State API error standardization: dapr/dapr#7507\n- PubSub API error standardization: dapr/dapr#7626\n- Bindings API (this work): dapr/dapr#9816",
+  "labels": [],
+  "user": "mail2sudheerobbu-oss",
+  "created_at": "2026-04-22T12:58:09Z",
+  "updated_at": "2026-04-22T12:58:09Z",
+  "comments": [],
+  "linked_pr_numbers": [
+    7507,
+    9816
+  ],
+  "referenced_issue_numbers": [
+    7483,
+    7626
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/9817",
+  "is_seed": false,
+  "partial": false
+}

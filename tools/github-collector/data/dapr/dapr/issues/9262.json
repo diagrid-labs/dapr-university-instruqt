@@ -1,0 +1,30 @@
+{
+  "type": "issue",
+  "number": 9262,
+  "title": "[Workflows] Explore option to use `raiseEvent` for workflows that don't exist yet",
+  "state": "open",
+  "body": "## In what area(s)?\n/area runtime\n\n## Describe the feature\nFollowing up on @olitomlinson 's discussion [on Discord](https://discord.com/channels/778680217417809931/1075836407156850698/1458146238796136621):\n\n> Could [we] make an option to have the `raiseEvent` capability work for workflow instances that don't exist yet? the runtime would basically persist those events even though an instance doesn't exist. and then when the workflow instance eventually does get created, the events will be fed in and raised as normal etc. Kind of like how `continueAsNew` works, where unprocessed events are retained for the next generation of the workflow instance.\n\nThis would be really helpful for me in my use-case as the system that is raising events has no idea when or how the workflow instance will be actually created. (it's created by some other process).\n\nThere's no nice alternative right now that I can leverage, without sticking some arbiter in the middle. which is yucky\n\n## Release Note\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE: **ADD** Can use `raiseEvent` independently of existing workflows\n",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "WhitWaldo",
+  "created_at": "2026-01-06T18:36:35Z",
+  "updated_at": "2026-04-10T13:18:06Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-04-10T12:24:34Z"
+    },
+    {
+      "user": "olitomlinson",
+      "body": "bump",
+      "created_at": "2026-04-10T12:57:37Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9262",
+  "is_seed": false,
+  "partial": false
+}

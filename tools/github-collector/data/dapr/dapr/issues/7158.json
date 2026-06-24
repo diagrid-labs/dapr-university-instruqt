@@ -1,0 +1,42 @@
+{
+  "type": "issue",
+  "number": 7158,
+  "title": "Tracking: SDKs - Service Invocation Clients implementing resiliency and TLS",
+  "state": "open",
+  "body": "This is a tracking issue for the supported Dapr SDKs with regards to their service invocation clients implementing resiliency and tls.\r\n\r\n- [ ] [.NET](https://github.com/dapr/dotnet-sdk/)\r\n  - [ ] Resiliency - Issue/PR: (TODO)\r\n  - [ ] TLS - Issue/PR: (TODO)\r\n- [ ] [Python](https://github.com/dapr/python-sdk/)\r\n  - [ ] Resiliency - Issue/PR: (TODO)\r\n  - [ ] TLS - Issue/PR: (TODO)\r\n- [ ] [Java](https://github.com/dapr/java-sdk/)\r\n  - [ ] Resiliency - Issue/PR: (TODO)\r\n  - [ ] TLS - Issue/PR: (TODO)\r\n- [ ] [Go](https://github.com/dapr/go-sdk/)\r\n  - [ ] Resiliency - Issue/PR: (TODO)\r\n  - [x] TLS - Issue/PR: (TODO)\r\n- [ ] [PHP](https://github.com/dapr/php-sdk/)\r\n  - [ ] Resiliency - Issue/PR: (TODO)\r\n  - [ ] TLS - Issue/PR: (TODO)\r\n- [ ] [JavaScript](https://github.com/dapr/js-sdk/)\r\n  - [ ] Resiliency - Issue/PR: (TODO)\r\n  - [ ] TLS - Issue/PR: (TODO)\r\n\r\nBrucie bonuses:\r\n- [ ] [C++](https://github.com/dapr/cpp-sdk/)\r\n  - [ ] Resiliency - Issue/PR: (TODO)\r\n  - [ ] TLS - Issue/PR: (TODO)\r\n- [ ] [Rust](https://github.com/dapr/rust-sdk/)\r\n  - [ ] Resiliency - Issue/PR: (TODO)\r\n  - [ ] TLS - Issue/PR: (TODO)\r\n\r\ncc @JoshVanL - v1.13",
+  "labels": [
+    "kind/enhancement",
+    "pinned",
+    "tracking-issue"
+  ],
+  "user": "mikeee",
+  "created_at": "2023-11-07T15:30:09Z",
+  "updated_at": "2024-05-06T05:30:13Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-01-06T15:51:50Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-03-07T00:06:20Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "keepalive",
+      "created_at": "2024-03-07T00:33:35Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-05-06T00:46:55Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/7158",
+  "is_seed": false,
+  "partial": false
+}

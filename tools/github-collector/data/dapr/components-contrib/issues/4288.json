@@ -1,0 +1,39 @@
+{
+  "type": "issue",
+  "number": 4288,
+  "title": "kafka: Sarama client lacks timeouts, health checking, and configuration tunability",
+  "state": "open",
+  "body": "## Summary\n\nA code-level review of `common/component/kafka/` revealed several production-severity issues with the Sarama client integration. Two issues from a customer-reported RCA were confirmed, two were refuted, and four new findings were uncovered.\n\n## Confirmed Issues\n\n### 1. No init timeout \u2014 `Init()` can block indefinitely on unreachable brokers\n\n`context.Background()` is used in Init, leaving no abort mechanism for slow/unreachable brokers. Sarama's `NewConsumerGroup`/`NewClient` accept no context, so the entire Init path can hang.\n\n**Location**: `kafka.go` (Init path, lines ~136-272)\n\n### 2. No `Close()` timeout \u2014 shutdown hangs forever on dead brokers\n\n`Close()` calls `defer k.wg.Wait()` and `defer k.consumerWG.Wait()` with no deadline. If a consumer goroutine is blocked on a dead broker, daprd shutdown hangs indefinitely.\n\n**Location**: `kafka.go` (Close, lines ~321-353)\n\n### 3. No client health checking \u2014 broken Sarama client cached forever\n\n`latestClients()` only checks `k.clients != nil`. If the Sarama client enters a broken state (all brokers unreachable, internal close), the cached broken client is returned forever with no recovery path.\n\n**Location**: `clients.go` (lines ~14-70)\n\n### 4. Hardcoded producer/network/token configurations\n\nThe following are all hardcoded with no metadata exposure:\n- `RequiredAcks = WaitForAll`, `Retry.Max = 5` (producer)\n- Dial, read, write timeouts use Sarama defaults (30s each)\n- OIDC token timeout hardcoded to 30s, AWS to 10s\n- `Metadata.Full = true` (fetches ALL topics on the cluster \u2014 wasteful when subscribing to few topics)\n\n### 5. Double-close of consumer group\n\n`pubsub/kafka/kafka.go` closes consumer group on `ErrGracefulShutdown`, then `kafka.Close()` closes it again. No idempotent close guard exists.\n\n**Location**: `subscriber.go` + `kafka.go`\n\n### 6. AWS `getSyncProducer()` mutates shared `*sarama.Config`\n\n`aws.go` mutates the shared config pointer, bleeding producer settings (`RequiredAcks`, `Retry.Max`, `Return.Successes`) into the consumer config.\n\n**Location**: `aws.go` (lines ~100-104)\n\n## Refuted Claims\n\nFor completeness, the original RCA also claimed:\n- **15s control loop creating new clients** \u2014 Not confirmed. `latestClients()` memoizes; clients are created once and reused (fixed in #4049).\n- **~300MB metadata per init** \u2014 Unsubstantiated. Metadata responses are typically low-KB even for large clusters. Memory spikes are more likely from channel buffers, goroutine leaks from Close() never completing, or broken clients never getting recycled.\n\n## Proposed Fix\n\nOrganized by priority:\n\n**P0 \u2014 Critical path fixes:**\n1. Add `initTimeout` metadata field (default 30s) \u2014 wrap Init in a timeout goroutine\n2. Add `closeTimeout` metadata field (default 15s) \u2014 replace bare `wg.Wait()` with select on timer\n3. Add client health checking \u2014 detect broken Sarama clients and force re-creation with backoff\n\n**P1 \u2014 Configuration exposure:**\n4. Expose `producerRequiredAcks`, `producerRetryMax`, `producerRetryBackoff` metadata fields\n5. Expose `netDialTimeout`, `netReadTimeout`, `netWriteTimeout` metadata fields\n6. Expose `authTokenTimeout` metadata field for OIDC/AWS token providers\n7. Set `Metadata.Full = false` by default (with `metadataFullRefresh` opt-in)\n8. Add exponential backoff to consume retry loop (replace fixed 100ms sleep)\n\n**P2 \u2014 Cleanup:**\n9. Guard consumer group close with `sync.Once` to prevent double-close\n10. Copy `*sarama.Config` before mutating in AWS `getSyncProducer()`\n\nAll changes are backward-compatible with sensible defaults matching current behavior.\n\n## Environment\n\n- Dapr version: v1.16.x / main\n- Component: `common/component/kafka/`",
+  "labels": [
+    "kind/bug",
+    "area/runtime/pubsub",
+    "P1"
+  ],
+  "user": "nelson-parente",
+  "created_at": "2026-03-16T15:56:41Z",
+  "updated_at": "2026-06-17T16:34:00Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-04-30T16:02:36Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it was marked stale with no further activity for 7 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-05-07T16:26:20Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-06-11T12:56:33Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    4049
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4288",
+  "is_seed": false,
+  "partial": false
+}

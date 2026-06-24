@@ -1,0 +1,37 @@
+{
+  "type": "issue",
+  "number": 3415,
+  "title": "Dapr Pub/Sub. Sending messages with specific fifoMessageGroupID ",
+  "state": "open",
+  "body": "Hello Guys, Thank you for DAPR. It helps a lot.\r\n\r\nWe are using AWS SNS/SQS pubsub in FIFIO mode and we want to set fifoMessageGroupID for each message we are sending.\r\nI have read Dapr.Client PublishEventAsync specification (for .net).\r\nCan we set fifoMessageGroupID in the parameters of PublishEventAsync?\r\n\r\nThank you in advance for your answer.\r\n",
+  "labels": [
+    "good first issue"
+  ],
+  "user": "YuryZevakin",
+  "created_at": "2024-05-13T14:03:16Z",
+  "updated_at": "2025-08-11T21:55:57Z",
+  "comments": [
+    {
+      "user": "yaron2",
+      "body": "Moved this to the correct repository.\r\n\r\n> Can we set fifoMessageGroupID in the parameters of PublishEventAsync?\r\n\r\nThis is currently not supported. You can only set `fifoMessageGroupID` on the metadata, otherwise Dapr generates its own group ID for the message. I've triaged this into 1.14 as it should be easy to add.",
+      "created_at": "2024-05-13T16:30:15Z"
+    },
+    {
+      "user": "YuryZevakin",
+      "body": "Why is the ability to set  fifoMessageGroupID when sending pub/sub messages important?\r\n\r\n**Background** \r\n\r\nwe have an inventory system that is implemented according to the microservice architecture pattern and our microservices can communicate with each other with pub/sub pattern powered by DAPR.\r\nEach microservice has its own database and is responsible for its bounding context of the business domain.\r\n\r\nAs a result, we have a distributed system and we are working to reach the highest level of system consistency.\r\n\r\nThe most important tool to reach eventual consistency is by using FIFO queues in pubsub communications to make sure that all system operations will be processed in the system in the correct order.\r\nIt is important to note that we have multitenancy in the system and many customers can use the system API in parallel. \r\n\r\nAND\r\n\r\nin the case of using FIFO all our customers currently are in one queue. And high load of one customer affects the work of another customer because the queue is FIFO and all messages will be processed in strict order. Horizontal scaling of microservices is useless in this case.\r\n\r\n\r\n**Proposes solution.**\r\n\r\nIf we could set fifoMessageGroupID as customer Id, then processing to queues for different customers can performed in parallel. Horizontal scaling of microservices will work well and a high load of one customer will not affect to work of another customer in the multitenant system.\r\n\r\n\r\n**Workaround**\r\n\r\nCurrently, we have a workaround, how to split processing to different customers with different FIFO, but is not as elegant as fifoMessageGroupID approach.\r\n\r\n\r\n",
+      "created_at": "2024-05-14T09:39:51Z"
+    },
+    {
+      "user": "YuryZevakin",
+      "body": "Thank you @yaron2 for a tip.\r\nI have set fifoMessageGroupID on the metadata.\r\n\r\n var metaData = new Dictionary<string, string>();\r\n metaData.Add(\"fifo\", \"true\");\r\n metaData.Add(\"fifoMessageGroupID\", customerId);        \r\n_client.PublishEventAsync(pubsubName, topicName, data, **metaData**, cancellationToken);\r\n\r\nI don't know Is it corrent way to set it so?\r\nPlease advise me on how we can check fifoMessageGroupID was updated in SNS/SQS? \r\nCan i see it in some DAPR logs?\r\n\r\nThank you in advance.\r\n",
+      "created_at": "2024-05-15T19:55:38Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    4175
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3415",
+  "is_seed": false,
+  "partial": false
+}

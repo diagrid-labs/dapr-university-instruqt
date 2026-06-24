@@ -1,0 +1,35 @@
+{
+  "type": "issue",
+  "number": 4363,
+  "title": "Azure EventHub pubsub - Excessive publish duration after inactivity",
+  "state": "open",
+  "body": "## Symptom\n\nWe are using \"pubsub.azure.eventhubs\" component to publish events to an Azure EventHub from an ASP.NET web application.\n\nAfter cold start of the containers, the duration of the first publish event is acceptable (1s to 3s). But after a period of inactivity (between 1 and 2 hours), the first publish event takes 15s.\n\nBelow the Dapr container log that we see after inactivity:\n```\ntime=\"2026-04-29T06:07:46.720941374Z\" level=info msg=\"gRPC API Called\" app_id=`XXXXXX-dapr code=0 duration=14801 instance=XXXXXXX--r1-2-1-alpha-0-115-7c457b6544-z9qbp method=/dapr.proto.runtime.v1.Dapr/PublishEvent scope=dapr.runtime.grpc.api-info type=log useragent=\"grpc-dotnet/2.76.0 (.NET 10.0.7; CLR 10.0.7; net10.0; linux; x64) dapr-sdk-dotnet/v1.17.4+896bff16f9e29feb7a9bd9749a38640103d3b352\" ver=1.16.4-msft.2\n```\n\nWhat we already tried:\n- Replace managed identity by connection string to prevent token aquisition latency\n- Setup min replica to 1 to keep always 1 container app replica\n- Ensured that the DaprClient is injected as Singleton\n\n## Environement\n\n- Component type: pubsub.azure.eventhubs\n- Client SDK: Dotnet Dapr.Client 1.17.0\n- App framework: .NET 10\n- Hosting: Azure Container App\n- Dapr version: 1.16.4-msft.2\n\n## Expected Behavior\n\nFirst publish after inactivity should not take longer than after cold start and be reasonable (~1s to 3s)\n\n## Actual Behavior\n\nFirst publish after inactivity takes more than 15s.\n\n## Steps to Reproduce the Problem\n\n- Deploy an Azure Container App that uses a \"pubsub.azure.eventhubs\" component to publish events to an Azure EventHub.\n- Make a first cold start publish (Should be fast)\n- Wait for 1 or 2 hours with no activity\n- Make a second publish (Should take more than 10s)\n\n## Release Note\n\nRELEASE NOTE: **FIX** Azure EventHub pubsub - Excessive publish duration after inactivity.",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "foliv57",
+  "created_at": "2026-04-29T09:16:49Z",
+  "updated_at": "2026-05-29T15:38:44Z",
+  "comments": [
+    {
+      "user": "foliv57",
+      "body": "We activated full Dapr debug logs and have this log sequence when the problem happen:\n```\n[Apr 29 11:02:52.471263] azeh.Conn: Error closing old client: *Error{Condition: amqp:connection:forced, Description: The connection was closed by container 'XXXXXX_G26' because it did not have any active links in the past 60000 milliseconds. TrackingId:XXXXXX_G26, SystemTracker:gateway5, Timestamp:2026-04-29T10:58:47, Info: map[]}\n[Apr 29 11:02:52.471267] azeh.Conn: Creating a new client (rev:20)\n[Apr 29 11:02:52.471270] azeh.Conn: Creating new client, current rev: 20\n[Apr 29 11:02:52.636586] azeh.Conn: Client created, new rev: 21, took 165ms\n[Apr 29 11:02:58.813708] azeh.Producer: [c:1,l:-Ffci,p:] Sending message with ID 80d5496f-3c7e-4812-551c-dda5fc0924c2 to partition \"\"\n[Apr 29 11:02:58.813748] azeh.Conn: (c:1,l:-Ffci,p:, SendEventDataBatch) Link was previously detached. Attempting quick reconnect to recover from error: *Error{Condition: amqp:link:detach-forced, Description: Idle link tracker, link -FfciuABLRMBC5vGKp-ofSDsAzgtXc5sCRF6-TtKksFIA8pZolegqw has been idle for 1800000ms TrackingId:XXXXX_G12, SystemTracker:XXXXX:EventHub:XXXXX, Timestamp:2026-04-29T09:18:13, Info: map[]}\n[Apr 29 11:02:58.813752] azeh.Producer: (c:1,l:-Ffci,p:) Resetting retry attempts\n[Apr 29 11:02:58.813766] azeh.Producer: (c:1,l:-Ffci,p:) Retry attempt -1 returned retryable error: *Error{Condition: amqp:link:detach-forced, Description: Idle link tracker, link -FfciuABLRMBC5vGKp-ofSDsAzgtXc5sCRF6-TtKksFIA8pZolegqw has been idle for 1800000ms TrackingId:XXXX_G12, SystemTracker:XXXX:EventHub:XXXX, Timestamp:2026-04-29T09:18:13, Info: map[]}\n[Apr 29 11:02:58.813867] azeh.Conn: (c:1,l:-Ffci,p:) Error when cleaning up old link for link recovery: *Error{Condition: amqp:link:detach-forced, Description: Idle link tracker, link -FfciuABLRMBC5vGKp-ofSDsAzgtXc5sCRF6-TtKksFIA8pZolegqw has been idle for 1800000ms TrackingId:XXXX_G12, SystemTracker:XXXX:EventHub:XXXX, Timestamp:2026-04-29T09:18:13, Info: map[]}\n[Apr 29 11:02:58.813878] azeh.Producer: (c:1,l:-Ffci,p:) Retry attempt 0 returned retryable error: *Error{Condition: amqp:link:detach-forced, Description: Idle link tracker, link -FfciuABLRMBC5vGKp-ofSDsAzgtXc5sCRF6-TtKksFIA8pZolegqw has been idle for 1800000ms TrackingId:XXXX_G12, SystemTracker:XXXX:EventHub:XXXX, Timestamp:2026-04-29T09:18:13, Info: map[]}\n[Apr 29 11:02:58.813884] azeh.Producer: (c:1,l:-Ffci,p:) Retry attempt 1 sleeping for 4.704468513s\n[Apr 29 11:03:03.519078] azeh.Conn: Creating link for partition ID ''\n[Apr 29 11:03:03.549882] azeh.Conn: (c:21,l:N6Hyt,p:): Succesfully created link for partition ID ''\n[Apr 29 11:03:03.549903] azeh.Producer: [c:21,l:N6Hyt,p:] Sending message with ID 80d5496f-3c7e-4812-551c-dda5fc0924c2 to partition \"\"\ntime=\"2026-04-29T11:03:03.677160628Z\" level=info msg=\"gRPC API Called\" app_id=XXXX-dapr code=0 duration=4863 instance=XXXX--0000014-d9bc879c9-zsn5r method=/dapr.proto.runtime.v1.Dapr/PublishEvent scope=dapr.runtime.grpc.api-info type=log useragent=\"grpc-dotnet/2.76.0 (.NET 10.0.7; CLR 10.0.7; net10.0; linux; x64) dapr-sdk-dotnet/v1.17.0+96c9b19cd1854bd2e69787d621c06fed1f8b0f17\" ver=1.16.4-msft.2\n```\n\nHope that it can help investigation.",
+      "created_at": "2026-04-29T14:04:54Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-05-29T14:19:10Z"
+    },
+    {
+      "user": "foliv57",
+      "body": "Not stale",
+      "created_at": "2026-05-29T14:50:54Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4363",
+  "is_seed": false,
+  "partial": false
+}

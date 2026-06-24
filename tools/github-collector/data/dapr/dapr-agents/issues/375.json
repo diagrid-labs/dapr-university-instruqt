@@ -1,0 +1,50 @@
+{
+  "type": "issue",
+  "number": 375,
+  "title": "Add health endpoints to Dapr Agent for Kubernetes and Dapr probes",
+  "state": "open",
+  "body": "\nWhen the agent is run in standalone mode (exposed over HTTP and or PubSub), it should expose standard health endpoints to support Kubernetes and Dapr health checks.\n\n\nAdd the following endpoints:\n* `/healthz`: Overall application health.\n* `/livez`: Kubernetes liveness probe, indicates whether the process should be restarted.\n* `/readyz`: Kubernetes readiness probe, indicates whether the agent can accept traffic.\n\nIf all 3 endpoints behave the same way, IMO a single healthz would be sufficient.\n\n\nAdditionally, Dapr always probes `/dapr/config` for subscriptions. Instead of returning 404, the agent should return an empty list to avoid surfacing errors when no subscriptions are defined.\n\nReference: [https://docs.dapr.io/operations/resiliency/health-checks/app-health/](https://docs.dapr.io/operations/resiliency/health-checks/app-health/)\n",
+  "labels": [
+    "documentation",
+    "enhancement",
+    "good first issue",
+    "P2"
+  ],
+  "user": "bibryam",
+  "created_at": "2026-01-16T09:39:36Z",
+  "updated_at": "2026-05-15T00:05:09Z",
+  "comments": [
+    {
+      "user": "JoshVanL",
+      "body": "I don't expect dapr-agents to have an app port for daprd, so `/healthz`or `/dapr/config` should not be called by daprd.",
+      "created_at": "2026-01-16T10:29:57Z"
+    },
+    {
+      "user": "CasperGN",
+      "body": "@bibryam as per our convo, we shouldn't add `/healthz` as it's a [deprecated field](https://kubernetes.io/docs/reference/using-api/health-checks/#api-endpoints-for-health). \n\nLet's keep this one to track adding `/livez` and `/readyz` endpoints. I know dapr probes `/healthz` but instead of having `/healthz` can we suggest users to go with [--app-health-check-path](https://docs.dapr.io/operations/resiliency/health-checks/app-health/#health-check-paths) pointing to `/livez` instead?",
+      "created_at": "2026-01-16T11:07:26Z"
+    },
+    {
+      "user": "Faakhir30",
+      "body": "I'd like to work on this one, from what I understand, we are supposed to:\n- expose these two endpoints at `AgentRunner` level\n- documment for daprd to set `app-health-check-path` flag to `/livez`\n- provide a way (setters) that changes status of liveness and readiness\n\nHints on how am I supposed to know liveness and readiness of AgentRunner are aprriciated",
+      "created_at": "2026-03-07T00:34:25Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "@JeffreyJPZ can you pls comment \"/assign\" so the issue will assign itself to you?",
+      "created_at": "2026-05-14T18:38:40Z"
+    },
+    {
+      "user": "JeffreyJPZ",
+      "body": "/assign",
+      "created_at": "2026-05-15T00:05:09Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    590
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr-agents/issues/375",
+  "is_seed": false,
+  "partial": false
+}

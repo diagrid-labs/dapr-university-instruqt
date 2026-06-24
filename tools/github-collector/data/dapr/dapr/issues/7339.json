@@ -1,0 +1,53 @@
+{
+  "type": "issue",
+  "number": 7339,
+  "title": "[Proposal] Specialty Store Building Blocks (Key/Value, Document, Relational, Queue, etc.)",
+  "state": "open",
+  "body": "## In what area(s)?\n/area runtime\n\n## Describe the proposal\nThere are a ton of component implementations for the Dapr state store building block. This is great and encourages adoption of the platform, making it easy to perform simple operations to store and retrieve data.\n\nBut there have been several iterations on this that have since stalled out due to the breadth of the application to such scope.  State queries are a great example in that there are some state providers that just don't support them or might only support queries against keys and not values, or maybe they required the values formatted in some way that isn't standard, etc. The state building block doesn't support streaming which can lead to [memory issues](https://github.com/dapr/dapr/issues/4804#issuecomment-1162602826) with sufficiently large objects.\n\nI think there's a great case to be made for building out specialty state building blocks instead of trying to make a general purpose state store. There have been a number of proposals for specific state stores and I link to them below - **my goal here is to specifically call attention away from the state management building block as it stands today and instead redirect future such work to each of the specialty state stores going forward** to stand alongside the generic all-purpose option for basic get and set operations we have today.\n\nThere are a great many purpose-built state stores Dapr could provide specific support for:\n\n- [Centralized Cache](https://github.com/dapr/dapr/issues/7886) - Proposed\n- Queues\n- [Documents](https://github.com/dapr/dapr/issues/5146) - Proposed\n- [File/Binary storage](https://github.com/dapr/proposals/pull/88) - Proposed\n- [Object storage](https://github.com/dapr/proposals/pull/18) - Proposed\n- [Blob storage](https://github.com/dapr/dapr/issues/4804)\n- [Key/Value stores](https://github.com/dapr/dapr/issues/7338) - Proposed\n- Vector database (suggested [in Discord](https://discord.com/channels/778680217417809931/782286950983663617/1192518394466013205))\n- Graph database\n- [Event Store](https://github.com/dapr/dapr/issues/907)\n- Search Engine database\n- Time Series\n- Relational [here](https://github.com/dapr/dapr/issues/3059) and [here](https://github.com/dapr/dapr/issues/3354)\n- Schema registry (as described [here](https://vasters.com/clemens/2024/10/21/exploring-metadata-and-schema-evolution-in-modern-messaging-systems-cloudevents-and-cncf-xregistry) and located [here](https://github.com/xregistry/spec))\n- High-performance Actor store (e.g. connection pooling, distributed cache support, etc.)\n\nThe current state store implementation looks much like a key/value store, but I'd propose it could be richer - support key querying and streaming (bidirectional paging requests and responses), and caching for higher performance reads. Don't support querying by value as this typically isn't supported for these stores. Focus on what is typically supported and generically support it.\n\nBlob storage today is somewhat limited to smaller files because of the lack of streaming support. I propose putting this into a specialty building block that looks much like the one we have today, but supports streaming so this can read and write blobs of arbitrarily large sizes, delete blobs, set arbitrary metadata and list blobs (again with bidirectional stream-based paging as supported).\n\nDocuments are more likely to have more elaborate querying needs and this is an API widely requested by the community in a [recent survey](https://github.com/dapr/dapr/issues/5146#issuecomment-1762210204). But this is also an API that's likely to diverge from the others as queries are likely to span not only keys, but also values. NoSQL stores differ from relational stores, so it makes sense to me that the Dapr API for either should vary as well. \n\nI'm eager to see more discussion around relational building blocks as those seems to be elaborate enough technologies that absent accepting raw input strings and parameters, I'm not sure how much technology-agnostic complexity can be shoved into a generic Dapr API that result in simply becoming a Go clone of EF or Dapper, but like I said, I'm eager to see how discussions around this go.\n\nNo doubt there are more state-storing opportunities - I think they should similarly be tackled by subject-matter specific (and separately versioned) building blocks as well instead of trying to make a one-size-fits-all generic API for them all necessarily and then limiting their individually purposed potential along the way.\n\nLike I said in the key/value store proposal. I think there's plenty of room for keeping the existing state management store API as-is because it's an easy go-to for generic saving and retrieving of data, but I also think there's a great opportunity here also for more purpose-specific specializations as well.\n\nThank you for the consideration!",
+  "labels": [
+    "pinned"
+  ],
+  "user": "WhitWaldo",
+  "created_at": "2024-01-02T11:14:17Z",
+  "updated_at": "2025-08-24T00:11:10Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-05-24T19:41:39Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "Bump - haven't gotten around to submitting a proposal yet, but it's a work in progress.",
+      "created_at": "2024-05-26T16:44:35Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-09-01T08:42:15Z"
+    },
+    {
+      "user": "WhitWaldo",
+      "body": "/assign",
+      "created_at": "2024-09-02T02:49:50Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    61,
+    1445
+  ],
+  "referenced_issue_numbers": [
+    18,
+    71,
+    1374,
+    1383,
+    7338,
+    8006,
+    8553,
+    8617,
+    8675
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/7339",
+  "is_seed": false,
+  "partial": false
+}

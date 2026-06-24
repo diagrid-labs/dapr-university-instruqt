@@ -1,0 +1,75 @@
+{
+  "type": "issue",
+  "number": 7476,
+  "title": "Resiliency metrics: add metrics for retry, circuit breaker",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## In what area(s)?\r\n<!-- Remove the '> ' to select -->\r\n\r\n /area runtime\r\n\r\n> /area operator\r\n\r\n> /area placement\r\n\r\n> /area docs\r\n\r\n> /area test-and-release\r\n\r\n## Describe the feature\r\n\r\nToday, based on #4524 which has already been released in the past, when users setup Resiliency configuration policy it is possible to see metrics come through. Based on the doc linked here there are three metrics exposed: https://github.com/dapr/dapr/blob/master/docs/development/dapr-metrics.md#resiliency\r\n\r\n* dapr_resiliency_loaded: The number of resiliency policies loaded.\r\n* dapr_resiliency_count: The number of times a resiliency policy has been executed.\r\n* dapr_resiliency_activations_total: Number of times a resiliency policy has been activated in a building block after a failure or after a state change.\r\n\r\nThis is a useful set of metrics, but when it comes to actual invocations of retries, circuit breakers and timeouts, there is no indication as to the health of the environment. \r\n\r\nTake the example where you have a component like a PubSub component that is experiencing issues with the connection to its broker. Having metrics about retries and circuit breaker kicking in, could help in early detection of a larger problem in the environment. \r\n\r\nThe metrics on Resiliency retries, circuit breakers and timeouts would be useful in generating an alert upfront as they start kicking in, while this is unexpected in the system and helps action being taken to address the underlying cause.\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\nRELEASE NOTE: **ADD** New feature in Dapr. \r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\n",
+  "labels": [
+    "good first issue",
+    "kind/enhancement"
+  ],
+  "user": "katriendg",
+  "created_at": "2024-02-02T08:04:46Z",
+  "updated_at": "2025-01-14T18:19:40Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-04-02T08:15:11Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "not stale",
+      "created_at": "2024-04-04T11:51:48Z"
+    },
+    {
+      "user": "jake-engelberg",
+      "body": "/assign",
+      "created_at": "2024-06-07T15:34:28Z"
+    },
+    {
+      "user": "jake-engelberg",
+      "body": "I've inferred from the description the additional desired resiliency metrics to be:\r\n`dapr_resiliency_cb_current_state`: A resiliency policy's current CircuitBreakerState value.\r\n`dapr_resiliency_retry_activations_total:` Number of times a resiliency policyKey has been activated in a building block after a retry.\r\n`dapr_resiliency_timeout_activations_total`: Number of times a resiliency policyKey has been activated in a building block after a timeout.\r\n\r\nViewing the existing 3 metrics in grafana shows that with some effort, one can determine the desired additional metrics, by using the tags, specifically `status` and `policy`. With this in mind, is it still the intention to have additional measures that simplifies the aggregation of the circuit breaker/timeout/retry metrics?\r\n<img width=\"1199\" alt=\"Screenshot 2024-06-11 at 8 16 22\u202fPM\" src=\"https://github.com/dapr/dapr/assets/152900222/00029887-7146-4c1d-ba9f-b7d4c8a8034c\">\r\n\r\nRegardless, I have a draft PR of how I general understood the requirements if we were to still go about adding additional measures: https://github.com/dapr/dapr/pull/7807\r\n\r\n@yaron2 cc @halspang ",
+      "created_at": "2024-06-12T00:18:15Z"
+    },
+    {
+      "user": "filintod",
+      "body": "@katriendg as mentioned above by @jake-engelberg maybe what we need is adding this label information (that can be used in the queries) in the docs for clarification? or you have a specific use case that the current metrics don't cover? thx",
+      "created_at": "2024-06-12T12:57:11Z"
+    },
+    {
+      "user": "katriendg",
+      "body": "Hello @filintod @jake-engelberg thanks a lot for looking into this and sharing the details on a way to achieve this with filtering and querying on existing metrics. I'm no longer involved in the project where this came up but it seems this could well cover it. \r\n\r\nWould it make sense to explain this approach in the existing docs? Happy to do a PR in the docs.",
+      "created_at": "2024-06-13T09:13:46Z"
+    },
+    {
+      "user": "jake-engelberg",
+      "body": "> Hello @filintod @jake-engelberg thanks a lot for looking into this and sharing the details on a way to achieve this with filtering and querying on existing metrics. I'm no longer involved in the project where this came up but it seems this could well cover it.\r\n> \r\n> Would it make sense to explain this approach in the existing docs? Happy to do a PR in the docs.\r\n\r\nIn terms of retry and timeout counts, those can be queried easily via the `policy` label in the metrics, and a docs PR would suffice:\r\n<img width=\"254\" alt=\"Screenshot 2024-06-18 at 11 34 16\u202fAM\" src=\"https://github.com/dapr/dapr/assets/152900222/de6f014f-d76c-465b-8341-acbaa7427a08\">\r\n\r\n\r\nAs for the circuitbreaker status, I've attempted to make a query that converts the counter (counts circuitbreaker state changes) into a gauge (shows current state of circuitbreaker), but was unsuccessful.\r\n\r\nThe individual states can be separated in the same way by the `status` label, but I wasn't able to make the query result in showing the current state.\r\n![image](https://github.com/dapr/dapr/assets/152900222/e44d2ffa-6388-49a3-88d4-f6fe74d2aa74)\r\n\r\nIf there isn't a simple way to do this, it probably is helpful to add a new metric as a gauge counter for the circuit breaker specifically.",
+      "created_at": "2024-06-18T15:34:52Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "Okay so your recommendation @jake-engelberg would be to add a single metric for circuit breaker state and then we could have enough information for the current state of resiliency policies across retries, timeouts and cb? \r\n\r\n",
+      "created_at": "2024-06-19T13:00:21Z"
+    },
+    {
+      "user": "jake-engelberg",
+      "body": "> Okay so your recommendation @jake-engelberg would be to add a single metric for circuit breaker state and then we could have enough information for the current state of resiliency policies across retries, timeouts and cb?\r\n\r\nYes. While there would be some way to determine the circuit breaker current state by seeing the last incremented series, it doesn't seem possibly to do so easily in a PromQL query, so I suggest adding a gauge metric to do this.\r\n\r\nI'll work on the draft here https://github.com/dapr/dapr/pull/7807 to do this single metric and see how it goes. It currently adds 3 metrics and is incomplete.",
+      "created_at": "2024-06-19T23:46:18Z"
+    },
+    {
+      "user": "alicejgibbons",
+      "body": "@jake-engelberg can this be closed?",
+      "created_at": "2025-01-14T18:19:38Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    7807
+  ],
+  "referenced_issue_numbers": [
+    4524
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/7476",
+  "is_seed": false,
+  "partial": false
+}

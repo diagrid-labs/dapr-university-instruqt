@@ -1,0 +1,55 @@
+{
+  "type": "issue",
+  "number": 7933,
+  "title": "Dapr sidecar-injector doesn't clean up Kubernetes Service resources",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## In what area(s)?\r\n\r\n\r\n/area runtime\r\n\r\n\r\n## What version of Dapr?\r\n\r\n<!-- Delete all but your choice -->\r\n\r\n> 1.13.x\r\n\r\n\r\n## Expected Behavior\r\n\r\nWhen a Dapr-annotated Kubernetes resource like a `Deployment` get the Dapr sidecar injected, a Kubernetes Service is created for Service to Service invocation to work. \r\nIf the Dapr annotations are removed from the Deployment resource, the pod restart and the Dapr sidecar is not injected, but the Kubernetes Service that was created is never deleted. \r\n\r\nThe expected behavior, from a user perspective, is that if the Deployment is not Dapr-enabled, a Service shouldn't be created (or the service should be cleaned up), if there is no Dapr sidecar for that Deployment. \r\n\r\n\r\n## Actual Behavior\r\n\r\nThe Kubernetes Service for Dapr-enabled applications is never cleaned up. If you try to delete the Service manually, the sidecar-injector will recreate the resource. Unless (thanks @alicejgibbons ) you restart the sidecar-injector pod that lives in the Dapr control plane. \r\n\r\n\r\n## Steps to Reproduce the Problem\r\n\r\n<!-- How can a maintainer reproduce this issue (be detailed) -->\r\n1) Create a Deployment and add Dapr annotations, so the sidecar gets injected\r\n2) Check that a Kubernetes Service was created by Dapr\r\n3) Remove the Dapr annotations from the Deployment and check if the Service is still there.. (it will be there)\r\n4) Try removing the Service manually with `kubectl delete svc ...`\r\n5) Try deleting the sidecar-injector pod inside the `dapr-system` namespace. Now you can delete the service. \r\n\r\n## Release Note\r\n\r\n<!-- How should the fix for this issue be communicated in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/bug",
+    "good first issue",
+    "stale"
+  ],
+  "user": "salaboy",
+  "created_at": "2024-07-23T11:18:59Z",
+  "updated_at": "2025-05-11T00:50:02Z",
+  "comments": [
+    {
+      "user": "alicejgibbons",
+      "body": ">  Unless (thanks @alicejgibbons ) you restart the sidecar-injector pod that lives in the Dapr control plane.\r\n\r\nCorrection: It was the restart of the operator service that refreshes this and then the operator won't force a recreate of the service for the dapr app that is no longer annotated. The service will not be automatically deleted by the operator, but can be manually in this case.",
+      "created_at": "2024-07-23T11:39:01Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-09-21T11:41:40Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 67 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2024-09-28T11:51:41Z"
+    },
+    {
+      "user": "by-nelson",
+      "body": "This issue seems like a good first-time issue to start collaborating to Dapr. I would like to take this one.",
+      "created_at": "2025-04-21T05:19:12Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "> This issue seems like a good first-time issue to start collaborating to Dapr. I would like to take this one.\n\nThanks, you're now assigned",
+      "created_at": "2025-04-21T05:23:02Z"
+    },
+    {
+      "user": "by-nelson",
+      "body": "Hello @yaron2 I have created the PR but some checks are still pending approval, please let me know if I need to change something for the PR to meet the contribution requirements.",
+      "created_at": "2025-05-11T00:50:01Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    8694,
+    9733
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/7933",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,65 @@
+{
+  "type": "issue",
+  "number": 8079,
+  "title": "Add Bulk methods to streaming subscriptions",
+  "state": "open",
+  "body": "Streaming Subscriptions should support the ability to send a bulk of messages to the application, while keeping the ACK functionality of streaming subscriptions as is.\r\n\r\nFor example, an easy way to add this would be to reuse the existing bulk pub/sub machinery in the Dapr runtime and expose it to the app via the something similar to this updated proto message:\r\n\r\n```proto\r\n// SubscribeTopicEventsResponseAlpha1 is a message returned from daprd\r\n// when subscribing to a topic via streaming.\r\nmessage SubscribeTopicEventsResponseAlpha1 {\r\n  oneof subscribe_topic_events_response_type {\r\n    SubscribeTopicEventsResponseInitialAlpha1 initial_response = 1;\r\n    TopicEventRequest event_message = 2;\r\n    repeated TopicEventRequest event_messages = 3;\r\n  }\r\n}\r\n```\r\n\r\nIn terms of subscribing, the proto definition for streaming subscriptions would include the exact same specification used for [bulk subscription](https://docs.dapr.io/developing-applications/building-blocks/pubsub/pubsub-bulk/#subscribing-messages-in-bulk) that exists today:\r\n\r\n```proto\r\nmessage SubscribeTopicEventsRequestInitialAlpha1 {\r\n  // The name of the pubsub component\r\n  string pubsub_name = 1;\r\n\r\n  // The pubsub topic\r\n  string topic = 2;\r\n\r\n  // The metadata passing to pub components\r\n  //\r\n  // metadata property:\r\n  // - key : the key of the message.\r\n  map<string, string> metadata = 3;\r\n\r\n  // dead_letter_topic is the topic to which messages that fail to be processed\r\n  // are sent.\r\n  optional string dead_letter_topic = 4;\r\n\r\n  optional BulkSubscribeAlpha1 bulk_subscribe = 5;\r\n}\r\n\r\nmessage BulkSubscribeAlpha1 {\r\n  bool enabled = 1;\r\n  optional int32 maxMessagesCount = 2;\r\n  optional int32 maxAwaitDurationMs = 3;\r\n}\r\n```",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "yaron2",
+  "created_at": "2024-09-11T14:38:41Z",
+  "updated_at": "2026-06-15T16:36:04Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2024-11-10T14:51:38Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 67 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2024-11-17T15:02:13Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-01-17T17:14:44Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 67 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2025-01-24T17:25:00Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-04-29T04:51:59Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-07-28T06:51:37Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it has not had activity in the last 97 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2025-08-04T06:54:05Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-05-13T15:37:22Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it was marked stale with no further activity for 7 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-05-20T16:37:58Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/8079",
+  "is_seed": false,
+  "partial": false
+}

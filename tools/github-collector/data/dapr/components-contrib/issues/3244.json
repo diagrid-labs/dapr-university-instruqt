@@ -1,0 +1,53 @@
+{
+  "type": "issue",
+  "number": 3244,
+  "title": "Feature Request: CosmosDB State Store Query to support partitioned queries",
+  "state": "open",
+  "body": "## Describe the feature\r\n\r\n~~When saving data through the DaprClient using the partitionKey metadata, everything is stored fine and is partitioned correctly.~~\r\nWhen querying data using the DaprClient with a partitionKey metadata Dictionary, It would be great if only the records having the specified partitionKey are returned. \r\n\r\nHere's an example setup (and also some screenshots): https://github.com/DSpirit/dapr-cosmosdb-partitioning\r\n\r\n## Maintainer Edit:\r\nThis is not a bug but intended behavior. The description above needs updating so it is clear that this is a feature enhancement request to add support for partitioned queries. Today the CosmosDB State Store Query API implementation intentionally performs cross-partition queries exclusively.\r\n\r\n## Release Note\r\n\r\nRELEASE NOTE: **ADD** Support for partition queries in CosmosDB StateStore\r\n",
+  "labels": [
+    "kind/enhancement",
+    "triaged/resolved"
+  ],
+  "user": "DSpirit",
+  "created_at": "2023-11-20T16:59:53Z",
+  "updated_at": "2025-08-11T21:55:54Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "We use cross-partition queries in our Query API implementation. This is expected behavior. Also note that Query API is Alpha and will not be made stable.\r\n\r\nWhy are we using cross-partition queries? Because the default value assigned to `/partitionKey` is the state store key. That means every single entity would have a different partition key value which makes querying impossible.\r\n\r\nDapr's Query API is not a replacement for a CosmosDB SDK to query entities. I also strongly discourage use of the Dapr Query API.",
+      "created_at": "2023-11-21T19:22:53Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "One possibility we could consider: If the partition key is provided as metadata on the query request, we could perform a regular partitioned query. This however would be a feature request.\r\n\r\nIf so, can you please update your issue title and description @DSpirit to turn this into a feature request?",
+      "created_at": "2023-11-21T19:28:22Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "I think @luigirende would be interested in implementing this.",
+      "created_at": "2023-11-21T19:32:26Z"
+    },
+    {
+      "user": "DSpirit",
+      "body": "@berndverst thank you for the update! As we currently use the CosmosDB SDK anyway, it would just be a nice-to-have - so feel free to add it if you have the time :)",
+      "created_at": "2023-11-22T08:59:56Z"
+    },
+    {
+      "user": "luigirende",
+      "body": "@DSpirit created a PR [3227](https://github.com/dapr/components-contrib/pull/3227) for this change",
+      "created_at": "2023-11-24T08:40:36Z"
+    },
+    {
+      "user": "DSpirit",
+      "body": "@luigirende wow that was quick! Many thanks :) Looking forward to it!",
+      "created_at": "2023-11-26T15:02:27Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    3218
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3244",
+  "is_seed": false,
+  "partial": false
+}

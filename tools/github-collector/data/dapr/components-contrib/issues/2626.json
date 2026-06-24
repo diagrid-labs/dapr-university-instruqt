@@ -1,0 +1,26 @@
+{
+  "type": "issue",
+  "number": 2626,
+  "title": "Certification test for middleware.http.routechecker",
+  "state": "open",
+  "body": "Create a certification test for middlewares: middleware.http.routechecker",
+  "labels": [
+    "pinned",
+    "area/test/certification"
+  ],
+  "user": "ItalyPaleAle",
+  "created_at": "2023-03-02T23:30:51Z",
+  "updated_at": "2025-08-11T21:55:47Z",
+  "comments": [
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-04-01T23:34:06Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2626",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,29 @@
+{
+  "type": "issue",
+  "number": 3158,
+  "title": "Cross-platform temp directory for local storage binding",
+  "state": "open",
+  "body": "The local storage binding is very useful in development scenarios where a cloud storage solution would be cumbersome.\r\nIn these development scenarios, you may want to use the system temp directory. \r\n\r\nHowever, there is currently no way to do this is in a cross-platform way.\r\nThe local storage component currently has a single \"rootPath\" metadata.  \r\nTo use the temp directory on Unix-based systems, rootPath can be set to \"/tmp\".\r\nOn Windows, either the system-wide temp directory (C:\\Windows\\Temp) or the user-specific temp directory (C:\\Users\\<User>\\AppData\\Local\\Temp) can be used.\r\n\r\nThis may be a problem when sharing development environments between systems, especially in multi-app run scenarios.\r\n\r\nTo solve this, I'd like to suggest either adding a \"fromTemp\" boolean metadata that resolves rootPath from the system-wide tmp dir if true, and defaults to false (so as not to break any current deployments), or allowing the expansion of env variables in rootpath before creating the directory (but this may lead to unexpected behavior)\r\n\r\n",
+  "labels": [
+    "kind/enhancement",
+    "good first issue",
+    "P2"
+  ],
+  "user": "SoTrx",
+  "created_at": "2023-09-30T14:41:40Z",
+  "updated_at": "2026-03-13T11:20:18Z",
+  "comments": [
+    {
+      "user": "stywzn",
+      "body": "Hi team, I noticed this issue has been open for a while and I would love to pick it up as my first contribution to the Dapr community! \n\nI plan to implement the `fromTemp` boolean metadata approach as suggested by the author. If `fromTemp` is true, the component will resolve the path using `os.TempDir()` to ensure cross-platform compatibility. \n\nCould you please assign this to me? I can start working on a PR right away.",
+      "created_at": "2026-03-13T11:20:18Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    4280
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3158",
+  "is_seed": false,
+  "partial": false
+}

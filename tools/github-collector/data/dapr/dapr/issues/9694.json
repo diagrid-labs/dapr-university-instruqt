@@ -1,0 +1,19 @@
+{
+  "type": "issue",
+  "number": 9694,
+  "title": "e2e \"Setup local registry\" build step flakey",
+  "state": "open",
+  "body": "On PRs to main e2e tests are flakey on \"Setup local registry\"\n```\nRun # Run a registry.\nUnable to find image 'registry:2' locally\ndocker: Error response from daemon: Head \"https://registry-1.docker.io/v2/library/registry/manifests/2\": received unexpected HTTP status: 500 Internal Server Error\n\nRun 'docker run --help' for more information\nError: Process completed with exit code 125.\n```\n\nhttps://github.com/dapr/dapr/actions/runs/23558437544/job/68591525649?pr=9685\n\nseen in pr https://github.com/dapr/dapr/pull/9685",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "sicoyle",
+  "created_at": "2026-03-25T19:57:40Z",
+  "updated_at": "2026-03-25T19:58:09Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9694",
+  "is_seed": false,
+  "partial": false
+}

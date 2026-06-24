@@ -1,0 +1,30 @@
+{
+  "type": "issue",
+  "number": 7834,
+  "title": "Control plane services to listen on localhost by default",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## In what area(s)?\r\n\r\n<!-- Remove the '> ' to select -->\r\n\r\n> /area runtime\r\n\r\n/area operator\r\n/area placement\r\n/area injector\r\n/area sentry\r\n/area scheduler\r\n\r\n> /area docs\r\n\r\n> /area test-and-release\r\n\r\n## What version of Dapr?\r\n\r\n<= 1.14.x\r\n\r\n## Expected Behavior\r\n\r\nRunning any control plane service should only listen to localhost loopback by default.\r\n\r\n### Requirements\r\n\r\n1. `dapr init -k` continues to work with runtime version +/- 1\r\n2. `dapr init` continues to work with runtime version +/- 1\r\n\r\nThis means that the following requirements derive from 1 and 2:\r\n- No code change in Dapr CLI\r\n- Users can upgrade or downgrade (1 version step) Dapr control plane on Kubernetes as usual without any extra steps\r\n- Users can replace their control plane container image version tag without having to add new params\r\n\r\nBy definition, this change will break users that are running Dapr control plane without a Docker image and they will need to add an extra configuration (env var, cmd arg, or anything else).\r\n\r\n## Actual Behavior\r\n\r\nRunning any control plane service listens on all network interfaces by default.\r\n\r\n## Steps to Reproduce the Problem\r\n\r\nRun any control plane service from command line directly (without using a container image) and see that is listens to all network interfaces.\r\n\r\n## Release Note\r\n\r\n<!-- How should the fix for this issue be communicated in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE: **FIX** control plane services to listen to localhost by default\r\n",
+  "labels": [
+    "kind/bug",
+    "P1",
+    "kind/security",
+    "pinned"
+  ],
+  "user": "artursouza",
+  "created_at": "2024-06-21T21:11:38Z",
+  "updated_at": "2026-02-12T15:09:57Z",
+  "comments": [
+    {
+      "user": "artursouza",
+      "body": "I propose the change is to simply add a new env var (like DAPR_CONTROL_PLANE_LISTEN_ADDR) that will override the default listening address on all Dapr control plane services, easily adding that in the shared Dockerfile. It would not break backwards or forward compatibility of the generated images. Finally, it would require users of standalone mode (without containers) to simply add an env variable to their configuration instead of changing cmd of each service.",
+      "created_at": "2024-06-21T21:26:00Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    7768
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/7834",
+  "is_seed": false,
+  "partial": false
+}

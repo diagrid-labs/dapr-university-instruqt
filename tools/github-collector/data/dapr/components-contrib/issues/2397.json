@@ -1,0 +1,98 @@
+{
+  "type": "issue",
+  "number": 2397,
+  "title": "Kafka's clientID to default to appID",
+  "state": "open",
+  "body": "Today, Kafka's pubsub and binding default clientID to `sarama` - which is useless. Since clientID is used by Kafka to apply quotas and set in tracing, defaulting to Dapr's appID make more sense.\r\n\r\nhttps://docs.dapr.io/reference/components-reference/supported-pubsub/setup-apache-kafka/#spec-metadata-fields\r\n\r\nRelated to: https://github.com/dapr/dapr/issues/5690",
+  "labels": [
+    "good first issue",
+    "area/runtime/binding",
+    "area/runtime/pubsub",
+    "P1",
+    "pinned"
+  ],
+  "user": "artursouza",
+  "created_at": "2022-12-31T01:42:18Z",
+  "updated_at": "2025-08-11T21:55:43Z",
+  "comments": [
+    {
+      "user": "VerstraeteBert",
+      "body": "@artursouza would it make sense to default it to `{namespace}`? This translates to `$\"{namespace}.{appID}\"`. \r\nIs appID enforced to be unique over namespaces? If not, `{namespace}` seems to be the most precise, human-readable identifier. Aside, _namespace_ is quite an unlucky name for the template string, as it's more than that, too late to change something as trivial as this?",
+      "created_at": "2023-01-12T21:12:42Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "appID is not enforced to be unique across namespaces. however, when running in self-hosted mode (outside of K8s), Dapr by default does not have a namespace configured.",
+      "created_at": "2023-01-12T21:21:03Z"
+    },
+    {
+      "user": "VerstraeteBert",
+      "body": "Thanks for the explanation. Makes sense to me to have {appId} as the clientId in self-hosted mode and {namespace} in k8s \ud83d\udc4d . I'll get on it during the weekend.",
+      "created_at": "2023-01-12T21:57:41Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "> Thanks for the explanation. Makes sense to me to have {appId} as the clientId in self-hosted mode and {namespace} in k8s \ud83d\udc4d . I'll get on it during the weekend.\r\n\r\n@artursouza does this seem reasonable to you? looks fine to me.",
+      "created_at": "2023-01-12T22:00:04Z"
+    },
+    {
+      "user": "artursouza",
+      "body": "LGTM",
+      "created_at": "2023-01-12T22:31:49Z"
+    },
+    {
+      "user": "artursouza",
+      "body": "> @artursouza would it make sense to default it to `{namespace}`? This translates to `$\"{namespace}.{appID}\"`. Is appID enforced to be unique over namespaces? If not, `{namespace}` seems to be the most precise, human-readable identifier. Aside, _namespace_ is quite an unlucky name for the template string, as it's more than that, too late to change something as trivial as this?\r\n\r\nI am not a fan of `{namespace}` implementation either. I think we should have a deprecation notice to that and change the implementation to be just the actual namespace - although it is not portable when running outside K8s.",
+      "created_at": "2023-01-12T22:33:56Z"
+    },
+    {
+      "user": "artursouza",
+      "body": "After this change is in. I propose we simply make a breaking change where `{namespace}` means the actual namespace only and existing users should use `{appId}` concatenated going forward to keep existing behavior.",
+      "created_at": "2023-01-12T22:39:59Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "App ID and namespace aren't available in contrib right now.\n\nCan this be added to the context object we use everywhere?\n\nOr alternatively runtime can inject this as specially prefixed metadata (properties) keys which then can be access in every component!\n\nNot sure how I feel about a component making an extra API call to retrieve the app ID and namespace - I'm personally against this because it also introduces new failure scenarios.\n\n",
+      "created_at": "2023-01-12T22:46:42Z"
+    },
+    {
+      "user": "artursouza",
+      "body": "Some of the discussion here is about https://github.com/dapr/dapr/issues/5690 - for contrib, as long as more context is passed to components (like consumerID), then each component can use those for \"better\" default value in some properties.",
+      "created_at": "2023-01-12T23:01:26Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "Yes to set the better defaults in the component the app ID and namespace need to be accessible. That can only be done by injecting them into the metadata properties map within runtime. Each component's Init message has access to these.",
+      "created_at": "2023-01-12T23:09:37Z"
+    },
+    {
+      "user": "VerstraeteBert",
+      "body": "@berndverst @artursouza thanks for the discussion and pointers. Will delve deeper into the code soon.\r\n",
+      "created_at": "2023-01-18T20:25:42Z"
+    },
+    {
+      "user": "artursouza",
+      "body": "I will look into this to validate the latest state of Kafka.",
+      "created_at": "2023-06-30T17:29:32Z"
+    },
+    {
+      "user": "cicoyle",
+      "body": "Validated, but waiting on docs PR ^ to be merged before closing this issue",
+      "created_at": "2023-09-08T19:57:48Z"
+    },
+    {
+      "user": "cicoyle",
+      "body": "/assign",
+      "created_at": "2023-09-11T18:44:43Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    3713
+  ],
+  "referenced_issue_numbers": [
+    3062
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2397",
+  "is_seed": false,
+  "partial": false
+}

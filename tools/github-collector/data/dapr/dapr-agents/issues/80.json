@@ -1,0 +1,64 @@
+{
+  "type": "issue",
+  "number": 80,
+  "title": "Enable Streaming LLM Output",
+  "state": "open",
+  "body": "**Problem Statement:**\nCurrently, Dapr Agents waits for the full LLM response before returning results. This creates latency and degrades user experience, especially for long-form completions. LLMs inherently generate output token-by-token, and many use cases benefit from streaming responses as they\u2019re produced.\n\n**Objective:**\nImplement streaming support for LLM output in Dapr Agents to improve perceived latency and responsiveness. Ensure consistent behavior across:\nAgent types and specifically DaprChatClient (and its internal dependency Dapr Conversation API)\n\n**Acceptance Criteria:**\n- Token-by-token streaming supported for all agent types.\n- DaprChatClient exposes streaming API or callback mechanism.\n- Dapr Conversation API supports HTTP and gRPC streaming (as applicable).\n- Examples and docs updated to demonstrate streaming usage.\n\n",
+  "labels": [
+    "documentation",
+    "enhancement",
+    "P1",
+    "dapr-core-dependency",
+    "stale"
+  ],
+  "user": "bibryam",
+  "created_at": "2025-04-11T09:18:01Z",
+  "updated_at": "2026-06-23T08:54:35Z",
+  "comments": [
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-12-15T15:56:31Z"
+    },
+    {
+      "user": "CasperGN",
+      "body": "Go away stale-bot",
+      "created_at": "2025-12-18T09:50:51Z"
+    },
+    {
+      "user": "1Ninad",
+      "body": "Hi @bibryam, I would like to work on this issue. Thanks",
+      "created_at": "2026-03-13T19:27:15Z"
+    },
+    {
+      "user": "lindner",
+      "body": "I suspect that this depends on https://github.com/dapr/dapr/issues/8813. Is that going to be implemented any time soon?\n",
+      "created_at": "2026-04-14T18:06:56Z"
+    },
+    {
+      "user": "yaron2",
+      "body": "> I suspect that this depends on [dapr/dapr#8813](https://github.com/dapr/dapr/issues/8813). Is that going to be implemented any time soon?\n\nWe have the native chat clients as well, so we can theoretically implement streaming support for those before Conversation API has streaming support",
+      "created_at": "2026-04-14T18:13:07Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "> I suspect that this depends on https://github.com/dapr/dapr/issues/8813. Is that going to be implemented any time soon?\n\n@yaron2 beat me to it \ud83d\ude01  but yes, this is upcoming work we're interested in tackling! Would you be able to share more about your use case and how this would be helpful for you? That context would go a long way in making sure we prioritize and shape the work correctly\n\n",
+      "created_at": "2026-04-14T18:15:49Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-06-23T08:54:34Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    643
+  ],
+  "referenced_issue_numbers": [
+    199,
+    568
+  ],
+  "html_url": "https://github.com/dapr/dapr-agents/issues/80",
+  "is_seed": false,
+  "partial": false
+}

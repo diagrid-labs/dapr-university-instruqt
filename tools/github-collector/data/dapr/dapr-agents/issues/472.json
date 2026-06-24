@@ -1,0 +1,55 @@
+{
+  "type": "issue",
+  "number": 472,
+  "title": "feat: add quickstart showcasing workflow retry config",
+  "state": "open",
+  "body": "See the retryConfig here https://github.com/dapr/dapr-agents/blob/main/tests/agents/durableagent/test_durable_agent.py#L1093-L1098\n\nWe need to add a quickstart showcasing the retryConfig.\n\nAcceptance Criteria:\n- quickstarts/durable_agent_retry.py created showcasing the retry config capabilities we support and is documented nicely within the readme for the quickstarts\n- the integration tests for the quickstarts gets updated to run this as well",
+  "labels": [
+    "documentation",
+    "enhancement",
+    "good first issue"
+  ],
+  "user": "sicoyle",
+  "created_at": "2026-03-06T17:03:12Z",
+  "updated_at": "2026-04-20T16:36:30Z",
+  "comments": [
+    {
+      "user": "ArokyaMatthew",
+      "body": "Hey @sicoyle , i would like to work on this issue, can you assign this to me?\n\n",
+      "created_at": "2026-03-06T17:04:35Z"
+    },
+    {
+      "user": "Synaptara",
+      "body": "Hi @sicoyle, I would love to take this on! Could you assign it to me? I'll review the retryConfig in the tests and get started on the quickstart script.",
+      "created_at": "2026-03-06T17:05:00Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "Hi! I'm creating a few more good first issues \u2014 give me a few minutes pls \ud83d\ude04 I'll assign on a first-come, first-served basis to keep things fair. Assigning @ArokyaMatthew since I got your comment first. @Synaptara, a few more good first issues will be up shortly for you to pick from \u2764\ufe0f",
+      "created_at": "2026-03-06T17:07:31Z"
+    },
+    {
+      "user": "Synaptara",
+      "body": "No worries, @sicoyle! Thanks for the heads up, I'll keep my eyes peeled for the new ones. \ud83d\udc40",
+      "created_at": "2026-03-06T17:10:31Z"
+    },
+    {
+      "user": "ArokyaMatthew",
+      "body": "@sicoyle , Kindly review .",
+      "created_at": "2026-03-06T17:33:42Z"
+    },
+    {
+      "user": "ArokyaMatthew",
+      "body": "> Hi! I'm creating a few more good first issues \u2014 give me a few minutes pls \ud83d\ude04 I'll assign on a first-come, first-served basis to keep things fair. Assigning [@ArokyaMatthew](https://github.com/ArokyaMatthew) since I got your comment first. [@Synaptara](https://github.com/Synaptara), a few more good first issues will be up shortly for you to pick from \u2764\ufe0f\n\nThank you for assigning this task.\n\n",
+      "created_at": "2026-03-06T17:34:30Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    476,
+    512
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr-agents/issues/472",
+  "is_seed": false,
+  "partial": false
+}

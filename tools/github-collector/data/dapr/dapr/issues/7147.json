@@ -1,0 +1,55 @@
+{
+  "type": "issue",
+  "number": 7147,
+  "title": "Support for \"x-api-key\" header for App callback over HTTP",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## In what area(s)?\r\n\r\n<!-- Remove the '> ' to select -->\r\n\r\n/area runtime\r\n\r\n> /area operator\r\n\r\n> /area placement\r\n\r\n> /area docs\r\n\r\n> /area test-and-release\r\n\r\n## Describe the feature\r\nSome HTTP API services, use `x-api-key` for API Token. Currently, Dapr always sends the app token as `dapr-api-token`. This feature request is to allow the sidecar to be configured to send the HTTP request to the app using `x-api-key` as well. It can be a setting in the Configuration CRD: `app-token-header`, so applications can use the one that makes more sense. This would also enable scenarios where developer does not have control over how the HTTP server authenticates tokens (see example below). In addition, allow a cmd arg as well, so override it per sidecar.\r\n\r\nThis idea came after trying to use Dapr using Postman's mock server feature and realized it uses `x-api-key` to authenticate API calls.\r\n\r\nUPDATE: a better way to solve this with little code is to add support via an env variable and K8s annotation instead - same as it was done for APP_API_TOKEN: https://docs.dapr.io/operations/security/app-api-token/. Maybe call this new one APP_API_TOKEN_HEADER.\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE: **ADDED** support to `x-api-key` header to authenticate app calls from sidecar\r\n",
+  "labels": [
+    "good first issue",
+    "P1",
+    "area/enhancement",
+    "kind/enhancement",
+    "docs-needed"
+  ],
+  "user": "artursouza",
+  "created_at": "2023-11-05T19:37:04Z",
+  "updated_at": "2025-08-27T02:04:21Z",
+  "comments": [
+    {
+      "user": "sp6370",
+      "body": "@artursouza I would like to pick this up.\r\n",
+      "created_at": "2023-11-06T20:10:52Z"
+    },
+    {
+      "user": "artursouza",
+      "body": "@sp6370 Great! I am assigning this to you.\r\n\r\nA better way to solve this with little code, is to add support via an env variable and K8s annotation instead - same as it was done for APP_API_TOKEN: https://docs.dapr.io/operations/security/app-api-token/. Maybe call this new one APP_API_TOKEN_HEADER.\r\n\r\nDon't forget to also create a new functional test and update the docs as part of the PR.",
+      "created_at": "2023-11-10T01:13:39Z"
+    },
+    {
+      "user": "sp6370",
+      "body": "Hey @artursouza!\r\nLooks like I will need some more time to dive deeper into Dapr Codebase. Feel free to unassign me from the issue, if someone else would like to pick it up. I would ping here again if it's available later.",
+      "created_at": "2023-11-13T17:22:02Z"
+    },
+    {
+      "user": "sadath-12",
+      "body": "/assign",
+      "created_at": "2023-11-14T12:33:33Z"
+    },
+    {
+      "user": "cicoyle",
+      "body": "@sadath-12 this would be great to get in next release if you have the time :)",
+      "created_at": "2024-07-25T22:41:49Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    7190,
+    8508
+  ],
+  "referenced_issue_numbers": [
+    2749,
+    3932
+  ],
+  "html_url": "https://github.com/dapr/dapr/issues/7147",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,43 @@
+{
+  "type": "issue",
+  "number": 394,
+  "title": "Enable Agent Handoff",
+  "state": "open",
+  "body": "TODO\n\nRelated to and is an extension of Agents as Tools: https://github.com/dapr/dapr-agents/issues/135",
+  "labels": [
+    "documentation",
+    "enhancement",
+    "P3",
+    "stale"
+  ],
+  "user": "sicoyle",
+  "created_at": "2026-01-19T14:57:56Z",
+  "updated_at": "2026-06-20T14:09:01Z",
+  "comments": [
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-03-20T15:08:22Z"
+    },
+    {
+      "user": "1Ninad",
+      "body": "Hi @sicoyle, it seems this issue hasn\u2019t had any updates recently. If no one is currently working on it, I\u2019d be happy to take it up.",
+      "created_at": "2026-04-03T06:32:15Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "Hi! We need to scope this out further before folks start on it. Thank you for your patience!",
+      "created_at": "2026-04-21T14:07:51Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-06-20T14:09:01Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr-agents/issues/394",
+  "is_seed": false,
+  "partial": false
+}

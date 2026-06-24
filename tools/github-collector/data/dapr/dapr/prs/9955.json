@@ -1,0 +1,37 @@
+{
+  "type": "pr",
+  "number": 9955,
+  "title": "fix: track response status when flushing",
+  "state": "open",
+  "body": "# Description\n\nFixes a tiny responsewriter gotcha: `Flush()` commits `200 OK` on the real writer, but the wrapper still said status `0` / not written. Streaming handlers can hit this, so metrics/logging may read the wrong thing after the handler returns.\n\nRepro, no magic:\n1. Run `go test ./pkg/responsewriter -run TestResponseWriterFlushWritesStatusOK -count=1` on the old code.\n2. It fails with `expected: 200, actual: 0`.\n3. With this patch, `Flush()` records `200 OK` first, then flushes.\n\nNo linked issue found in `gh` search (`responsewriter Flush status`, `status 0 http metrics`, `SSE metrics status`).\n\n## Issue reference\n\nN/A\n\n## Checklist\n\n- [x] Code compiles correctly\n- [x] Created/updated tests\n- [x] Unit tests passing\n- [ ] End-to-end tests passing\n- [ ] Extended the documentation / Created issue in the <https://github.com/dapr/docs/> repo: N/A\n- [ ] Specification has been updated / Created issue in the <https://github.com/dapr/docs/> repo: N/A\n- [ ] Provided sample for the feature / Created issue in the <https://github.com/dapr/docs/> repo: N/A",
+  "labels": [],
+  "user": "immanuwell",
+  "created_at": "2026-05-14T17:06:06Z",
+  "updated_at": "2026-05-14T17:06:07Z",
+  "additions": 15,
+  "deletions": 0,
+  "changed_files": 2,
+  "linked_issue_numbers": [],
+  "comments": [],
+  "html_url": "https://github.com/dapr/dapr/pull/9955",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pkg/responsewriter/response_writer.go",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "patch": "@@ -147,6 +147,9 @@ func (rw *responseWriter) callBefore() {\n \n func (rw *responseWriter) Flush() {\n \tif f, ok := rw.ResponseWriter.(http.Flusher); ok {\n+\t\tif !rw.Written() {\n+\t\t\trw.WriteHeader(http.StatusOK)\n+\t\t}\n \t\tf.Flush()\n \t}\n }",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/responsewriter/response_writer_test.go",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "patch": "@@ -155,6 +155,18 @@ func TestResponseWriterUnwrap(t *testing.T) {\n \t}\n }\n \n+func TestResponseWriterFlushWritesStatusOK(t *testing.T) {\n+\trec := httptest.NewRecorder()\n+\trw := NewResponseWriter(rec)\n+\n+\trw.(http.Flusher).Flush()\n+\n+\trequire.Equal(t, http.StatusOK, rw.Status())\n+\trequire.True(t, rw.Written())\n+\trequire.Equal(t, http.StatusOK, rec.Code)\n+\trequire.True(t, rec.Flushed)\n+}\n+\n // mockReader only implements io.Reader without other methods like WriterTo\n type mockReader struct {\n \treadStr string",
+      "patch_truncated": false
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "type": "issue",
+  "number": 2635,
+  "title": "Oauth2 Middleware scalability limit and resilience issues with code grant flow and token storage",
+  "state": "open",
+  "body": "## Expected Behavior\r\nOauth2 Middleware should scale to multiple instances without the use of request affinity. It should also be resilient to restarts. \r\n\r\n## Actual Behavior\r\nOauth2 Middleware uses in-memory session state to store information during auth code grant flow and to store the client token at the end of authorization. This requires requests to always return to the same instance of the dapr sidecar and offers no resilience in the case of a restart of the daprd instance.\r\n\r\n## Steps to Reproduce the Problem\r\n\r\nFor scale:\r\n1. Configure daprd with a scaled deployment, no affinity on ingress\r\n2. After authorization, make multiple requests\r\n3. Some requests will require new authentication\r\n\r\nFor resilience:\r\n1. Use Oauth2 component to authenticate\r\n2. Restart daprd\r\n3. Next request will require authorization\r\n\r\n## Proposals\r\nUse cookies instead of session state to store data during auth code grant flow and the client token.\r\nEnable session state to be stored in a cache (Redis, etc).\r\n\r\n## Release Note\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n\r\nRELEASE NOTE: FIX Oauth2 Middleware resilient storage of client token\r\n",
+  "labels": [
+    "kind/bug",
+    "P1",
+    "pinned"
+  ],
+  "user": "drewby",
+  "created_at": "2023-03-06T02:58:37Z",
+  "updated_at": "2025-08-11T21:55:47Z",
+  "comments": [
+    {
+      "user": "ItalyPaleAle",
+      "body": "This should be a blocker to make the components stable (#2621 and #2622)\r\n\r\nHowever, I don't think we should persist the tokens anywhere, as that requires a data store and to query the data store on every request.\r\n\r\nInstead, we should issue our own JWT, which is a bearer token so can be verified by Dapr without querying a database. The JWT will contain the token issued by the OAuth2 server and will be encrypted (JWE) in case the token issued by the server contains confidential information.",
+      "created_at": "2023-03-06T19:50:36Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "@drewby I have a POC for the OAuth2 middleware that stores tokens in cookies self-contained. Although it works, I'm running into limitations due to the fact that Azure AD tokens can be very large. Would love your feedback too on #2963",
+      "created_at": "2023-07-03T00:33:57Z"
+    },
+    {
+      "user": "drewby",
+      "body": "> @drewby I have a POC for the OAuth2 middleware that stores tokens in cookies self-contained. Although it works, I'm running into limitations due to the fact that Azure AD tokens can be very large. Would love your feedback too on #2963\r\n\r\nI started to comment here and then saw your link. I will comment on the PR.",
+      "created_at": "2023-07-06T02:12:00Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "Final one is #2967 \r\n\r\nas for splitting, we can\u2019t do that because the 4KB limit is per-domain.\r\n\r\nregarding safety, the tokens are stored in cookies as encrypted JWTs",
+      "created_at": "2023-07-06T02:20:16Z"
+    },
+    {
+      "user": "drewby",
+      "body": "Got it. I saw my question/comment were all addressed in the PR. ",
+      "created_at": "2023-07-06T02:22:46Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    2963,
+    2964,
+    2967
+  ],
+  "referenced_issue_numbers": [
+    2621,
+    2622,
+    2634
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2635",
+  "is_seed": false,
+  "partial": false
+}

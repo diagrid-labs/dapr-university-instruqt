@@ -1,0 +1,96 @@
+{
+  "type": "issue",
+  "number": 2686,
+  "title": "Consul name resolution support for Dapr namespaces",
+  "state": "open",
+  "body": "## Describe the feature \r\n\r\n**Background:** \r\nConsul name resolver for service invocation should support Dapr namespaces. Currently it does not use `req.Namespace` parameter at all. This would be very useful for devs who use Consul in their K8s or self-hosted mode. Or for instance in case of using Hashicorp Nomad where Dapr and Nomad namespaces could be linked. \r\n_Important: Implementation should be independent to Consul namespaces (which are available in Consul Enterprise only)._ \r\n\r\n**Implementation proposition:** \r\nEach service, in addition to `DAPR_PORT` metadata, could optionally register `DAPR_NAMESPACE` metadata in Consul. There would be 3 cases: \r\n1. If namespace name is specified in invoke request URL then this metadata key would be required in the resolved service. \r\n2. If namespace is not specified in invocation but current service has namespace specified (by `NAMESPACE` env variable), then same namespace name is expected in the metadata. \r\n3. If namespace is specified neither in the invoke query URL, nor for current sidecar then the metadata is ignored (current behavior). \r\n\r\n**Alternative 1:** \r\nOptionally we can take the approach that namespace meta will be included already in the QueryOptions.filter query so that less results will be returned from Consul API. \r\n\r\n**Alternative 2:** \r\nOr taking even more liberal approach where requested namespace name will be available as a parameter which can be used in filter query to Consul or even anywhere in QueryOptions which will give developers freedom how they want to register their namespaces in Consul. \r\n\r\n## Release Notes\r\n\r\nRELEASE NOTE: **UPDATE** Namespaces support in Consul name resolver.\r\n",
+  "labels": [
+    "kind/enhancement",
+    "pinned"
+  ],
+  "user": "krzykor",
+  "created_at": "2023-03-20T11:58:15Z",
+  "updated_at": "2023-07-02T15:34:03Z",
+  "comments": [
+    {
+      "user": "krzykor",
+      "body": "I am happy to pick this up (although I am .NET guy I will go to learn Go ;)). I just would like to get your feedback on design so I can start the implementation. \r\n\r\nThis is quite important feature for my project as we are building IDP based on Hashicorp stack (Nomad, Consul, Vault, Waypoint potentially) and Dapr. All works, including namespaces scoping and internal communication (using proper QueryOptions.filter in dapr.config), but cross-namespace communication is done through reverse proxy. Having this feature we could switch to standard s2s communication across namespaces.",
+      "created_at": "2023-03-21T08:28:01Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "I am not super familiar with Consul, but from what I understand, this is something we can accept if you\u2019re willing to contribute it :) My only request would be to make sure that the default behavior is unchanged with how the component behaves today so existing users are not impacted.\r\nAs for how to configure this, using the component\u2019s metadata would be the most advisable thing unless that can\u2019t work for some reason.",
+      "created_at": "2023-03-21T15:07:54Z"
+    },
+    {
+      "user": "krzykor",
+      "body": "> I am not super familiar with Consul, but from what I understand, this is something we can accept if you\u2019re willing to contribute it :) \n\nSure thing ;)\n\n> My only request would be to make sure that the default behavior is unchanged with how the component behaves today so existing users are not impacted.\n\nI agree but I am not sure if this will be possible... Until _namespace_ will be not provided neither in the service invocation request, nor in the NAMESPACE env var of Dapr sidecar it will be fine. But what to do when they will? Probably I should query Consul appropriately to limit number of returned service checks. In this case if meta will not be set then result will be empty.\n\n> As for how to configure this, using the component\u2019s metadata would be the most advisable thing unless that can\u2019t work for some reason.\n\nAlright, so as I understand you would go with main proposal but including alternative 1 (they can be linked)? This will limit number of entries to only those in requested namespace but backward compatibility will be difficult to maintain (see above).",
+      "created_at": "2023-03-21T20:11:10Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "What does the namespace registration look like in Consul? If you're not using Consul namespaces (the enterprise thing), how will you implement that?\r\n\r\nAmong all of our concerns, backwards-compatibility is by far the most important.",
+      "created_at": "2023-03-21T20:33:57Z"
+    },
+    {
+      "user": "krzykor",
+      "body": "> What does the namespace registration look like in Consul? If you're not using Consul namespaces (the enterprise thing), how will you implement that?\n\nAs additional service metadata (DAPR_NAMESPACE) like currently DAPR_PORT is used to register internal gRPC port. We can do the same as it is for DAPR_PORT that the key is also configurable.\n\nNomad namespaces and Consul namespacea have a bit different purpose hence you can use Nomad namespaces without Consul Enterprise, as Nomad gives a lot of flexibility to the way how services are registered in Consul. Hence we can just provide it as metadata of the service.\n\n> Among all of our concerns, backwards-compatibility is by far the most important.\n\nI understand. Maybe I will figure out sth. Current behavior is also not perfect. Doesn't matter what namespace you provide in s2s invocation request as part of Dapr URL, it is always ignored and it just calls any service with name equals app-id. Not sure how to preserve this behavior. IMO namespace should not be provided in the request if you don't have them configured. If you do that then you should expect some validation. Same in case of setting NAMESPACE env variable running dapr sidecar process - we should filter only those service instances which are assigned to the same namespace. Thoughts?",
+      "created_at": "2023-03-21T23:22:08Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "What about putting the namespace as part of the URL? Right now we register `appname`, but we could, optionally, register `appname.namespace`. This would allow preserving backwards compatibility?",
+      "created_at": "2023-03-21T23:47:52Z"
+    },
+    {
+      "user": "krzykor",
+      "body": "This is exactly what I meant (but probably was clear enough :))\n\nBackward compatibility will be kept when namespace will be not provided in the /invoke request. If it will (cross namespace request) then it will be required. \n\nThere is the last case if NAMESPACE env variable is provided to the sidecar (Dapr is configured to work in specific namespace), then imo we also should look for services which are in the same namespace (again no namespace provided in \\invoke URL) so they all should be registered with proper namespace metadata. Do you agree?\n\nSo in case of no namespace in /invoke and env variable we are clear - current behaviour will kept.\n\nEDIT: Now I am not sure if I understood you correctly. Did you mean that we should register service in Consul with name = \"appname.namespace\" (not using metadata)? That's the option which I was also considering but for some reason,which cannot remember now ;), I dropped it. Maybe because it will make Consul UI full of different variations of the service - and this list is flat without Consul namespaces. But in general those cases above are still valid doesn't matter if this will be metadata or service name containing namespace. But I will look at the service name approach today.",
+      "created_at": "2023-03-22T06:01:08Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "I would prefer if the namespace weren't read from the env var NAMESPACE. Instead, can you make that a metadata option in the Consul nameresolver component?",
+      "created_at": "2023-03-22T23:49:28Z"
+    },
+    {
+      "user": "krzykor",
+      "body": "> I would prefer if the namespace weren't read from the env var NAMESPACE. Instead, can you make that a metadata option in the Consul nameresolver component?\n\nI just meant what is already in place: https://docs.dapr.io/operations/components/component-scopes/\nDapr sidecar may be started in some namespace context, and then I think we should also expect proper registrations in Consul (with discussed DAPR_NAMESPACE metadata key).",
+      "created_at": "2023-03-23T09:29:02Z"
+    },
+    {
+      "user": "ItalyPaleAle",
+      "body": "The `NAMESPACE` variable is related to K8s namespace and it has some other implications. I would prefer this to use a metadata property in the component's configuration.",
+      "created_at": "2023-03-28T15:12:43Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-04-27T15:16:59Z"
+    },
+    {
+      "user": "krzykor",
+      "body": "> The `NAMESPACE` variable is related to K8s namespace and it has some other implications. I would prefer this to use a metadata property in the component's configuration.\n\nI understand your point of view but it also has implications on self-hosted mode and is required for other capabilities like:\n- **components scoping** - https://docs.dapr.io/operations/components/component-scopes/#namespaces\n- **pubsub namespaced consumer groups** - https://docs.dapr.io/developing-applications/building-blocks/pubsub/howto-namespace/\n\nI just thought we wouldn't like to duplicate the effort to configure namespace and put it here and there.",
+      "created_at": "2023-05-01T06:29:53Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-05-31T06:38:27Z"
+    },
+    {
+      "user": "krzykor",
+      "body": "If everyone is fine with above initial design, I can implement this proposition for further review.",
+      "created_at": "2023-05-31T09:17:09Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2023-06-30T09:17:12Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2686",
+  "is_seed": false,
+  "partial": false
+}

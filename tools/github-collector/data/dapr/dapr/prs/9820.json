@@ -1,0 +1,91 @@
+{
+  "type": "pr",
+  "number": 9820,
+  "title": "feat: error standardization for Metadata API (issue #7489)",
+  "state": "open",
+  "body": "## Summary\r\n\r\nImplements error standardization for the Dapr Metadata API, following the pattern established by Bindings, State, PubSub, and other APIs.\r\n\r\nFixes #7489\r\n\r\n---\r\n\r\n## Changes\r\n\r\n### `pkg/messages/errorcodes/errorcodes.go`\r\n\r\n- Added `CategoryMetadata Category = \"metadata\"` to the category constants\r\n- Added `MetadataBodyRead` error code (`ERR_BODY_READ` (HTTP, kept for backwards compatibility) / `DAPR_METADATA_BODY_READ` (gRPC)) under the new category\r\n\r\n### `pkg/api/errors/metadata.go` (new)\r\n\r\nNew `MetadataBodyRead(err error) error` function that constructs a `kiterrors` rich error with:\r\n- gRPC status code: `codes.InvalidArgument`\r\n- HTTP status: `400 Bad Request`\r\n- Error code: `ERR_BODY_READ` (HTTP backwards-compat; `DAPR_METADATA_BODY_READ` for gRPC `ErrorInfo`)\r\n- `ErrorInfo` with the underlying error message\r\n\r\nFollows the same pattern as `binding.go`, `state.go`, and `pubsub.go`.\r\n\r\n### `pkg/api/http/metadata.go`\r\n\r\nIn `onPutMetadata`, replaced:\r\n```go\r\nreturn nil, messages.ErrBodyRead.WithFormat(err)\r\n```\r\nwith:\r\n```go\r\nreturn nil, apierrors.MetadataBodyRead(err)\r\n```\r\n\r\nThis means clients now receive structured error details via gRPC status details and the standard Dapr error envelope instead of a plain formatted error.\r\n\r\n### `pkg/api/http/metadata_test.go` (new)\r\n\r\nAdded `TestOnPutMetadataBodyReadError` which verifies that a simulated body-read failure on `PUT /v1.0/metadata/{key}` returns HTTP 400 with `ERR_METADATA_BODY_READ` in the response body.\r\n\r\n---\r\n\r\n## Why\r\n\r\nThe Metadata API was the only remaining HTTP API that used the legacy `messages.ErrBodyRead.WithFormat(err)` for the PUT handler body-read path. Standardizing to `kiterrors` rich errors allows:\r\n- Clients to programmatically inspect error codes\r\n- Consistent error structure across all Dapr APIs\r\n- Proper gRPC status details propagation\r\n\r\n---\r\n\r\n## Testing\r\n\r\n```bash\r\ngo test ./pkg/api/http/... -run TestOnPutMetadataBodyReadError -v\r\ngo test ./pkg/api/errors/... -v\r\n```",
+  "labels": [],
+  "user": "mail2sudheerobbu-oss",
+  "created_at": "2026-04-22T18:53:49Z",
+  "updated_at": "2026-06-16T14:11:21Z",
+  "additions": 112,
+  "deletions": 2,
+  "changed_files": 4,
+  "linked_issue_numbers": [
+    7489
+  ],
+  "comments": [
+    {
+      "user": "Copilot",
+      "body": "This introduces a new HTTP `errorCode` (ERR_METADATA_BODY_READ) for the PUT metadata body-read failure path. Previously this handler returned `messages.ErrBodyRead` which serializes `errorCode` as `ERR_BODY_READ` (from `errorcodes.CommonBodyRead`), so this is a backwards-incompatible change in the public HTTP error contract. To preserve compatibility, keep the legacy `errorCode` as `ERR_BODY_READ` (and only enrich via category/ErrorInfo/details), or otherwise avoid changing the existing error code.\n```suggestion\n\tMetadataBodyRead = ErrorCode{\"ERR_BODY_READ\", \"DAPR_METADATA_BODY_READ\", CategoryMetadata} // Error reading metadata request body\n```",
+      "created_at": "2026-04-23T05:50:27Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "For consistency with other rich errors (eg `state.go`, `scheduler.go`), the builder domain should come from the `ErrorCode` instance (`string(errorcodes.MetadataBodyRead.Category)`) rather than the standalone constant `string(errorcodes.CategoryMetadata)`. This avoids accidental divergence if the error code\u2019s Category is changed later.\n```suggestion\n\t\tstring(errorcodes.MetadataBodyRead.Category),\n```",
+      "created_at": "2026-04-23T05:50:27Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "This assertion expects the new HTTP `errorCode` value `ERR_METADATA_BODY_READ`. If the API contract needs to remain backwards-compatible, the legacy response from this path used `ERR_BODY_READ` (from `messages.ErrBodyRead` / `errorcodes.CommonBodyRead`), so the test should validate the legacy `errorCode` (and optionally assert rich error details separately).",
+      "created_at": "2026-04-23T05:50:28Z"
+    },
+    {
+      "user": "acroca",
+      "body": "```suggestion\nCopyright 2026 The Dapr Authors\n```",
+      "created_at": "2026-04-23T06:04:53Z"
+    },
+    {
+      "user": "acroca",
+      "body": "```suggestion\nCopyright 2026 The Dapr Authors\n```",
+      "created_at": "2026-04-23T06:05:03Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "PR description and issue text mention a new legacy error code value like `ERR_METADATA_BODY_READ`, but the implementation here keeps the legacy `Code` as `ERR_BODY_READ` (same as `CommonBodyRead`) and only scopes via `CategoryMetadata`/`DAPR_METADATA_BODY_READ`. Please align the PR description (or, if the intention is to change the legacy HTTP `errorCode`, update code/tests accordingly\u2014but note this would be a breaking change for clients).",
+      "created_at": "2026-04-24T12:56:52Z"
+    },
+    {
+      "user": "mail2sudheerobbu-oss",
+      "body": "Good catch \u2014 the PR description was stale. The code is intentionally keeping `ERR_BODY_READ` as the HTTP `errorCode` for backwards compatibility (same value as `CommonBodyRead`), while introducing `DAPR_METADATA_BODY_READ` only as the new gRPC-scoped code. Changing the HTTP error code would be a breaking change for existing clients.\r\n\r\nI've updated the PR description to reflect this: the test section now reads `ERR_BODY_READ` (not `ERR_METADATA_BODY_READ`), and a note has been added explaining the intentional backwards-compat decision.",
+      "created_at": "2026-04-24T14:04:48Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/dapr/pull/9820",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pkg/api/errors/metadata.go",
+      "status": "added",
+      "additions": 44,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,44 @@\n+/*\n+Copyright 2026 The Dapr Authors\n+Licensed under the Apache License, Version 2.0 (the \"License\");\n+you may not use this file except in compliance with the License.\n+You may obtain a copy of the License at\n+    http://www.apache.org/licenses/LICENSE-2.0\n+Unless required by applicable law or agreed to in writing, software\n+distributed under the License is distributed on an \"AS IS\" BASIS,\n+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+See the License for the specific language governing permissions and\n+limitations under the License.\n+*/\n+\n+package errors\n+\n+import (\n+\t\"fmt\"\n+\t\"net/http\"\n+\n+\t\"google.golang.org/grpc/codes\"\n+\n+\t\"github.com/dapr/dapr/pkg/messages/errorcodes\"\n+\tkiterrors \"github.com/dapr/kit/errors\"\n+)\n+\n+// MetadataBodyRead returns a standardized rich error for when reading\n+// the PUT /v1.0/metadata/{key} request body fails.\n+func MetadataBodyRead(err error) error {\n+\tmsg := fmt.Sprintf(\"error reading metadata request body: %s\", err)\n+\treturn kiterrors.NewBuilder(\n+\t\tcodes.InvalidArgument,\n+\t\thttp.StatusBadRequest,\n+\t\tmsg,\n+\t\terrorcodes.MetadataBodyRead.Code,\n+\t\tstring(errorcodes.MetadataBodyRead.Category),\n+\t).\n+\t\tWithErrorInfo(\n+\t\t\terrorcodes.MetadataBodyRead.GrpcCode,\n+\t\t\tmap[string]string{\n+\t\t\t\t\"error\": err.Error(),\n+\t\t\t},\n+\t\t).\n+\t\tBuild()\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/api/http/metadata.go",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "patch": "@@ -20,8 +20,8 @@ import (\n \t\"github.com/go-chi/chi/v5\"\n \t\"google.golang.org/protobuf/types/known/emptypb\"\n \n+\tapierrors \"github.com/dapr/dapr/pkg/api/errors\"\n \t\"github.com/dapr/dapr/pkg/api/http/endpoints\"\n-\t\"github.com/dapr/dapr/pkg/messages\"\n \truntimev1pb \"github.com/dapr/dapr/pkg/proto/runtime/v1\"\n )\n \n@@ -155,7 +155,7 @@ func (a *api) onPutMetadata() http.HandlerFunc {\n \n \t\t\t\tbody, err := io.ReadAll(r.Body)\n \t\t\t\tif err != nil {\n-\t\t\t\t\treturn nil, messages.ErrBodyRead.WithFormat(err)\n+\t\t\t\t\treturn nil, apierrors.MetadataBodyRead(err)\n \t\t\t\t}\n \t\t\t\tin.Value = string(body)\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/api/http/metadata_test.go",
+      "status": "added",
+      "additions": 62,
+      "deletions": 0,
+      "patch": "@@ -0,0 +1,62 @@\n+/*\n+Copyright 2026 The Dapr Authors\n+Licensed under the Apache License, Version 2.0 (the \"License\");\n+you may not use this file except in compliance with the License.\n+You may obtain a copy of the License at\n+    http://www.apache.org/licenses/LICENSE-2.0\n+Unless required by applicable law or agreed to in writing, software\n+distributed under the License is distributed on an \"AS IS\" BASIS,\n+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+See the License for the specific language governing permissions and\n+limitations under the License.\n+*/\n+\n+package http\n+\n+import (\n+\t\"encoding/json\"\n+\t\"errors\"\n+\t\"io\"\n+\t\"net/http\"\n+\t\"net/http/httptest\"\n+\t\"testing\"\n+\n+\t\"github.com/go-chi/chi/v5\"\n+\t\"github.com/stretchr/testify/assert\"\n+\t\"github.com/stretchr/testify/require\"\n+\n+\t\"github.com/dapr/dapr/pkg/api/universal\"\n+\t\"github.com/dapr/dapr/pkg/resiliency\"\n+)\n+\n+// TestOnPutMetadataBodyReadError verifies that a body-read failure on\n+// PUT /v1.0/metadata/{key} returns the rich kiterrors error with\n+// ERR_BODY_READ code (standardized per issue #7489) rather than\n+// the legacy messages.ErrBodyRead plain error.\n+func TestOnPutMetadataBodyReadError(t *testing.T) {\n+\tt.Parallel()\n+\n+\ttestAPI := &api{\n+\t\tuniversal: universal.New(universal.Options{\n+\t\t\tLogger:     log,\n+\t\t\tResiliency: resiliency.New(nil),\n+\t\t}),\n+\t}\n+\n+\t// Set up a minimal chi router for the PUT /metadata/{key} route\n+\tr := chi.NewRouter()\n+\tr.Put(\"/v1.0/metadata/{key}\", testAPI.onPutMetadata())\n+\n+\t// Use a pipe whose write end is closed with an error so io.ReadAll fails\n+\tpr, pw := io.Pipe()\n+\tpw.CloseWithError(errors.New(\"simulated read error\"))\n+\n+\treq := httptest.NewRequest(http.MethodPut, \"/v1.0/metadata/myKey\", pr)\n+\trec := httptest.NewRecorder()\n+\tr.ServeHTTP(rec, req)\n+\n+\trequire.Equal(t, http.StatusBadRequest, rec.Code)\n+\tvar body map[string]any\n+\trequire.NoError(t, json.NewDecoder(rec.Body).Decode(&body))\n+\tassert.Equal(t, \"ERR_BODY_READ\", body[\"errorCode\"])\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/messages/errorcodes/errorcodes.go",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "patch": "@@ -32,6 +32,7 @@ const (\n \tCategoryHealth            Category = \"health\"\n \tCategoryCommon            Category = \"common\"\n \tCategoryPluggable         Category = \"pluggable-component\"\n+\tCategoryMetadata          Category = \"metadata\"\n )\n \n type ErrorCode struct {\n@@ -176,6 +177,9 @@ var (\n \tSchedulerEmpty         = ErrorCode{\"DAPR_SCHEDULER_EMPTY\", \"DAPR_SCHEDULER_EMPTY\", CategoryJob}                   // Required argument is empty\n \tSchedulerScheduleEmpty = ErrorCode{\"DAPR_SCHEDULER_SCHEDULE_EMPTY\", \"DAPR_SCHEDULER_SCHEDULE_EMPTY\", CategoryJob} // No schedule provided for job\n \n+\t// ### Metadata API\n+\tMetadataBodyRead = ErrorCode{\"ERR_BODY_READ\", \"DAPR_METADATA_BODY_READ\", CategoryMetadata} // Error reading metadata request body\n+\n \t// ### Generic\n \tCommonGeneric = ErrorCode{\"ERROR\", \"ERROR\", CategoryCommon} // Generic error\n )",
+      "patch_truncated": false
+    }
+  ]
+}

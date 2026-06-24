@@ -1,0 +1,76 @@
+{
+  "type": "pr",
+  "number": 9674,
+  "title": "wf burst perf test",
+  "state": "open",
+  "body": "add wf burst perf test",
+  "labels": [
+    "autoupdate"
+  ],
+  "user": "cicoyle",
+  "created_at": "2026-03-23T19:51:27Z",
+  "updated_at": "2026-06-23T11:18:33Z",
+  "additions": 39,
+  "deletions": 20,
+  "changed_files": 4,
+  "linked_issue_numbers": [],
+  "comments": [
+    {
+      "user": "Copilot",
+      "body": "Scenario key `t_burst_1200` deviates from the existing `t_<vus>_<iterations>` naming pattern in this file (e.g. `t_500_10000`). For consistency and easier automated parsing/reporting, consider renaming this to match the established convention and include both VUs and iterations in the name.",
+      "created_at": "2026-03-23T19:54:02Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "With 1200 VUs, this scenario will greatly increase the volume of per-iteration `console.log` output emitted in `execute()` (including logging the full HTTP response). That extra I/O can significantly skew perf results and may cause CI log size/time issues. Consider gating verbose logging behind an env var or removing per-iteration logs for perf runs.",
+      "created_at": "2026-03-23T19:54:02Z"
+    },
+    {
+      "user": "Copilot",
+      "body": "The new scenario name `t_burst_1200` doesn\u2019t follow the existing `t_<vus>_<iterations>` naming convention used throughout this perf suite (e.g. `t_500_10000`, and comments like `// t_workflowCount_iterations`). This makes results harder to compare/aggregate and can break any tooling that parses scenario names. Consider renaming the scenario to match the established pattern (and reflect both VUs and iterations), then update this test to use the renamed scenario.\n```suggestion\n\tinputs := []string{\"1000\"}             // delay in milliseconds (1s)\n\tscenarios := []string{\"t_1200_1200\"}   // t_workflowCount_iterations: 1200 VUs, 1200 iterations, burst pattern\n```",
+      "created_at": "2026-03-23T19:54:03Z"
+    },
+    {
+      "user": "acroca",
+      "body": "Why 0.95 and not 1?",
+      "created_at": "2026-04-02T08:59:17Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/dapr/pull/9674",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "tests/dapr_tests.mk",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "patch": "@@ -584,6 +584,8 @@ setup-app-configurations:\n \n # Apply component yaml for state, secrets, pubsub, workflows, and bindings\n setup-test-components: setup-app-configurations\n+\t@echo \"Waiting for webhook TLS certificate to be provisioned...\"\n+\tsleep 10 # dapr-operator provisions its webhook TLS cert async after pod ready\n \t$(KUBECTL) apply -f ./tests/config/kubernetes_secret.yaml --namespace $(DAPR_TEST_NAMESPACE)\n \t$(KUBECTL) apply -f ./tests/config/kubernetes_secret_config.yaml --namespace $(DAPR_TEST_NAMESPACE)\n \t$(KUBECTL) apply -f ./tests/config/kubernetes_redis_secret.yaml --namespace $(DAPR_TEST_NAMESPACE)",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/perf/workflows/test.js",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 5,
+      "patch": "@@ -58,6 +58,12 @@ const possibleScenarios = {\n         iterations: 10000,\n         maxDuration: '3600s',\n     },\n+    t_1000_1000: {\n+        executor: 'shared-iterations',\n+        vus: 1000,\n+        iterations: 1000,\n+        maxDuration: '120s',\n+    },\n }\n \n let enabledScenarios = {}\n@@ -74,10 +80,12 @@ export const options = {\n const DAPR_ADDRESS = `http://127.0.0.1:${__ENV.DAPR_HTTP_PORT}`\n \n function execute() {\n-    console.log(\n-        'Executing the execute function with idInTest: ' +\n-            `${exec.scenario.iterationInTest}`\n-    )\n+    if (__ENV.K6_VERBOSE_LOG) {\n+        console.log(\n+            'Executing the execute function with idInTest: ' +\n+                `${exec.scenario.iterationInTest}`\n+        )\n+    }\n     let data = JSON.stringify({\n         workflow_name: __ENV.WORKFLOW_NAME,\n         workflow_input: __ENV.WORKFLOW_INPUT,\n@@ -92,7 +100,9 @@ function execute() {\n         data,\n         params\n     )\n-    console.log('http response', JSON.stringify(res))\n+    if (__ENV.K6_VERBOSE_LOG) {\n+        console.log('http response', JSON.stringify(res))\n+    }\n     return res\n }\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/perf/workflows/workflow_test.go",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 9,
+      "patch": "@@ -58,18 +58,18 @@ func TestMain(m *testing.M) {\n \t\t\tAppName:           appName,\n \t\t\tDaprEnabled:       true,\n \t\t\tImageName:         \"perf-workflowsapp\",\n-\t\t\tReplicas:          1,\n+\t\t\tReplicas:          2,\n \t\t\tIngressEnabled:    true,\n \t\t\tIngressPort:       3000,\n \t\t\tMetricsEnabled:    true,\n-\t\t\tDaprCPULimit:      \"1.0\",\n-\t\t\tDaprCPURequest:    \"0.5\",\n-\t\t\tDaprMemoryLimit:   \"2Gi\",\n-\t\t\tDaprMemoryRequest: \"1Gi\",\n-\t\t\tAppCPULimit:       \"2.0\",\n-\t\t\tAppCPURequest:     \"1.0\",\n-\t\t\tAppMemoryLimit:    \"2Gi\",\n-\t\t\tAppMemoryRequest:  \"1Gi\",\n+\t\t\tDaprCPULimit:      \"2.0\",\n+\t\t\tDaprCPURequest:    \"1.0\",\n+\t\t\tDaprMemoryLimit:   \"4Gi\",\n+\t\t\tDaprMemoryRequest: \"2Gi\",\n+\t\t\tAppCPULimit:       \"4.0\",\n+\t\t\tAppCPURequest:     \"2.0\",\n+\t\t\tAppMemoryLimit:    \"4Gi\",\n+\t\t\tAppMemoryRequest:  \"2Gi\",\n \t\t\tAppPort:           3000,\n \t\t},\n \t}\n@@ -82,6 +82,7 @@ func runk6test(t *testing.T, config K6RunConfig) *loadtest.K6RunnerMetricsSummar\n \tk6Test := loadtest.NewK6(\n \t\t\"./test.js\",\n \t\tloadtest.WithParallelism(1),\n+\t\tloadtest.WithMemoryLimits(\"256Mi\", \"512Mi\", \"512Mi\", \"2Gi\"),\n \t\t// loadtest.EnableLog(), // uncomment this to enable k6 logs, this however breaks reporting, only for debugging.\n \t\tloadtest.WithRunnerEnvVar(\"TARGET_URL\", config.TARGET_URL),\n \t\tloadtest.WithRunnerEnvVar(\"SCENARIO\", config.SCENARIO),\n@@ -232,3 +233,13 @@ func TestDelayWorkflowsAtScale(t *testing.T) {\n \trateChecks := [][]string{{\"rate==1\"}}\n \ttestWorkflow(t, workflowName, appName, inputs, scenarios, rateChecks, true, false)\n }\n+\n+// TestBurstWorkflowCreation simulates a burst of workflow creations\n+// to test scheduler resilience under sudden spikes.\n+func TestBurstWorkflowCreation(t *testing.T) {\n+\tworkflowName := \"delay_wf\"\n+\tinputs := []string{\"1000\"}            // delay in milliseconds (1s)\n+\tscenarios := []string{\"t_1000_1000\"} // t_workflowCount_iterations\n+\trateChecks := [][]string{{\"rate==1\"}}\n+\ttestWorkflow(t, workflowName, appName, inputs, scenarios, rateChecks, true, false)\n+}",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/runner/loadtest/k6.go",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 6,
+      "patch": "@@ -295,14 +295,10 @@ func (k6 *K6) k8sRun(k8s *runner.KubeTestPlatform) error {\n \t\t\t\t},\n \t\t\t\tResources: corev1.ResourceRequirements{\n \t\t\t\t\tLimits: map[corev1.ResourceName]resource.Quantity{\n-\t\t\t\t\t\t\"memory\": {\n-\t\t\t\t\t\t\tFormat: resource.Format(k6.testMemoryLimit),\n-\t\t\t\t\t\t},\n+\t\t\t\t\t\t\"memory\": resource.MustParse(k6.testMemoryLimit),\n \t\t\t\t\t},\n \t\t\t\t\tRequests: map[corev1.ResourceName]resource.Quantity{\n-\t\t\t\t\t\t\"memory\": {\n-\t\t\t\t\t\t\tFormat: resource.Format(k6.daprMemoryRequest),\n-\t\t\t\t\t\t},\n+\t\t\t\t\t\t\"memory\": resource.MustParse(k6.testMemoryRequest),\n \t\t\t\t\t},\n \t\t\t\t},\n \t\t\t},",
+      "patch_truncated": false
+    }
+  ]
+}

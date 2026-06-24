@@ -1,0 +1,26 @@
+{
+  "type": "issue",
+  "number": 3351,
+  "title": "[PubSub Kafka] Some important error logs are misclassified as `debug` instead of `error`",
+  "state": "open",
+  "body": "**runtime 1.12.2**\r\n\r\n## Expected Behavior\r\n\r\nErrors reported from the Sarama client should be raised with a `error` log level in Dapr (not `debug`)\r\n\r\n## Actual Behavior\r\n\r\nErrors are misclassified as `debug` but they should be `error` - need to ensure errors are classified correctly so they can be accurately reported in observability tools (i.e. datadog in my case)\r\n\r\n## A few examples of the errors : \r\n\r\n`level=debug msg=\"kafka: error while consuming ds-applicationdatabricks-created/0: read tcp 10.0.2.72:43382->10.0.0.132:9092: i/o timeout\"`\r\n\r\n`level=debug msg=\"kafka: error while consuming ds-applicationdatabricks-created/0: kafka: client has run out of available brokers to talk to: 3 errors occurred:\r\n\\t* dial tcp: lookup luma-kafka-kafka-2.luma-kafka-kafka-brokers.dotm-services.svc: i/o timeout\r\n\\t* dial tcp: lookup luma-kafka-kafka-1.luma-kafka-kafka-brokers.dotm-services.svc on 172.20.0.10:53: read udp 10.0.2.72:38664->172.20.0.10:53: read: connection refused\r\n\\t* write tcp 10.0.2.72:59042->172.20.14.72:9092: write: broken pipe\"`\r\n\r\n`level=debug msg=\"kafka: error while consuming ds-applicationrealm-user-created/0: kafka: client has run out of available brokers to talk to: 3 errors occurred:\r\n\\t* dial tcp: lookup luma-kafka-kafka-0.luma-kafka-kafka-brokers.dotm-services.svc on 172.20.0.10:53: read udp 10.0.2.72:39002->172.20.0.10:53: read: connection refused\r\n\\t* dial tcp: lookup luma-kafka-kafka-1.luma-kafka-kafka-brokers.dotm-services.svc on 172.20.0.10:53: no such host\r\n\\t* dial tcp 172.20.14.72:9092: connect: connection refused\r\n\"`\r\n\r\n`level=debug msg=\"kafka: error while consuming ds-applicationrealm-created/0: kafka: client has run out of available brokers to talk to: dial tcp 172.20.14.72:9092: connect: connection refused\" app_id=authz component=\"general-purpose-pubsub (pubsub.kafka/v1)\"`\r\n\r\n",
+  "labels": [
+    "kind/bug",
+    "help wanted"
+  ],
+  "user": "olitomlinson",
+  "created_at": "2024-02-10T21:22:09Z",
+  "updated_at": "2024-02-21T18:57:11Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "Can you open the PR @olitomlinson ?",
+      "created_at": "2024-02-21T18:57:10Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3351",
+  "is_seed": false,
+  "partial": false
+}

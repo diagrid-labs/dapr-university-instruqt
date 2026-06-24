@@ -1,0 +1,31 @@
+{
+  "type": "issue",
+  "number": 2567,
+  "title": "Implement the Apache Pulsar Reader Interface as an alternate Consumer Interface",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\n<!-- Please also discuss possible business value -->\r\nIn Pulsar, the \"standard\" [consumer interface](https://pulsar.apache.org/docs/2.11.x/concepts-messaging/#consumers) involves using consumers to listen on [topics](https://pulsar.apache.org/docs/2.11.x/reference-terminology/#topic), process incoming messages, and finally acknowledge those messages when they are processed. Whenever a new subscription is created, it is initially positioned at the end of the topic (by default), and consumers associated with that subscription begin reading with the first message created afterward. Whenever a consumer connects to a topic using a pre-existing subscription, it begins reading from the earliest message un-acknowledged within that subscription. In summary, with the consumer interface, subscription cursors are automatically managed by Pulsar in response to [message acknowledgments](https://pulsar.apache.org/docs/2.11.x/concepts-messaging/#acknowledgment).\r\n\r\nThe reader interface for Pulsar enables applications to manually manage cursors. When you use a reader to connect to a topic---rather than a consumer---you need to specify which message the reader begins reading from when it connects to a topic. When connecting to a topic, the reader interface enables you to begin with:\r\n\r\nThe earliest available message in the topic.\r\nThe latest available message in the topic.\r\nREMOVED FROM THIS REQUEST: [Some other messages between the earliest and the latest. If you select this option, you'll need to explicitly provide a message ID. Your application will be responsible for \"knowing\" this message ID in advance, perhaps fetching it from a persistent data store or cache.]\r\nThe reader interface is helpful for use cases like using Pulsar to provide effectively-once processing semantics for a stream processing system. For this use case, the stream processing system must be able to \"rewind\" topics to a specific message and begin reading there. The reader interface provides Pulsar clients with the low-level abstraction necessary to \"manually position\" themselves within a topic.\r\n\r\nInternally, the reader interface is implemented as a consumer using an exclusive, non-durable subscription to the topic with a randomly-allocated name.\r\n\r\n( Source: [Pulsar Concepts and Architecture - Pulsar Clients](https://pulsar.apache.org/docs/2.11.x/concepts-clients/) )\r\n\r\nThe Pulsar Reader Interface is very similar to that of a Consumer, but additional parameters to indicate where to start reading from in the cursor: a) from the start of the topic, b) from the last message ID in the topic or c) from a message ID somewhere in between and the last message ID in the topic. A PubSub component with key/value parameters for a Reader Interface could handle the basic options a) and b). REMOVED FROM THIS REQUEST: [For use case c) we need a practical way for the Dapr application to pass that value to the Dapr sidecar. Depending on what the application is doing, the starting message ID may change in a very dynamic manner.]\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted"
+  ],
+  "user": "hugosmitter",
+  "created_at": "2023-02-22T20:06:18Z",
+  "updated_at": "2023-02-23T19:38:51Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "> For use case c) we need a practical way for the Dapr application to pass that value to the Dapr sidecar. Depending on what the application is doing, the starting message ID may change in a very dynamic manner.\r\n\r\nI recommend making this use case C a separate issue which depends on this issue here. That is because we currently do not have a way to modify pubsub components behavior after a subscription was started. This needs to be thought out more carefully and likely requires changes to the PubSub interface impacting all components - that change would be in `dapr/dapr` (the runtime repo).\r\n\r\nBy separating the use case C out this issue would already be workable as is. But use case C is a lot more complex and require coordination between repos and may therefore not be prioritized, so decoupling these will increase likelihood this request can be completed.",
+      "created_at": "2023-02-23T19:00:41Z"
+    },
+    {
+      "user": "hugosmitter",
+      "body": "Thanks for your feedback Bernd - I'll strikeout the text in the request for the record and simplify the request. When I wrote the request I was wondering if use case c) justifies building a pluggable component (e.g. ReaderSubscription) with API semantics for reading from an EventStore. In this case, the EventStore is Pulsar, but perhaps other EventStores built around a Write-Ahead Log (WAL) might be able to reuse the API. Any thoughts on that alternate approach? ",
+      "created_at": "2023-02-23T19:34:56Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2567",
+  "is_seed": false,
+  "partial": false
+}

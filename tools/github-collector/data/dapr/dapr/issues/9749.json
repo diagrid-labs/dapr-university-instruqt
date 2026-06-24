@@ -1,0 +1,20 @@
+{
+  "type": "issue",
+  "number": 9749,
+  "title": "[Workflows] Raise external events against Dapr App Ids",
+  "state": "open",
+  "body": "## In what area(s)?\n/area runtime\n\n## Describe the feature\nMy system has two workflows, one at API level that validates requests and then queues them based on priority. Then I have another workflow that consumes items based on priority and processes them. I need the processing workflow to be able to send external events to notify the API workflow that a given request had concluded.\n\nAt this time, external events can be only raised with workflows running in the same app.\n\n## Release Note\nRELEASE NOTE:\n**ADD** New feature in Dapr to enable triggering external events across Dapr applications.",
+  "labels": [
+    "kind/feature",
+    "kind/enhancement"
+  ],
+  "user": "alkofahi",
+  "created_at": "2026-04-05T17:19:58Z",
+  "updated_at": "2026-04-07T22:41:19Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9749",
+  "is_seed": false,
+  "partial": false
+}

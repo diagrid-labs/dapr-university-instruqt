@@ -1,0 +1,32 @@
+{
+  "type": "issue",
+  "number": 2957,
+  "title": "Kafka allow configuring max_poll_interval_ms",
+  "state": "open",
+  "body": "Dapr should allow setting max_poll_interval_ms for kafka. It will be helpful for long time processing messages.",
+  "labels": [
+    "kind/enhancement",
+    "help wanted",
+    "good first issue"
+  ],
+  "user": "pyjads",
+  "created_at": "2023-06-30T09:30:16Z",
+  "updated_at": "2025-08-11T21:55:50Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "Can you link to some documentation on this?",
+      "created_at": "2023-07-24T23:57:49Z"
+    },
+    {
+      "user": "sicoyle",
+      "body": "Hey @berndverst Is there any additional context/links that you can add that can help a first time contributor to pick this up please?",
+      "created_at": "2023-09-21T22:57:37Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2957",
+  "is_seed": false,
+  "partial": false
+}

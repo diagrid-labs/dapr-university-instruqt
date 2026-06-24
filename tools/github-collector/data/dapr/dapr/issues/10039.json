@@ -1,0 +1,30 @@
+{
+  "type": "issue",
+  "number": 10039,
+  "title": "Workflow scheduling fails after upgrading to Dapr 1.17.8 / durabletask-go v0.12.1: missing dapr-callee-app-id metadata",
+  "state": "open",
+  "body": "## In what area(s)?\n\n> /area runtime\n> /area scheduler\n> /area placement\n\n## What version of Dapr?\n\n> 1.17.x\n> CLI version: 1.17.1\n> Runtime version: 1.17.8\n\nRelated SDK versions:\n\n* `github.com/dapr/durabletask-go v0.12.1` (previously v0.11.5)\n* `github.com/dapr/kit v0.18.1` (previously v0.17.1)\n* `github.com/dapr/dapr v1.17.7` (indirect, previous setup)\n\n## Expected Behavior\n\nWorkflow scheduling and task execution should work as before the upgrade.\nCalling workflow scheduling APIs should successfully route requests through Dapr without requiring additional manual metadata configuration changes in the SDK.\n\n## Actual Behavior\n\nAfter upgrading to Dapr 1.17.8 and `durabletask-go v0.12.1`, workflow scheduling fails with:\n\n```\nERROR: failed to complete workflow task: rpc error: code = Unknown desc = failed to proxy request: required metadata dapr-callee-app-id or dapr-app-id not found\n```\n\nThis did not occur in:\n\n* `durabletask-go v0.11.5`\n* `dapr kit v0.17.1`\n* Dapr runtime `1.17.7`\n\n## Steps to Reproduce the Problem\n\n1. Upgrade Dapr runtime to `1.17.8`\n2. Upgrade SDK dependencies:\n\n   * `github.com/dapr/durabletask-go v0.12.1`\n   * `github.com/dapr/kit v0.18.1`\n3. Run a workflow service using durabletask-go\n4. Attempt to schedule a workflow\n5. Observe failure when Dapr tries to proxy the request\n\n## Additional Context\n\n## Release Note\n\nRELEASE NOTE: **FIX** Workflow scheduling fails due to missing dapr app-id metadata during proxying after upgrade to runtime 1.17.8 / kit 0.18.x.\n",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "AdamShannag",
+  "created_at": "2026-05-29T08:44:00Z",
+  "updated_at": "2026-06-04T17:27:55Z",
+  "comments": [
+    {
+      "user": "Vein05",
+      "body": "Hi! I\u2019d like to investigate this.\n\nI traced the reported error to pkg/messaging/grpc_proxy.go: the proxy requires either dapr-callee-app-id or dapr-app-id in incoming gRPC metadata before it can resolve the target app. Since this reproduces after the 1.17.8 / durabletask-go v0.12.1 upgrade path. \n\nIs this assignable to me? Would love feedback from a maintainer! \n\nThanks! ",
+      "created_at": "2026-06-04T15:32:13Z"
+    },
+    {
+      "user": "cicoyle",
+      "body": "Hey, thanks @AdamShannag for opening the issue! This doesn't look like a regression so much as a version-compatibility issue.   You're running dapr v1.17.8 against an SDK on the 1.18.x track. We had some method renames land in 1.18.x (currently in RC, with 1.18.0 due to be released shortly).\n\nCan you let me know which sdk you are using? Im guessing the go-sdk. Dapr v1.17.x uses the matching durabletask-go [version here](https://github.com/dapr/dapr/blob/release-1.17/go.mod#L15) and the go-sdk [v1.14.2 aligns with that here](https://github.com/dapr/go-sdk/blob/v1.14.2/go.mod#L7). The latest go-sdk [v1.15.0-rc.2 pulls in the newer durabletask-go changes here](https://github.com/dapr/go-sdk/blob/v1.15.0-rc.2/go.mod#L7) which correlates to the [v1.18.0-rc.5 runtime version.](https://github.com/dapr/dapr/blob/release-1.18/go.mod#L15)\n\nCan you try bumping your dapr runtime version to v1.18.0-rc.5 and confirm it clears the error?\n\n`dapr init --runtime-version 1.18.0-rc.5`",
+      "created_at": "2026-06-04T17:27:55Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/10039",
+  "is_seed": false,
+  "partial": false
+}

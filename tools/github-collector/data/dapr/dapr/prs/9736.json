@@ -1,0 +1,39 @@
+{
+  "type": "pr",
+  "number": 9736,
+  "title": "fix: keep sidecar unready on component init failure",
+  "state": "open",
+  "body": "## Description\nThis change keeps the sidecar unready when component initialization fails during startup. Previously, the runtime could continue past the component flush step after component processing had already failed, which allowed readiness to be marked even though startup had not completed successfully.\n\n## Issue reference\nFixes #7326\n\n## Checklist\n- [x] Code compiles correctly\n- [x] Created/updated tests\n- [x] Unit tests passing\n- [ ] End-to-end tests passing\n- [ ] Extended the documentation / Created issue in the https://github.com/dapr/docs/ repo: dapr/docs#7326\n- [ ] Specification has been updated / Created issue in the https://github.com/dapr/docs/ repo: dapr/docs#7326\n- [ ] Provided sample for the feature / Created issue in the https://github.com/dapr/docs/ repo: dapr/docs#7326",
+  "labels": [],
+  "user": "abishekgiri",
+  "created_at": "2026-03-31T21:06:45Z",
+  "updated_at": "2026-04-06T22:31:32Z",
+  "additions": 19,
+  "deletions": 6,
+  "changed_files": 2,
+  "linked_issue_numbers": [
+    7326
+  ],
+  "comments": [],
+  "html_url": "https://github.com/dapr/dapr/pull/9736",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pkg/runtime/runtime.go",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 3,
+      "patch": "@@ -660,7 +660,10 @@ func (a *DaprRuntime) initRuntime(ctx context.Context) error {\n \t\treturn fmt.Errorf(\"failed to load components: %s\", err)\n \t}\n \n-\ta.flushOutstandingComponents(ctx)\n+\terr = a.flushOutstandingComponents(ctx)\n+\tif err != nil {\n+\t\treturn fmt.Errorf(\"failed while waiting for components to be processed: %w\", err)\n+\t}\n \n \terr = a.loadHTTPEndpoints(ctx)\n \tif err != nil {\n@@ -1267,12 +1270,20 @@ func (a *DaprRuntime) flushOutstandingHTTPEndpoints(ctx context.Context) {\n \tlog.Info(\"All outstanding http endpoints processed\")\n }\n \n-func (a *DaprRuntime) flushOutstandingComponents(ctx context.Context) {\n+func (a *DaprRuntime) flushOutstandingComponents(ctx context.Context) error {\n \tlog.Info(\"Waiting for all outstanding components to be processed\u2026\")\n \t// We flush by sending a no-op component. Since the processComponents goroutine only reads one component at a time,\n \t// We know that once the no-op component is read from the channel, all previous components will have been fully processed.\n-\ta.processor.AddPendingComponent(ctx, compapi.Component{})\n+\tif !a.processor.AddPendingComponent(ctx, compapi.Component{}) {\n+\t\tif err := context.Cause(ctx); err != nil {\n+\t\t\treturn err\n+\t\t}\n+\n+\t\treturn errors.New(\"waiting for outstanding components was interrupted\")\n+\t}\n \tlog.Info(\"All outstanding components processed\")\n+\n+\treturn nil\n }\n \n func (a *DaprRuntime) loadHTTPEndpoints(ctx context.Context) error {",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/runtime/runtime_test.go",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 3,
+      "patch": "@@ -320,7 +320,7 @@ func TestFlushOutstandingComponent(t *testing.T) {\n \t\t\t\tVersion: \"v1\",\n \t\t\t},\n \t\t})\n-\t\trt.flushOutstandingComponents(t.Context())\n+\t\trequire.NoError(t, rt.flushOutstandingComponents(t.Context()))\n \t\tassert.True(t, wasCalled)\n \n \t\t// Make sure that the goroutine was restarted and can flush a second time\n@@ -342,7 +342,7 @@ func TestFlushOutstandingComponent(t *testing.T) {\n \t\t\t\tVersion: \"v1\",\n \t\t\t},\n \t\t})\n-\t\trt.flushOutstandingComponents(t.Context())\n+\t\trequire.NoError(t, rt.flushOutstandingComponents(t.Context()))\n \t\tassert.True(t, wasCalled)\n \t})\n \tt.Run(\"flushOutstandingComponents blocks for components with outstanding dependanices\", func(t *testing.T) {\n@@ -448,7 +448,7 @@ func TestFlushOutstandingComponent(t *testing.T) {\n \t\t\t\tVersion: \"v1\",\n \t\t\t},\n \t\t})\n-\t\trt.flushOutstandingComponents(t.Context())\n+\t\trequire.NoError(t, rt.flushOutstandingComponents(t.Context()))\n \t\tassert.True(t, wasCalled)\n \t\tassert.True(t, wasCalledChild)\n \t\tassert.True(t, wasCalledGrandChild)\n@@ -1709,6 +1709,8 @@ spec:\n \t\t\tt.Error(\"timed out waiting for runtime to error\")\n \t\t}\n \n+\t\tassert.False(t, rt.runtimeConfig.healthz.IsReady())\n+\n \t\tselect {\n \t\tcase <-secretClosed:\n \t\t\tt.Fatal(\"secret store should not be closed when init failed\")",
+      "patch_truncated": false
+    }
+  ]
+}

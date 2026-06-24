@@ -1,0 +1,40 @@
+{
+  "type": "issue",
+  "number": 454,
+  "title": "Update configuration subscription for postgres post contrib fix",
+  "state": "open",
+  "body": "https://github.com/dapr/components-contrib/pull/4241 holds a fix that removes the bleed out of the component spec into the consumer code. Post this PR released we need to update dapr-agents as a consumer to remove this channel spec (introduced in #448).",
+  "labels": [
+    "wontfix",
+    "P3",
+    "stale"
+  ],
+  "user": "CasperGN",
+  "created_at": "2026-02-26T18:33:49Z",
+  "updated_at": "2026-06-22T08:25:42Z",
+  "comments": [
+    {
+      "user": "sicoyle",
+      "body": "Marked with wontfix label for now and removed good first issue as we need the contrib PR merged and to wait for the next dapr release in the next quarter (so this will be several months out if I had to guess).",
+      "created_at": "2026-03-05T15:14:02Z"
+    },
+    {
+      "user": "1Ninad",
+      "body": "/assign",
+      "created_at": "2026-03-06T04:03:52Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 60 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-06-22T08:25:41Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    448,
+    462
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr-agents/issues/454",
+  "is_seed": false,
+  "partial": false
+}

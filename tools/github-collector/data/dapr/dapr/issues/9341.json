@@ -1,0 +1,35 @@
+{
+  "type": "issue",
+  "number": 9341,
+  "title": "Add Grafana Dashboard for Dapr Scheduler etcd Monitoring",
+  "state": "open",
+  "body": "## Area\n/area scheduler\n\n## Description\n\nAdd a standardized Grafana dashboard to monitor the embedded etcd instance in the Dapr Scheduler.\n\n### Problem\nOperators lack visibility into etcd health during high-load scenarios, making it difficult to identify I/O bottlenecks, storage issues, or maintenance problems before they cause scheduler crashes.\n\n### Solution\nA focused dashboard visualizing key etcd metrics aligned with [Dapr's scheduler monitoring documentation](https://docs.dapr.io/concepts/dapr-services/scheduler/#monitoring-schedulers-etcd-metrics).\n\n### Dashboard Panels\n1. **Storage Capacity** \u2013 DB quota usage percentage and fragmentation ratio\n2. **I/O Performance** \u2013 WAL fsync and backend commit latency (average)\n3. **Maintenance Health** \u2013 Compaction frequency and defragmentation execution time\n4. **Database Size** \u2013 Current physical and logical size\n\n\n**Dashboard Location:**\nhttps://github.com/dapr/dapr/tree/master/grafana\n\n## Release Note\n**ADD:** Grafana dashboard for monitoring Dapr Scheduler embedded etcd metrics, enabling proactive identification of storage and I/O issues.",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "MyMirelHub",
+  "created_at": "2026-01-22T17:15:08Z",
+  "updated_at": "2026-06-15T16:36:11Z",
+  "comments": [
+    {
+      "user": "MyMirelHub",
+      "body": "/assign",
+      "created_at": "2026-01-22T22:23:23Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 90 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-04-22T22:28:11Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it was marked stale with no further activity for 7 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-04-29T22:50:52Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9341",
+  "is_seed": false,
+  "partial": false
+}

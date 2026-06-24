@@ -1,0 +1,34 @@
+{
+  "type": "issue",
+  "number": 2727,
+  "title": "State stores: return a flag to indicate whether the returned value is empty or not present",
+  "state": "open",
+  "body": "## Describe the feature\r\n\r\nCurrently, when a value is not found in a state store, components return an empty response (ie. with an empty data). Because of that, callers are not able to distinguish between an empty value stored in the database, or a missing value.\r\n\r\nIn the past this was \"addressed\" by making some state stores refuse to store values that were empty strings. This caused some issues, not least because it was an uneven behavior only in 4 components: #2722\r\n\r\nA proper fix would be to add an extra value to the response object from the state stores' get method to indicate whether the value was found.\r\n\r\nSuch a change would be bacwkards-compatible, but needs to also be implemented in the runtime and possibly the SDKs.\r\n\r\n## Release Note\r\n\r\nRELEASE NOTE: **ADD** Add flag to state store Get responses to distinguish empty values from missing ones\r\n",
+  "labels": [
+    "kind/enhancement",
+    "P1",
+    "pinned"
+  ],
+  "user": "ItalyPaleAle",
+  "created_at": "2023-03-30T15:34:10Z",
+  "updated_at": "2025-08-11T21:55:48Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "Today our Get Response is define as follows:\r\n\r\n```go\r\ntype GetResponse struct {\r\n\tData          []byte            `json:\"data\"`\r\n\tETag          *string           `json:\"etag,omitempty\"`\r\n\tMetadata      map[string]string `json:\"metadata\"`\r\n\tContentType   *string           `json:\"contentType,omitempty\"`\r\n}\r\n```\r\n\r\nAs discussed we do not have a way to indicate the difference between key not found and the key is empty.\r\n\r\nChanging the method signature would be a breaking change we do not want to make, so adding a new property is the only way forward.\r\n\r\nWhich of the following two options would the community prefer?\r\n\r\n1. `isEmptyValue`, a boolean to indicate whether the value was truly empty. Here empty data + `isEmptyValue: false` would mean that the key was not found.\r\n\r\n2. `isKeyNotFound`, a boolean to indicate whether the key was found or not. Here `isKeyNotFound: true` and an empty data section (but really anything in the data section) would mean that the key is indeed not present.\r\nAnd empty data section + `isKeyNotFound: false` means that the key was the empty value instead.\r\n\r\nFrom an implementation perspective, option (2) is less work and less error prone! We already have checks whether not results were returned - we only need to return the additional property in that case.",
+      "created_at": "2023-03-30T19:08:30Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "I propose updating it to the following:\r\n\r\n```go\r\n// GetResponse is the response object for getting state.\r\ntype GetResponse struct {\r\n\tData          []byte            `json:\"data\"`\r\n\tETag          *string           `json:\"etag,omitempty\"`\r\n\tMetadata      map[string]string `json:\"metadata\"`\r\n\tContentType   *string           `json:\"contentType,omitempty\"`\r\n\tIsKeyNotFound bool              `json:\"isKeyNotFound\"`\r\n}\r\n```\r\n\r\nWhich means there will also need to be a corresponding property in the GetResponse proto.\r\n\r\nAll of this is additive and no behavior changes - we just provide clarification between the two flavors of empty values.",
+      "created_at": "2023-03-30T19:29:57Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    2722
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/2727",
+  "is_seed": false,
+  "partial": false
+}

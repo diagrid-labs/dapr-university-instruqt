@@ -1,0 +1,25 @@
+{
+  "type": "issue",
+  "number": 4178,
+  "title": "[1.17] flakey certification tests - bindings.kafka",
+  "state": "open",
+  "body": " https://github.com/dapr/components-contrib/actions/runs/21047913930/job/60526999153#step:19:14084\n\n\n\n\nRELEASE NOTE: FIX: Bug in bindings.kafka certification tests\n",
+  "labels": [
+    "kind/bug",
+    "good first issue",
+    "P2",
+    "size/XS",
+    "area/test/certification"
+  ],
+  "user": "sicoyle",
+  "created_at": "2026-01-15T22:46:36Z",
+  "updated_at": "2026-01-15T23:10:32Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [
+    4180
+  ],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4178",
+  "is_seed": false,
+  "partial": false
+}

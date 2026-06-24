@@ -1,0 +1,54 @@
+{
+  "type": "issue",
+  "number": 3256,
+  "title": "Support to set the last delivered entry for Redis Stream Pubsub",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\r\n\r\n## Describe the feature\r\n<!-- Please also discuss possible business value -->\r\n\r\nCurrently redis stream pubsub use \"0\" as the last delivered entry ID in the stream, here is the related [code](https://github.com/dapr/components-contrib/blob/79adc565c17ad8936048896591cd205a6609ad67/pubsub/redis/redis.go#L113). So this means it hardcode the consumer MUST receive messages in the specified stream from the very first message. \r\n\r\nThere are some sceneries that the consumer want to specify the ID of the last entry in the stream to start to sync from, for example to set the `$` but not 0 for the ID to ask sync from the last ID of the entry in the stream. \r\n\r\nThe request is to add one more config parameter in the component of type `pubsub.redis` to allow the human to setup the ID of the last entry in the stream to sync from.\r\n\r\n## Release Note\r\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\nADD one more parameter in the pubsub.redis config to support setup the ID of the last entry in the stream.\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE:\r\n",
+  "labels": [
+    "kind/enhancement",
+    "good first issue",
+    "size/XS"
+  ],
+  "user": "zhangcz828",
+  "created_at": "2023-12-06T07:17:18Z",
+  "updated_at": "2025-08-27T02:08:52Z",
+  "comments": [
+    {
+      "user": "berndverst",
+      "body": "Would it be ok to configure this via the component metadata? That means it will read once when the component starts up (or if it restarts)?",
+      "created_at": "2023-12-07T17:29:09Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "I'm proposing a new metadata property `pubsubLastDeliveredEntry` with default value of 0. If that meets your requirements we can easily add this for Dapr 1.13.",
+      "created_at": "2023-12-07T18:31:55Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "A new `pubsubLastDeliveredEntry` pubsub property of type `*string` has to be added here:\r\nhttps://github.com/dapr/components-contrib/blob/main/common/component/redis/settings.go#L85\r\nIt's important to add the `mdonly:\"pubsub\"` tag.\r\n\r\nThe entry should look like so:\r\n```go\r\ntype Settings struct {\r\n  PubsubLastDeliveredEntry *string `mapstructure:\"pubsubLastDeliveredEntry\" mdonly:\"pubsub\"`\r\n}\r\n```\r\n\r\nAll that remains then is to update:\r\nhttps://github.com/dapr/components-contrib/blob/main/pubsub/redis/redis.go#L113\r\n\r\nThe last parameter should remain `\"0\"` if `r.clientSettings.pubsubLastDeliveredEntry` is `nil`. Otherwise, it should be `*r.clientSettings.pubsubLastDeliveredEntry`.\r\n\r\nAnd lastly the new property needs to be added here:\r\nhttps://github.com/dapr/components-contrib/blob/main/pubsub/redis/metadata.yaml\r\n\r\nAnd after all of that we need to open a documentation PR also.",
+      "created_at": "2023-12-07T18:38:16Z"
+    },
+    {
+      "user": "sadath-12",
+      "body": "/assign",
+      "created_at": "2023-12-07T18:48:04Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "There needs to be a certification test for this - and that could be a bit harder to achieve.\r\n\r\nEssentially what we need is:\r\nPublish a bunch of pubsub events in order - ideally numbered sequentially. Then connect with a different sidecar and different component definition where the lastdelivered item is configured to be something that is not 0, for example 6.\r\n\r\nThen you have to check that the items 1-5 were indeed not delivered as expected.",
+      "created_at": "2023-12-07T19:01:25Z"
+    },
+    {
+      "user": "zhangcz828",
+      "body": "> I'm proposing a new metadata property `pubsubLastDeliveredEntry` with default value of 0. If that meets your requirements we can easily add this for Dapr 1.13.\r\n\r\nThanks @berndverst , this is what I need. And also thanks to @sadath-12 for the PR, looking forward this to move forward",
+      "created_at": "2023-12-12T02:48:45Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    3259
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3256",
+  "is_seed": false,
+  "partial": false
+}

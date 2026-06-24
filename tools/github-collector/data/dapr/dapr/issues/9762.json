@@ -1,0 +1,19 @@
+{
+  "type": "issue",
+  "number": 9762,
+  "title": "[Workflow] Raise external event from workflow context",
+  "state": "open",
+  "body": "This convenience method allows a Workflow author to raise an event directly to another workflow Instance, without having to go via an Activity. This would also work well for cross-workflow event raising.\n\nThis is a convenience method that did exist in the original DurableTask, [but was descoped from Dapr Workflows several releases ago.](https://github.com/dapr/dapr/issues/8243)\n\nNow Workflows are a lot more mature, it makes sense to bring this convenience method back into all SDKs and runtime.\n\n\n## In what area(s)?\n\n<!-- Remove the '> ' to select -->\n\n> /area runtime\n\n> /area operator\n\n> /area placement\n\n> /area docs\n\n> /area test-and-release\n\n> /area injector\n\n> /area scheduler\n\n> /area sentry\n\n## Describe the feature\n<!-- Please also discuss possible business value -->\n\n## Release Note\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE:\n",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "olitomlinson",
+  "created_at": "2026-04-07T22:39:27Z",
+  "updated_at": "2026-04-07T22:41:26Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/9762",
+  "is_seed": false,
+  "partial": false
+}

@@ -1,0 +1,32 @@
+{
+  "type": "issue",
+  "number": 4093,
+  "title": "Zeebe command binding: Error handling improvement",
+  "state": "open",
+  "body": "## Expected Behavior\n\nWhen an incorrect payload is sent to the Zeebe command binding, like the following, a readable error message should be produced.\n```\n{\n\"processDefinitionKey\": \"test-key\",\n\"messageName\": \"product-message\",\n\"correlationKey\": \"2\",\n\"timeToLive\": \"1m\",\n\"variables\": {\n\"productId\": \"some-product-id\",\n\"productName\": \"some-product-name\",\n\"productKey\": \"some-product-key\"\n}\n}\n```\n\n## Actual Behavior\n\nWhen the payload as shown above is sent, the following error is received. This is poor error handling and misleading to users.\n\n```\n\"Zeebee binding error: Invalid duration\"\n```\n\n## Release Note\n\n<!-- How should the fix for this issue be communicated in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE:\n",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "alicejgibbons",
+  "created_at": "2025-11-17T12:55:59Z",
+  "updated_at": "2026-06-17T14:26:06Z",
+  "comments": [
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2025-12-17T13:01:06Z"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "This issue has been automatically closed because it has not had activity in the last 37 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2025-12-24T13:18:57Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    4412
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4093",
+  "is_seed": false,
+  "partial": false
+}

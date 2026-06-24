@@ -1,0 +1,32 @@
+{
+  "type": "issue",
+  "number": 4377,
+  "title": "[1.19] GCP Storage Bucket binding - enabling intra-bucket copy/move between key prefixes.",
+  "state": "open",
+  "body": "## Describe the feature\n\nToday the GCP Storage Bucket binding's `copy` and `move` operations only support **cross-bucket, same-key** transfers \u2014 the destination key is hardcoded to the source's key, and `destinationBucket` is required. See [`bindings/gcp/bucket/bucket.go`](https://github.com/dapr/components-contrib/blob/main/bindings/gcp/bucket/bucket.go).\n\nThis blocks copying/moving an object between key prefixes in the **same bucket** (e.g. `public/file.xlsx` \u2192 `adhoc/file.xlsx`). GCS has no folders and the existing mechanism would is an object-key rewrite. The only workaround today is `get` + `create`, which streams the bytes through the app and sidecar and drops content-type, custom metadata, and ACLs.\n\n### Proposal\n\n1. Add an optional `destinationKey` to the `copy`/`move` `data` payload (defaults to source `key`).\n2. Make `destinationBucket` optional (defaults to the component's configured bucket).\n3. Reject only the case where **both** are omitted.\n\nExample (the new same-bucket case):\n\n```json\n{\n  \"operation\": \"copy\",\n  \"metadata\": { \"key\": \"public/file.xlsx\" },\n  \"data\":     { \"destinationKey\": \"adhoc/file.xlsx\" }\n}\n```\n\n## Release Note\n\nRELEASE NOTE: **ADD** GCP Storage Bucket binding `copy`/`move` now accept an optional `destinationKey` and treat `destinationBucket` as optional, enabling intra-bucket copy/move between key prefixes.",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "MyMirelHub",
+  "created_at": "2026-05-06T12:45:37Z",
+  "updated_at": "2026-06-17T14:26:05Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-06-07T10:31:52Z"
+    },
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically closed because it was marked stale with no further activity for 7 days. If this issue is still valid, please ping a maintainer and ask them to label it as pinned, good first issue, help wanted or triaged/resolved. Thank you for your contributions.",
+      "created_at": "2026-06-15T16:51:53Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    4410
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4377",
+  "is_seed": false,
+  "partial": false
+}

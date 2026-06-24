@@ -1,0 +1,37 @@
+{
+  "type": "pr",
+  "number": 10012,
+  "title": "fix: always start pubsub span and propagate context in subscription r\u2026",
+  "state": "open",
+  "body": "Fixes https://github.com/dapr/dapr/issues/9990\r\n\r\n## What's the problem / bug?\r\n\r\n### 1. Pubsub tracing span not started when `traceparent` is absent\r\n\r\nWhen an incoming pubsub message did not contain a `traceparent` or `traceID` in the CloudEvent, `StartInternalCallbackSpan` was never called.\r\n\r\nAs a result, messages without trace context were completely invisible to tracing, reducing observability for those pubsub flows.\r\n\r\n### 2. Context cancellation not respected in subscription delivery\r\n\r\nIn `New()`, the resiliency `policyRunner` was created using `context.Background()` instead of the caller-provided `ctx`.\r\n\r\nThis meant that if the runtime shut down or the parent context was cancelled, in-flight delivery retries continued running instead of being cancelled properly, leading to delayed or unclean shutdown behavior.\r\n\r\n---\r\n\r\n## What changed?\r\n\r\n### `pkg/runtime/pubsub/subscriptions.go`\r\n\r\n- Moved `StartInternalCallbackSpan` outside the `if iTraceID != nil` block so a tracing span is always started.\r\n- An empty `SpanContext` now correctly creates a new root span when no trace context is provided.\r\n- Added a warning log when a `traceparent` is present but fails to parse, surfacing malformed trace context without blocking message processing.\r\n\r\n### `pkg/runtime/subscription/subscription.go`\r\n\r\n- Changed:\r\n\r\n```go\r\nresiliency.NewRunner[any](context.Background(), policyDef)\r\n```\r\n\r\nto:\r\n\r\n```go\r\nresiliency.NewRunner[any](ctx, policyDef)\r\n```\r\n\r\n- This ensures the caller\u2019s context, including cancellation signals and deadlines, is correctly propagated into the delivery runner.\r\n\r\n---\r\n\r\n## Tests\r\n\r\nExisting tests in:\r\n\r\n- `pkg/runtime/subscription/postman/grpc/grpc_test.go`\r\n\r\nalready cover the tracing path through `GRPCEnvelopeFromSubscriptionMessage` via `Deliver()`, including scenarios with:\r\n\r\n- a valid `traceparent`\r\n- no `traceparent`\r\n\r\nNo new tests were added because the current coverage is sufficient for these changes.\r\n### Existing tests are passing.",
+  "labels": [],
+  "user": "RituGupta23",
+  "created_at": "2026-05-26T17:20:52Z",
+  "updated_at": "2026-05-27T07:28:25Z",
+  "additions": 14,
+  "deletions": 9,
+  "changed_files": 2,
+  "linked_issue_numbers": [],
+  "comments": [],
+  "html_url": "https://github.com/dapr/dapr/pull/10012",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "pkg/runtime/pubsub/subscriptions.go",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 8,
+      "patch": "@@ -391,22 +391,27 @@ func GRPCEnvelopeFromSubscriptionMessage(ctx context.Context, msg *SubscribedMes\n \t\tiTraceID = cloudEvent[contribpubsub.TraceIDField]\n \t}\n \n+\tvar sc trace.SpanContext\n \tif iTraceID != nil {\n \t\tif traceID, ok := iTraceID.(string); ok {\n-\t\t\tsc, _ := diag.SpanContextFromW3CString(traceID)\n-\t\t\tspanName := \"pubsub/\" + msg.Topic\n-\n-\t\t\t// no ops if trace is off\n-\t\t\tctx, span = diag.StartInternalCallbackSpan(ctx, spanName, sc, tracingSpec)\n-\t\t\t// span is nil if tracing is disabled (sampling rate is 0)\n-\t\t\tif span != nil {\n-\t\t\t\tctx = diag.SpanContextToGRPCMetadata(ctx, span.SpanContext())\n+\t\t\tvar parsed bool\n+\t\t\tsc, parsed = diag.SpanContextFromW3CString(traceID)\n+\t\t\tif !parsed {\n+\t\t\t\tlog.Warnf(\"failed to parse traceparent for pubsub topic %s, starting new root span\", msg.Topic)\n \t\t\t}\n \t\t} else {\n \t\t\tlog.Warnf(\"ignored non-string traceid value: %v\", iTraceID)\n \t\t}\n \t}\n \n+\tspanName := \"pubsub/\" + msg.Topic\n+\t// no ops if trace is off; empty sc produces a new root span\n+\tctx, span = diag.StartInternalCallbackSpan(ctx, spanName, sc, tracingSpec)\n+\t// span is nil if tracing is disabled (sampling rate is 0)\n+\tif span != nil {\n+\t\tctx = diag.SpanContextToGRPCMetadata(ctx, span.SpanContext())\n+\t}\n+\n \textensions, extensionsErr := ExtractCloudEventExtensions(cloudEvent)\n \tif extensionsErr != nil {\n \t\tdiag.DefaultComponentMonitoring.PubsubIngressEvent(ctx, msg.PubSub, strings.ToLower(string(contribpubsub.Retry)), \"\", msg.Topic, 0)",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pkg/runtime/subscription/subscription.go",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -344,7 +344,7 @@ func New(opts Options) (*Subscription, error) {\n \t\t\tPubSub:       name,\n \t\t\tSubscriberID: s.connectionID,\n \t\t}\n-\t\tpolicyRunner := resiliency.NewRunner[any](context.Background(), policyDef)\n+\t\tpolicyRunner := resiliency.NewRunner[any](ctx, policyDef)\n \t\t_, err = policyRunner(func(ctx context.Context) (any, error) {\n \t\t\tpErr := s.postman.Deliver(ctx, sm)\n ",
+      "patch_truncated": false
+    }
+  ]
+}

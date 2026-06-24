@@ -1,0 +1,25 @@
+{
+  "type": "issue",
+  "number": 10074,
+  "title": "Dapr Workflow fails with Redis OSS Cluster mode \u2014 EXECABORT on ScheduleNewWorkflowAsync",
+  "state": "open",
+  "body": "## In what area(s)?\n\n/area runtime\n\n## What version of Dapr?\n\nCLI version: 1.17.0\nRuntime version: 1.17.3\n\n## Expected Behavior\n\nDapr Workflows should work with Redis state stores running in OSS Cluster mode, or documentation should explicitly state cluster mode is unsupported.\n\n## Actual Behavior\n\n`ScheduleNewWorkflowAsync` throws:\n\n```\nGrpc.Core.RpcException: Status(StatusCode=\"Unknown\", Detail=\"failed to create orchestration instance: EXECABORT Transaction discarded because of previous errors.\")\n```\n\nThe Durable Task engine's `MULTI/EXEC` transactions operate on keys that hash to different slots. Redis Cluster requires all keys in a transaction to be in the same hash slot.\n\nAttempted workarounds that **did not** help:\n- `keyPrefix: \"{dapr}\"` \u2014 workflow engine keys bypass component-level prefix\n- `redisType: \"cluster\"`\n\n**Works** with non-clustered Redis (Azure Cache for Redis Basic/Standard, local Docker Redis).\n\n## Steps to Reproduce the Problem\n\n1. Use any Redis instance with OSS Cluster enabled (e.g., Azure Managed Redis \u2014 which **only** supports OSSCluster with no way to disable it).\n\n2. Configure state store component:\n\n```yaml\napiVersion: dapr.io/v1alpha1\nkind: Component\nmetadata:\n  name: statestore\nspec:\n  type: state.redis\n  version: v1\n  metadata:\n    - name: redisHost\n      value: \"<name>.eastus.redis.azure.net:10000\"\n    - name: redisPassword\n      value: \"<access-key>\"\n    - name: actorStateStore\n      value: \"true\"\n    - name: enableTLS\n      value: \"true\"\n```\n\n3. Register and schedule any workflow.\n\n4. Call `ScheduleNewWorkflowAsync` \u2192 `EXECABORT` error.\n\n**Environment:** Azure Managed Redis, Redis 7.4, SKU Balanced 1 GB, Clustering Policy: OSSCluster, Windows local dev.\n\n**Note:** Azure Managed Redis is Microsoft's recommended Redis product going forward and has no non-clustered option. This also affects AWS ElastiCache cluster mode and self-hosted Redis Cluster.\n\n## Release Note\n\nRELEASE NOTE: **FIX** Dapr Workflow Redis state store incompatible with Redis OSS Cluster mode due to cross-slot MULTI/EXEC transactions.\n",
+  "labels": [
+    "kind/bug"
+  ],
+  "user": "shahrukhkhan532",
+  "created_at": "2026-06-09T10:37:22Z",
+  "updated_at": "2026-06-23T10:39:54Z",
+  "comments": [
+    {
+      "user": "shahrukhkhan532",
+      "body": "@cicoyle Can you please look into this issue ?",
+      "created_at": "2026-06-23T10:39:54Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/10074",
+  "is_seed": false,
+  "partial": false
+}

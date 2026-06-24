@@ -1,0 +1,48 @@
+{
+  "type": "issue",
+  "number": 3425,
+  "title": "Update to latest Zeebe version + Camunda renamed their repository for the GO client",
+  "state": "open",
+  "body": "## Background\r\n\r\nCamunda yesterday renamed the `https://camunda/zeebe` repository to `https://camunda/camunda`. This repo contains also the GO client.\r\n\r\nI already tried to update to the latest version which should reference the new repository. But it seems that there is an issue with the latest version which points to the old lib.\r\n\r\nhttps://github.com/camunda/camunda/issues/18795 \r\n\r\n## Release Note\r\n\r\n<!-- How should the fix for this issue be communicated in our release notes? It can be populated later. -->\r\n<!-- Keep it as a single line. Examples: -->\r\n\r\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\r\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\r\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\r\n\r\nRELEASE NOTE: **UPDATE** Zeebe lib to 8.5.1.\r\n",
+  "labels": [
+    "kind/enhancement",
+    "help wanted"
+  ],
+  "user": "akkie",
+  "created_at": "2024-05-24T11:31:54Z",
+  "updated_at": "2024-09-19T06:46:21Z",
+  "comments": [
+    {
+      "user": "akkie",
+      "body": "@vimateck, @fabistb FYI",
+      "created_at": "2024-05-24T11:32:14Z"
+    },
+    {
+      "user": "berndverst",
+      "body": "Can you please provide some details as to the need to update the library? Every library update introduces risks for the project and components after all, so there needs to be a specific reason for modifying dependency versions.\r\n\r\nThe name change is not a problem.\r\n\r\nIdeally you could make the PR and I can review it.",
+      "created_at": "2024-06-03T22:47:46Z"
+    },
+    {
+      "user": "akkie",
+      "body": "Camunda itself releases a new client version for each new version of the Camunda platform. The subset of functionality we use in the binding is usually backward compatible. But from time to time it makes sense to update the versions as well, because there might be bug fixes for features we use in the binding.\r\n\r\nThe current version of the Camunda platform is 8.5.1. In the binding we use 8.2.12, which is a bit old. Camunda releases a new minor version every 6 months.\r\n\r\nAs the Camunda developers mentioned in the linked issue, the next version should have the new naming. So I would wait for that release and then create a PR that bumps to the current version.\r\n\r\nFYI: Camunda will release a new API with version 8.6.0 in October which is REST based and will deprecate the current GO client which is gRPC based. The gRPC API will be removed completely with version 8.8.0. They will also provide a GO client for the new API. The idea then was to create a new binding version once the new REST based client was available.",
+      "created_at": "2024-06-06T12:35:45Z"
+    },
+    {
+      "user": "elena-kolevska",
+      "body": "I did a quick walk through the versions, and these seem to be the changes. I don't know the library, nor zeebe, but at a first glance, the only ones that might be useful in dapr are the first three. @akkie do you have more insight?\r\n\r\n- go-client: Job worker polling backoff mechanism (#6150)\r\n- Job worker should apply backoff on job polling in case of service unavailable (#4443)\r\n- Support UpdateJobTimeout RPC in Go Client (#15366)\r\n- zbctl 8.4.0 can't send requests with authorization information (#16015)\r\n- Go client commands allow specifying a tenantId / tenantIds property (#15153)\r\n- Add multi-tenancy support in the Zeebe Go client (#14477)\r\n- Zbctl (latest) is not working with SaaS (#15524)\r\n- fix: go client omit optional scope param if not set (#18154)",
+      "created_at": "2024-09-16T15:22:05Z"
+    },
+    {
+      "user": "akkie",
+      "body": "@elena-kolevska You asked because of my PR to update to the latest version?\r\n\r\nAll the go client related bug fixes are relevant for the Dapr binding. The current #3540 PR is only a maintenance PR. I think it's also the last update for this client, because Camunda will deprecate the gRPC API and the GO client in October. What happens next is written in the stars. Please see https://github.com/camunda/issues/issues/835",
+      "created_at": "2024-09-19T06:46:20Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    3540
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/3425",
+  "is_seed": false,
+  "partial": false
+}

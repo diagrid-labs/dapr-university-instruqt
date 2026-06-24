@@ -1,0 +1,26 @@
+{
+  "type": "issue",
+  "number": 4387,
+  "title": "Azure Service Bus topic idle session timeout logged as an error (error severity issue)",
+  "state": "open",
+  "body": "<!-- If you need to report a security issue please visit https://docs.dapr.io/operations/support/support-security-issues -->\n\n## Expected Behavior\nWhen the idle session timeout is reached in the Azure Service Bus pub/sub component that uses sessions, error logging should be suppressed, similar to how it is currently handled for context.Canceled.\ncommon\\component\\azure\\servicebus\\subscription.go\n```\nmsgs, err := receiver.ReceiveMessages(receiverCtx, s.maxBulkSubCount, nil)\n\t\tif receiverCancel != nil {\n\t\t\treceiverCancel()\n\t\t}\n\t\tif err != nil {\n\t\t\tif err != context.Canceled {\n\t\t\t\ts.logger.Errorf(\"Error reading from %s. %s\", s.entity, err.Error())\n\t\t\t}\n\t\t\t<-s.activeOperationsChan\n\t\t\t// Return the error. This will cause the Service Bus component to try and reconnect.\n\t\t\treturn err\n\t\t}\n``` \n<!-- Briefly describe what you expect to happen -->\n\n\n## Actual Behavior\nWhen sessions are used with the Azure Service Bus pub/sub component and the idle session timeout is exceeded, an error is logged by the Dapr sidecar.\nAs shown in the snippet above, DeadlineExceeded is raised after the timeout, but it is not currently filtered out. Additionally, because the error is returned, it is logged a second time by the caller.\nBoth log entries use error severity, which creates confusion in observability.\nAdding an additional check for DeadlineExceeded could potentially help resolve this issue.\n<!-- Briefly describe what is actually happening -->\n\n\n## Steps to Reproduce the Problem\n- set Azure Service Bus pub/sub component to use sessions on subsriptions\n- subscribe to a topic using session\n- send a message to connect to topic\n- wait for idle timeout to appear\n<!-- How can a maintainer reproduce this issue (be detailed) -->\n\n## Release Note\n\n<!-- How should the fix for this issue be communicated in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE:\n",
+  "labels": [
+    "kind/bug",
+    "stale"
+  ],
+  "user": "pwisn",
+  "created_at": "2026-05-20T11:07:20Z",
+  "updated_at": "2026-06-19T11:24:04Z",
+  "comments": [
+    {
+      "user": "dapr-bot",
+      "body": "This issue has been automatically marked as stale because it has not had activity in the last 30 days. It will be closed in the next 7 days unless it is tagged (pinned, good first issue, help wanted or triaged/resolved) or other activity occurs. Thank you for your contributions.",
+      "created_at": "2026-06-19T11:24:03Z"
+    }
+  ],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4387",
+  "is_seed": false,
+  "partial": false
+}

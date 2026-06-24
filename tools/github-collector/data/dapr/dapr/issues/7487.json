@@ -1,0 +1,34 @@
+{
+  "type": "issue",
+  "number": 7487,
+  "title": "Error Standardization: Workflow API",
+  "state": "open",
+  "body": "Richer errors in Dapr for the **Workflow API**.\r\n\r\n**Note**: Please clone this issue and assign the clone of this issue to yourself if you would like to contribute to the error standardization efforts.\r\n\r\n# Scope of work\r\n\r\n- [ ] Choose 5-10 errors in the Workflow API to enrich. Ideally, cover as many errors as possible from the API.\r\n- [ ] Follow the steps outlined in [this README](https://github.com/dapr/dapr/blob/master/pkg/api/errors/README.md) for each error being updated\r\n\r\n# Definition of done\r\n\r\n- [ ] Update 5-10 errors in the Workflow API\r\n- [ ] Update the unit tests, if necessary\r\n- [ ] Write integration tests to cover each updated errors\r\n\r\n# Keep in mind\r\n\r\nUnless a major version is being released and there is a solid reason for introducing backwards incompatibility, we can't change the API, meaning the HTTP and gRPC status codes, and the error codes must stay the same. An exception to this is the gRPC `StatusCode.UNKNOWN` which should be converted to a specific status.\r\n\r\nSee the [kit errors pkg README](https://github.com/dapr/kit/blob/main/errors/README.md) for another usage example. For each error being updated, you can use the following helper functions to add error details, see the kit [errors pkg](https://github.com/dapr/kit/tree/main/errors) for more details:\r\n\r\n- `WithHelpLink()`\r\n-  `WithHelp()`\r\n-  `WithErrorInfo()` - **Required**\r\n-  `WithFieldViolation()`\r\n-  `WithDetails()`\r\n\r\n# Reference PRs\r\nExisting error standardization for: \r\n- [State API](https://github.com/dapr/dapr/pull/7257)\r\n- [PubSub API](https://github.com/dapr/dapr/pull/7322)",
+  "labels": [
+    "good first issue"
+  ],
+  "user": "cicoyle",
+  "created_at": "2024-02-02T19:56:45Z",
+  "updated_at": "2026-04-11T22:20:51Z",
+  "comments": [
+    {
+      "user": "olitomlinson",
+      "body": "**Requirement**\r\n\r\n- A dedicated error code to represent when a Workflow is trying to be scheduled when it is already running\r\n\r\n---\r\n\r\nPresently, the way to catch this error is with the following in .NET, which is not a great Dev Ex.\r\n\r\n```c#\r\ntry\r\n{\r\n    result = await workflowClient.ScheduleNewWorkflowAsync(...);\r\n}\r\ncatch(Grpc.Core.RpcException ex) when \r\n(ex.StatusCode == Grpc.Core.StatusCode.Unknown && ex.Status.Detail.Contains(\"an active workflow with ID\"))\r\n{ \r\n  ... \r\n}\r\n```",
+      "created_at": "2024-03-18T08:55:34Z"
+    },
+    {
+      "user": "ogulcanaydogan",
+      "body": "I've opened PR #9783 addressing this issue. The PR adds a `WorkflowError` domain-specific error type in `pkg/api/errors/workflow.go`, covering 12 error scenarios for the Workflow API, following the same pattern as the State and Configuration API standardization.",
+      "created_at": "2026-04-11T22:20:51Z"
+    }
+  ],
+  "linked_pr_numbers": [
+    9254,
+    9783,
+    9830
+  ],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/dapr/issues/7487",
+  "is_seed": false,
+  "partial": false
+}

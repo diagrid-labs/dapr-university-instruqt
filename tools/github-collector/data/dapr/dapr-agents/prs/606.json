@@ -1,0 +1,181 @@
+{
+  "type": "pr",
+  "number": 606,
+  "title": "docs: correct directory paths in example references #583",
+  "state": "open",
+  "body": "## Description\r\nThis PR fixes incorrect directory path references in the Dapr Agents documentation and configuration files. The agents-as-tools example was incorrectly referenced as `examples/09-agents-as-tools` when the actual directory is `examples/08-agents-as-tools`. Additionally, project names in `pyproject.toml` files were misaligned with their directory structure.\r\n\r\n## Changes\r\n- **examples/08-agents-as-tools/README.md**: Fixed title and command examples to use correct directory path `08` instead of `09`\r\n- **examples/08-agents-as-tools/pyproject.toml**: Updated project name from `09-agents-as-tools` to `08-agents-as-tools`\r\n- **examples/07-agents-as-activities-observability/pyproject.toml**: Corrected project name from `09-agents-as-activities-observability` to `07-agents-as-activities-observability`\r\n- **pyproject.toml** (root): Updated examples list reference from `examples/09-agents-as-tools` to `examples/08-agents-as-tools`\r\n\r\n## Related Issue\r\nFixes #583\r\n\r\n## Type of Change\r\n- [ ] Bug fix (non-breaking change which fixes an issue)\r\n- [x] Documentation fix (non-breaking change which improves documentation)\r\n- [ ] New feature (non-breaking change which adds functionality)\r\n- [ ] Breaking change (fix or feature that would cause existing functionality to change)\r\n\r\n## Testing\r\nAll code quality checks have been run locally:\r\n```bash\r\nuv run ruff format && uv run flake8 dapr_agents tests --ignore=E501,F401,W503,E203,E704 && uv run mypy --config-file mypy.ini && uv run pytest tests -m \"not integration\"",
+  "labels": [],
+  "user": "harshitanagpal05",
+  "created_at": "2026-05-17T13:38:12Z",
+  "updated_at": "2026-06-03T17:56:19Z",
+  "additions": 10,
+  "deletions": 28,
+  "changed_files": 19,
+  "linked_issue_numbers": [
+    583
+  ],
+  "comments": [
+    {
+      "user": "seherv",
+      "body": "No need to include this file, this is basically restating what you posted in your Github issue and PR description",
+      "created_at": "2026-05-18T10:27:40Z"
+    }
+  ],
+  "html_url": "https://github.com/dapr/dapr-agents/pull/606",
+  "is_seed": false,
+  "partial": false,
+  "files": [
+    {
+      "filename": "dapr_agents/agents/base.py",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "patch": "@@ -16,7 +16,6 @@\n import asyncio\n import json\n import logging\n-import re\n from importlib.metadata import version\n from datetime import datetime, timezone\n from typing import Any, Dict, Iterable, List, Optional, Sequence, Type, Union, Coroutine",
+      "patch_truncated": false
+    },
+    {
+      "filename": "dapr_agents/agents/durable.py",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 3,
+      "patch": "@@ -16,8 +16,6 @@\n from datetime import datetime, timedelta, timezone\n import functools\n import json\n-import logging\n-import re\n import uuid\n from typing import Any, Callable, Dict, Iterable, List, Optional, Union\n from os import getenv\n@@ -53,7 +51,6 @@\n from dapr_agents.agents.configs import (\n     OrchestrationMode,\n     ToolExecutionMode,\n-    AgentApprovalConfig,\n     AgentExecutionConfig,\n     AgentMemoryConfig,\n     AgentPubSubConfig,",
+      "patch_truncated": false
+    },
+    {
+      "filename": "dapr_agents/tool/workflow/agent_tool.py",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "patch": "@@ -19,7 +19,6 @@\n from pydantic import BaseModel, Field\n \n from dapr_agents.tool.workflow.tool_context import WorkflowContextInjectedTool\n-from dapr_agents.workflow.utils.names import sanitize_agent_name\n \n logger = logging.getLogger(__name__)\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "dapr_agents/tool/workflow/tool_context.py",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -12,7 +12,7 @@\n #\n \n import logging\n-from typing import Any, Callable, Dict, Optional\n+from typing import Any, Callable, Dict\n \n from dapr_agents.tool.base import AgentTool\n from dapr_agents.types import ToolError",
+      "patch_truncated": false
+    },
+    {
+      "filename": "examples/04-multi-agent-workflows/services/frodo/app.py",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "patch": "@@ -61,8 +61,6 @@ async def main() -> None:\n     # ---------------------------\n     # Frodo (journey lead)\n     # ---------------------------\n-    frodo_name = \"frodo\"\n-\n     frodo_pubsub = AgentPubSubConfig(\n         pubsub_name=\"messagepubsub\",\n         agent_topic=\"fellowship.frodo.requests\",",
+      "patch_truncated": false
+    },
+    {
+      "filename": "examples/04-multi-agent-workflows/services/gandalf/app.py",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "patch": "@@ -61,8 +61,6 @@ async def main() -> None:\n     # ---------------------------\n     # Gandalf (wizard & loremaster)\n     # ---------------------------\n-    gandalf_name = \"Gandalf\"\n-\n     gandalf_pubsub = AgentPubSubConfig(\n         pubsub_name=\"messagepubsub\",\n         agent_topic=\"fellowship.gandalf.requests\",",
+      "patch_truncated": false
+    },
+    {
+      "filename": "examples/04-multi-agent-workflows/services/legolas/app.py",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "patch": "@@ -61,8 +61,6 @@ async def main() -> None:\n     # ---------------------------\n     # Legolas (Elf scout & marksman)\n     # ---------------------------\n-    legolas_name = \"Legolas\"\n-\n     legolas_pubsub = AgentPubSubConfig(\n         pubsub_name=\"messagepubsub\",\n         agent_topic=\"fellowship.legolas.requests\",",
+      "patch_truncated": false
+    },
+    {
+      "filename": "examples/04-multi-agent-workflows/services/sam/app.py",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "patch": "@@ -66,8 +66,6 @@ async def main() -> None:\n     # ---------------------------\n     # Sam (logistics & support)\n     # ---------------------------\n-    sam_name = \"sam\"\n-\n     sam_pubsub = AgentPubSubConfig(\n         pubsub_name=\"messagepubsub\",\n         agent_topic=\"fellowship.sam.requests\",",
+      "patch_truncated": false
+    },
+    {
+      "filename": "examples/07-agents-as-activities-observability/pyproject.toml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -12,7 +12,7 @@\n #\n \n [project]\n-name = \"09-agents-as-activities-observability\"\n+name = \"07-agents-as-activities-observability\"\n version = \"0.1.0\"\n requires-python = \">=3.11, <3.14\"\n dependencies = [",
+      "patch_truncated": false
+    },
+    {
+      "filename": "examples/08-agents-as-tools/README.md",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "patch": "@@ -11,7 +11,7 @@ See the License for the specific language governing permissions and\n limitations under the License.\n -->\n \n-# 09 \u2014 Agents as Tools\n+# 08 \u2014 Agents as Tools\n \n This example demonstrates how one `DurableAgent` can call another as a\n **synchronous child workflow tool**.  The calling agent's LLM picks the tool,\n@@ -38,7 +38,7 @@ Both agents share one Dapr sidecar.  Sam is passed directly as a `DurableAgent`\n instance in Frodo's `tools` list and is auto-converted to an `AgentWorkflowTool`.\n \n ```bash\n-cd examples/09-agents-as-tools\n+cd examples/08-agents-as-tools\n dapr run -f dapr-in-process.yaml\n ```\n \n@@ -57,7 +57,7 @@ shared registry (`USE_REGISTRY=1`, the default) or you can wire them explicitly\n with `agent_to_tool`.\n \n ```bash\n-cd examples/09-agents-as-tools\n+cd examples/08-agents-as-tools\n dapr run -f dapr-cross-app.yaml\n ```\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "examples/08-agents-as-tools/cross-app/sam/app.py",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "patch": "@@ -21,7 +21,6 @@\n \n from __future__ import annotations\n \n-import asyncio\n import logging\n import os\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "examples/08-agents-as-tools/pyproject.toml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -12,7 +12,7 @@\n #\n \n [project]\n-name = \"09-agents-as-tools\"\n+name = \"08-agents-as-tools\"\n version = \"0.1.0\"\n requires-python = \">=3.11, <3.14\"\n dependencies = [",
+      "patch_truncated": false
+    },
+    {
+      "filename": "examples/09-durable-agent-hot-reload/agent.py",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "patch": "@@ -16,7 +16,6 @@\n from dapr_agents.agents.durable import DurableAgent\n from dapr_agents.agents.configs import (\n     RuntimeConfigKey,\n-    RuntimeRuntimeConfigKey,\n     RuntimeSubscriptionConfig,\n     AgentStateConfig,\n     AgentPubSubConfig,",
+      "patch_truncated": false
+    },
+    {
+      "filename": "pyproject.toml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -174,6 +174,6 @@ members = [\n     \"examples/06-agent-mcp-client-streamablehttp\",\n     \"examples/07-data-agent-mcp-chainlit\",\n     \"examples/08-agents-as-activities-observability\",\n-    \"examples/09-agents-as-tools\",\n+    \"examples/08-agents-as-tools\",\n     \"examples/11-expert-agent-tavily\",\n ]",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/agents/durableagent/test_agents_as_tools.py",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -23,7 +23,7 @@\n \n from datetime import timedelta\n from typing import Optional\n-from unittest.mock import MagicMock, Mock, patch\n+from unittest.mock import MagicMock, patch\n \n import pytest\n ",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/agents/durableagent/test_durable_agent.py",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -40,7 +40,7 @@\n from dapr_agents.memory import ConversationDaprStateMemory\n from dapr_agents.storage.daprstores.stateservice import StateStoreService\n from dapr_agents.tool.base import AgentTool\n-from dapr_agents.types import AgentError, DaprWorkflowStatus\n+from dapr_agents.types import AgentError\n \n \n def _activity_method_name(activity: object) -> str:",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/agents/durableagent/test_hitl_workflow.py",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "@@ -22,7 +22,7 @@\n import uuid\n from datetime import timedelta\n from typing import Optional\n-from unittest.mock import AsyncMock, MagicMock, Mock, patch, call\n+from unittest.mock import AsyncMock, MagicMock, Mock, patch\n \n import pytest\n from dapr.ext.workflow import DaprWorkflowContext",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/agents/test_hot_reload.py",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "patch": "@@ -21,7 +21,6 @@\n from dapr_agents.agents.configs import (\n     AgentMetadata,\n     AgentMetadataSchema,\n-    AgentObservabilityConfig,\n     LLMMetadata,\n     RuntimeSubscriptionConfig,\n )",
+      "patch_truncated": false
+    },
+    {
+      "filename": "tests/workflow/test_workflow_runner.py",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "patch": "@@ -19,8 +19,6 @@\n from concurrent.futures import ThreadPoolExecutor, as_completed\n from unittest.mock import MagicMock, patch\n \n-import pytest\n-\n from dapr_agents.workflow.runners.base import WorkflowRunner\n \n ",
+      "patch_truncated": false
+    }
+  ]
+}

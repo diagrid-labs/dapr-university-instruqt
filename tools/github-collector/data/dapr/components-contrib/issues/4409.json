@@ -1,0 +1,19 @@
+{
+  "type": "issue",
+  "number": 4409,
+  "title": "Conversation API - yaml component metadata overrides",
+  "state": "open",
+  "body": "## Describe the feature\nAllow runtime setting/override for conversation component metadata (api_key, model, endpoint).\n\nThe docs - https://docs.dapr.io/reference/api/conversation_api/ - seem to say that I can send override endpoint, api key and model in a conversation request metadata which override the metadata fields defined in the yaml component. In reality, this does not seem to work. \nAt the time it was written -  https://github.com/dapr/docs/issues/4522 - it seems the conversation component partially supported it - https://github.com/dapr/components-contrib/blob/v1.15.0/conversation/converse.go and https://github.com/dapr/dapr/blob/v1.15.0/pkg/api/universal/conversation.go - but it seems it was never actually used downstream. I think that at the time, the parameters property was intended to carry options into the called provider/model.\nNow, it seems that parameters was marked for extinction, and metadata was hijacked to send options into the provider/model - https://github.com/dapr/components-contrib/blob/main/conversation/converse.go \nAs-is, I have no way to define or shape a conversation component at runtime, and I need all of my models predefined in yaml components. That is a lot of extra maintenance for seemingly no reason.\n\n## Release Note\n<!-- How should this new feature be announced in our release notes? It can be populated later. -->\n<!-- Keep it as a single line. Examples: -->\n\n<!-- RELEASE NOTE: **ADD** New feature in Dapr. -->\n<!-- RELEASE NOTE: **FIX** Bug in runtime. -->\n<!-- RELEASE NOTE: **UPDATE** Runtime dependency. -->\n\nRELEASE NOTE:\n",
+  "labels": [
+    "kind/enhancement"
+  ],
+  "user": "ngreenwald-admng",
+  "created_at": "2026-06-15T04:13:59Z",
+  "updated_at": "2026-06-15T04:13:59Z",
+  "comments": [],
+  "linked_pr_numbers": [],
+  "referenced_issue_numbers": [],
+  "html_url": "https://github.com/dapr/components-contrib/issues/4409",
+  "is_seed": false,
+  "partial": false
+}
