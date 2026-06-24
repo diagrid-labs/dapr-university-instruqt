@@ -1,4 +1,6 @@
-In this challenge you'll wire up the infrastructure that Dapr Workflow and the Diagrid Dev Dashboard need to run. You'll create two Dapr state store component files (both pointing at the `dapr_redis` container that `dapr init` started for you), make sure they're copied to the output directory on build, and update the AppHost so Aspire orchestrates the Dapr sidecar.
+In this challenge you'll wire up the infrastructure that Dapr Workflow and the Diagrid Dev Dashboard need to run. You'll create two Dapr state store component files (both pointing at the `dapr_redis` container that `dapr init` started for you), make sure they're copied to the output directory on build, and update the AppHost so Aspire orchestrates the Dapr sidecar. This challenge will take about 5 minutes to complete.
+
+
 
 ## 1. State store components
 

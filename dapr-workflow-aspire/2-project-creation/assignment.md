@@ -1,30 +1,14 @@
-In this challenge you'll lay the foundation for the USS Enterprise diagnostics application. You'll scaffold a new Aspire solution, pin its dashboard to fixed ports so it's reachable in the learning environment, and add the NuGet packages required for Dapr and Dapr Workflow.
+In this challenge you'll lay the foundation for the USS Enterprise diagnostics application. You'll scaffold a new Aspire solution, pin its dashboard to fixed ports so it's reachable in the learning environment, and add the NuGet packages required for Dapr and Dapr Workflow. This first challenge will take about 5 minutes to complete.
 
 ## 1. Scaffold the Aspire solution
 
-1. Start by running the following `aspire new` command to scaffold the `aspire-starter` template solution which serves as the basis for the workflow application you're building:
+1. Start by running the following `dotnet new` command to scaffold the `aspire-starter` template solution which serves as the basis for the workflow application you're building:
 
 ```shell,run
-aspire new aspire-starter -n EnterpriseDiagnostics -o EnterpriseDiagnostics --non-interactive --test-framework none
+dotnet new aspire-starter -n EnterpriseDiagnostics -o EnterpriseDiagnostics
 ```
 
-Expected output:
-
-```text,nocopy
-Searching for available project template versions...
-🧊 Getting templates...
-📦 Using project templates version: 13.3.2
-🚀 Creating new Aspire project...
-🔐 Trusting certificates...
-⚠️ Developer certificates may not be fully trusted (trust exit code was: PartiallyFailedToTrustTheCertificate).
-✅ Project created successfully in /root/dapr-workflow-aspire/EnterpriseDiagnostics.
-Detecting agent environments...
-✅ Installed aspire skill (.agents/skills/aspire).
-✅ Installed aspire skill (~/.agents/skills/aspire).
-✅ Installed aspireify skill (.agents/skills/aspireify).
-✅ Installed aspireify skill (~/.agents/skills/aspireify).
-✅ Agent environment configuration complete.
-```
+The output contains information on the project creation and restoring dependencies. Do not upgrade to the latest version of Aspire since that does not work in this sandbox environment yet.
 
 > [!IMPORTANT]
 > Refresh the Editor window using the circular arrow. It should show the EnterpriseDiagnostics solution now.
@@ -42,10 +26,12 @@ cd EnterpriseDiagnostics
 
 Open the `launchSettings.json` file located in `EnterpriseDiagnostics.AppHost/Properties/`.
 
-1. Remove the `https` profile completely.
-2. Update the`http` profile as follows:
+Replace the entire contents of the file with this json:
 
 ```json,copy
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
     "http": {
     "commandName": "Project",
     "dotnetRunMessages": true,
@@ -58,24 +44,24 @@ Open the `launchSettings.json` file located in `EnterpriseDiagnostics.AppHost/Pr
         "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://0.0.0.0:17003",
         "DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS": true,
         "ASPIRE_ALLOW_UNSECURED_TRANSPORT": true
-        }
+      }
     }
+  }
+}
 ```
 
 > [!IMPORTANT]
-> Use `0.0.0.0` instead of `localhost` and ensure the port numbers match exactly with the above profile, otherwise the Aspire dashboard can't be accessed in the learning environment. Also verify that the `DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS` and `ASPIRE_ALLOW_UNSECURED_TRANSPORT` variables are set to `true`.
+> The JSON file uses `0.0.0.0` instead of `localhost`, specific port numbers and environment variables to ensure that the Aspire dashboard can be accessed in this learning environment.
 
 ## 3. Add the NuGet packages
 
 Now let's install some dependencies the solution requires. You're building a Dapr Workflow solution and this needs: `Dapr.Workflow`, `Dapr.Workflow.Versioning` and `CommunityToolkit.Aspire.Hosting.Dapr`.
 
-
-
 1. Use the *Terminal* (ensure you're in `EnterpriseDiagnostics/`) to install all the required packages to the correct projects:
 
 ```shell,run,copy
-dotnet add EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj package Dapr.Workflow --version 1.17.9
-dotnet add EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj package Dapr.Workflow.Versioning --version 1.17.9
+dotnet add EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj package Dapr.Workflow --version 1.18.4
+dotnet add EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj package Dapr.Workflow.Versioning --version 1.18.4
 dotnet add EnterpriseDiagnostics.AppHost/EnterpriseDiagnostics.AppHost.csproj package CommunityToolkit.Aspire.Hosting.Dapr --version 13.0.0
 ```
 
@@ -88,8 +74,8 @@ The AppHost project  should have these packages:
 The ApiService project  should have these packages:
 
 ```text,nocopy
-<PackageReference Include="Dapr.Workflow" Version="1.17.9" />
-<PackageReference Include="Dapr.Workflow.Versioning" Version="1.17.9" />
+<PackageReference Include="Dapr.Workflow" Version="1.18.4" />
+<PackageReference Include="Dapr.Workflow.Versioning" Version="1.18.4" />
 <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7" />
 ```
 
