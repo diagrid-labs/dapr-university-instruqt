@@ -1,9 +1,14 @@
 # New University Track Ideas — Reliable GitHub-Analysis Agents
 
-Five new Dapr University tracks that each build a **practical AI agent for developers** on top of a
+Nine new Dapr University tracks that each build a **practical AI agent for developers** on top of a
 different agent framework. Every track tackles the same real-world theme — **making sense of the flood
 of issues and pull requests in a large, high-volume open-source repository** — but each one uses a
 distinct framework and showcases a distinct Dapr/Catalyst reliability feature.
+
+Two use cases recur across the tracks so the framework — not the problem — is what changes:
+a **daily open-PR digest** (fan-out over open PRs → ranked markdown digest) and an **issue-triage
+agent** (categorize/label/dedup recent issues → triage report). Tracks 3–9 reuse one of these two so
+the contrast between frameworks stays crisp.
 
 The single message that runs through all five tracks:
 
@@ -127,11 +132,12 @@ public sealed class GitHubDataReader(string repoDir = "data/dapr/dapr")
 
 The Dapr Workflow activity calls the MAF agent → the agent calls the tool → the tool reads the local data.
 
-### Reader — runtime (Python, Tracks 2–5)
+### Reader — runtime (Python, Tracks 2–9)
 
 Same shape: a pre-coded module reads the local JSON, then the typed calls are wrapped as a framework-native
 tool (the decorator differs per framework — Dapr Agents `@tool`, LangGraph `@tool`/`ToolNode`, Strands
-`@tool`, DeepAgents tool — but the body is the same):
+`@tool`, DeepAgents tool, Google ADK `FunctionTool`, OpenAI Agents `@function_tool`, CrewAI `@tool`,
+PydanticAI `@agent.tool` — but the body is the same):
 
 ```python
 # github_data.py — pre-coded read helper used at runtime. No network, no token.
@@ -272,77 +278,79 @@ Python + uv, Dapr CLI + Dapr Agents, Ollama. (GitHub data is pre-collected into 
 
 ---
 
-## Track 3 — LangGraph
+## Track 3 — LangGraph *(triage)*
 
-**Working title:** *Durable Duplicate Detection with LangGraph and Dapr Workflow*
+**Working title:** *Durable Issue Triage with LangGraph and Dapr Workflow*
 **Framework:** LangGraph (stateful graph orchestration)
 **Language:** Python
 **Estimated time:** ~40 minutes, 4 challenges
 
 ### Use case
-Duplicate issues are the single biggest time sink for maintainers of popular repos. The learner builds a
-**duplicate-detection graph**: given a target issue, the graph gathers candidate recent issues, compares
-them (local embeddings + an LLM adjudication node), and outputs a ranked **"likely duplicates"** list with
-reasoning.
+The same **issue-triage** use case as Track 2, modeled as a LangGraph **graph**. New issues arrive faster
+than maintainers can sort them. Given a batch of recently opened issues, the graph processes each one
+through explicit nodes — gather issue → classify (bug / feature / question / docs) → suggest labels →
+dedup check against recent issues → priority guess → assemble recommendation — and collates the results
+into a triage report.
 
 ### The reliability angle
-LangGraph models the reasoning beautifully as a graph, but its built-in checkpointers are **local and
-ephemeral** (in-memory / SQLite) — fine for a laptop, not for a service that must survive restarts or scale
-out. This track shows two complementary fixes: (1) wrap the LangGraph run inside a **Dapr Workflow** so the
-overall job is durably orchestrated and restartable, and (2) route the graph's LLM calls through the **Dapr
-Conversation API** so retries/timeouts/circuit breakers are declarative. The teaching beat: *you keep
-LangGraph's ergonomics and gain distributed durability + resiliency you'd otherwise hand-roll.* This is the
-best track to feature **Diagrid Catalyst** as the managed Conversation + Workflow backend.
+LangGraph models the triage reasoning beautifully as a graph, but its built-in checkpointers are **local
+and ephemeral** (in-memory / SQLite) — fine for a laptop, not for a service that must survive restarts or
+scale out. This track shows two complementary fixes: (1) wrap the LangGraph run inside a **Dapr Workflow**
+so the overall batch is durably orchestrated and restartable, and (2) route the graph's LLM calls through
+the **Dapr Conversation API** so retries/timeouts/circuit breakers are declarative. The teaching beat:
+*you keep LangGraph's ergonomics and gain distributed durability + resiliency you'd otherwise hand-roll.*
+This is the best track to feature **Diagrid Catalyst** as the managed Conversation + Workflow backend.
 
 ### Challenge outline
-1. **The duplicate problem & setup** — LangGraph basics, confirm the local GitHub data collected into JSON at
-   VM creation, Ollama. Load a target issue + recent issues from the local data via the reader helper.
-2. **Build the LangGraph graph** — nodes: gather candidates → embed/compare (local) → LLM adjudicate →
-   rank. Run it once and note the ephemeral checkpointer limitation.
-3. **Make it durable with Dapr** — wrap the graph invocation in a Dapr Workflow; move LLM calls to the
-   Conversation API with a resiliency policy.
-4. **Crash, resume & go managed** — interrupt mid-run and resume; then point the Conversation/Workflow
-   components at Diagrid Catalyst to show the same code running on managed Dapr.
+1. **The triage problem & setup** — LangGraph basics, confirm the local GitHub data collected into JSON at
+   VM creation, Ollama. Load recent issues from the local data via the reader helper.
+2. **Build the LangGraph graph** — nodes: gather issue → classify → suggest labels → dedup check → priority
+   → assemble. Run it over a few issues and note the ephemeral checkpointer limitation.
+3. **Make it durable with Dapr** — wrap the graph invocation in a Dapr Workflow (one issue per activity);
+   move LLM calls to the Conversation API with a resiliency policy.
+4. **Crash, resume & go managed** — interrupt mid-batch and resume without redoing completed issues; then
+   point the Conversation/Workflow components at Diagrid Catalyst to show the same code on managed Dapr.
 
 ### Output artifact
-`duplicates-<issue#>.md` — ranked candidate duplicates with similarity scores and LLM rationale.
+`triage-report.md` — per-issue category, suggested labels, duplicate-of hint, and priority.
 
 ### Dependencies
-Python + uv, Dapr CLI + workflow, LangGraph, a local embeddings model (via Ollama). (GitHub data is pre-collected into local JSON at VM creation.)
+Python + uv, Dapr CLI + workflow, LangGraph, Ollama. (GitHub data is pre-collected into local JSON at VM creation.)
 
 ---
 
-## Track 4 — Strands
+## Track 4 — Strands *(PR digest)*
 
-**Working title:** *A Resilient "Good First Issue" Finder with Strands*
+**Working title:** *A Resilient PR Digest with Strands*
 **Framework:** Strands Agents SDK (model-driven agent loop)
 **Language:** Python
 **Estimated time:** ~35 minutes, 3 challenges
 
 ### Use case
-Growing a contributor base means surfacing approachable work. The learner builds a **good-first-issue
-finder**: a Strands agent scans open issues, judges which are genuinely newcomer-friendly (clear scope,
-low blast radius, no deep context required), and drafts a short **onboarding note** for each — a ready-made
-"here's how to get started" the maintainer can later post.
+The same maintainer-facing **daily open-PR digest** as Track 1, rebuilt on Strands. For each open PR in a
+batch, a Strands agent runs its **model-driven loop** — reading the PR's files via a tool, then reasoning
+across iterations to **summarize the change, check whether it references an issue, and flag risk signals**
+(touches many files, no tests, large diff). Results collate into a single ranked markdown digest.
 
 ### The reliability angle
 Strands' model-driven agent loop is concise and elegant, but the loop's many LLM/tool iterations are a
-**resiliency liability** on a small local model that occasionally times out or returns garbage. This track
-wraps the Strands run in a **Dapr Workflow** so the overall scan is durable and restartable, and sends the
-agent's model calls through the **Dapr Conversation API** for declarative retries/timeouts. The learner sees
-a deliberately induced model timeout get retried transparently instead of crashing the run.
+**resiliency liability** on a small local model that occasionally times out or returns garbage — and a
+batch of 20–50 PRs multiplies that risk. This track wraps the Strands run in a **Dapr Workflow** so the
+overall digest is durable and restartable (one PR per checkpointed activity), and sends the agent's model
+calls through the **Dapr Conversation API** for declarative retries/timeouts. The learner sees a
+deliberately induced model timeout get retried transparently instead of crashing the run.
 
 ### Challenge outline
-1. **Strands + the GFI use case & setup** — Strands agent-loop basics, confirm the local GitHub data collected
-   into JSON at VM creation, Ollama; configure Strands to use the local model. Load open issues from the local
-   data via the reader helper.
-2. **Build the finder agent** — tools to read issue details and labels; prompt the agent to score
-   newcomer-friendliness and draft an onboarding note. Run over a sample.
-3. **Add Dapr resiliency** — wrap in a Dapr Workflow + Conversation API resiliency policy; trigger a
-   timeout/retry and an interrupt-and-resume to prove durability.
+1. **Strands + the digest use case & setup** — Strands agent-loop basics, confirm the local GitHub data
+   collected into JSON at VM creation, Ollama; configure Strands to use the local model. Load the list of
+   open PRs from the local data via the reader helper.
+2. **Build the PR-analysis agent** — a tool to fetch a PR's files/diff from the local data; prompt the
+   agent to summarize, check for a linked issue, and score risk. Run over a sample PR.
+3. **Add Dapr resiliency** — wrap in a Dapr Workflow (fan-out across PRs, fan-in to a digest) + Conversation
+   API resiliency policy; trigger a timeout/retry and an interrupt-and-resume to prove durability.
 
 ### Output artifact
-`good-first-issues.md` — shortlisted issues, friendliness scores, and draft onboarding notes.
+`pr-digest.md` — ranked open PRs with one-line summaries, linked-issue status, and risk flags.
 
 ### Dependencies
 Python + uv, Dapr CLI + workflow, Strands Agents SDK, Ollama. (GitHub data is pre-collected into local JSON at VM creation.)
@@ -389,20 +397,193 @@ Python + uv, Dapr CLI + workflow, DeepAgents (LangChain), Ollama. (GitHub data i
 
 ---
 
+## Track 6 — Google ADK *(PR digest)*
+
+**Working title:** *Reliable PR Digests with Google ADK Parallel Agents*
+**Framework:** Google Agent Development Kit (ADK) — composable `SequentialAgent` / `ParallelAgent` workflows
+**Language:** Python
+**Estimated time:** ~40 minutes, 4 challenges
+
+### Use case
+The same maintainer-facing **daily open-PR digest** as Track 1, rebuilt on ADK. The app fans out over a
+batch of open PRs and, for each, runs an ADK agent that **summarizes the change, checks whether it
+references an issue, and flags risk signals** (touches many files, no tests, large diff). ADK's
+`ParallelAgent` composes the per-PR analyses and a final `SequentialAgent` step ranks and assembles the
+markdown digest.
+
+### The reliability angle
+ADK gives you clean in-process agent composition (`ParallelAgent` over PRs, `SequentialAgent` for
+summarize→rank), but that composition lives and dies with the process — kill it mid-batch and the
+fan-out starts over. This track wraps the ADK run in a **Dapr Workflow** so the overall batch is a
+**durable orchestration** (each PR's analysis is a checkpointed activity that resumes after a crash),
+and routes ADK's model calls through the **Dapr Conversation API** so retries/timeouts/circuit breakers
+on a flaky local model are declarative, not hand-coded. ADK owns the agent composition; Dapr owns the
+durable, retryable orchestration around it.
+
+### Challenge outline
+1. **ADK + the digest use case & setup** — ADK agent/`ParallelAgent` basics, confirm the local GitHub
+   data collected into JSON at VM creation, Ollama. Load the list of open PRs via the reader helper.
+2. **A single PR-analysis agent (ADK)** — build one ADK agent with a `FunctionTool` that fetches a PR's
+   files/diff from the local data; prompt it for a structured summary + risk score. Run it on one PR.
+3. **Durable fan-out with Dapr** — compose the per-PR agents with `ParallelAgent`, then wrap the whole
+   ADK run in a Dapr Workflow activity per PR; orchestrator fans out/fans in to a digest. Move model
+   calls to the Conversation API with a resiliency policy.
+4. **Crash & resume** — start over a large batch, kill mid-run, restart, and watch the workflow continue
+   from the next unprocessed PR. Inspect the trace in Zipkin; mention Catalyst as the managed path.
+
+### Output artifact
+`pr-digest.md` — ranked open PRs with one-line summaries, linked-issue status, and risk flags.
+
+### Dependencies
+Python + uv, Dapr CLI + workflow, Google ADK, Ollama. (GitHub data is pre-collected into local JSON at VM creation.)
+
+---
+
+## Track 7 — OpenAI Agents SDK *(triage)*
+
+**Working title:** *An Issue-Triage Agent with Handoffs that Never Loses Its Place*
+**Framework:** OpenAI Agents SDK (agents, handoffs, guardrails)
+**Language:** Python
+**Estimated time:** ~35 minutes, 3–4 challenges
+
+### Use case
+The same **issue-triage** use case as Track 2, rebuilt on the OpenAI Agents SDK. A triage agent reads a
+batch of recently opened issues and, for each, produces a **triage recommendation**: category (bug /
+feature / question / docs), suggested labels, a likely-duplicate flag, and a priority guess. The SDK's
+**handoff** mechanism shines here — a router agent classifies the issue and hands off to a specialist
+sub-agent (bug-triager, docs-triager, …) that fills in the category-specific detail. Results collate
+into a triage report.
+
+### The reliability angle
+The Agents SDK models routing and handoffs elegantly, but a multi-handoff run on a slow local model is a
+**resiliency liability** — any hop can time out or return garbage, and the whole per-issue chain is lost
+on a crash. This track wraps the SDK run in a **Dapr Workflow** so each issue's triage is a durable,
+restartable activity, and points the SDK at the **Dapr Conversation API** (OpenAI-compatible surface) so
+retries/timeouts/circuit breakers are declarative. Swap Ollama ↔ a hosted provider by editing a
+component file, not code. Guardrails stay in the SDK; durability and resiliency come from Dapr.
+
+### Challenge outline
+1. **Agents SDK + triage & setup** — agents/handoffs/guardrails basics, confirm the local GitHub data
+   collected into JSON at VM creation, Conversation component pointed at Ollama (with the swap-to-hosted
+   note). Load recent issues via the reader helper.
+2. **Build the triage agent + handoffs** — a router agent with a `@function_tool` to read issue
+   body/comments and list recent issues for the dedup check; handoffs to category specialists. Run over
+   a few issues.
+3. **Durability in action** — wrap in a Dapr Workflow; run over a larger batch, kill mid-batch, restart,
+   and confirm it resumes without redoing completed issues. Show durable state in the state store.
+4. *(optional)* **Swap the model & add resiliency** — flip the Conversation component to a hosted
+   provider; add a resiliency policy; re-run.
+
+### Output artifact
+`triage-report.md` — per-issue category, suggested labels, duplicate-of hint, and priority.
+
+### Dependencies
+Python + uv, Dapr CLI + workflow, OpenAI Agents SDK, Ollama. (GitHub data is pre-collected into local JSON at VM creation.)
+
+---
+
+## Track 8 — CrewAI *(PR digest)*
+
+**Working title:** *A Reliable PR-Digest Crew with CrewAI*
+**Framework:** CrewAI (role-based multi-agent crews + tasks)
+**Language:** Python
+**Estimated time:** ~40 minutes, 4 challenges
+
+### Use case
+The same **daily open-PR digest** as Track 1, rebuilt as a CrewAI **crew**. Instead of one agent doing
+everything, a small crew of role-based agents collaborates per PR: a **Summarizer** condenses the
+change, a **Risk Assessor** flags signals (many files, no tests, large diff), and an **Issue Linker**
+checks whether the PR references an issue. A final task assembles their outputs into the ranked digest.
+
+### The reliability angle
+CrewAI's role/task model is expressive, but a crew runs as one in-process job — kill it mid-batch and
+every PR processed so far is lost, and each agent's LLM call is an un-retried single point of failure.
+This track keeps the crew per-PR and makes the **batch** a **Dapr Workflow**: each PR's crew run is a
+checkpointed activity, so a crash resumes from the next unprocessed PR. The crew's model calls go
+through the **Dapr Conversation API** for declarative retries/timeouts/circuit breakers on the flaky
+local model. CrewAI owns the per-PR collaboration; Dapr owns the durable, retryable batch around it.
+
+### Challenge outline
+1. **CrewAI + the digest use case & setup** — agents/tasks/crews basics, confirm the local GitHub data
+   collected into JSON at VM creation, Ollama. Load the list of open PRs via the reader helper.
+2. **Build the per-PR crew** — define the Summarizer / Risk Assessor / Issue Linker agents and their
+   tasks, with a CrewAI `@tool` that fetches a PR's files/diff from the local data. Run the crew on one PR.
+3. **Durable fan-out with Dapr** — wrap the crew run as a workflow activity; orchestrator fans out across
+   all PRs, fans in to a digest. Move model calls to the Conversation API with a resiliency policy.
+4. **Crash & resume** — start over a large batch, kill mid-run, restart, and watch the workflow continue
+   from where it stopped. Inspect the trace in Zipkin; mention Catalyst as the managed path.
+
+### Output artifact
+`pr-digest.md` — ranked open PRs with one-line summaries, linked-issue status, and risk flags.
+
+### Dependencies
+Python + uv, Dapr CLI + workflow, CrewAI, Ollama. (GitHub data is pre-collected into local JSON at VM creation.)
+
+---
+
+## Track 9 — PydanticAI *(triage)*
+
+**Working title:** *Type-Safe Issue Triage that Never Loses Its Place with PydanticAI*
+**Framework:** PydanticAI (type-safe agents with validated structured outputs)
+**Language:** Python
+**Estimated time:** ~35 minutes, 3–4 challenges
+
+### Use case
+The same **issue-triage** use case as Track 2, rebuilt on PydanticAI. A triage agent reads a batch of
+recently opened issues and, for each, returns a **triage recommendation** as a validated Pydantic model:
+category (bug / feature / question / docs), suggested labels, a likely-duplicate flag, and a priority
+guess. PydanticAI's `result_type` guarantees every recommendation conforms to the schema — the digest
+assembly never has to parse free-form text — and re-prompts the model when validation fails.
+
+### The reliability angle
+PydanticAI gives you type-safe, validated outputs, but the agent run is still an ephemeral in-process
+loop — interrupt it mid-batch and progress is gone, and each model call is un-retried. This track wraps
+the agent in a **Dapr Workflow** so each issue's triage is a durable, restartable activity, and routes
+model calls through the **Dapr Conversation API** so retries/timeouts/circuit breakers are declarative.
+The pairing is complementary: PydanticAI guarantees the *shape* of each result, Dapr guarantees the
+*batch survives a crash*. Swap Ollama ↔ a hosted provider by editing a component file, not code.
+
+### Challenge outline
+1. **PydanticAI + triage & setup** — typed agents and `result_type` basics, confirm the local GitHub
+   data collected into JSON at VM creation, Conversation component pointed at Ollama (with the
+   swap-to-hosted note). Load recent issues via the reader helper.
+2. **Build the typed triage agent** — define the `TriageResult` Pydantic model and an `@agent.tool` to
+   read issue body/comments and list recent issues for the dedup check; run over a few issues and show
+   validation/re-prompt on a bad output.
+3. **Durability in action** — wrap in a Dapr Workflow; run over a larger batch, kill mid-batch, restart,
+   and confirm it resumes without redoing completed issues. Show durable state in the state store.
+4. *(optional)* **Swap the model & add resiliency** — flip the Conversation component to a hosted
+   provider; add a resiliency policy; re-run.
+
+### Output artifact
+`triage-report.md` — per-issue category, suggested labels, duplicate-of hint, and priority.
+
+### Dependencies
+Python + uv, Dapr CLI + workflow, PydanticAI, Ollama. (GitHub data is pre-collected into local JSON at VM creation.)
+
+---
+
 ## Cross-track summary
 
 | # | Framework | Lang | Use case | Headline Dapr feature | Output |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Microsoft Agent Framework + Dapr Workflow | .NET | PR digest (fan-out/fan-in) | Durable orchestration + retries | `pr-digest.md` |
 | 2 | Dapr Agents | Python | Issue triage | `DurableAgent` durable-by-default | `triage-report.md` |
-| 3 | LangGraph | Python | Duplicate detection | Durable wrap + Conversation API resiliency (+ Catalyst) | `duplicates-<#>.md` |
-| 4 | Strands | Python | Good-first-issue finder | Resiliency policies on a flaky agent loop | `good-first-issues.md` |
+| 3 | LangGraph | Python | Issue triage (graph) | Durable wrap + Conversation API resiliency (+ Catalyst) | `triage-report.md` |
+| 4 | Strands | Python | PR digest (model-driven loop) | Resiliency policies on a flaky agent loop | `pr-digest.md` |
 | 5 | DeepAgents | Python | Deep issue investigation | Durable state + workflow for long-horizon work | `investigation-<#>.md` |
+| 6 | Google ADK | Python | PR digest (parallel agents) | Durable wrap of ADK composition + Conversation API resiliency | `pr-digest.md` |
+| 7 | OpenAI Agents SDK | Python | Issue triage (handoffs) | Durable wrap of handoff chain + Conversation API resiliency | `triage-report.md` |
+| 8 | CrewAI | Python | PR digest (role-based crew) | Durable batch around a per-PR crew + resiliency | `pr-digest.md` |
+| 9 | PydanticAI | Python | Issue triage (typed output) | Durable wrap + Conversation API resiliency | `triage-report.md` |
 
 ### Suggested build order
 1. **Track 2 (Dapr Agents)** — most native, lowest risk, validates the shared local-data + Ollama setup harness.
 2. **Track 1 (MAF + Dapr Workflow)** — the required pairing; reuses the workflow pattern other tracks lean on.
 3. **Tracks 3 → 4 → 5** — each adds one external framework on top of the now-proven Dapr scaffolding.
+4. **Tracks 6–9** — variations on the two proven use cases (digest, triage) once the scaffolding is solid;
+   pick by audience interest. They share `pr-digest.md` / `triage-report.md` output with Tracks 1–2, so
+   expected output and report-writer code can be reused.
 
 ### Open questions to resolve during track build
 - Confirm the default Ollama model and verify acceptable inference latency for a 20–50 item batch on the
@@ -413,4 +594,3 @@ Python + uv, Dapr CLI + workflow, DeepAgents (LangChain), Ollama. (GitHub data i
 - For Track 5, define how large a "neighborhood" the collector pre-fetches around the target issue (linked
   PRs, referenced issues, search results) so the deep investigation has enough to traverse without ballooning.
 - Pick one canonical demo repo per track (or a shared one) so screenshots/expected output stay stable.
-- For Track 3, choose the local embeddings approach (Ollama embeddings model vs. a small in-process library).
