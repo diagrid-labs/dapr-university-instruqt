@@ -1,11 +1,9 @@
-## Welcome
-
-Welcome to the Dapr Workflow with .NET Aspire learning track! In the upcoming challenges you'll build the **USS Enterprise Diagnostics** application: a Dapr Workflow that fans out to three subsystem activities in parallel, aggregates the results into a prioritized report, and conditionally notifies the bridge. Along the way you'll scaffold an Aspire solution, add Dapr Workflow dependencies, wire up the Dapr Redis state store, and use the Diagrid Dev Dashboard to inspect workflow instances. By the end of the track you have ran a Dapr Workflow with Aspire and inspected the workflow state in detail.
+Welcome to the *Dapr Workflow with .NET Aspire* learning track! In the upcoming challenges you'll build the **USS Enterprise Diagnostics** application. This application performs diagnostics on the USS Enterprise star ship. It uses Dapr Workflow to fan out to three star ship subsystem activities in parallel, aggregates the results into a prioritized report, and conditionally notifies the bridge. Along the way you'll scaffold an Aspire solution, add Dapr Workflow dependencies, wire up a Redis state store, and use the Diagrid Dev Dashboard to inspect workflow instances. By the end of the track you have ran a Dapr Workflow application with Aspire and inspected the workflow state in detail. This first challenge will take about 5 minutes to complete.
 
 ![workflow-app-aspire.png](https://play.instruqt.com/assets/tracks/kyfkrd3ggejg/c04838dd7ad3f33b4786f69d276aa771/assets/workflow-app-aspire.png)
 
 > [!NOTE]
-> This learning track does not explain the Dapr Workflow concepts and patterns but is focussed on building a workflow using .NET and Aspire from scratch. To learn the workflow concepts & patterns follow the **Dapr Workflow - Use durable execution to build reliable applications** track.
+> This learning track does not explain the Dapr Workflow concepts and patterns but is focussed on building a workflow using .NET and Aspire from scratch. To learn the workflow concepts & patterns follow the **[Dapr Workflow - Use durable execution to build reliable applications](https://www.diagrid.io/university/dapr-workflow)** track.
 
 ## Why Dapr and Aspire?
 
@@ -42,6 +40,12 @@ Then reload the shell so the `aspire` command is on your `PATH`:
 
 ```shell,run,copy
 source /root/.bashrc
+```
+
+Now, pin the Aspire project templates version to `13.3.5`, so they work inside this sandbox environment. The latest Aspire version does not work yet, so **don't** upgrade to `13.4.*`.
+
+```shell,run,copy
+dotnet new install Aspire.ProjectTemplates@13.3.5
 ```
 
 ---
