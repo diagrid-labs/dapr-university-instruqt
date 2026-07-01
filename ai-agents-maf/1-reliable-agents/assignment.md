@@ -41,7 +41,7 @@ In the *Aspire Terminal* run:
 cp PrDigest.AppHost/secrets.example.json PrDigest.AppHost/secrets.json
 ```
 
-Refresh the *Editor* tab with the circular arrow button, open `PrDigest.AppHost/secrets.json` and paste your key so it looks like this:
+Refresh the *Editor* tab with the circular arrow button, so it can show the newly created file, open `PrDigest.AppHost/secrets.json` and paste your key so it looks like this:
 
 ```json,nocopy
 {
