@@ -20,7 +20,7 @@ Before we can inspect and run the PrDigest application let's verify and configur
 ## 3. Verify the environment
 
 > [!IMPORTANT]
-> On the left you should see an *Editor* tab that contains `PrDigest` solution. On the bottom left you should see a *Terminal* where you can run commands. If either of those windows is not available (or if you run into a blocking issue during this course), send me [an email](mailto:marc@diagrid.io), and we'll figure it out together.
+> On the left you should see an *Editor* tab that contains the `PrDigest` solution. On the bottom left you should see an *Aspire Terminal* where you can run commands. If either of those windows is not available (or if you run into a blocking issue during this course), send me [an email](mailto:marc@diagrid.io), and we'll figure it out together.
 
 This sandbox environment comes with Docker, the .NET 10 SDK, and Dapr preinstalled, and the `PrDigest` source has been cloned for you.
 
@@ -43,7 +43,10 @@ In the *Aspire Terminal* run:
 cp PrDigest.AppHost/secrets.example.json PrDigest.AppHost/secrets.json
 ```
 
-Refresh the *Editor* tab with the circular arrow button, so it detects the newly created file, open `PrDigest.AppHost/secrets.json` and paste your key so it looks like this:
+> [!IMPORTANT]
+> Refresh the *Editor* tab with the circular arrow button, so it detects the newly created file.
+
+Now navigate to the `PrDigest.AppHost/secrets.json` file, open it, and paste your key so it looks like this:
 
 ```json,nocopy
 {
@@ -53,10 +56,9 @@ Refresh the *Editor* tab with the circular arrow button, so it detects the newly
 
 The file should auto-save.
 
-You should be good to go now!
+You should be good to go now! Click the *Check* button to verify the `secrets.json` file.
 
 ---
 
 You now know that Dapr Workflow provides durable execution and makes agents reliable. 
-Click the *Check* button to verify the `secrets.json` file.
 In the next challenge you'll configure your OpenAI key and run the application with Aspire.

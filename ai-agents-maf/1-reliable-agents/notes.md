@@ -11,4 +11,4 @@ In this first challenge, you'll:
 - Get introduced to the PrDigest application you'll run.
 - Verify the sandbox environment is ready and add your OpenAI API key.
 
-If you have any questions or feedback about this track, let us know in the [Dapr Discord server](https://diagrid.ws/dapr-discord).
+If you have any questions or feedback about this track, you can let us know in the *#general* channel of the [Dapr Discord server](https://diagrid.ws/dapr-discord).
