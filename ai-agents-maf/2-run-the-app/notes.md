@@ -1,3 +1,3 @@
-In this challenge you'll configure your OpenAI API key, make the Aspire dashboard reachable in the sandbox, and start the PrDigest application with Aspire.
+In this challenge you'll inspect the PrDigest application, start the full stack with `aspire run`, then trigger a digest run and read the ranked pull-request digest the MAF agents produce.
 
-You'll need your own **OpenAI API key** with access to the `gpt-4o-mini` model. Create or copy one from the [OpenAI API keys dashboard](https://platform.openai.com/api-keys) before you start.
+Make sure you completed the previous challenge (Aspire CLI installed and your OpenAI API key set in `secrets.json`).

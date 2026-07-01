@@ -29,7 +29,7 @@ In this self-paced track, you'll learn:
 - How a mid-run crash resumes from durable state, replaying completed agent calls from history instead of calling the LLM again.
 - How to inspect workflow execution and traces.
 
-You'll probably need around 25 minutes to complete the 5 challenges.
+You'll probably need around 25 minutes to complete the 4 challenges.
 
 If your session is idle for more than 10 minutes the session will stop and you'll need to restart the track. Tracks can be started up to 5 times and you can skip challenges to continue with the challenges you didn't finish previously.
 

@@ -1,6 +1,6 @@
 # Name
 
-Run the agentic workflow app
+Run the app and generate a digest
 
 ## Url
 
@@ -8,4 +8,4 @@ ai-agents-maf-run-the-app
 
 ### Description
 
-Configure your OpenAI API key, make the Aspire dashboard reachable in the sandbox, and start the PrDigest application with a single `aspire run`.
+Inspect the PrDigest application, start the full stack with a single `aspire run`, then trigger the workflow over HTTP and read the ranked pull-request digest the MAF agents produce.

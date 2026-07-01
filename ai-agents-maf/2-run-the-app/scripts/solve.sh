@@ -1,33 +1,22 @@
-# NOTE: a real OpenAI API key is required for the agents to work end-to-end.
-# This solve script creates the files with a placeholder key so the deterministic
-# checks pass; replace the key value to actually run the workflow.
-cd ai-agent-tracks-instruqt/MAF/PrDigest
+# NOTE: 'aspire run' is a long-lived, blocking process, so it can't be started
+# and left running from a single non-interactive solve script. A real OpenAI
+# API key (configured in the previous challenge's secrets.json) is also
+# required for the agents to work end-to-end. Manual flow:
+#
+#   1. export DIGEST_OUTPUT_DIR=/root/digest-out
+#   2. aspire run   (in the Aspire Terminal; wait for all resources to show Running)
+#
+# Once 'aspire run' is up, this triggers a digest run and reads the result:
+endpoint="http://localhost:5090"
 
-cp -n PrDigest.AppHost/secrets.example.json PrDigest.AppHost/secrets.json
-cat > PrDigest.AppHost/secrets.json <<'EOF'
-{
-  "openai-api-key": "sk-replace-with-your-key"
-}
-EOF
+curl -s -X POST "$endpoint/start" -H "Content-Type: application/json" -d '{
+  "id": "run-1",
+  "repo": "dapr/dapr",
+  "maxPrs": 7
+}'
 
-cat > PrDigest.AppHost/Properties/launchSettings.json <<'EOF'
-{
-  "$schema": "https://json.schemastore.org/launchsettings.json",
-  "profiles": {
-    "http": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "applicationUrl": "http://0.0.0.0:17000",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "DOTNET_ENVIRONMENT": "Development",
-        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://0.0.0.0:17001",
-        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://0.0.0.0:17003",
-        "DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS": true,
-        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": true
-      }
-    }
-  }
-}
-EOF
+until curl -s "$endpoint/status/run-1" | grep -qi '"completed"'; do
+  sleep 2
+done
+
+cat /root/digest-out/pr-digest.md
