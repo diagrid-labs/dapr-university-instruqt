@@ -32,7 +32,7 @@ Save the file.
 
 The default Aspire launch profile binds the dashboard to `localhost` on random ports, which this sandbox can't expose. Pin it to a fixed, anonymous HTTP endpoint by replacing the AppHost launch settings. Run this in the *Aspire Terminal*:
 
-```shell,run
+```shell,run,copy
 cat > PrDigest.AppHost/Properties/launchSettings.json <<'EOF'
 {
   "$schema": "https://json.schemastore.org/launchsettings.json",

@@ -13,7 +13,7 @@ First stop the running app: click the *Aspire Terminal* and press `Ctrl+C`.
 
 Then arm the gate to crash after 3 agent calls (7 PRs total, so 4 remain for the resumed run) and start Aspire again. Run in the *Aspire Terminal*:
 
-```shell,run
+```shell,run,copy
 export DIGEST_OUTPUT_DIR=/root/digest-out
 export CRASH_AFTER_AGENT_CALLS=3
 aspire run
@@ -52,7 +52,7 @@ cat /root/digest-out/agent-calls.log
 
 Stop Aspire in the *Aspire Terminal* with `Ctrl+C`, then disarm the gate and relaunch:
 
-```shell,run
+```shell,run,copy
 unset CRASH_AFTER_AGENT_CALLS
 aspire run
 ```

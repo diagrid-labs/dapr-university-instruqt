@@ -21,19 +21,19 @@ The sandbox comes with Docker, the .NET 10 SDK, the Aspire CLI, and Dapr preinst
 
 Check the Aspire CLI in the *Terminal*:
 
-```shell,run
+```shell,run,copy
 aspire --version
 ```
 
 Confirm Dapr is initialized:
 
-```shell,run
+```shell,run,copy
 dapr -v
 ```
 
 Confirm the source was cloned — you should see the `PrDigest` solution folder:
 
-```shell,run
+```shell,run,copy
 ls ai-agent-tracks-instruqt/MAF/PrDigest
 ```
 
