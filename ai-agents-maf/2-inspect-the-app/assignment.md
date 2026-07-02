@@ -1,15 +1,25 @@
 In this challenge you'll inspect the PrDigest application. You'll look at the AppHost configuration, MAF agent configuration, and workflow code. And you'll do a `dotnet build` to ensure the application compiles correctly before running it in the next challenge. The challenge will take about 8 minutes.
 
-## 1. Inspect the application
+## 1. Build the application
+
+Build the Aspire solution using the **Aspire Terminal**:
+
+```shell,run,copy
+dotnet build
+```
+
+While the application is restoring dependencies and building, let's take a look at the structure and code of the application.
+
+## 2. Inspect the application
 
 Use the **Editor** tab, it has the `PrDigest` solution loaded, and take a look at how the pieces fit together.
 
 You'll see the typical Aspire projects: ApiService, AppHost and ServiceDefaults.
 You'll also see a `data` folder that has json files in a dapr/dapr subfolder. These are serialized GitHub pull requests from the `dapr/dapr` repository that the application will analyze. So you're not connecting to the live GitHub repo which would require authentication.
 
-### 1.1 PrDigest.AppHost**
+### 2.1 PrDigest.AppHost
 
-`PrDigest.AppHost/PrDigest.AppHost.csproj` has the following dependencies:
+The `PrDigest.AppHost/PrDigest.AppHost.csproj` project has the following dependencies:
 
 - `Aspire.Hosting.Valkey` — hosts the Valkey container used as the Dapr state store for workflow state.
 - `CommunityToolkit.Aspire.Hosting.Dapr` — lets the AppHost attach a Dapr sidecar to the API service.
@@ -49,15 +59,17 @@ builder.AddProject<Projects.PrDigest_ApiService>("pr-digest")
 builder.Build().Run();
 ```
 
-### 1.2 PrDigest.ApiService
+### 2.2 PrDigest.ApiService
 
-`PrDigest.ApiService/PrDigest.ApiService.csproj` has the following dependencies:
+The `PrDigest.ApiService/PrDigest.ApiService.csproj` has the following dependencies:
 
 - `Dapr.Workflow` — the Dapr Workflow authoring SDK.
 - `Diagrid.AI.Microsoft.AgentFramework` — bridges Microsoft Agent Framework (MAF) agents to Dapr, so workflow code can call agents as durable activities.
 - `Microsoft.Extensions.AI` — the abstractions MAF agents build on.
 
-Open `PrDigest.ApiService/Program.cs`:
+#### Program.cs
+
+Open `PrDigest.ApiService/Program.cs`; this contains the startup code and endpoints for the ApiService.
 
 `AddDaprAgents(...)` registers the workflow and its activities, then `.WithAgent(...)` registers the `PrAnalyzer` and `Summarize` agents against the `conversation-prdigest` Dapr component — this is how the agents reach OpenAI without the application ever holding an API key or a model client. Further down, `/start`, `/status/{instanceId}`, `/pause/{instanceId}`, `/resume/{instanceId}`, and `/terminate/{instanceId}` are the endpoints you'll use to drive the workflow through `DaprWorkflowClient`.
 
@@ -97,9 +109,9 @@ app.MapPost("/start", async (
 });
 ```
 
----
+#### PrDigestWorkflow.cs
 
-Open `PrDigest.ApiService/Workflows/PrDigestWorkflow.cs`, this contains the orchestration of activities and MAF agents:
+Open `PrDigest.ApiService/Workflows/PrDigestWorkflow.cs`; this contains the orchestration of activities and MAF agents:
 
 - It lists the open pull requests, then fans out one checkpointed agent call per PR — each call analyzes a PR with the `PrAnalyzer` agent and durably records that the call happened.
 - A single failed agent call doesn't fail the whole run — that PR is just marked `Degraded: true`.
@@ -107,7 +119,7 @@ Open `PrDigest.ApiService/Workflows/PrDigestWorkflow.cs`, this contains the orch
 - The ranked digest is written to disk as `pr-digest.md`.
 
 ```csharp,nocopy
-ublic override async Task<PrDigestOutput> RunAsync(WorkflowContext context, PrDigestInput input)
+public override async Task<PrDigestOutput> RunAsync(WorkflowContext context, PrDigestInput input)
     {
         var logger = context.CreateReplaySafeLogger<PrDigestWorkflow>();
         LogStart(logger, context.InstanceId, input.Repo, input.MaxPrs);
@@ -184,9 +196,9 @@ private static async Task<PrResult> AnalyzeOneAsync(
     }
 ```
 
----
+#### RecordAgentCallActivity.cs
 
-Open `PrDigest.ApiService/Activities/RecordAgentCallActivity.cs`, this is the logging activity that is called right after calling the `PrAnalyzer` agent. This also contains code to handle the deterministic crash of the application.
+Open `PrDigest.ApiService/Activities/RecordAgentCallActivity.cs`; this is the logging activity that is called right after calling the `PrAnalyzer` agent. This also contains code to handle the deterministic crash of the application.
 
 ```csharp,nocopy
 public sealed partial class RecordAgentCallActivity(ILogger<RecordAgentCallActivity> logger)
@@ -229,16 +241,6 @@ public sealed partial class RecordAgentCallActivity(ILogger<RecordAgentCallActiv
     static partial void LogRecorded(ILogger logger, int number, int count);
 }
 ```
-
-## 2. Build the application
-
-Build the Aspire solution using the **Aspire Terminal**:
-
-```shell,run,copy
-dotnet build
-```
-
-Once the build succeeds, continue to the next challenge where you'll run the Aspire solution.
 
 ---
 
