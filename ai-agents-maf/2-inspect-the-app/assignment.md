@@ -71,7 +71,7 @@ The `PrDigest.ApiService/PrDigest.ApiService.csproj` has the following dependenc
 
 Open `PrDigest.ApiService/Program.cs`; this contains the startup code and endpoints for the ApiService.
 
-`AddDaprAgents(...)` registers the workflow and its activities, then `.WithAgent(...)` registers the `PrAnalyzer` and `Summarize` agents against the `conversation-prdigest` Dapr component — this is how the agents reach OpenAI without the application ever holding an API key or a model client. Further down, `/start`, `/status/{instanceId}`, `/pause/{instanceId}`, `/resume/{instanceId}`, and `/terminate/{instanceId}` are the endpoints you'll use to drive the workflow through `DaprWorkflowClient`.
+`AddDaprAgents(...)` registers the workflow and its activities, then `.WithAgent(...)` registers the `PrAnalyzer` and `Summarize` agents against the `conversation-prdigest` Dapr component — this is how the agents reach OpenAI without the application ever holding an API key or a model client. Further down, `/start`, `/status/{instanceId}`, `/pause/{instanceId}`, `/resume/{instanceId}`, and `/terminate/{instanceId}` are the endpoints to manage the workflow.
 
 ```csharp,nocopy
 builder.Services.AddDaprAgents(
@@ -244,4 +244,4 @@ public sealed partial class RecordAgentCallActivity(ILogger<RecordAgentCallActiv
 
 ---
 
-You've inspected an agentic workflow end-to-end. In the next challenge you'll start the application and crash it mid-run and prove the LLM calls are **not** repeated on resume.
+You've inspected the agentic workflow end-to-end. In the next challenge you'll start the application and crash it mid-run and prove the LLM calls are **not** repeated on resume.

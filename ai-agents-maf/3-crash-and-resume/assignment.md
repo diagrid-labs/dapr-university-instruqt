@@ -1,4 +1,4 @@
-In this challenge you'll prove the durability of the application. You'll interrupt the workflow with a real process crash, restart it, and prove that the `PrAnalyzer` agent calls that already completed are **not** run again on resume. The challenge will take about 8 minutes.
+In this final challenge you'll prove the durability of the application. You'll interrupt the workflow with a real process crash, restart it, and prove that the `PrAnalyzer` agent calls that already completed are **not** run again on resume. The challenge will take about 10 minutes.
 
 This challenge uses two terminals:
 
@@ -8,23 +8,29 @@ This challenge uses two terminals:
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
-## 1. How it's made provable
+## 1. How to verify the durability
 
 The demo has two mechanisms so you can verify the durability:
 
-- **A deterministic crash gate.** Set the `CRASH_AFTER_AGENT_CALLS` environment variable before launching and the API hard-crashes (via `Environment.FailFast`) exactly once, right after the 3rd agent call. A marker file ensures the restarted process never crashes at the same point again.
+- **A deterministic crash gate.** Set the `CRASH_AFTER_AGENT_CALLS` environment variable before launching and the API hard-crashes (via `Environment.FailFast`) exactly once, right after the 3rd agent call (before logging it via the `RecordAgentCallActivity`). A marker file ensures the restarted process never crashes at the same point again during a subsequent run.
 - **An agent-call ledger.** Every executed agent call appends one line to `agent-calls.log` — `<timestamp>  PR #<number>  <title>`. Recording happens inside a *checkpointed workflow activity*, so on resume a completed record is replayed from durable history and is **not** appended again. The finished ledger therefore holds each PR exactly once, with a visible time gap at the moment of restart.
 
 ## 2. Arm the crash gate and launch
 
-Arm the gate to crash after 3 agent calls (7 PRs total, so 4 remain for the resumed run) and start Aspire. Run in the *Aspire Terminal*:
+Use the *Aspire Terminal* to the gate to crash after 3 agent calls (7 PRs total, so 4 remain for the resumed run:
 
 ```shell,run,copy
 export CRASH_AFTER_AGENT_CALLS=3
+```
+
+ Start Aspire via the *Aspire Terminal*:
+```shell,run,copy
 aspire run
 ```
 
-Wait until the resources show **Running** in the *Aspire* tab. Switch to the *Console* viewer in the Aspire Dashboard and select the `pr-digest` resource so you can inspect the log output.
+Open the *Aspire* tab and wait until the resources show **Running** in the Resources view. If a resource fails try to restart it in the dashboard using the.
+
+Switch to the *Console* viewer in the Aspire Dashboard and select the `pr-digest` resource so you can inspect the log output of the workflow application.
 
 ## 3. Start a run and watch it crash
 
@@ -59,12 +65,18 @@ Followed by the crash:
 💥 CRASH GATE TRIPPED after 3 agent call(s) — killing the process to simulate a crash.
 ```
 
+> [!IMPORTANT]
+> Refresh the *Editor* tab, so it detects the newly created file. You'll find the arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
+
 Inspect the ledger in the *Editor* tab, it's located at `digest-out/agent-calls.log`. It contains 2 lines (the call that tripped the gate is recorded only after restart, so it's never duplicated):
 
 ```text,nocopy
 2026-07-01T21:17:55.6157520Z	10093	perf: store raw perf reports per version and automate chart publishing
 2026-07-01T21:17:55.6159890Z	9855	feat(outbox): add outboxInternalTopic metadata to override internal topic name
 ```
+
+> [!NOTE]
+> The actual PRs in this list might be different in your case, it depends which have been completed first by the Dapr workflow engine.
 
 ## 4. Disarm and restart
 
@@ -75,9 +87,14 @@ unset CRASH_AFTER_AGENT_CALLS
 aspire run
 ```
 
-Aspire reconnects to the same Valkey container (its data volume persists), the workflow engine rehydrates instance `run-crash`, and it **resumes automatically** — you do not call a start or resume endpoint. In the console logs in the *Aspire* tab you'll see `🤖 Analyzing PR #...` only for the PRs that hadn't finished; the already-analyzed ones stay silent because their results come from durable history.
+Aspire reconnects to the same Valkey container (its data volume persists), the workflow engine rehydrates instance `run-crash`, and it **resumes automatically** — you do not call a start or resume endpoint.
+
+In the console logs in the *Aspire* tab you'll see `🤖 Analyzing PR #...` only for the PRs that hadn't finished; the already-analyzed ones stay silent because their results come from durable history.
 
 ## 5. Check the ledger
+
+> [!IMPORTANT]
+> Refresh the *Editor* tab, so it detects the updated file. You'll find the arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
 
 Inspect the finished ledger in the *Editor* tab, it's located at `digest-out/agent-calls.log`:
 
@@ -94,14 +111,11 @@ Inspect the finished ledger in the *Editor* tab, it's located at `digest-out/age
 Confirm:
 
 1. **Exactly 7 lines — one per PR, no duplicate PR numbers.** The calls that completed before the crash were not re-run; their results came from durable history.
-2. **A clear timestamp gap** between the pre-crash lines and the rest — the wall-clock cost of the crash and restart, inside a single logical workflow run.
+2. **A clear timestamp gap** between the pre-crash lines and the rest.
 
 ## 6. Read the PR digest
 
 Now let's take a look at the result of the workflow. It's a ranked Markdown digest to an output directory (`/digest-out`) in the root of `PrDigest`.
-
-> [!IMPORTANT]
-> Refresh the *Editor* tab with the circular arrow button, so it detects the newly created file.
 
 Use the **Editor** tab to navigate to this folder and inspect the content of the generated output.
 
@@ -113,6 +127,55 @@ The digest ranks the pull requests by a computed **risk score** and includes, fo
 - The linked issue, if any
 
 At the top is the headline written by the `Summarize` agent. The exact pull requests and scores depend on the bundled data snapshot.
+
+## 7. Inspect the traces
+
+Aspire collects distributed traces for everything it runs. Switch to the *Aspire* tab and open the **Traces** view.
+
+1. Filter to the `pr-digest` resource.
+2. Open a trace for one of your runs. You'll see spans for the workflow orchestrator and its activities, including:
+   - `ListOpenPullRequestsActivity` — gathers the pull requests.
+   - The `PrAnalyzer` agent calls — one per pull request (the LLM round-trips).
+   - `RecordAgentCallActivity` — the checkpointed ledger write.
+   - `WriteDigestActivity` — writes the ranked digest.
+
+## 8. See the resumption in the timeline
+
+Open the trace for the `run-crash` instance from the previous challenge.
+
+- Spans from the **first run** stop at the crash point (the 3rd agent call).
+- Spans from the **resumed run** continue with the remaining pull requests and the completion steps.
+- The already-analyzed pull requests have **no new agent-call spans** in the resumed run — their results came from durable history, not a fresh LLM call.
+
+> [!NOTE]
+> Compare the timestamps either side of the gap: that's the crash-and-restart cost, sitting inside one logical workflow run.
+
+## 9. Recap
+
+You saw how Dapr Workflow makes a Microsoft Agent Framework application reliable:
+
+- Every agent call is a **checkpointed activity**. Its result is written to durable Valkey state the moment it completes.
+- A crash mid-run **rehydrates from that state** and replays completed calls from history — so expensive, non-deterministic LLM calls are never repeated.
+- A single `aspire run` orchestrates the API service, the Dapr sidecar, and the state store.
+
+That combination turns a fleet of agents into a fault-tolerant application you can crash without losing — or paying for — completed work twice.
+
+## Feedback and further learning
+
+Congratulations! 🎉 You've completed the *Making MAF agents reliable with Dapr Workflow* learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving it.
+
+We have more ways for you to learn and share knowledge:
+
+**Try another university track**
+- [Build Dapr workflows in .NET with Aspire](https://www.diagrid.io/university/dapr-workflow-aspire)
+- [Dapr Workflow: Use durable execution to build reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
+
+**Read more**
+- Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
+- Learn more about [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for reliable and secure AI agents and workflows.
+
+**Join the community**
+- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#dotnet*, and *#agents* channels.
 
 ---
 

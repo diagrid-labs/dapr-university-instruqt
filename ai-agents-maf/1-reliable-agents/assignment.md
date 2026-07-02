@@ -33,6 +33,12 @@ curl -sSL https://aspire.dev/install.sh | /bin/bash
 source /root/.bashrc
 ```
 
+Check that it's working by running:
+
+```shell,run,copy
+aspire -v
+```
+
 ## 4. Add your OpenAI API key
 
 The agents reach OpenAI through the Dapr conversation component, which reads the key from a local secret store (`PrDigest.AppHost/secrets.json`). That file is git-ignored and not part of the clone, so create it from the `secrets.example.json` file.
@@ -44,7 +50,7 @@ cp PrDigest.AppHost/secrets.example.json PrDigest.AppHost/secrets.json
 ```
 
 > [!IMPORTANT]
-> Refresh the *Editor* tab with the circular arrow button, so it detects the newly created file.
+> Refresh the *Editor* tab, so it detects the newly created file. You'll find the arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
 
 Now navigate to the `PrDigest.AppHost/secrets.json` file, open it, and paste your key so it looks like this:
 
