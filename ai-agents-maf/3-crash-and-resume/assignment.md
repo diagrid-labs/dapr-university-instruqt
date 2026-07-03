@@ -68,7 +68,7 @@ Followed by the crash:
 > [!IMPORTANT]
 > Refresh the *Editor* tab, so it detects the newly created file. You'll find the arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
 
-Inspect the ledger in the *Editor* tab, it's located at `digest-out/agent-calls.log`. It contains 2 lines (the call that tripped the gate is recorded only after restart, so it's never duplicated):
+Inspect the ledger in the *Editor* tab, it's located at `digest-out/agent-calls.log`. It contains 2 lines (the third agent call has been made but it has not been logged in this ledger):
 
 ```text,nocopy
 2026-07-01T21:17:55.6157520Z	10093	perf: store raw perf reports per version and automate chart publishing
@@ -87,7 +87,7 @@ unset CRASH_AFTER_AGENT_CALLS
 aspire run
 ```
 
-Aspire reconnects to the same Valkey container (its data volume persists), the workflow engine rehydrates instance `run-crash`, and it **resumes automatically** — you do not call a start or resume endpoint.
+Aspire reconnects to the same Valkey container (its data volume persists), the workflow engine rehydrates workflow instance `run-crash`, and it **resumes automatically** — you do not call a start or resume endpoint again.
 
 In the console logs in the *Aspire* tab you'll see `🤖 Analyzing PR #...` only for the PRs that hadn't finished; the already-analyzed ones stay silent because their results come from durable history.
 
@@ -128,29 +128,14 @@ The digest ranks the pull requests by a computed **risk score** and includes, fo
 
 At the top is the headline written by the `Summarize` agent. The exact pull requests and scores depend on the bundled data snapshot.
 
-## 7. Inspect the traces
+## 7. Inspect the logs
 
-Aspire collects distributed traces for everything it runs. Switch to the *Aspire* tab and open the **Traces** view.
+Switch to the *Aspire* tab and open the **Structured Logs** view.
 
 1. Filter to the `pr-digest` resource.
-2. Open a trace for one of your runs. You'll see spans for the workflow orchestrator and its activities, including:
-   - `ListOpenPullRequestsActivity` — gathers the pull requests.
-   - The `PrAnalyzer` agent calls — one per pull request (the LLM round-trips).
-   - `RecordAgentCallActivity` — the checkpointed ledger write.
-   - `WriteDigestActivity` — writes the ranked digest.
+2. Look for the log statements that record the agent calls, there should only be 4 log entries, since the initial 3 agent calls are not being re-run.
 
-## 8. See the resumption in the timeline
-
-Open the trace for the `run-crash` instance from the previous challenge.
-
-- Spans from the **first run** stop at the crash point (the 3rd agent call).
-- Spans from the **resumed run** continue with the remaining pull requests and the completion steps.
-- The already-analyzed pull requests have **no new agent-call spans** in the resumed run — their results came from durable history, not a fresh LLM call.
-
-> [!NOTE]
-> Compare the timestamps either side of the gap: that's the crash-and-restart cost, sitting inside one logical workflow run.
-
-## 9. Recap
+## 8. Recap
 
 You saw how Dapr Workflow makes a Microsoft Agent Framework application reliable:
 
@@ -176,7 +161,3 @@ We have more ways for you to learn and share knowledge:
 
 **Join the community**
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#dotnet*, and *#agents* channels.
-
----
-
-You've proven the durability of Dapr Workflow: a crash mid-run cost you nothing in repeated LLM calls. In the final challenge you'll inspect the workflow's traces and recap what you learned.
