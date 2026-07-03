@@ -1,4 +1,4 @@
-Welcome to the *Making MAF agents reliable with Dapr Workflow* learning track! Agents call large language models, and LLM calls are **slow, costly, and non-deterministic**. When a multi-agent application crashes halfway through, re-running every call from scratch wastes time and money. In this track you'll see how **Dapr Workflow** turns a fleet of **Microsoft Agent Framework (MAF)** agents into a durable, fault-tolerant application. In this first challenge you'll install the Aspire CLI and configure your own OpenAI API key. This challenge takes about 5 minutes to complete.
+Welcome to the *Making MAF agents reliable with Dapr Workflow* learning track! Agents call large language models, and LLM calls are **slow, costly, and non-deterministic**. When a multi-agent application crashes halfway through, re-running every call from scratch wastes time and money. In this track you'll see how **Dapr Workflow** turns a fleet of **Microsoft Agent Framework (MAF)** agents into a durable, fault-tolerant application. In this first challenge you'll install the Aspire CLI and add your own OpenAI API key. This challenge takes about 5 minutes to complete.
 
 ## 1. The PrDigest application
 
@@ -67,4 +67,4 @@ You should be good to go now! Click the *Check* button to verify the `secrets.js
 ---
 
 You now know that Dapr Workflow provides durable execution and makes agents reliable. 
-In the next challenge you'll configure your OpenAI key and run the application with Aspire.
+In the next challenge you'll explore the PrDigest application in detail.

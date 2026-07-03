@@ -1,4 +1,4 @@
-In this challenge you'll inspect the PrDigest application. You'll look at the AppHost configuration, MAF agent configuration, and workflow code. And you'll do a `dotnet build` to ensure the application compiles correctly before running it in the next challenge. The challenge will take about 8 minutes.
+In this challenge you'll inspect the PrDigest application. You'll look at the AppHost configuration, MAF agent configuration, workflow code, and a workflow activity. The challenge will take about 8 minutes.
 
 ## 1. Build the application
 
@@ -15,7 +15,7 @@ While the application is restoring dependencies and building, let's take a look 
 Use the **Editor** tab, it has the `PrDigest` solution loaded, and take a look at how the pieces fit together.
 
 You'll see the typical Aspire projects: ApiService, AppHost and ServiceDefaults.
-You'll also see a `data` folder that has json files in a dapr/dapr subfolder. These are serialized GitHub pull requests from the `dapr/dapr` repository that the application will analyze. So you're not connecting to the live GitHub repo which would require authentication.
+You'll also see a `data` folder that has json files in a dapr/dapr subfolder. These are serialized GitHub pull requests from the `dapr/dapr` repository that the application will analyze. The application is not connecting to the live GitHub repo, which you would probably do in a production setting, but working with data on disk is more efficient for this e-learning.
 
 ### 2.1 PrDigest.AppHost
 
@@ -107,6 +107,30 @@ app.MapPost("/start", async (
         input: input);
     return Results.Ok(new { instanceId });
 });
+```
+
+#### Conversation component
+
+The `.WithAgent()` registrations in the `Program.cs` reference a conversation component name `conversation-prdigest`. You'll find the component file in `PrDigest.AppHost/resources/conversation.yaml`. This file describes which underlying conversation type is used (`conversation.openai`), which model (`gpt-4o-mini`), and how to connect to OpenAI (a secret key reference, that uses a local secret store):
+
+```yaml,nocopy
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: conversation-prdigest
+spec:
+  type: conversation.openai
+  metadata:
+  - name: key
+    secretKeyRef:
+      name: openai-api-key
+      key: openai-api-key
+  - name: model
+    value: gpt-4o-mini
+  - name: cacheTTL
+    value: 0
+auth:
+  secretStore: local-secret-store
 ```
 
 #### PrDigestWorkflow.cs
@@ -244,4 +268,4 @@ public sealed partial class RecordAgentCallActivity(ILogger<RecordAgentCallActiv
 
 ---
 
-You've inspected the agentic workflow end-to-end. In the next challenge you'll start the application and crash it mid-run and prove the LLM calls are **not** repeated on resume.
+You've inspected the agentic workflow end-to-end. In the next challenge you'll start the application, crash it mid-run and prove the LLM calls are **not** repeated on resume.
