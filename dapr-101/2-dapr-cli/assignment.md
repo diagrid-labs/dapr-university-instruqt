@@ -1,11 +1,12 @@
-# The Dapr CLI
-
  The Dapr CLI is used during local development to:
  - Run your applications with a Dapr sidecar.
  - Review the Dapr sidecar logs.
  - List running services.
 
-**In this challenge you'll download the Dapr CLI, initialize Dapr, and verify the installation.**
+**In this challenge you'll download the Dapr CLI, initialize Dapr, and verify the installation.** This hands-on challenge takes about 5 minutes to complete.
+
+> [!IMPORTANT]
+> You'll work with read-only *language tabs* that hold the sample code, and one or more *Terminal* windows where you run commands, all inside this sandbox. If a tab or terminal isn't available — or you hit any blocking issue during this course — send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
 
 ## 1. Download the Dapr CLI
 

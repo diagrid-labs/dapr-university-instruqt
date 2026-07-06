@@ -3,6 +3,11 @@ In this challenge, you'll learn:
 - How to add retry policies when calling activities.
 - How to use try/catch blocks in workflows and how to compensate for failing activity calls.
 
+This hands-on challenge takes about 5 minutes to complete.
+
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
+
 ## 1. Resiliency and Compensation
 
 **Resiliency**

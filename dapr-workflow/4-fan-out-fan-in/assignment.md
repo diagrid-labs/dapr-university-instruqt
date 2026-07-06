@@ -1,4 +1,7 @@
-In this challenge, you'll explore a workflow application that demonstrates the fan-out/fan-in pattern.
+In this challenge, you'll explore a workflow application that demonstrates the fan-out/fan-in pattern. This hands-on challenge takes about 5 minutes to complete.
+
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
 ## 1. Fan-out / Fan-in
 

@@ -1,6 +1,4 @@
-# Use the Dapr Service Invocation API
-
-The goal of this challenge is to run two Dapr applications using the Dapr CLI and understand how they communicate with each other using service invocation. You can choose between applications written in .NET, Python, Java or JavaScript.
+The goal of this challenge is to run two Dapr applications using the Dapr CLI and understand how they communicate with each other using service invocation. You can choose between applications written in .NET, Python, Java or JavaScript. This hands-on challenge takes about 5 minutes to complete.
 
 ## 1. Choose a language tab
 

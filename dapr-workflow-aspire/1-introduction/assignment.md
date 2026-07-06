@@ -1,5 +1,8 @@
 Welcome to the *Dapr Workflow with .NET Aspire* learning track! In the upcoming challenges you'll build the **USS Enterprise Diagnostics** application. This application performs diagnostics on the USS Enterprise star ship. It uses Dapr Workflow to fan out to three star ship subsystem activities in parallel, aggregates the results into a prioritized report, and conditionally notifies the bridge. Along the way you'll scaffold an Aspire solution, add Dapr Workflow dependencies, wire up a Redis state store, and use the Diagrid Dev Dashboard to inspect workflow instances. By the end of the track you have ran a Dapr Workflow application with Aspire and inspected the workflow state in detail. This first challenge will take about 5 minutes to complete.
 
+> [!IMPORTANT]
+> On the left you should see an empty *Editor* tab, and a *Terminal* window where you run commands. If a tab or window isn't available — or you hit any blocking issue during this course — send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
+
 ![workflow-app-aspire.png](https://play.instruqt.com/assets/tracks/kyfkrd3ggejg/c04838dd7ad3f33b4786f69d276aa771/assets/workflow-app-aspire.png)
 
 > [!NOTE]

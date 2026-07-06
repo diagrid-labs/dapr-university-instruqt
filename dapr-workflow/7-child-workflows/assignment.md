@@ -1,4 +1,7 @@
-In this challenge, you'll explore a workflow application that demonstrates how to call child workflows from a parent workflow.
+In this challenge, you'll explore a workflow application that demonstrates how to call child workflows from a parent workflow. This hands-on challenge takes about 5 minutes to complete.
+
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
 ## 1. Child Workflows
 

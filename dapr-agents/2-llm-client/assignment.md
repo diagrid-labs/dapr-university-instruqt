@@ -1,4 +1,7 @@
-In this challenge, you'll use the simplest way to call an LLM using the Dapr Chat Client, which sends prompts through the Dapr Conversation API. It’s a minimal starting point before introducing agents in later challenges.
+In this challenge, you'll use the simplest way to call an LLM using the Dapr Chat Client, which sends prompts through the Dapr Conversation API. It’s a minimal starting point before introducing agents in later challenges. This hands-on challenge takes about 5 minutes to complete.
+
+> [!IMPORTANT]
+> On the left you should see an *Editor* tab with the sample code, and a *Terminal* where you run commands. If a window isn't available — or you hit any blocking issue during this course — send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
 
 ![Dapr Conversation API Concept](https://docs.dapr.io/images/conversation-overview.png)
 
@@ -101,7 +104,6 @@ spec:
 ```
 
 </details>
-
 
 > [!NOTE]
 > The component configuration tells Dapr how to connect to the LLM provider, which model to use, and other provider-specific settings. If you want to use a different LLM provider, you can change the component configuration file and update the `type` and `metadata` accordingly. See the [Dapr Conversation Components documentation](https://docs.dapr.io/reference/components-reference/supported-conversation/) for more details.

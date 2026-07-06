@@ -1,6 +1,6 @@
 ## 1. Understanding Dapr Agents
 
-Dapr Agents is a developer framework designed to build resilient AI agent systems that operate at scale. Built on top of the battle-tested Dapr project, it enables software developers to create AI agents that reason, act, and collaborate using Large Language Models (LLMs), while leveraging built-in observability and stateful workflow execution to guarantee agentic workflows complete successfully, no matter how complex.
+Dapr Agents is a developer framework designed to build resilient AI agent systems that operate at scale. Built on top of the battle-tested Dapr project, it enables software developers to create AI agents that reason, act, and collaborate using Large Language Models (LLMs), while leveraging built-in observability and stateful workflow execution to guarantee agentic workflows complete successfully, no matter how complex. This theoretical challenge takes about 4 minutes to complete.
 
 ![Dapr Agents Concept](https://docs.dapr.io/images/dapr-agents/concepts-agents.png)
 

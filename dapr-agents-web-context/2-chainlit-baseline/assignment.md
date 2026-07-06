@@ -1,4 +1,4 @@
-In this challenge you'll run the expert agent **without** the Tavily hook — the baseline behavior. The setup script has already commented out the `hooks=...` line in `agent.py`, so the agent talks to the LLM directly with no prompt enrichment.
+In this challenge you'll run the expert agent **without** the Tavily hook — the baseline behavior. The setup script has already commented out the `hooks=...` line in `agent.py`, so the agent talks to the LLM directly with no prompt enrichment. This hands-on challenge takes about 10 minutes to complete.
 
 ## 1. Add your API keys
 

@@ -1,4 +1,7 @@
-Catalyst has a managed Dapr workflow engine that is used to reliably run durable workflows. In this challenge, you'll run a Dapr workflow application using Catalyst and visualize the workflow with Catalyst.
+Catalyst has a managed Dapr workflow engine that is used to reliably run durable workflows. In this challenge, you'll run a Dapr workflow application using Catalyst and visualize the workflow with Catalyst. This hands-on challenge takes about 7 minutes to complete.
+
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching tab (*Terminal* or *curl*) from the dropdown that appears.
 
 ## 1. Explore the workflow application
 
@@ -215,7 +218,14 @@ Collect the Dapr University badge for this track by following [this link to the 
 
 We have more opportunities for you to learn and share knowledge:
 
-- Try [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for reliable and secure AI agents.
+**Try another university track**
+- [Dapr 101: State Management, Service Invocation, and Pub/Sub](https://www.diagrid.io/university/dapr-101)
+- [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
+
+**Read more**
 - Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
-- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of other developers share knowledge about Dapr.
+- Read [Announcing Catalyst Public Beta](https://www.diagrid.io/blog/announcing-catalyst-public-beta).
+
+**Join the community**
+- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#ai* and language channels.
 - Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.

@@ -1,4 +1,7 @@
-In this challenge, you'll explore a more realistic example of a workflow application, that uses several workflow patterns and multiple Dapr APIs.
+In this challenge, you'll explore a more realistic example of a workflow application, that uses several workflow patterns and multiple Dapr APIs. This hands-on challenge takes about 7 minutes to complete.
+
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
 ## 1. Combined Patterns
 

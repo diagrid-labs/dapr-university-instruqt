@@ -1,4 +1,7 @@
-Catalyst comes with a built-in key value (KV) store that you can use in your Dapr applications. In this challenge, you'll run a Dapr application that uses the state management API to interact with this KV Store.
+Catalyst comes with a built-in key value (KV) store that you can use in your Dapr applications. In this challenge, you'll run a Dapr application that uses the state management API to interact with this KV Store. This hands-on challenge takes about 5 minutes to complete.
+
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching tab (*Terminal* or *curl*) from the dropdown that appears.
 
 ![State demo](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/4-state/images/catalyst-101-state.png?raw=true)
 

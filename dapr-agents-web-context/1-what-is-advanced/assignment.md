@@ -1,4 +1,7 @@
-Welcome to the **Dapr Agents - Using Hooks** track! This track is a follow-up to the Dapr Agents 101 track. In this track you'll build an end-user-facing **expert agent**: a `DurableAgent` behind a [Chainlit](https://chainlit.io/) chat UI that silently fetches fresh web context for every question via a `before_llm_call` hook backed by [Tavily](https://tavily.com).
+Welcome to the **Dapr Agents - Fix Outdated Agent Answers** track! This track is a follow-up to the Dapr Agents 101 track. In this track you'll build an end-user-facing **expert agent**: a `DurableAgent` behind a [Chainlit](https://chainlit.io/) chat UI that silently fetches fresh web context for every question via a `before_llm_call` hook backed by [Tavily](https://tavily.com). This challenge takes about 5 minutes to complete.
+
+> [!IMPORTANT]
+> On the left you should see an *Editor* tab with the sample code, and a *Terminal* where you run commands. If a window isn't available — or you hit any blocking issue during this course — send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
 
 ## What you'll build
 
@@ -35,6 +38,7 @@ This first challenge is sandbox verification only. The sandbox has the follow al
 ```shell,copy,run
 dapr -v
 ```
+
 The ouput should show the version of both the Dapr CLI and the runtime. Only if the **Runtime version** is empty, initialize Dapr by running `dapr init`. This will install several containers that Dapr requires, including a Redis container that is used for the workflow state.
 
 2. Verify that uv is installed:

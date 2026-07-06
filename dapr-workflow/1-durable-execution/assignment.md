@@ -1,4 +1,4 @@
-In this challenge, you'll learn about durable execution, how they relate to workflow engines, and how Dapr supports workflow as code.
+In this challenge, you'll learn about durable execution, how they relate to workflow engines, and how Dapr supports workflow as code. This theoretical challenge takes about 3 minutes to complete. If you just want to see some examples and run applications, you can skip this challenge.
 
 ## 1. What is durable execution
 

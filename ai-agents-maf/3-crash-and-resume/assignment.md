@@ -166,11 +166,12 @@ We have more ways for you to learn and share knowledge:
 
 **Try another university track**
 - [Build Dapr workflows in .NET with Aspire](https://www.diagrid.io/university/dapr-workflow-aspire)
-- [Dapr Workflow: Use durable execution to build reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
+- [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
 
 **Read more**
 - Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
-- Learn more about [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for reliable and secure AI agents and workflows.
+- Read [Announcing Durable Workflow for Agents](https://www.diagrid.io/blog/durable-workflows-ai-agents).
 
 **Join the community**
-- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#dotnet*, and *#agents* channels.
+- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#ai* and language channels.
+- Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.
