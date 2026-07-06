@@ -1,4 +1,7 @@
-In this challenge, you'll explore the Dapr Workflow Management API and test the various operations that can be performed on workflow instances.
+In this challenge, you'll explore the Dapr Workflow Management API and test the various operations that can be performed on workflow instances. This hands-on challenge takes about 10 minutes to complete.
+
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
 ## 1. Workflow Management
 

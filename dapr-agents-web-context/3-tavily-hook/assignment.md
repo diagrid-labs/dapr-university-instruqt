@@ -1,4 +1,4 @@
-In this challenge you'll re-enable the `before_llm_call` hook and watch the same question from challenge 2 get a much better answer.
+In this challenge you'll re-enable the `before_llm_call` hook and watch the same question from challenge 2 get a much better answer. This hands-on challenge takes about 10 minutes to complete.
 
 ## 1. Inspect the hook
 
@@ -79,8 +79,14 @@ Congratulations! 🎉 You've completed the *Dapr Agents - Make Your Agent Produc
 
 We have more opportunities for you to learn and share knowledge:
 
-- Try [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for reliable and secure AI agents.
-- Try the [Catalyst 101](https://www.diagrid.io/dapr-university/catalyst-101) learning track to learn how Catalyst can make your workflow and agentic applications more reliable.
+**Try another university track**
+- [Dapr Agents: build LLM-powered applications with tools and workflows](https://www.diagrid.io/university/dapr-agents)
+- [Make MAF agents reliable with Dapr Workflow](https://www.diagrid.io/university/ai-agents-maf)
+
+**Read more**
 - Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
-- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of other developers share knowledge about Dapr. There are dedicated *#ai* and *#python* channels.
+- Read [Building Production-Ready AI Agents: What Your Framework Needs](https://www.diagrid.io/blog/building-production-ready-ai-agents-what-your-framework-needs).
+
+**Join the community**
+- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#ai*, and *#python* channels.
 - Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.

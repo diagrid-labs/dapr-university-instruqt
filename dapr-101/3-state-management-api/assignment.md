@@ -1,6 +1,7 @@
-# Use the Dapr State Management API
+The goal of this challenge is to run the Dapr sidecar in self-hosted mode and use the State Management HTTP API to interact with a state store. This is done without running any application code but by making HTTP  requests using cURL and sending these to the Dapr process. This challenge takes about 5 minutes to complete.
 
-The goal of this challenge is to run the Dapr sidecar in self-hosted mode and use the State Management HTTP API to interact with a state store. This is done without running any application code but by making HTTP  requests using cURL and sending these to the Dapr process.
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
 ## 1. Run a Dapr sidecar
 

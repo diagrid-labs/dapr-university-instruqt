@@ -1,6 +1,6 @@
 ## 1. Why Dapr?
 
-Dapr, the Distributed Application Runtime, is used by many large enterprises, such as Grafana, Zeiss, and FICO, to speed up distributed application development. On average, application developers save 30% of development time when using Dapr, compared to not using Dapr for building back-end applications.
+Dapr, the Distributed Application Runtime, is used by many large enterprises, such as Grafana, Zeiss, and FICO, to speed up distributed application development. On average, application developers save 30% of development time when using Dapr, compared to not using Dapr for building back-end applications. This theoretical challenge takes about 3 minutes to complete.
 
 Dapr provides APIs, which decouples your application code from the underlying infrastructure your applications are using, such as data stores, message brokers, secret stores and many others. This means that your code does not use any resource-specific code or dependencies, and you can easily swap out these resources without any code changes.
 

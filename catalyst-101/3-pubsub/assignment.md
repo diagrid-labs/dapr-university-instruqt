@@ -1,4 +1,7 @@
-Catalyst comes with a built-in pub/sub service that you can use in your Dapr applications. In this challenge, you'll run two Dapr applications that communicate via this built-in message broker.
+Catalyst comes with a built-in pub/sub service that you can use in your Dapr applications. In this challenge, you'll run two Dapr applications that communicate via this built-in message broker. This hands-on challenge takes about 5 minutes to complete.
+
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching tab (*Terminal* or *curl*) from the dropdown that appears.
 
 ![Pub/Sub demo](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/3-pubsub/images/catalyst-101-pubsub.png?raw=true)
 

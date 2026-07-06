@@ -1,9 +1,12 @@
 ## 1. Create a Diagrid Catalyst Account
 
-Let's start by creating a free Diagrid Catalyst account by using the **Catalyst** tab on the left in this sandbox and signing up with your email address or Google/GitHub account.
+Let's start by creating a free Diagrid Catalyst account by using the **Catalyst** tab on the left in this sandbox and signing up with your email address or Google/GitHub account. This hands-on challenge takes about 10 minutes to complete.
 
 > [!NOTE]
 > Alternatively you can use another browser tab and visit [https://catalyst.diagrid.io/signup](https://catalyst.diagrid.io/signup) to sign up for Diagrid Catalyst.
+
+> [!IMPORTANT]
+> You'll work with the *Catalyst* browser tab and a *Terminal* where you run commands (and a *curl* tab in later challenges) inside this sandbox environment. If a tab or terminal isn't available — or you hit any blocking issue during this course — send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
 
 If you already have an account, you can skip this step and proceed with downloading the Diagrid CLI.
 

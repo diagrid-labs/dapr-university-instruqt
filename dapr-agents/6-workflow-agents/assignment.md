@@ -1,4 +1,4 @@
-In this final challenge, you'll use a workflow that invokes agents as child workflows, allowing you to orchestrate multi-step agent reasoning in a durable and deterministic way. Unlike previous examples where activities called LLMs directly, this workflow delegates each step to an agent with tools and memory, while the workflow engine provides durability and reliable progression.
+In this final challenge, you'll use a workflow that invokes agents as child workflows, allowing you to orchestrate multi-step agent reasoning in a durable and deterministic way. Unlike previous examples where activities called LLMs directly, this workflow delegates each step to an agent with tools and memory, while the workflow engine provides durability and reliable progression. This hands-on challenge takes about 7 minutes to complete.
 
 
 ## 1. Understanding Multi-Agent Systems
@@ -173,8 +173,14 @@ Collect the Dapr University badge for this track by following [this link to the 
 
 We have more opportunities for you to learn and share knowledge:
 
-- Try [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for reliable and secure AI agents.
-- Try the [Catalyst 101](https://www.diagrid.io/dapr-university/catalyst-101) learning track to learn how Catalyst can make your workflow and agentic applications more reliable.
+**Try another university track**
+- [Dapr Agents Advanced: add automatic web context with hooks](https://www.diagrid.io/university/dapr-agents-advanced)
+- [Make MAF agents reliable with Dapr Workflow](https://www.diagrid.io/university/ai-agents-maf)
+
+**Read more**
 - Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
-- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of other developers share knowledge about Dapr. There are dedicated *#ai* and *#python* channels.
+- Read [Dapr Agents 1.0: Durable, Cloud-Native, Production-Ready](https://www.diagrid.io/blog/dapr-agents-1-0-durable-cloud-native-production-ready).
+
+**Join the community**
+- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#agents* and language channels.
 - Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.

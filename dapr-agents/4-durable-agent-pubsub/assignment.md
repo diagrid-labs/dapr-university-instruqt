@@ -1,4 +1,7 @@
-This challenge takes the same durable agent behavior from the previous challenge, but instead of exposing an HTTP endpoint, it uses pub/sub. With this setup, the durable agent runs in the background as an ambient agent and listens for incoming events on a message topic. When a message arrives, it automatically starts a workflow execution.
+This challenge takes the same durable agent behavior from the previous challenge, but instead of exposing an HTTP endpoint, it uses pub/sub. With this setup, the durable agent runs in the background as an ambient agent and listens for incoming events on a message topic. When a message arrives, it automatically starts a workflow execution. This hands-on challenge takes about 7 minutes to complete.
+
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears. This challenge uses a *Terminal Subscriber* and a *Terminal Publisher*.
 
 ## 1.  Explore the DurableAgent
 

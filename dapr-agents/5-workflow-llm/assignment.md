@@ -1,4 +1,4 @@
-In this challenge, you'll use a Dapr workflow that executes LLM calls in a deterministic durable sequence.
+In this challenge, you'll use a Dapr workflow that executes LLM calls in a deterministic durable sequence. This hands-on challenge takes about 7 minutes to complete.
 
 ## 1. Introduction to Workflows
 

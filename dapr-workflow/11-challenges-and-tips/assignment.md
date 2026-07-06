@@ -1,4 +1,4 @@
-In this final challenge, you'll explore common challenges that workflow as code systems have and how to deal with them.
+In this final challenge, you'll explore common challenges that workflow as code systems have and how to deal with them. This theoretical challenge takes about 5 minutes to complete.
 
 ## 1. Challenges and Tips
 
@@ -137,8 +137,14 @@ Collect the Dapr University badge for this track by following [this link to the 
 
 We have more opportunities for you to learn and share knowledge:
 
-- Try [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for reliable and secure AI agents.
-- Try the [Catalyst 101](https://www.diagrid.io/dapr-university/catalyst-101) learning track to learn how Catalyst can make your workflow and agentic applications more reliable.
+**Try another university track**
+- [Build Dapr workflows in .NET with Aspire](https://www.diagrid.io/university/dapr-workflow-aspire)
+- [Dapr Agents: build LLM-powered applications with tools and workflows](https://www.diagrid.io/university/dapr-agents)
+
+**Read more**
 - Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
-- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of other developers share knowledge about Dapr. There is a dedicated *#workflow* channel.
+- Read [An In-Depth Guide to Dapr Workflow Patterns in .NET](https://www.diagrid.io/blog/in-depth-guide-to-dapr-workflow-patterns).
+
+**Join the community**
+- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#ai* and language channels.
 - Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.

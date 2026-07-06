@@ -75,14 +75,13 @@ Congratulations! 🎉 You've completed the Dapr University Workflow & Aspire lea
 We have more opportunities for you to learn and share knowledge:
 
 **Try another university track**
-- [Dapr Workflow: Use durable execution to build reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
-- [Running Dapr applications with Diagrid Catalyst](https://www.diagrid.io/university/catalyst-101)
+- [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
+- [Make MAF agents reliable with Dapr Workflow](https://www.diagrid.io/university/ai-agents-maf)
 
-**Read more about Dapr**
+**Read more**
 - Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
-- Read this [blog post](https://www.diagrid.io/blog/how-to-version-net-workflows) about versioning Dapr Workflows in .NET with Aspire and run it on your local machine.
+- Read [How to Version .NET Dapr Workflows in Aspire](https://www.diagrid.io/blog/how-to-version-net-workflows).
 
 **Join the community**
-- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of other developers share knowledge about Dapr. There are dedicated *#workflow* and *#dotnet* channels.
+- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#ai* and language channels.
 - Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.
-- Try [Diagrid Catalyst](https://www.diagrid.io/catalyst), the enterprise platform for reliable and secure AI agents and workflows.
