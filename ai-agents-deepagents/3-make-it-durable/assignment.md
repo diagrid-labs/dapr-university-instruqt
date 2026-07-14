@@ -1,8 +1,4 @@
-The sandbox for this challenge is being prepared, it should be ready within a few seconds. Once it's ready, click the Start button.
-
----
-
-The baseline agent worked, but everything it did lived in process memory. In this challenge you'll wrap the exact same agent in a **Dapr Workflow**, so its scratchpad and progress are persisted as it runs. This challenge takes about 5 minutes to complete.
+The baseline agent worked, but everything it did lived in process memory. In this final challenge you'll wrap the exact same agent in a **Dapr Workflow**, so its state and progress are persisted as it runs. This challenge takes about 5 minutes to complete.
 
 ## 1. Inspect the durable version
 
@@ -41,7 +37,7 @@ spec:
       value: "true"
 ```
 
-This is a Redis-backed Dapr state store named `agent-memory` — the name the DeepAgents Dapr integration looks for by convention. `actorStateStore: "true"` means it also backs the Dapr Workflow engine itself (workflows run on Dapr's actor runtime under the hood).
+This is a Redis-backed Dapr state store named `agent-memory` — the name the DeepAgents Dapr integration looks for by convention. `actorStateStore: "true"` means it also backs the Dapr Workflow state.
 
 ## 3. Run the durable investigation
 
@@ -55,11 +51,9 @@ Watch the terminal — you'll see the same tool calls as challenge 2, but now in
 
 ## 4. Read the report
 
-```bash,run
-cat investigation-1833.md
-```
+Refresh the *Editor* tab, then navigate to `investigation-1833.md` to open it.
 
-Same report quality as challenge 2 — but this time, if the process had died halfway through, the work up to that point wouldn't be lost. That's exactly what you'll prove next.
+This is the same report as challenge 2 — but this time, if the process had died halfway through, the work up to that point wouldn't be lost. That's exactly what you'll prove next.
 
 ## 5. How this works
 

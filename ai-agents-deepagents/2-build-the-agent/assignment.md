@@ -1,7 +1,3 @@
-The sandbox for this challenge is being prepared, it should be ready within a few seconds. Once it's ready, click the Start button.
-
----
-
 In this challenge you'll run a DeepAgent that investigates a real, closed Dapr bug — [dapr/dapr#1833](https://github.com/dapr/dapr/issues/1833), "Data corruption in actor/service invocation under high rps". Our agent will write its findings to a Markdown report.This challenge takes about 5 minutes to complete.
 
 ## 1. Inspect the agent
@@ -40,7 +36,7 @@ Watch the terminal: the agent plans its approach, calls tools one at a time, and
 
 ## 3. Read the report
 
-Refresh the *Editor* tab, then navigate to `investigation-1833.md` to open it.
+Refresh the *Editor* tab since a new file has been created, then navigate to `investigation-1833.md` to open it.
 
 You should see a **Summary**, **Probable Root Cause**, **Related Work**, and **Suggested Next Steps** — built from the issue body, its comments, and the PR that actually fixed it.
 

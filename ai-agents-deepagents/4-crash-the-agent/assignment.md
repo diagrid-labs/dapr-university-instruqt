@@ -1,8 +1,4 @@
-The sandbox for this challenge is being prepared, it should be ready within a few seconds. Once it's ready, click the Start button.
-
----
-
-This is the payoff. You're going to crash the investigation on purpose, then prove the workflow picks up exactly where it left off. This challenge takes about 5 minutes to complete.
+In this challenge you're going to crash the investigation on purpose, then prove the workflow picks up exactly where it left off. This challenge takes about 5 minutes to complete.
 
 ## 1. Find the crash line
 
@@ -14,7 +10,7 @@ os._exit(1)  # Simulates a crash — comment out this line before the second run
 
 `investigate-crash.py` imports tools from `tools_crash.py`. `os._exit(1)` kills the Python process immediately — no exception, no cleanup, no chance for Dapr to gracefully shut down. This simulates a hard infrastructure failure: a pod eviction, an OOM kill, a host reboot.
 
-The script also uses a `crash_state.json` file to persist the Dapr workflow ID across restarts. On the first run it writes this file when the `workflow_started` event fires; on the second run it detects the file and polls the **existing** workflow rather than starting a new one.
+The script also uses a `crash_state.json` file to persist the Dapr workflow ID across restarts. On the first run it writes this file when the `workflow_started` event fires; on the second run it detects the file and polls the **existing** workflow rather than starting a new one. This exists purely for the crash demo.
 
 ## 2. Trigger the crash
 
@@ -28,9 +24,7 @@ Watch the terminal. The agent calls `get_issue` first — that activity complete
 
 Verify the crash was recorded:
 
-```bash,run
-cat crash_state.json
-```
+Refresh the *Editor* tab since a new file has been created, then navigate to `crash_state.json` to open it.
 
 ```text,nocopy
 {
@@ -41,7 +35,7 @@ cat crash_state.json
 ```
 
 > [!NOTE]
-> The `workflow_id` is the handle to the in-flight Dapr workflow. The script uses it on the next run to reconnect to the same instance rather than starting a new one.
+> The `workflow_id` is the unique identifier of the Dapr workflow instance. The script uses it on the next run to reconnect to the same instance rather than starting a new one.
 
 ## 3. Remove the crash
 
