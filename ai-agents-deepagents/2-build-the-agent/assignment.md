@@ -1,8 +1,8 @@
-In this challenge you'll run a DeepAgent that investigates a real, closed Dapr bug — [dapr/dapr#1833](https://github.com/dapr/dapr/issues/1833), "Data corruption in actor/service invocation under high rps". Our agent will write its findings to a Markdown report.This challenge takes about 5 minutes to complete.
+In this challenge you'll run a DeepAgent that investigates a real Dapr bug — [dapr/dapr#1833](https://github.com/dapr/dapr/issues/1833), "Data corruption in actor/service invocation under high rps". There's a pre-built agent that writes its findings to a Markdown report that you'll inspect. This challenge takes about 5 minutes to complete.
 
 ## 1. Inspect the agent
 
-Open `investigate-baseline.py` in the **Editor** window. It's the baseline version; an in-process DeepAgent, no Dapr yet. Look at the `create_deep_agent(...)` call:
+Open `investigate-baseline.py` in the **Editor** window. It's the baseline version; an in-process DeepAgent, no Dapr yet. Look at the `create_deep_agent(...)` call on line 43:
 
 ```python,nocopy
 agent = create_deep_agent(
@@ -20,7 +20,7 @@ agent = create_deep_agent(
 - `get_comments(number)` — all comments on an issue or PR
 - `search_related_issues(query)` — keyword search across the local snapshot
 
-Every one of these reads from a local JSON file under `/opt/track-data` (see `github_data.py`), never live GitHub data, to prevent you from having to authenticate with GitHub during this track. For production use, you *would* build this solution against the live GitHub data.
+Every one of these reads from a local JSON file under `/track-data-real` (see `github_data.py`). In this track you're not interacting with live GitHub data, to not waste time having to authenticate with GitHub. For production use, you *would* build this solution against the live GitHub data.
 
 `SYSTEM_PROMPT` tells the agent to read the issue and its comments, follow any linked PRs, search for related issues, then write `investigation-<issue-number>.md` using its built-in `write_file` tool — part of the virtual filesystem every DeepAgent gets for free.
 
@@ -32,7 +32,7 @@ Use the **Terminal** window to run the agent:
 uv run python investigate-baseline.py --issue 1833
 ```
 
-Watch the terminal: the agent plans its approach, calls tools one at a time, and reasons about what it finds before writing the report. This whole run lives in your terminal's memory — kill the process now and all of that work is gone.
+Watch the terminal: the agent plans its approach, calls tools one at a time, and reasons about what it finds before writing the report. This whole run lives in your terminal's memory, it that process was killed mid-execution all of the work is gone.
 
 ## 3. Read the report
 
@@ -49,9 +49,6 @@ You should see a **Summary**, **Probable Root Cause**, **Related Work**, and **S
 2. The agent receives the investigation prompt and decides which tools to call and in what order.
 3. Each tool reads from the local JSON snapshot — no network calls to GitHub.
 4. After gathering enough context, the agent calls `write_file` to persist the report into its virtual filesystem, which is then extracted and written to disk.
-
-> [!NOTE]
-> This run is entirely in-process — there is no Dapr involved yet. Kill the process partway through and everything is lost. That's the problem challenges 3 and 4 solve.
 
 ## 5. Remove the investigation report
 

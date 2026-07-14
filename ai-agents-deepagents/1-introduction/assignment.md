@@ -1,4 +1,4 @@
-Welcome to **Make DeepAgents Reliable with Dapr Workflow - Deep Issue Investigation**. In this track you'll build a CLI tool that points a [DeepAgents](https://docs.langchain.com/oss/python/deepagents) agent at a real GitHub issue and has it write an investigation report — then make that investigation durable enough to survive a crash.
+Welcome to **Make DeepAgents Reliable with Dapr Workflow - Deep Issue Investigation**. In this track you'll build a CLI tool that points a [DeepAgents](https://docs.langchain.com/oss/python/deepagents) agent at a real GitHub issue (stored locally as json) and has it write an investigation report — then make that investigation durable to survive a crash.
 
 In this first challenge you'll set up the sandbox environment and get the CLI tool running against a sample issue. This challenge takes about 5 minutes to complete.
 

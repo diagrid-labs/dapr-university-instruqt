@@ -10,7 +10,9 @@ os._exit(1)  # Simulates a crash — comment out this line before the second run
 
 `investigate-crash.py` imports tools from `tools_crash.py`. `os._exit(1)` kills the Python process immediately — no exception, no cleanup, no chance for Dapr to gracefully shut down. This simulates a hard infrastructure failure: a pod eviction, an OOM kill, a host reboot.
 
-`investigate-crash.py` derives a deterministic workflow ID from the issue number — `investigation-1833` — so a restart can find the exact same Dapr workflow instance. Dapr's state store is the single source of truth for whether an investigation has started, is still running, or has finished.
+`investigate-crash.py` derives a deterministic workflow ID from the issue number — `investigation-1833` — see line 90, so a restart of the workflow can find the exact same Dapr workflow instance. Dapr's state store is the single source of truth for whether an investigation has started, is still running, or has finished.
+
+There's some additional conditional logging in the workflow to highlight if the workflow is started for the first time or if an existing instance ID is found that needs to be completed.
 
 ## 2. Trigger the crash
 
@@ -22,13 +24,13 @@ uv run dapr run --app-id deepagent --resources-path ./resources -- python invest
 
 Watch the terminal. The script logs `No existing workflow for investigation-1833 — starting fresh` and schedules the workflow. The agent calls `get_issue` first — that activity completes and gets checkpointed. Then the agent calls `get_comments`, and the process dies. The terminal output stops; there is no graceful shutdown message.
 
-Verify Dapr persisted the workflow — even though the process died and no local file was written:
+Verify Dapr persisted the workflow progress to Redis — even though the process died mid-way:
 
 ```bash,run
 docker exec dapr_redis redis-cli keys "*investigation-1833*"
 ```
 
-You'll see keys for the `investigation-1833` workflow instance. Dapr wrote the workflow's progress (including `get_issue`'s checkpointed result) to Redis on its own.
+You'll see keys for the `investigation-1833` workflow instance. Dapr wrote the workflow's progress to Redis on its own.
 
 ## 3. Remove the crash
 
@@ -46,10 +48,10 @@ Use the **Terminal** window to restart the investigation:
 uv run dapr run --app-id deepagent --resources-path ./resources -- python investigate-crash.py --issue 1833
 ```
 
-Watch closely. This time the script logs `Found existing workflow investigation-1833: WorkflowStatus.RUNNING`, skips `run_async()`, and calls `poll_for_completion()` — which waits on the **same** workflow instance using Dapr's built-in waits (`Workflow is running — waiting for it to finish...`). The Dapr Workflow engine replays history up to the last checkpoint and continues execution from `get_comments` — `get_issue` is **not** called again. Execution continues from where it crashed, and the investigation completes.
+Watch the terminal closely. This time the script logs `Found existing workflow investigation-1833: WorkflowStatus.RUNNING`, skips `run_async()`, and calls `poll_for_completion()` — which waits on the **same** workflow instance using Dapr's built-in waits (`Workflow is running — waiting for it to finish...`). The Dapr Workflow engine replays history up to the last checkpoint and continues execution from `get_comments` — `get_issue` is **not** called again. Execution continues from where it crashed, and the investigation completes.
 
 > [!IMPORTANT]
-> The key proof is in the logs: you will not see `get_issue` being executed again. Dapr's replay mechanism skips any activity whose result is already in the checkpoint store.
+> The key proof is in the logs: the workflow will continue with Step 7. Since Steps 1-6 have been executed already.
 
 ## 5. Read the report
 

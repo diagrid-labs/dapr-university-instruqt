@@ -2,7 +2,7 @@ The baseline agent worked, but everything it did lived in process memory. In thi
 
 ## 1. Inspect the durable version
 
-Open `investigate-durable.py` in the **Editor**. The agent definition is unchanged — same tools, same system prompt. What's new is the entry point (line 73):
+Open `investigate-durable.py` in the **Editor**. The agent definition is unchanged — same tools, same system prompt. What's new is the `runner` (line 62):
 
 ```python,nocopy
 from diagrid.agent.deepagents import DaprWorkflowDeepAgentRunner
@@ -62,9 +62,6 @@ This is the same report as challenge 2 — but this time, if the process had die
 3. Before and after each workflow activity call, Dapr checkpoints the input and output of the activity to the Redis state store.
 4. If the process dies, the workflow engine replays history up to the last checkpoint and resume from there on restart.
 
-> [!IMPORTANT]
-> Use `Ctrl+C` in the **Terminal** window to stop the Dapr application before moving on.
-
 ## 6. Remove the investigation report
 
 In the final challenge you'll generate the report again, so remove the current one using the **Terminal**:
@@ -75,4 +72,4 @@ rm investigation-1833.md
 
 ---
 
-You've now run the same investigation backed by a Dapr Workflow, with every step checkpointed to Redis. Let's move on to challenge 4 where you'll prove this works by intentionally crashing the process mid-investigation.
+You've now run the same investigation backed by a Dapr Workflow, with every step checkpointed to Redis. Let's move on to the last challenge where you'll prove this works by intentionally crashing the process mid-investigation.
