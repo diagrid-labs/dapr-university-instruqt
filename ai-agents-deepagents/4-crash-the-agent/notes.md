@@ -1,4 +1,4 @@
-The sandbox for this challenge is being prepared, it should be ready within a few seconds. Once it's ready, click the 'Start' button.
+The sandbox for the final challenge is being prepared, it should be ready within a few seconds. Once it's ready, click the 'Start' button.
 
 ---
 

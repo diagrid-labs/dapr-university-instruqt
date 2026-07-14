@@ -20,7 +20,7 @@ agent = create_deep_agent(
 - `get_comments(number)` — all comments on an issue or PR
 - `search_related_issues(query)` — keyword search across the local snapshot
 
-Every one of these reads from a local JSON file under `/opt/track-data` (see `github_data.py`) — **never** the live GitHub API. The snapshot was collected once, at sandbox-image build time.
+Every one of these reads from a local JSON file under `/opt/track-data` (see `github_data.py`), never live GitHub data, to prevent you from having to authenticate with GitHub during this track. For production use, you *would* build this solution against the live GitHub data.
 
 `SYSTEM_PROMPT` tells the agent to read the issue and its comments, follow any linked PRs, search for related issues, then write `investigation-<issue-number>.md` using its built-in `write_file` tool — part of the virtual filesystem every DeepAgent gets for free.
 
@@ -36,6 +36,9 @@ Watch the terminal: the agent plans its approach, calls tools one at a time, and
 
 ## 3. Read the report
 
+> [!IMPORTANT]
+> Refresh the 'Editor' tab, so it detects the newly created file. You'll find the arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
+
 Refresh the *Editor* tab since a new file has been created, then navigate to `investigation-1833.md` to open it.
 
 You should see a **Summary**, **Probable Root Cause**, **Related Work**, and **Suggested Next Steps** — built from the issue body, its comments, and the PR that actually fixed it.
@@ -49,6 +52,14 @@ You should see a **Summary**, **Probable Root Cause**, **Related Work**, and **S
 
 > [!NOTE]
 > This run is entirely in-process — there is no Dapr involved yet. Kill the process partway through and everything is lost. That's the problem challenges 3 and 4 solve.
+
+## 5. Remove the investigation report
+
+In the next challenge you'll generate the report again, so remove the current one using the **Terminal**:
+
+```bash,copy,run
+rm investigation-1833.md
+```
 
 ---
 

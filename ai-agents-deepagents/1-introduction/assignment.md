@@ -55,16 +55,7 @@ This is a static snapshot of issues and pull requests from the real dapr/dapr re
 
 ## 2. Add your OpenAI API key
 
-Create a `.env` file in the project directory:
-
-```bash,run,copy
-touch .env
-```
-
-> [!IMPORTANT]
-> Refresh the 'Editor' tab, so it detects the newly created file. You'll find the arrow on the right side of the tree view labelled DEEP-INVESTIGATION.
-
-Open the .env file in the **Editor** and add your key:
+Find the `.env` file in the **Editor** and add your key:
 
 ```env,copy
 OPENAI_API_KEY=your_key_here

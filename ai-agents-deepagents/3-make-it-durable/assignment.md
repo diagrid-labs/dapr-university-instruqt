@@ -2,7 +2,7 @@ The baseline agent worked, but everything it did lived in process memory. In thi
 
 ## 1. Inspect the durable version
 
-Open investigate-durable.py in the **Editor**. The agent definition is unchanged — same tools, same system prompt. What's new is the entry point:
+Open `investigate-durable.py` in the **Editor**. The agent definition is unchanged — same tools, same system prompt. What's new is the entry point (line 73):
 
 ```python,nocopy
 from diagrid.agent.deepagents import DaprWorkflowDeepAgentRunner
@@ -53,17 +53,25 @@ Watch the terminal — you'll see the same tool calls as challenge 2, but now in
 
 Refresh the *Editor* tab, then navigate to `investigation-1833.md` to open it.
 
-This is the same report as challenge 2 — but this time, if the process had died halfway through, the work up to that point wouldn't be lost. That's exactly what you'll prove next.
+This is the same report as challenge 2 — but this time, if the process had died halfway through, the work up to that point wouldn't be lost. That's exactly what you'll prove in the final challenge.
 
 ## 5. How this works
 
 1. `DaprWorkflowDeepAgentRunner.start()` registers the agent graph as a Dapr Workflow and starts the actor runtime.
 2. Each node in the LangGraph state machine (tool call, model call, middleware) is wrapped as a Dapr Workflow activity.
-3. Before Dapr moves to the next activity, it writes the result of the current one to the Redis state store.
-4. If the process dies, the workflow engine can replay history up to the last checkpoint and resume from there on restart.
+3. Before and after each workflow activity call, Dapr checkpoints the input and output of the activity to the Redis state store.
+4. If the process dies, the workflow engine replays history up to the last checkpoint and resume from there on restart.
 
 > [!IMPORTANT]
 > Use `Ctrl+C` in the **Terminal** window to stop the Dapr application before moving on.
+
+## 6. Remove the investigation report
+
+In the final challenge you'll generate the report again, so remove the current one using the **Terminal**:
+
+```bash,copy,run
+rm investigation-1833.md
+```
 
 ---
 

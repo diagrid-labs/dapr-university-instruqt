@@ -60,11 +60,9 @@ Watch closely: the script detects `crash_state.json`, skips `run_async()`, and p
 
 ## 5. Read the report
 
-```bash,run
-cat investigation-1833.md
-```
+Refresh the *Editor* tab, then navigate to `investigation-1833.md` to open it.
 
-A complete report, even though the process that produced it died and restarted halfway through.
+It shows a complete report, even though the process that produced it died and restarted halfway through.
 
 ## 6. How this works
 
@@ -76,6 +74,30 @@ A complete report, even though the process that produced it died and restarted h
 
 That's the entire point of backing a long-running agent with Dapr: a crash costs you a restart, not the work.
 
----
+## Recap
 
-You've completed the track. From here you could add sub-agents for parallel investigation, point the same pattern at a different issue, or wire in Dapr's Conversation API for additional LLM-call resiliency.
+You crashed a running investigation on purpose and watched it recover without losing work:
+
+- Each tool call is a **checkpointed activity**. Its result is written to durable state the moment it completes.
+- `os._exit(1)` killed the process hard mid-run, simulating a pod eviction or OOM kill.
+- On restart, Dapr's Workflow engine **replayed history from the checkpoint store**, returning already-saved results without re-executing them, and resumed exactly where it crashed. `get_issue` was never called twice.
+- The investigation completed and produced a full report, even though the process that started it had died.
+
+That combination turns a long-running agent into a fault-tolerant application you can crash without losing — or paying for — completed work twice.
+
+## Feedback and further learning
+
+Congratulations! 🎉 You've completed the *Make DeepAgents Reliable with Dapr Workflow* learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving it.
+
+We have more ways for you to learn and share knowledge:
+
+**Try another university track**
+- [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
+
+**Read more**
+- Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
+- Read [Announcing Durable Workflow for Agents](https://www.diagrid.io/blog/durable-workflows-ai-agents).
+
+**Join the community**
+- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#ai* and language channels.
+- Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.
