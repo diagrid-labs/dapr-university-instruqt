@@ -1,14 +1,8 @@
 Click the *Start* button to setup the sandbox environment for this training, this may take up to 2 minutes. Once the environment is ready, click the *Start* button again.
 
-- There are 3 challenges to complete, each takes about 5-10 minutes. If your session is idle for more than 10 minutes, the session will stop and you'll need to restart the track.
+There are 4 challenges to complete, each takes about 5-10 minutes. If your session is idle for more than 10 minutes, the session will stop and you'll need to restart the track.
 
 ---
-
-DeepAgents lets you build an AI agent that can plan, use tools, and take notes as it works. It's how you get real, multi-step investigations out of an LLM instead of a single guess. The challenge will take about 5 minutes.
-
-There's a catch though. If a long-running agent crashes halfway, you lose all its progress and pay for every model call again. The rest of this track shows how Dapr fixes that.
-
-The sandbox for this challenge is being prepared, it should be ready within a few seconds. Once it's ready, click the 'Start' button.
 
 ### What you'll learn in this challenge
 

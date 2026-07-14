@@ -1,12 +1,8 @@
-The sandbox for this challenge is being prepared, it should be ready within a few seconds. Once it's ready, click the Start button.
-
----
-
-In this challenge you'll run a DeepAgent that investigates a real, closed Dapr bug — [dapr/dapr#1833](https://github.com/dapr/dapr/issues/1833), "Data corruption in actor/service invocation under high rps". Our agent will write its findings to a Markdown report.This challenge takes about 5 minutes to complete.
+In this challenge you'll run a DeepAgent that investigates a real Dapr bug — [dapr/dapr#7326](https://github.com/dapr/dapr/issues/7326), "Dapr Sidecar still Ready when "failed to load components". There's a pre-built agent that writes its findings to a Markdown report that you'll inspect. This challenge takes about 5 minutes to complete.
 
 ## 1. Inspect the agent
 
-Open `investigate-baseline.py` in the **Editor** window. It's the baseline version; an in-process DeepAgent, no Dapr yet. Look at the `create_deep_agent(...)` call:
+Open `investigate-baseline.py` in the **Editor** window. It's the baseline version; an in-process DeepAgent, no Dapr yet. Look at the `create_deep_agent(...)` call on line 43:
 
 ```python,nocopy
 agent = create_deep_agent(
@@ -24,7 +20,7 @@ agent = create_deep_agent(
 - `get_comments(number)` — all comments on an issue or PR
 - `search_related_issues(query)` — keyword search across the local snapshot
 
-Every one of these reads from a local JSON file under `/opt/track-data` (see `github_data.py`) — **never** the live GitHub API. The snapshot was collected once, at sandbox-image build time.
+Every one of these reads from local JSON files under `/data`.
 
 `SYSTEM_PROMPT` tells the agent to read the issue and its comments, follow any linked PRs, search for related issues, then write `investigation-<issue-number>.md` using its built-in `write_file` tool — part of the virtual filesystem every DeepAgent gets for free.
 
@@ -33,14 +29,17 @@ Every one of these reads from a local JSON file under `/opt/track-data` (see `gi
 Use the **Terminal** window to run the agent:
 
 ```bash,run
-uv run python investigate-baseline.py --issue 1833
+uv run python investigate-baseline.py --issue 7326
 ```
 
-Watch the terminal: the agent plans its approach, calls tools one at a time, and reasons about what it finds before writing the report. This whole run lives in your terminal's memory — kill the process now and all of that work is gone.
+Watch the terminal: you'll see updates on retrieved issues, comments and related PRs. This whole run lives in the apps memory, if that process was killed mid-execution all of the work is gone.
 
 ## 3. Read the report
 
-Refresh the *Editor* tab, then navigate to `investigation-1833.md` to open it.
+> [!IMPORTANT]
+> Refresh the 'Editor' tab, so it detects the newly created file. You'll find the arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
+
+Refresh the *Editor* tab since a new file has been created, then navigate to `investigation-7326.md` to open it.
 
 You should see a **Summary**, **Probable Root Cause**, **Related Work**, and **Suggested Next Steps** — built from the issue body, its comments, and the PR that actually fixed it.
 
@@ -51,8 +50,13 @@ You should see a **Summary**, **Probable Root Cause**, **Related Work**, and **S
 3. Each tool reads from the local JSON snapshot — no network calls to GitHub.
 4. After gathering enough context, the agent calls `write_file` to persist the report into its virtual filesystem, which is then extracted and written to disk.
 
-> [!NOTE]
-> This run is entirely in-process — there is no Dapr involved yet. Kill the process partway through and everything is lost. That's the problem challenges 3 and 4 solve.
+## 5. Remove the investigation report
+
+In the next challenge you'll generate the report again, so remove the current one using the **Terminal**:
+
+```bash,copy,run
+rm investigation-7326.md
+```
 
 ---
 
