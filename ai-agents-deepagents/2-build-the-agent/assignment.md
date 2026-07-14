@@ -1,4 +1,4 @@
-In this challenge you'll run a DeepAgent that investigates a real Dapr bug — [dapr/dapr#1833](https://github.com/dapr/dapr/issues/1833), "Data corruption in actor/service invocation under high rps". There's a pre-built agent that writes its findings to a Markdown report that you'll inspect. This challenge takes about 5 minutes to complete.
+In this challenge you'll run a DeepAgent that investigates a real Dapr bug — [dapr/dapr#7326](https://github.com/dapr/dapr/issues/7326), "Dapr Sidecar still Ready when "failed to load components". There's a pre-built agent that writes its findings to a Markdown report that you'll inspect. This challenge takes about 5 minutes to complete.
 
 ## 1. Inspect the agent
 
@@ -20,7 +20,7 @@ agent = create_deep_agent(
 - `get_comments(number)` — all comments on an issue or PR
 - `search_related_issues(query)` — keyword search across the local snapshot
 
-Every one of these reads from a local JSON file under `/track-data-real` (see `github_data.py`). In this track you're not interacting with live GitHub data, to not waste time having to authenticate with GitHub. For production use, you *would* build this solution against the live GitHub data.
+Every one of these reads from local JSON files under `/data`.
 
 `SYSTEM_PROMPT` tells the agent to read the issue and its comments, follow any linked PRs, search for related issues, then write `investigation-<issue-number>.md` using its built-in `write_file` tool — part of the virtual filesystem every DeepAgent gets for free.
 
@@ -29,17 +29,17 @@ Every one of these reads from a local JSON file under `/track-data-real` (see `g
 Use the **Terminal** window to run the agent:
 
 ```bash,run
-uv run python investigate-baseline.py --issue 1833
+uv run python investigate-baseline.py --issue 7326
 ```
 
-Watch the terminal: the agent plans its approach, calls tools one at a time, and reasons about what it finds before writing the report. This whole run lives in your terminal's memory, it that process was killed mid-execution all of the work is gone.
+Watch the terminal: you'll see updates on retrieved issues, comments and related PRs. This whole run lives in the apps memory, if that process was killed mid-execution all of the work is gone.
 
 ## 3. Read the report
 
 > [!IMPORTANT]
 > Refresh the 'Editor' tab, so it detects the newly created file. You'll find the arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
 
-Refresh the *Editor* tab since a new file has been created, then navigate to `investigation-1833.md` to open it.
+Refresh the *Editor* tab since a new file has been created, then navigate to `investigation-7326.md` to open it.
 
 You should see a **Summary**, **Probable Root Cause**, **Related Work**, and **Suggested Next Steps** — built from the issue body, its comments, and the PR that actually fixed it.
 
@@ -55,7 +55,7 @@ You should see a **Summary**, **Probable Root Cause**, **Related Work**, and **S
 In the next challenge you'll generate the report again, so remove the current one using the **Terminal**:
 
 ```bash,copy,run
-rm investigation-1833.md
+rm investigation-7326.md
 ```
 
 ---

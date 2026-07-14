@@ -44,16 +44,16 @@ This is a Redis-backed Dapr state store named `agent-memory` — the name the De
 Use the **Terminal** window to run the agent with Dapr:
 
 ```bash,run
-uv run dapr run --app-id deepagent --resources-path ./resources -- python investigate-durable.py --issue 1833
+uv run dapr run --app-id deepagent --resources-path ./resources -- python investigate-durable.py --issue 7326
 ```
 
-Watch the terminal — you'll see the same tool calls as challenge 2, but now interleaved with `Event: workflow_started`, `Event: workflow_status_changed`, and `Event: workflow_completed` as Dapr tracks the run.
+Watch the terminal — you'll see more output that comes from Dapr, then you will see output that either comes from the Dapr workflow or the activities in that workflow. You will also see `Event: workflow_started`, `Event: workflow_status_changed`, and `Event: workflow_completed` as Dapr tracks the run.
 
 ## 4. Read the report
 
-Refresh the *Editor* tab, then navigate to `investigation-1833.md` to open it.
+Refresh the *Editor* tab, then navigate to `investigation-7326.md` to open it.
 
-This is the same report as challenge 2 — but this time, if the process had died halfway through, the work up to that point wouldn't be lost. That's exactly what you'll prove in the final challenge.
+This is the same type of report as challenge 2 — but this time, if the process had died halfway through, the work up to that point wouldn't be lost. That's exactly what you'll prove in the next and final challenge.
 
 ## 5. How this works
 
@@ -67,7 +67,7 @@ This is the same report as challenge 2 — but this time, if the process had die
 In the final challenge you'll generate the report again, so remove the current one using the **Terminal**:
 
 ```bash,copy,run
-rm investigation-1833.md
+rm investigation-7326.md
 ```
 
 ---

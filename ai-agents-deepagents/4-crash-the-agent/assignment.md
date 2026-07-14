@@ -10,7 +10,7 @@ os._exit(1)  # Simulates a crash — comment out this line before the second run
 
 `investigate-crash.py` imports tools from `tools_crash.py`. `os._exit(1)` kills the Python process immediately — no exception, no cleanup, no chance for Dapr to gracefully shut down. This simulates a hard infrastructure failure: a pod eviction, an OOM kill, a host reboot.
 
-`investigate-crash.py` derives a deterministic workflow ID from the issue number — `investigation-1833` — see line 90, so a restart of the workflow can find the exact same Dapr workflow instance. Dapr's state store is the single source of truth for whether an investigation has started, is still running, or has finished.
+`investigate-crash.py` derives a deterministic workflow ID from the issue number — `investigation-7326` — see line 90, so a restart of the workflow can find the exact same Dapr workflow instance. Dapr's state store is the single source of truth for whether an investigation has started, is still running, or has finished.
 
 There's some additional conditional logging in the workflow to highlight if the workflow is started for the first time or if an existing instance ID is found that needs to be completed.
 
@@ -19,18 +19,22 @@ There's some additional conditional logging in the workflow to highlight if the 
 Use the **Terminal** window to start the investigation:
 
 ```bash,run
-uv run dapr run --app-id deepagent --resources-path ./resources -- python investigate-crash.py --issue 1833
+uv run dapr run --app-id deepagent --resources-path ./resources -- python investigate-crash.py --issue 7326
 ```
 
-Watch the terminal. The script logs `No existing workflow for investigation-1833 — starting fresh` and schedules the workflow. The agent calls `get_issue` first — that activity completes and gets checkpointed. Then the agent calls `get_comments`, and the process dies. The terminal output stops; there is no graceful shutdown message.
+Watch the terminal. The script logs `No existing workflow for investigation-7326 — starting fresh` and schedules the workflow. The workflow continues up to Step 6. Then the app process stops:
+
+```text,nocopy
+❌  The App process exited with error code: 1
+```
 
 Verify Dapr persisted the workflow progress to Redis — even though the process died mid-way:
 
 ```bash,run
-docker exec dapr_redis redis-cli keys "*investigation-1833*"
+docker exec dapr_redis redis-cli keys "*investigation-7326*"
 ```
 
-You'll see keys for the `investigation-1833` workflow instance. Dapr wrote the workflow's progress to Redis on its own.
+You'll see many keys for all of the checkpointed step related to the `investigation-7326` workflow instance.
 
 ## 3. Remove the crash
 
@@ -45,32 +49,32 @@ Back in the **Editor**, comment out line 23 in `tools_crash.py`:
 Use the **Terminal** window to restart the investigation:
 
 ```bash,run
-uv run dapr run --app-id deepagent --resources-path ./resources -- python investigate-crash.py --issue 1833
+uv run dapr run --app-id deepagent --resources-path ./resources -- python investigate-crash.py --issue 7326
 ```
 
-Watch the terminal closely. This time the script logs `Found existing workflow investigation-1833: WorkflowStatus.RUNNING`, skips `run_async()`, and calls `poll_for_completion()` — which waits on the **same** workflow instance using Dapr's built-in waits (`Workflow is running — waiting for it to finish...`). The Dapr Workflow engine replays history up to the last checkpoint and continues execution from `get_comments` — `get_issue` is **not** called again. Execution continues from where it crashed, and the investigation completes.
+Watch the terminal closely. This time the script logs `Found existing workflow investigation-7326: WorkflowStatus.RUNNING`, skips `run_async()`, and calls `poll_for_completion()` — which waits on the **same** workflow instance using Dapr's built-in waits (`Workflow is running — waiting for it to finish...`). The Dapr Workflow engine replays history up to the last checkpoint and continues the execution from where it crashed, and the investigation completes.
 
 > [!IMPORTANT]
 > The key proof is in the logs: the workflow will continue with Step 7. Since Steps 1-6 have been executed already.
 
 ## 5. Read the report
 
-Refresh the *Editor* tab, then navigate to `investigation-1833.md` to open it.
+Refresh the *Editor* tab, then navigate to `investigation-7326.md` to open it.
 
 It shows a complete report, even though the process that produced it died and restarted halfway through.
 
 ## 6. How this works
 
-1. On the first run, the script queries Dapr for the `investigation-1833` instance, finds nothing, and calls `run_async()` to start a new Dapr Workflow under that deterministic ID.
+1. On the first run, the script queries Dapr for the `investigation-7326` instance, finds nothing, and calls `run_async()` to start a new Dapr Workflow under that deterministic ID.
 2. `os._exit(1)` kills the process hard — the activity result for `get_comments` is not written, but `get_issue`'s result is already in Redis.
 3. On the second run, the script derives the same ID, queries Dapr, and finds the instance still `RUNNING`. Instead of starting a new workflow, it calls `poll_for_completion()`, which waits on that instance with `wait_for_workflow_start()` and `wait_for_workflow_completion()`.
 4. Dapr reconnects to the existing workflow instance, replays checkpointed activities (returning their saved results without re-executing them), and resumes at `get_comments`.
-5. The investigation completes and `investigation-1833.md` is written to disk.
+5. The investigation completes and `investigation-7326.md` is written to disk.
 
 That's the entire point of backing a long-running agent with Dapr: a crash costs you a restart, not the work. And because the workflow ID is derived from the issue number, no bookkeeping file is needed — Dapr's state store holds everything.
 
 > [!NOTE]
-> To run the whole demo again from scratch, flush Dapr's state so `investigation-1833` no longer exists:
+> To run the whole demo again from scratch, flush Dapr's state so `investigation-7326` no longer exists:
 > ```bash,nocopy
 > docker exec dapr_redis redis-cli flushall
 > ```

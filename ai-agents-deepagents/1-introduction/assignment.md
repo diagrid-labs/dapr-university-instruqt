@@ -1,4 +1,4 @@
-Welcome to **Make DeepAgents Reliable with Dapr Workflow - Deep Issue Investigation**. In this track you'll build a CLI tool that points a [DeepAgents](https://docs.langchain.com/oss/python/deepagents) agent at a real GitHub issue (stored locally as json) and has it write an investigation report — then make that investigation durable to survive a crash.
+Welcome to **Make DeepAgents Reliable with Dapr Workflow - Deep Issue Investigation**. In this track you'll run several versions of a CLI tool that uses a [DeepAgents](https://docs.langchain.com/oss/python/deepagents) agent to perform a multi-step investigation for a real GitHub issue and has it write an investigation report — then make that investigation durable to survive a crash.
 
 In this first challenge you'll set up the sandbox environment and get the CLI tool running against a sample issue. This challenge takes about 5 minutes to complete.
 
@@ -18,7 +18,7 @@ In challenges 3 and 4 you'll back that scratchpad with a **Dapr state store** an
 
 ## The target issue
 
-We've picked one issue for this whole track: [dapr/dapr#1833](https://github.com/dapr/dapr/issues/1833) — "Data corruption in actor/service invocation under high rps." It's closed, has comment threads, and was fixed by a pull request.
+We've picked one issue for this whole track: [dapr/dapr#7326](https://github.com/dapr/dapr/issues/7326) — "Dapr Sidecar still Ready when "failed to load components". This issues has several related PRs, issues, and comment threads.
 
 ## 1. Verify the sandbox
 
@@ -31,33 +31,18 @@ dapr -v
 > [!NOTE]
 > You should see both a **CLI version** and a **Runtime version** listed. If the Runtime version is blank, run `dapr init` below to initialize it. If you run into any other blocking issue during this course, send me [an email](mailto:marc@diagrid.io), and we'll figure it out together.
 
-In the *Editor* tab, open `track-data-real/dapr/dapr` to browse the snapshot, then open `manifest.json` to see its contents.
+**GitHub issue & PR data**
 
-This is a static snapshot of issues and pull requests from the real dapr/dapr repository, collected once and checked into this track. The agent only ever reads from this local snapshot.
+> [!IMPORTANT]
+> This track works with a pre-fetched GitHub data stored as JSON, so you're not wasting time creating a GitHub token in order to fetch live GitHub data.
 
-```text,nocopy
-{
-  "schema_version": 1,
-  "owner": "dapr",
-  "repo": "dapr",
-  ...
-  "seed_issues": [
-    1833
-  ],
-  "counts": {
-    "issues": 100,
-    "prs": 50
-  }
-}
-```
-
-`seed_issues` confirms #1833 is in the snapshot. `counts` tells you how much data was collected around it.
+If you want, use the *Editor* tab, and navigate to `data/dapr/dapr` to browse through the GitHub data.
 
 ## 2. Add your OpenAI API key
 
 Find the `.env` file in the **Editor** and add your key:
 
-```env,copy
+```text,nocopy
 OPENAI_API_KEY=your_key_here
 ```
 
