@@ -8,4 +8,4 @@ ai-agents-maf-crash-and-resume
 
 ### Description
 
-Crash the workflow mid-run with a deterministic crash gate, restart it, and use the agent-call ledger to prove completed LLM calls are replayed from durable state instead of re-run.
+Crash the workflow mid-run with a one-line crash toggle, restart it, and use the agent-call ledger to prove completed LLM calls are replayed from durable state instead of re-run.

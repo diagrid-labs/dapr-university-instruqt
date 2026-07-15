@@ -29,7 +29,8 @@ Open `PrDigest.AppHost/AppHost.cs`. This is where Aspire wires everything togeth
 - `AddValkey(...)` starts the state store container, pinned to port `16379` and secured by a `cache-password` parameter.
 - `AddProject<Projects.PrDigest_ApiService>("pr-digest")` registers the API service, waits for the state store, and passes `DATA_DIR`/`REPO` environment variables that tell the app which PR fixtures to read.
 - `.WithDaprSidecar(...)` attaches a Dapr sidecar to the API service with `AppId = "pr-digest"`, loading Dapr components from the `resources` folder.
-- `CRASH_AFTER_AGENT_CALLS` is an environment variable you'll use later in the track to force a crash mid-workflow and prove durable execution.
+
+You'll force a crash mid-workflow later in the track to prove durable execution, using a one-line toggle in `RecordAgentCallActivity.cs` (shown further down).
 
 ```csharp,nocopy
 var builder = DistributedApplication.CreateBuilder(args);
@@ -47,8 +48,6 @@ builder.AddProject<Projects.PrDigest_ApiService>("pr-digest")
     .WaitFor(stateStore)
     .WithEnvironment("DATA_DIR", dataDir)
     .WithEnvironment("REPO", "dapr/dapr")
-    .WithEnvironment("CRASH_AFTER_AGENT_CALLS",
-        Environment.GetEnvironmentVariable("CRASH_AFTER_AGENT_CALLS") ?? "0")
     .WithEndpoint("http", endpoint => endpoint.Port = 5090)
     .WithDaprSidecar(new DaprSidecarOptions
     {
@@ -71,19 +70,11 @@ The `PrDigest.ApiService/PrDigest.ApiService.csproj` has the following dependenc
 
 Open `PrDigest.ApiService/Program.cs`; this contains the startup code and endpoints for the ApiService.
 
-`AddDaprAgents(...)` registers the workflow and its activities, then `.WithAgent(...)` registers the `PrAnalyzer` and `Summarize` agents against the `conversation-prdigest` Dapr component — this is how the agents reach OpenAI without the application ever holding an API key or a model client. Further down, `/start`, `/status/{instanceId}`, `/pause/{instanceId}`, `/resume/{instanceId}`, and `/terminate/{instanceId}` are the endpoints to manage the workflow.
+`AddDaprAgents(...)` wires up the Dapr Agents integration, then `.WithAgent(...)` registers the `PrAnalyzer` and `Summarize` agents against the `conversation-prdigest` Dapr component — this is how the agents reach OpenAI without the application ever holding an API key or a model client. The workflow and its activities are discovered automatically. Further down, `/start`, `/status/{instanceId}`, `/pause/{instanceId}`, `/resume/{instanceId}`, and `/terminate/{instanceId}` are the endpoints to manage the workflow.
 
 ```csharp,nocopy
 builder.Services.AddDaprAgents(
-        opt => opt.AddContext(() => PrDigestJsonContext.Default),
-        opt =>
-        {
-            opt.RegisterWorkflow<PrDigestWorkflow>();
-            opt.RegisterActivity<ListOpenPullRequestsActivity>();
-            opt.RegisterActivity<FetchPullRequestDetailActivity>();
-            opt.RegisterActivity<RecordAgentCallActivity>();
-            opt.RegisterActivity<WriteDigestActivity>();
-        })
+        opt => opt.AddContext(() => PrDigestJsonContext.Default))
     .WithAgent(
         agentName: AgentNames.PrAnalyzer,
         conversationComponentName: "conversation-prdigest",
@@ -209,8 +200,8 @@ private static async Task<PrResult> AnalyzeOneAsync(
         }
 
         // Durably record that this PR's agent call ran. Checkpointed like any activity, so on
-        // resume it replays from history (no duplicate ledger line) and the deterministic
-        // crash gate inside it fires exactly once.
+        // resume it replays from history (no duplicate ledger line). The activity also carries
+        // the durability-demo crash toggle described in the RUNBOOK.
         await context.CallActivityAsync<bool>(
             nameof(RecordAgentCallActivity), new AgentCallRecord(pr.Number, pr.Title));
 
@@ -222,47 +213,30 @@ private static async Task<PrResult> AnalyzeOneAsync(
 
 #### RecordAgentCallActivity.cs
 
-Open `PrDigest.ApiService/Activities/RecordAgentCallActivity.cs`; this is the logging activity that is called right after calling the `PrAnalyzer` agent. This also contains code to handle the deterministic crash of the application.
+Open `PrDigest.ApiService/Activities/RecordAgentCallActivity.cs`; this is the logging activity that is called right after calling the `PrAnalyzer` agent. Its real job is to append one line to the durable agent-call ledger. It also carries the one-line durability-demo crash toggle you'll use in the next challenge: an `Environment.FailFast` that crashes the process once a couple of agent calls have been recorded (partway through the fan-out), before the next ledger append. It ships **armed** (uncommented); comment it out to disable the crash.
 
 ```csharp,nocopy
 public sealed partial class RecordAgentCallActivity(ILogger<RecordAgentCallActivity> logger)
     : WorkflowActivity<AgentCallRecord, bool>
 {
-    // Counts agent calls executed in THIS process. Resets to zero on restart, which is
-    // exactly what we want: after a crash, completed calls replay from history without
-    // re-entering this activity, so only genuinely new calls are counted.
-    private static int _executedCalls;
-
     public override Task<bool> RunAsync(WorkflowActivityContext context, AgentCallRecord record)
     {
         var outputDir = DemoPaths.OutputDirectory();
-        var count = Interlocked.Increment(ref _executedCalls);
+        var ledger = new AgentCallLedger(outputDir);
 
-        var threshold = ParseThreshold(Environment.GetEnvironmentVariable("CRASH_AFTER_AGENT_CALLS"));
-        var gate = new CrashGate(threshold, Path.Combine(outputDir, "agent-calls.crash-marker"));
-        if (gate.ShouldCrash(count))
-        {
-            LogCrashing(logger, count);
-            // Ungraceful, immediate termination — simulates a real process crash so we can
-            // prove the workflow resumes from durable Valkey state without redoing work.
-            Environment.FailFast($"PrDigest durability demo: simulated crash after {count} agent call(s).");
-        }
+        // 💥 DURABILITY DEMO — leave the `if` statement uncommented for a first run to simulate a
+        // crash partway through the fan-out (once a couple of agent calls have been recorded), then
+        // comment it out and run again: the workflow rehydrates from durable Valkey state and
+        // finishes WITHOUT repeating the agent calls already recorded below.
+        if (ledger.CountEntries() >= 2) Environment.FailFast("Simulated crash — demonstrating durable resume.");
 
-        new AgentCallLedger(outputDir).Append(record.Number, record.Title, DateTime.UtcNow);
-        LogRecorded(logger, record.Number, count);
+        ledger.Append(record.Number, record.Title, DateTime.UtcNow);
+        LogRecorded(logger, record.Number);
         return Task.FromResult(true);
     }
 
-    private static int ParseThreshold(string? raw) =>
-        int.TryParse(raw, out var n) && n > 0 ? n : 0;
-
-    [LoggerMessage(LogLevel.Warning,
-        "💥 CRASH GATE TRIPPED after {Count} agent call(s) — killing the process to simulate a crash.")]
-    static partial void LogCrashing(ILogger logger, int count);
-
-    [LoggerMessage(LogLevel.Information,
-        "📒 Recorded agent call for PR #{Number} (call #{Count} in this process).")]
-    static partial void LogRecorded(ILogger logger, int number, int count);
+    [LoggerMessage(LogLevel.Information, "📒 Recorded agent call for PR #{Number}.")]
+    static partial void LogRecorded(ILogger logger, int number);
 }
 ```
 
