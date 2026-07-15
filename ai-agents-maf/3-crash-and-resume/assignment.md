@@ -12,12 +12,12 @@ This challenge uses two terminals:
 
 The demo has two mechanisms so you can verify the durability:
 
-- **A one-line crash toggle.** `RecordAgentCallActivity.cs` contains a single `Environment.FailFast` line — armed (uncommented) by default — that hard-crashes the process once, while the 3rd PR (`#9893`) is being recorded (before its ledger line is written). There's no environment variable and no marker file, so you disable the crash for the resume run by commenting the line out.
+- **A one-line crash toggle.** `RecordAgentCallActivity.cs` contains a single `Environment.FailFast` line — armed (uncommented) by default — that hard-crashes the process once a couple of agent calls have already been recorded (so the crash lands partway through the run). There's no environment variable and no marker file, so you disable the crash for the resume run by commenting the line out.
 - **An agent-call ledger.** Every executed agent call appends one line to `agent-calls.log` — `<timestamp>  PR #<number>  <title>`. Recording happens inside a *checkpointed workflow activity*, so on resume a completed record is replayed from durable history and is **not** appended again. The finished ledger therefore holds each PR exactly once, with a visible time gap at the moment of restart.
 
 ## 2. Launch
 
-The crash is already armed in the code, so there's nothing to set up — the app will crash on PR `#9893` (the 3rd of the 7) on this first run. If you'd like to see the toggle, open `PrDigest.ApiService/Activities/RecordAgentCallActivity.cs` in the *Editor* tab and find the `Environment.FailFast(...)` line inside `RunAsync`.
+The crash is already armed in the code, so there's nothing to set up — the app will crash partway through this first run, once a couple of PRs have been recorded. If you'd like to see the toggle, open `PrDigest.ApiService/Activities/RecordAgentCallActivity.cs` in the *Editor* tab and find the `Environment.FailFast(...)` line inside `RunAsync`.
 
 Start Aspire via the *Aspire Terminal*:
 ```shell,run,copy
@@ -40,15 +40,17 @@ curl -X POST "http://localhost:5090/start" -H "Content-Type: application/json" -
 }'
 ```
 
-Watch the console logging in the *Aspire* tab. When the workflow records PR `#9893` (the 3rd of the 7), the API process terminates by itself.
+Watch the console logging in the *Aspire* tab.
 
 You'll see 7 of these statements which happen before the LLM call:
 
 ```text,nocopy
 🤖 Analyzing PR #... with the PrAnalyzer agent
+...
+Calling LLM for agent 'PrAnalyzerAgent'
 ```
 
-And a few of these which happen after the LLM call (the exact number varies — the PRs are analyzed concurrently, so the crash lands after however many happened to finish first):
+And about two of these which happen after the LLM call — the crash trips once two calls have been recorded (which two depends on the concurrent fan-out):
 
 ```text,nocopy
 📒 Recorded agent call for PR #...
@@ -65,7 +67,7 @@ Simulated crash — demonstrating durable resume.
 > [!IMPORTANT]
 > Refresh the *Editor* tab, so it detects the newly created file. You'll find the arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
 
-Inspect the ledger in the *Editor* tab, it's located at `digest-out/agent-calls.log`. It contains only the calls that finished before the crash — a few lines, for example:
+Inspect the ledger in the *Editor* tab, it's located at `digest-out/agent-calls.log`. It contains only the calls recorded before the crash — about two lines, for example:
 
 ```text,nocopy
 2026-07-01T21:17:55.6157520Z	10093	perf: store raw perf reports per version and automate chart publishing
@@ -73,7 +75,7 @@ Inspect the ledger in the *Editor* tab, it's located at `digest-out/agent-calls.
 ```
 
 > [!NOTE]
-> The exact PRs and the number of lines will differ in your case — the PRs are analyzed concurrently, so it depends which ones the Dapr workflow engine completed first. PR `#9893` will **not** appear yet: its recording was interrupted by the crash.
+> The exact PRs will differ in your case — the PRs are analyzed concurrently, so it depends which ones the Dapr workflow engine completed first. The crash trips once two calls have been recorded, so you'll see about two lines; the PR whose recording was interrupted is written only on the resumed run.
 
 ## 4. Disarm and restart
 
@@ -82,13 +84,13 @@ Stop Aspire in the *Aspire Terminal* with `Ctrl+C`.
 Now disarm the crash so the resumed run can finish. In the *Editor* tab, open `PrDigest.ApiService/Activities/RecordAgentCallActivity.cs` and **comment out** the `Environment.FailFast` line inside `RunAsync` by prefixing it with `//`:
 
 ```csharp,nocopy
-// if (record.Number == 9893) Environment.FailFast("Simulated crash — demonstrating durable resume.");
+// if (ledger.CountEntries() >= 2) Environment.FailFast("Simulated crash — demonstrating durable resume.");
 ```
 
 Save the file (it should auto-save).
 
 > [!IMPORTANT]
-> There is no marker file to stop a second crash — if you skip this step, the resumed run will crash again on `#9893`.
+> There is no marker file to stop a second crash — if you skip this step, the resumed run will crash again immediately (the ledger already holds two or more lines).
 
 Relaunch via the *Aspire Terminal*:
 
@@ -142,13 +144,17 @@ At the top is the headline written by the `Summarize` agent. The exact pull requ
 Switch to the *Aspire* tab and open the **Structured Logs** view.
 
 1. Filter to the `pr-digest` resource.
-2. Look for the log statements that record the agent calls. On the resumed run you'll only see them for the PRs that hadn't been recorded before the crash — at minimum PR `#9893` (whose recording was interrupted) plus every PR that was still in flight. The PRs already recorded on the first run stay silent, because their records are replayed from durable history.
+2. Look for the log statements that record the agent calls. On the resumed run you'll only see them for the PRs that hadn't been called before the crash. 
 
-```shell,nocopy
-📒 Recorded agent call for PR #...
-...
-📒 Recorded agent call for PR #...
-...
+So you will see just a few of these (not all 7):
+
+```text,nocopy
+Calling LLM for agent 'PrAnalyzerAgent'  ...
+```
+
+And you'll see 7 of these:
+
+```text,nocopy
 📒 Recorded agent call for PR #...
 ```
 

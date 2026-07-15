@@ -213,7 +213,7 @@ private static async Task<PrResult> AnalyzeOneAsync(
 
 #### RecordAgentCallActivity.cs
 
-Open `PrDigest.ApiService/Activities/RecordAgentCallActivity.cs`; this is the logging activity that is called right after calling the `PrAnalyzer` agent. Its real job is to append one line to the durable agent-call ledger. It also carries the one-line durability-demo crash toggle you'll use in the next challenge: an `Environment.FailFast` that crashes the process while recording the 3rd PR (`#9893`), before the ledger append. It ships **armed** (uncommented); comment it out to disable the crash.
+Open `PrDigest.ApiService/Activities/RecordAgentCallActivity.cs`; this is the logging activity that is called right after calling the `PrAnalyzer` agent. Its real job is to append one line to the durable agent-call ledger. It also carries the one-line durability-demo crash toggle you'll use in the next challenge: an `Environment.FailFast` that crashes the process once a couple of agent calls have been recorded (partway through the fan-out), before the next ledger append. It ships **armed** (uncommented); comment it out to disable the crash.
 
 ```csharp,nocopy
 public sealed partial class RecordAgentCallActivity(ILogger<RecordAgentCallActivity> logger)
@@ -222,14 +222,15 @@ public sealed partial class RecordAgentCallActivity(ILogger<RecordAgentCallActiv
     public override Task<bool> RunAsync(WorkflowActivityContext context, AgentCallRecord record)
     {
         var outputDir = DemoPaths.OutputDirectory();
+        var ledger = new AgentCallLedger(outputDir);
 
-        // 💥 DURABILITY DEMO — leave the `if` statement uncommented for a first run to simulate a crash
-        // partway through the fan-out (#9893 is the 3rd of the 7 PRs in the run), then comment
-        // it out and run again: the workflow rehydrates from durable Valkey state and finishes
-        // WITHOUT repeating the agent calls already recorded below.
-        if (record.Number == 9893) Environment.FailFast("Simulated crash — demonstrating durable resume.");
+        // 💥 DURABILITY DEMO — leave the `if` statement uncommented for a first run to simulate a
+        // crash partway through the fan-out (once a couple of agent calls have been recorded), then
+        // comment it out and run again: the workflow rehydrates from durable Valkey state and
+        // finishes WITHOUT repeating the agent calls already recorded below.
+        if (ledger.CountEntries() >= 2) Environment.FailFast("Simulated crash — demonstrating durable resume.");
 
-        new AgentCallLedger(outputDir).Append(record.Number, record.Title, DateTime.UtcNow);
+        ledger.Append(record.Number, record.Title, DateTime.UtcNow);
         LogRecorded(logger, record.Number);
         return Task.FromResult(true);
     }
