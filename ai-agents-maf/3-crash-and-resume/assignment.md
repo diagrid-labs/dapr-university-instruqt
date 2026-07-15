@@ -144,17 +144,11 @@ At the top is the headline written by the `Summarize` agent. The exact pull requ
 Switch to the *Aspire* tab and open the **Structured Logs** view.
 
 1. Filter to the `pr-digest` resource.
-2. Look for the log statements that record the agent calls. On the resumed run you'll only see them for the PRs that hadn't been called before the crash. 
-
-So you will see just a few of these (not all 7):
+2. Look for the log statements that record the agent calls. On the resumed run you'll only see them for the PRs that hadn't been called before the crash:
 
 ```text,nocopy
 Calling LLM for agent 'PrAnalyzerAgent'  ...
-```
-
-And you'll see 7 of these:
-
-```text,nocopy
+...
 📒 Recorded agent call for PR #...
 ```
 
