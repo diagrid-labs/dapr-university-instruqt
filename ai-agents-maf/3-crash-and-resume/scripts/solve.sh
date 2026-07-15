@@ -3,10 +3,12 @@
 # automated from a single non-interactive script. The manual flow is:
 #
 #   1. Ctrl+C the running app.
-#   2. export DIGEST_OUTPUT_DIR=/root/digest-out && export CRASH_AFTER_AGENT_CALLS=3 && aspire run
+#   2. export DIGEST_OUTPUT_DIR=/root/digest-out && aspire run
+#      (the crash toggle ships armed in RecordAgentCallActivity.cs, so it will crash on PR #9893)
 #   3. curl -X POST http://localhost:5090/start -d '{"id":"run-crash","repo":"dapr/dapr","maxPrs":7}'
 #   4. Wait for the crash, then Ctrl+C.
-#   5. unset CRASH_AFTER_AGENT_CALLS && aspire run
+#   5. Comment out the `if (record.Number == 9893) Environment.FailFast(...)` line in
+#      PrDigest.ApiService/Activities/RecordAgentCallActivity.cs, then: aspire run
 #
 # Once the app has resumed and is running again, this finishes the run and shows the ledger:
 endpoint="http://localhost:5090"
