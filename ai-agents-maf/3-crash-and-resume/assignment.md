@@ -24,11 +24,11 @@ Start Aspire via the *Aspire Terminal*:
 aspire run
 ```
 
-Open the *Aspire* tab and wait until the resources show **Running** in the Resources view. If a resource fails try to restart it in the dashboard using the.
-
-Switch to the *Console* viewer in the Aspire Dashboard and select the `pr-digest` resource so you can inspect the log output of the workflow application.
+Open the *Aspire* tab and wait until the resources show **Running** in the Resources view. If a resource fails try to restart it in the dashboard using the start/stop actions.
 
 ## 3. Start a run and watch it crash
+
+Switch to the *Console* viewer in the Aspire Dashboard and select the `pr-digest` resource so you can inspect the log output of the workflow application.
 
 In the *Curl Terminal*, start a new workflow which will digest 7 PRs:
 
@@ -50,7 +50,7 @@ You'll see 7 of these statements which happen before the LLM call:
 Calling LLM for agent 'PrAnalyzerAgent'
 ```
 
-And about two of these which happen after the LLM call — the crash trips once two calls have been recorded (which two depends on the concurrent fan-out):
+And two of these log statements which happen after the LLM call — the crash trips once two calls have been recorded (which two depends on the concurrent fan-out):
 
 ```text,nocopy
 📒 Recorded agent call for PR #...
@@ -67,7 +67,7 @@ Simulated crash — demonstrating durable resume.
 > [!IMPORTANT]
 > Refresh the *Editor* tab, so it detects the newly created file. You'll find the arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
 
-Inspect the ledger in the *Editor* tab, it's located at `digest-out/agent-calls.log`. It contains only the calls recorded before the crash — about two lines, for example:
+Inspect the ledger in the *Editor* tab, it's located at `digest-out/agent-calls.log`. It contains only the calls recorded before the crash, two lines:
 
 ```text,nocopy
 2026-07-01T21:17:55.6157520Z	10093	perf: store raw perf reports per version and automate chart publishing
