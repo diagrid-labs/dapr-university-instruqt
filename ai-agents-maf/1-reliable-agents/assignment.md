@@ -50,7 +50,7 @@ cp PrDigest.AppHost/secrets.example.json PrDigest.AppHost/secrets.json
 ```
 
 > [!IMPORTANT]
-> Refresh the *Editor* tab, so it detects the newly created file. You'll find the arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
+> Refresh the *Editor* tab, so it detects the newly created file. You'll find the circular arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
 
 Now navigate to the `PrDigest.AppHost/secrets.json` file, open it, and paste your key so it looks like this:
 
