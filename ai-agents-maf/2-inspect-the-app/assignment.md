@@ -2,7 +2,7 @@ In this challenge you'll inspect the PrDigest application. You'll look at the Ap
 
 ## 1. Build the application
 
-Build the Aspire solution using the **Aspire Terminal**:
+Build the Aspire solution using the ***Aspire Terminal***:
 
 ```shell,run,copy
 dotnet build

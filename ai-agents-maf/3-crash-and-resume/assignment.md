@@ -2,8 +2,8 @@ In this final challenge you'll prove the durability of the application. You'll i
 
 This challenge uses two terminals:
 
-- *Aspire Terminal* — for running the `aspire run` command.
-- *Curl Terminal* —  for trigging the start of the workflow.
+- **Aspire Terminal** — for running the `aspire run` command.
+- **curl Terminal** —  for trigging the start of the workflow.
 
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
@@ -19,7 +19,7 @@ The demo has two mechanisms so you can verify the durability:
 
 The crash is already armed in the code, so there's nothing to set up — the app will crash partway through this first run, once a couple of PRs have been recorded. If you'd like to see the toggle, open `PrDigest.ApiService/Activities/RecordAgentCallActivity.cs` in the *Editor* tab and find the `Environment.FailFast(...)` line inside `RunAsync`.
 
-Start Aspire via the *Aspire Terminal*:
+Start Aspire via the **Aspire Terminal**:
 ```shell,run,copy
 aspire run
 ```
@@ -30,7 +30,7 @@ Open the *Aspire* tab and wait until the resources show **Running** in the Resou
 
 Switch to the *Console* viewer in the Aspire Dashboard and select the `pr-digest` resource so you can inspect the log output of the workflow application.
 
-In the *Curl Terminal*, start a new workflow which will digest 7 PRs:
+In the **curl Terminal**, start a new workflow which will digest 7 PRs:
 
 ```curl,run
 curl -X POST "http://localhost:5090/start" -H "Content-Type: application/json" -d '{
@@ -79,7 +79,7 @@ Inspect the ledger in the *Editor* tab, it's located at `digest-out/agent-calls.
 
 ## 4. Disarm and restart
 
-Stop Aspire in the *Aspire Terminal* with `Ctrl+C`.
+Stop Aspire in the **Aspire Terminal** with `Ctrl+C`.
 
 Now disarm the crash so the resumed run can finish. In the *Editor* tab, open `PrDigest.ApiService/Activities/RecordAgentCallActivity.cs` and **comment out** the `Environment.FailFast` line inside `RunAsync` by prefixing it with `//`:
 
@@ -89,10 +89,7 @@ Now disarm the crash so the resumed run can finish. In the *Editor* tab, open `P
 
 Save the file (it should auto-save).
 
-> [!IMPORTANT]
-> There is no marker file to stop a second crash — if you skip this step, the resumed run will crash again immediately (the ledger already holds two or more lines).
-
-Relaunch via the *Aspire Terminal*:
+Relaunch via the **Aspire Terminal**:
 
 ```shell,run,copy
 aspire run
