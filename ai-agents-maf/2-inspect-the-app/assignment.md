@@ -213,7 +213,7 @@ private static async Task<PrResult> AnalyzeOneAsync(
 
 #### RecordAgentCallActivity.cs
 
-Open `PrDigest.ApiService/Activities/RecordAgentCallActivity.cs`; this is the logging activity that is called right after calling the `PrAnalyzer` agent. Its real job is to append one line to the durable agent-call ledger. It also carries the one-line durability-demo crash toggle you'll use in the next challenge: an `Environment.FailFast` that crashes the process once a couple of agent calls have been recorded (partway through the fan-out), before the next ledger append. It ships **armed** (uncommented); comment it out to disable the crash.
+Open `PrDigest.ApiService/Activities/RecordAgentCallActivity.cs`; this is the logging activity that is called right after calling the `PrAnalyzer` agent. Its real job is to append one line to the durable agent-call ledger. It also carries the one-line durability-demo crash toggle you'll use in the next challenge: an `Environment.FailFast` that crashes the process once a couple of agent calls have been recorded (partway through the fan-out), before the next ledger append. It ships **armed** (uncommented); comment it out to disable the crash. This is what you'll do in the next challenge.
 
 ```csharp,nocopy
 public sealed partial class RecordAgentCallActivity(ILogger<RecordAgentCallActivity> logger)
