@@ -20,30 +20,39 @@ Before we can inspect and run the PrDigest application let's verify and configur
 ## 3. Verify the environment
 
 > [!IMPORTANT]
-> On the left you should see an *Editor* tab that contains the `PrDigest` solution. On the bottom left you should see an *Aspire Terminal* where you can run commands. If either of those windows is not available (or if you run into a blocking issue during this course), send me [an email](mailto:marc@diagrid.io), and we'll figure it out together.
+> On the left you should see an *Editor* tab that contains the `PrDigest` solution. On the bottom left you should see an **Aspire Terminal** where you can run commands. If either of those windows is not available (or if you run into a blocking issue during this course), send me [an email](mailto:marc@diagrid.io), and we'll figure it out together.
 
 This sandbox environment comes with Docker, the .NET 10 SDK, and Dapr preinstalled, and the `PrDigest` source has been cloned for you.
 
 You only need to install the Aspire CLI and set your OpenAI API key as an environment variable.
 
-Let start by installing the Aspire CLI using the *Terminal*:
+1. Let start by installing the Aspire CLI using the **Aspire Terminal**:
 
-```shell,run,copy
-curl -sSL https://aspire.dev/install.sh | /bin/bash
-source /root/.bashrc
+  ```shell,run,copy
+  curl -sSL https://aspire.dev/install.sh | /bin/bash
+  source /root/.bashrc
+  ```
+
+  Check that it's working by running:
+
+  ```shell,run,copy
+  aspire -v
+  ```
+
+2. Use the ***Aspire Terminal*** window to confirm the Dapr CLI and runtime are ready:
+
+```bash,run
+dapr -v
 ```
 
-Check that it's working by running:
-
-```shell,run,copy
-aspire -v
-```
+> [!NOTE]
+> You should see both a **CLI version** and a **Runtime version** listed. If the Runtime version is blank, run `dapr init` to initialize it.
 
 ## 4. Add your OpenAI API key
 
 The agents reach OpenAI through the Dapr conversation component, which reads the key from a local secret store (`PrDigest.AppHost/secrets.json`). That file is git-ignored and not part of the clone, so create it from the `secrets.example.json` file.
 
-In the *Aspire Terminal* run:
+In the **Aspire Terminal** run:
 
 ```shell,run,copy
 cp PrDigest.AppHost/secrets.example.json PrDigest.AppHost/secrets.json
