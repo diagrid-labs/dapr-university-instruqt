@@ -100,12 +100,10 @@ aspire run
 
 Aspire reconnects to the same Valkey container (its data volume persists), the workflow engine rehydrates workflow instance `run-crash`, and it **resumes automatically** — you do not call a start or resume endpoint again.
 
-In the console logs in the *Aspire* tab you'll see `🤖 Analyzing PR #...` only for the PRs that hadn't finished; the already-analyzed ones stay silent because their results come from durable history.
-
 ## 5. Check the ledger
 
 > [!IMPORTANT]
-> Refresh the *Editor* tab, so it detects the updated file. You'll find the arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
+> Refresh the *Editor* tab, so it detects the updated file. You'll find the circular arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
 
 Inspect the finished ledger in the *Editor* tab, it's located at `digest-out/agent-calls.log`:
 
@@ -141,7 +139,7 @@ At the top is the headline written by the `Summarize` agent. The exact pull requ
 
 ## 7. Inspect the logs
 
-Switch to the *Aspire* tab and open the **Structured Logs** view.
+Switch to the *Aspire* tab and open the **Console** view.
 
 1. Filter to the `pr-digest` resource.
 2. Look for the log statements that record the agent calls. On the resumed run you'll only see them for the PRs that hadn't been called before the crash:
