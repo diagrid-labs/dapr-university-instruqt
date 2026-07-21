@@ -1,0 +1,15 @@
+[project]
+name = "track-tester"
+version = "0.1.0"
+description = "End-to-end drift tests for Dapr University tracks (Robot Framework)"
+requires-python = ">=3.12"
+dependencies = [
+    "robotframework>=7,<8",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+pythonpath = ["docsync"]
+testpaths = ["docsync/tests"]
