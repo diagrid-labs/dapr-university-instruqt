@@ -470,12 +470,12 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
   - `Assert Command Output Contains    ${command}    ${text}    ${cwd}=${EMPTY}` — run a shell command, assert `${text}` is a substring of stdout.
   - `Run Multi-App And Assert Markers    ${run_command}    ${cwd}    ${logfile}    ${markers}    ${timeout}=180s` — start `${run_command}` in the background, wait until every marker in the `@{markers}` list appears in `${logfile}`, then SIGINT.
   - `Assert Redis Keys Contain    ${key}` — run `docker exec dapr_redis redis-cli KEYS *`, assert `${key}` appears.
-- Produces (variables in `dapr_101.yaml`): `QUICKSTARTS_DIR` (default `${HOME}/quickstarts`), `SVC_MARKERS` (list), `PUBSUB_MARKERS` (list).
+- Produces (variables in `dapr_101.yaml`): `QUICKSTARTS_DIR` (default `%{HOME}/quickstarts`), `SVC_MARKERS` (list), `PUBSUB_MARKERS` (list).
 
 - [ ] **Step 1: Create `tools/track-tester/variables/dapr_101.yaml`**
 
 ```yaml
-QUICKSTARTS_DIR: "${HOME}/quickstarts"
+QUICKSTARTS_DIR: "%{HOME}/quickstarts"
 SVC_MARKERS:
   - "Order received"
   - "Order passed"
@@ -696,7 +696,7 @@ State Management API Round Trip
     Wait Until Log Contains    ${SIDECAR_LOG}    Exited Dapr successfully    timeout=15s
 
 Statestore Component File Is Redis
-    ${r}=    Run And Expect RC Zero    cat ${HOME}/.dapr/components/statestore.yaml
+    ${r}=    Run And Expect RC Zero    cat %{HOME}/.dapr/components/statestore.yaml
     Should Contain    ${r.stdout}    type: state.redis
     Should Contain    ${r.stdout}    name: statestore
 ```
