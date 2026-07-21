@@ -30,7 +30,7 @@ State Management API Round Trip
     Wait Until Log Contains    ${SIDECAR_LOG}    Exited Dapr successfully    timeout=15s
 
 Statestore Component File Is Redis
-    ${r}=    Run And Expect RC Zero    cat ${HOME}/.dapr/components/statestore.yaml
+    ${r}=    Run And Expect RC Zero    cat %{HOME}/.dapr/components/statestore.yaml
     Should Contain    ${r.stdout}    type: state.redis
     Should Contain    ${r.stdout}    name: statestore
 
@@ -39,5 +39,5 @@ Statestore Component File Is Redis
 #   (run twice in the assignment's Redis terminal; asserted above via
 #   `docker exec dapr_redis redis-cli KEYS *` through Assert Redis Keys Contain)
 #   cat ~/.dapr/components/statestore.yaml
-#   (asserted above via `cat ${HOME}/.dapr/components/statestore.yaml`, the
+#   (asserted above via `cat %{HOME}/.dapr/components/statestore.yaml`, the
 #   Robot Framework/shell-portable equivalent of the assignment's `~`)
