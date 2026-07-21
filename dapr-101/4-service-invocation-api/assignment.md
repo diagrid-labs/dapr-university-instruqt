@@ -51,14 +51,14 @@ Now use the *Terminal* tab to run both `checkout` and `order-processor` applicat
 
 	Install the depedencies and build the applications:
 
-```bash,run
+```bash,run,copy
 dotnet build csharp/http/checkout
 dotnet build csharp/http/order-processor
 ```
 
 Run the applications using the Dapr CLI:
 
-```bash,run
+```bash,run,copy
 dapr run -f "csharp/http/dapr.yaml"
 ```
 </details>
@@ -66,24 +66,22 @@ dapr run -f "csharp/http/dapr.yaml"
 <details>
    <summary><b>Run the Python apps</b></summary>
 
-Create a virtual environment and activate it:
+Navigate to the `python/http` folder:
 
-```bash,run
-python3 -m venv venv
-source venv/bin/activate
+```bash,run,copy
+cd python/http
 ```
 
 Install the dependencies:
 
-```bash,run
-pip3 install -r python/http/checkout/requirements.txt
-pip3 install -r python/http/order-processor/requirements.txt
+```bash,run,copy
+uv sync --all-packages
 ```
 
 Run the applications using the Dapr CLI:
 
-```bash,run
-dapr run -f "python/http/dapr.yaml"
+```bash,run,copy
+uv run dapr run -f .
 ```
 
 </details>
@@ -93,7 +91,7 @@ dapr run -f "python/http/dapr.yaml"
 
 Install the dependencies:
 
-```bash,run
+```bash,run,copy
 cd java/http/order-processor
 mvn clean install
 cd ../checkout
@@ -102,7 +100,7 @@ mvn clean install
 
 Run the applications using the Dapr CLI:
 
-```bash,run
+```bash,run,copy
 cd ..
 dapr run -f .
 ```
@@ -113,7 +111,7 @@ dapr run -f .
 
 Install the dependencies:
 
-```bash,run
+```bash,run,copy
 cd javascript/http/order-processor
 npm install
 cd ../checkout
@@ -122,7 +120,7 @@ npm install
 
 Run the applications using the Dapr CLI:
 
-```bash,run
+```bash,run,copy
 cd ..
 dapr run -f .
 ```

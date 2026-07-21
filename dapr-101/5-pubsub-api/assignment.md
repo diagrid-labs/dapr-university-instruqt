@@ -105,14 +105,14 @@ Now use the *Terminal* tab to run both `checkout` and `order-processor` applicat
 
 Install the dependencies and build the applications:
 
-```bash,run
+```bash,run,copy
 dotnet build csharp/sdk/checkout
 dotnet build csharp/sdk/order-processor
 ```
 
 Run the applications using the Dapr CLI:
 
-```bash,run
+```bash,run,copy
 dapr run -f "csharp/sdk/dapr.yaml"
 ```
 
@@ -121,24 +121,22 @@ dapr run -f "csharp/sdk/dapr.yaml"
 <details>
    <summary><b>Run the Python apps</b></summary>
 
-Create a virtual environment and activate it:
+Navigate to the `python/sdk` folder:
 
-```bash,run
-python3 -m venv venv
-source venv/bin/activate
+```bash,run,copy
+cd python/sdk
 ```
 
 Install the dependencies:
 
-```bash,run
-pip3 install -r python/sdk/checkout/requirements.txt
-pip3 install -r python/sdk/order-processor/requirements.txt
+```bash,run,copy
+uv sync --all-packages
 ```
 
 Run the applications using the Dapr CLI:
 
-```bash,run
-dapr run -f "python/sdk/dapr.yaml"
+```bash,run,copy
+uv run dapr run -f .
 ```
 
 </details>
@@ -148,7 +146,7 @@ dapr run -f "python/sdk/dapr.yaml"
 
 Install the dependencies:
 
-```bash,run
+```bash,run,copy
 cd java/sdk/order-processor
 mvn clean install
 cd ../checkout
@@ -157,7 +155,7 @@ mvn clean install
 
 Run the applications using the Dapr CLI:
 
-```bash,run
+```bash,run,copy
 cd ..
 dapr run -f .
 ```
@@ -169,7 +167,7 @@ dapr run -f .
 
 Install the dependencies:
 
-```bash,run
+```bash,run,copy
 cd javascript/sdk/order-processor
 npm install
 cd ../checkout
@@ -178,7 +176,7 @@ npm install
 
 Run the applications using the Dapr CLI:
 
-```bash,run
+```bash,run,copy
 cd ..
 dapr run -f .
 ```
