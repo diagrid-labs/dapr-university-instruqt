@@ -42,6 +42,43 @@ export QUICKSTARTS_DIR="$HOME/dev/dapr/quickstarts"
   ../../dapr-101/4-service-invocation-api/tests/challenge.robot)
 ```
 
+## Local development on macOS
+
+The `ci/setup-dapr-101.sh` script is written for the **Ubuntu CI runner** — it reproduces the Instruqt
+sandbox from scratch (clone quickstarts, install the pinned Dapr CLI, `dapr init`). On macOS it works,
+but two things bite:
+
+- **`dapr init` needs the Docker daemon running** (it starts the Redis/placement/scheduler/zipkin
+  containers).
+- **Dual `dapr` installs shadow each other.** Dapr's `install.sh` (which the script pipes to) installs
+  to `/usr/local/bin`, but if you also have Dapr from Homebrew (`/opt/homebrew/bin`), Homebrew's copy
+  comes **first** on `PATH` on Apple Silicon. The script's version check reads whichever `dapr` is
+  first on `PATH` (the Homebrew one); if that version differs from the pinned one, the script
+  reinstalls to `/usr/local/bin` every run — where it stays shadowed. Result: a reinstall loop that
+  never changes the `dapr` your shell actually resolves.
+
+**Recommended for local suite development: skip the setup script's installer entirely.** You almost
+certainly already have Docker and a Dapr CLI. Just point the suites at a quickstarts checkout and use
+your existing Dapr:
+
+```bash
+# Ensure Docker is running, then initialize Dapr once:
+dapr init
+
+# Point the suites at your quickstarts checkout (or ~/quickstarts):
+export QUICKSTARTS_DIR="$HOME/dev/dapr/quickstarts"
+
+# Run a suite (challenges 3/4/5 don't care about the exact CLI version):
+(cd tools/track-tester && uv run robot --include python \
+  ../../dapr-101/4-service-invocation-api/tests/challenge.robot)
+```
+
+Only **challenge 2** asserts the exact pinned version (`1.18.0`). If your local `dapr` differs, that
+suite will report a version mismatch — which is a *correct* signal, not a bug. Either skip it locally
+(run the other challenges) or bring your Dapr to the pinned version. If you manage Dapr with Homebrew,
+`brew upgrade dapr` is the clean way to do that (it updates the `dapr` your `PATH` actually resolves,
+avoiding the shadowing problem above).
+
 ## Limitations
 
 - doc-sync is a *presence* check: it verifies each assignment command string appears in the
