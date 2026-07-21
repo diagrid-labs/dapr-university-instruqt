@@ -1,0 +1,7 @@
+QUICKSTARTS_DIR: "${HOME}/quickstarts"
+SVC_MARKERS:
+  - "Order received"
+  - "Order passed"
+PUBSUB_MARKERS:
+  - "Published data"
+  - "Subscriber received"
