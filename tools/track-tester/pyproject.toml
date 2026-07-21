@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "End-to-end drift tests for Dapr University tracks (Robot Framework)"
 requires-python = ">=3.12"
 dependencies = [
-    "pyyaml>=6.0.3",
     "robotframework>=7,<8",
 ]
 

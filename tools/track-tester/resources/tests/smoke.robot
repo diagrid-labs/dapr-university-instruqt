@@ -1,6 +1,6 @@
 *** Settings ***
 Resource    ../dapr.resource
-Variables   ../../variables/dapr_101.yaml
+Variables   ../../variables/dapr_101.py
 
 *** Test Cases ***
 Keywords Resolve
