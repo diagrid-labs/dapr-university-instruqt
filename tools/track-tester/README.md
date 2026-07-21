@@ -17,15 +17,19 @@ Each runnable challenge's suite lives next to its `assignment.md`, e.g.
 
 ## Running locally
 
+All commands below are run from the repository root.
+
 ```bash
-# one-time environment (matches the sandbox)
-bash ci/setup-dapr-101.sh
-# QUICKSTARTS_DIR may point at an existing local checkout instead of a fresh clone:
-export QUICKSTARTS_DIR="$HOME/quickstarts"
+# One-time: reproduce the sandbox environment. Clones dapr/quickstarts to ~/quickstarts,
+# installs the pinned Dapr CLI, and runs `dapr init` (this re-inits your local Dapr).
+bash tools/track-tester/ci/setup-dapr-101.sh
+
+# Optional: point the suites at an existing quickstarts checkout instead of ~/quickstarts.
+# The suites read this env var directly (via variables/dapr_101.py); no --variable needed.
+export QUICKSTARTS_DIR="$HOME/dev/dapr/quickstarts"
 
 # run one challenge suite for one language
 (cd tools/track-tester && uv run robot --include python \
-  --variable QUICKSTARTS_DIR:$QUICKSTARTS_DIR \
   ../../dapr-101/4-service-invocation-api/tests/challenge.robot)
 
 # validate a suite without executing it (syntax + keyword resolution)

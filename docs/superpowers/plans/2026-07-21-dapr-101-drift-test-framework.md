@@ -945,8 +945,9 @@ SETUP_DIR="$REPO_ROOT/dapr-101/_setup"
 QUICKSTARTS_DIR="${QUICKSTARTS_DIR:-$HOME/quickstarts}"
 
 # 1. Parse the pinned Dapr version (single source of truth) and export it for the suites.
-DAPR_CLI_VERSION="$(grep -oP 'DAPR_CLI_VERSION\s+\K[0-9.]+' "$SETUP_DIR/sandbox-setup.sh")"
-DAPR_RUNTIME_VERSION="$(grep -oP 'DAPR_RUNTIME_VERSION\s+\K[0-9.]+' "$SETUP_DIR/sandbox-setup.sh")"
+# awk (not grep -oP) so it runs on macOS/BSD and GNU/Linux; version is the last field.
+DAPR_CLI_VERSION="$(awk '/DAPR_CLI_VERSION/ {print $NF}' "$SETUP_DIR/sandbox-setup.sh")"
+DAPR_RUNTIME_VERSION="$(awk '/DAPR_RUNTIME_VERSION/ {print $NF}' "$SETUP_DIR/sandbox-setup.sh")"
 echo "DAPR_CLI_VERSION=$DAPR_CLI_VERSION"     >> "${GITHUB_ENV:-/dev/stdout}"
 echo "DAPR_RUNTIME_VERSION=$DAPR_RUNTIME_VERSION" >> "${GITHUB_ENV:-/dev/stdout}"
 
@@ -985,9 +986,9 @@ Expected: `syntax OK`. (Full execution is validated in CI in Task 10 — it need
 
 Run:
 ```bash
-grep -oP 'DAPR_CLI_VERSION\s+\K[0-9.]+' dapr-101/_setup/sandbox-setup.sh
+awk '/DAPR_CLI_VERSION/ {print $NF}' dapr-101/_setup/sandbox-setup.sh
 ```
-Expected: prints `1.18.0`. If it prints nothing, the regex must be adjusted to match the actual line format in `sandbox-setup.sh` before proceeding.
+Expected: prints `1.18.0`. If it prints nothing, adjust the matcher to the actual line format in `sandbox-setup.sh` before proceeding. (awk is used instead of `grep -oP` so the script runs on macOS/BSD as well as GNU/Linux.)
 
 - [ ] **Step 4: Commit**
 

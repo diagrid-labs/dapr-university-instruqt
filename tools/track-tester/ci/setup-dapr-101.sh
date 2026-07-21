@@ -8,9 +8,10 @@ SETUP_DIR="$REPO_ROOT/dapr-101/_setup"
 QUICKSTARTS_DIR="${QUICKSTARTS_DIR:-$HOME/quickstarts}"
 
 # 1. Parse the pinned Dapr version (single source of truth) and export it for the suites.
-# Note: grep -oP (PCRE) requires GNU grep — present on the Ubuntu CI runners this targets.
-DAPR_CLI_VERSION="$(grep -oP 'DAPR_CLI_VERSION\s+\K[0-9.]+' "$SETUP_DIR/sandbox-setup.sh")"
-DAPR_RUNTIME_VERSION="$(grep -oP 'DAPR_RUNTIME_VERSION\s+\K[0-9.]+' "$SETUP_DIR/sandbox-setup.sh")"
+# awk is used (not grep -oP) so this runs on both macOS/BSD and GNU/Linux. The lines look like
+# `agent variable set DAPR_CLI_VERSION 1.18.0`, so the version is the last field ($NF).
+DAPR_CLI_VERSION="$(awk '/DAPR_CLI_VERSION/ {print $NF}' "$SETUP_DIR/sandbox-setup.sh")"
+DAPR_RUNTIME_VERSION="$(awk '/DAPR_RUNTIME_VERSION/ {print $NF}' "$SETUP_DIR/sandbox-setup.sh")"
 echo "DAPR_CLI_VERSION=$DAPR_CLI_VERSION"     >> "${GITHUB_ENV:-/dev/stdout}"
 echo "DAPR_RUNTIME_VERSION=$DAPR_RUNTIME_VERSION" >> "${GITHUB_ENV:-/dev/stdout}"
 
@@ -28,7 +29,7 @@ fi
 
 # 4. Install the Dapr CLI at the pinned version and initialize Dapr.
 # Install/repin the Dapr CLI to the exact pinned version (not just "any dapr present").
-current_cli="$(dapr --version 2>/dev/null | grep -oP 'CLI version:\s*\K[0-9.]+' || true)"
+current_cli="$(dapr --version 2>/dev/null | awk '/CLI version:/ {print $NF}' || true)"
 if [ "$current_cli" != "$DAPR_CLI_VERSION" ]; then
   wget -q "https://raw.githubusercontent.com/dapr/cli/v${DAPR_CLI_VERSION}/install/install.sh" -O - \
     | DAPR_INSTALL_VERSION="$DAPR_CLI_VERSION" /bin/bash
