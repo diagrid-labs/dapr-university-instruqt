@@ -57,3 +57,28 @@ kind: Component
 ```
 """
     assert extract_run_commands(md) == []
+
+
+def test_javascript_summary_not_matched_as_java():
+    md = """
+<details>
+   <summary><b>Run the JavaScript apps</b></summary>
+
+```bash,run,copy
+npm start
+```
+</details>
+"""
+    cmds = extract_run_commands(md)
+    assert cmds == [Command(text="npm start", lang="javascript")]
+
+
+def test_comment_lines_inside_run_fence_are_skipped():
+    md = """
+```bash,run
+# a comment
+dapr run --app-id myapp
+```
+"""
+    cmds = extract_run_commands(md)
+    assert cmds == [Command(text="dapr run --app-id myapp", lang=None)]
