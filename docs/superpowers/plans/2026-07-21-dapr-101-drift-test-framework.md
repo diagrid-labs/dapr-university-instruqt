@@ -518,7 +518,7 @@ File Should Contain
 
 Stop Process With SIGINT
     [Arguments]    ${alias}    ${timeout}=15s
-    Send Signal To Process    SIGINT    ${alias}
+    Send Signal To Process    SIGINT    ${alias}    group=True
     ${result}=    Wait For Process    ${alias}    timeout=${timeout}    on_timeout=kill
     RETURN    ${result}
 

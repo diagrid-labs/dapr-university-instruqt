@@ -23,7 +23,12 @@ File Should Contain
 
 Stop Process With SIGINT
     [Arguments]    ${alias}    ${timeout}=15s
-    Send Signal To Process    SIGINT    ${alias}
+    # group=True signals the whole process group (like Ctrl+C), so the dapr CLI
+    # AND its child daprd both receive SIGINT and shut down gracefully. Signaling
+    # only the single PID leaves daprd unsignaled on Linux, so dapr never exits
+    # (it worked on macOS but hung on the Linux CI runner). Robot starts processes
+    # in their own session/group, so this targets only our process, not the runner.
+    Send Signal To Process    SIGINT    ${alias}    group=True
     ${result}=    Wait For Process    ${alias}    timeout=${timeout}    on_timeout=kill
     RETURN    ${result}
 
