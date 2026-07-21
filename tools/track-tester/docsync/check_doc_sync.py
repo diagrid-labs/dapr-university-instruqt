@@ -65,3 +65,46 @@ def extract_run_commands(md_text: str) -> list[Command]:
         elif "</details>" in stripped.lower():
             current_lang = None
     return commands
+
+
+def normalize(text: str) -> str:
+    return " ".join(text.split())
+
+
+def find_uncovered(commands: list[Command], haystack: str) -> list[Command]:
+    normalized_haystack = normalize(haystack)
+    return [c for c in commands if normalize(c.text) not in normalized_haystack]
+
+
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if len(argv) < 2:
+        print("usage: check_doc_sync.py <assignment.md> <suite.robot> [more_files...]",
+              file=sys.stderr)
+        return 2
+    assignment_path, *coverage_paths = argv
+    try:
+        md_text = _read(assignment_path)
+        haystack = "\n".join(_read(p) for p in coverage_paths)
+    except OSError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    commands = extract_run_commands(md_text)
+    uncovered = find_uncovered(commands, haystack)
+    if uncovered:
+        print(f"DRIFT: {len(uncovered)} assignment command(s) not covered in {assignment_path}:")
+        for c in uncovered:
+            label = c.lang or "all"
+            print(f"  [{label}] {c.text}")
+        return 1
+    print(f"OK: all {len(commands)} runnable command(s) covered ({assignment_path}).")
+    return 0
+
+
+def _read(path: str) -> str:
+    with open(path, encoding="utf-8") as fh:
+        return fh.read()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
