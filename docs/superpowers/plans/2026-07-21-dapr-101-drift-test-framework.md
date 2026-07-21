@@ -546,7 +546,7 @@ Run Multi-App And Assert Markers
 
 Assert Redis Keys Contain
     [Arguments]    ${key}
-    Assert Command Output Contains    docker exec dapr_redis redis-cli KEYS *    ${key}
+    Assert Command Output Contains    docker exec dapr_redis redis-cli KEYS '*'    ${key}
 ```
 
 - [ ] **Step 3: Create a smoke suite that references each keyword** — `tools/track-tester/resources/tests/smoke.robot`
@@ -603,7 +603,8 @@ Resource          ../../../tools/track-tester/resources/dapr.resource
 Suite Teardown    Terminate All Processes    kill=True
 
 *** Variables ***
-${DAPR_VERSION}    1.18.0
+${DAPR_VERSION}            1.18.0
+${DAPR_RUNTIME_VERSION}    1.18.0
 
 *** Test Cases ***
 Dapr CLI Reports Help
@@ -612,7 +613,7 @@ Dapr CLI Reports Help
 Dapr Version Matches Pinned Runtime
     ${r}=    Run And Expect RC Zero    dapr --version
     Should Contain    ${r.stdout}    CLI version: ${DAPR_VERSION}
-    Should Contain    ${r.stdout}    Runtime version: ${DAPR_VERSION}
+    Should Contain    ${r.stdout}    Runtime version: ${DAPR_RUNTIME_VERSION}
 
 Dapr Init Containers Are Running
     ${r}=    Run And Expect RC Zero    docker ps --format {{.Names}}
@@ -695,7 +696,7 @@ State Management API Round Trip
     Run And Expect RC Zero
     ...    curl -v -X DELETE -H "Content-Type: application/json" http://localhost:3500/v1.0/state/statestore/name
 
-    ${r}=    Run And Expect RC Zero    docker exec dapr_redis redis-cli KEYS *
+    ${r}=    Run And Expect RC Zero    docker exec dapr_redis redis-cli KEYS '*'
     Should Not Contain    ${r.stdout}    myapp||name
 
     Stop Process With SIGINT    sidecar
@@ -1058,6 +1059,7 @@ jobs:
           cd tools/track-tester
           uv run robot --outputdir results/ch2 \
             --variable DAPR_VERSION:${DAPR_CLI_VERSION} \
+            --variable DAPR_RUNTIME_VERSION:${DAPR_RUNTIME_VERSION} \
             ../../dapr-101/2-dapr-cli/tests/challenge.robot
           uv run robot --outputdir results/ch3 \
             ../../dapr-101/3-state-management-api/tests/challenge.robot
