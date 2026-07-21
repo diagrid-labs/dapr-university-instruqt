@@ -958,13 +958,13 @@ fi
 
 # 3. Install uv (used by the Python quickstarts and to run robot).
 if ! command -v uv >/dev/null 2>&1; then
-  wget -qO- https://astral.sh/uv/install.sh | sh
+  curl -LsSf https://astral.sh/uv/install.sh | sh
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
 # 4. Install the Dapr CLI at the pinned version and initialize Dapr.
 if ! command -v dapr >/dev/null 2>&1; then
-  wget -q "https://raw.githubusercontent.com/dapr/cli/v${DAPR_CLI_VERSION}/install/install.sh" -O - \
+  curl -fsSL "https://raw.githubusercontent.com/dapr/cli/v${DAPR_CLI_VERSION}/install/install.sh" \
     | DAPR_INSTALL_VERSION="$DAPR_CLI_VERSION" /bin/bash
 fi
 dapr uninstall --all >/dev/null 2>&1 || true

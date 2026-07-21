@@ -21,8 +21,9 @@ if [ ! -d "$QUICKSTARTS_DIR/.git" ]; then
 fi
 
 # 3. Install uv (used by the Python quickstarts and to run robot).
+# curl (not wget) so this runs on macOS too — macOS ships curl but not wget.
 if ! command -v uv >/dev/null 2>&1; then
-  wget -qO- https://astral.sh/uv/install.sh | sh
+  curl -LsSf https://astral.sh/uv/install.sh | sh
   export PATH="$HOME/.local/bin:$PATH"
   echo "$HOME/.local/bin" >> "${GITHUB_PATH:-/dev/null}"
 fi
@@ -31,7 +32,7 @@ fi
 # Install/repin the Dapr CLI to the exact pinned version (not just "any dapr present").
 current_cli="$(dapr --version 2>/dev/null | awk '/CLI version:/ {print $NF}' || true)"
 if [ "$current_cli" != "$DAPR_CLI_VERSION" ]; then
-  wget -q "https://raw.githubusercontent.com/dapr/cli/v${DAPR_CLI_VERSION}/install/install.sh" -O - \
+  curl -fsSL "https://raw.githubusercontent.com/dapr/cli/v${DAPR_CLI_VERSION}/install/install.sh" \
     | DAPR_INSTALL_VERSION="$DAPR_CLI_VERSION" /bin/bash
 fi
 dapr uninstall --all >/dev/null || true
