@@ -51,4 +51,4 @@ Run Multi-App And Assert Markers
 
 Assert Redis Keys Contain
     [Arguments]    ${key}
-    Assert Command Output Contains    docker exec dapr_redis redis-cli KEYS *    ${key}
+    Assert Command Output Contains    docker exec dapr_redis redis-cli KEYS '*'    ${key}

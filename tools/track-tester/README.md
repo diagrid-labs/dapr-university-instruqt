@@ -37,3 +37,14 @@ export QUICKSTARTS_DIR="$HOME/quickstarts"
   ../../dapr-101/4-service-invocation-api/assignment.md \
   ../../dapr-101/4-service-invocation-api/tests/challenge.robot)
 ```
+
+## Limitations
+
+- doc-sync is a *presence* check: it verifies each assignment command string appears in the
+  neighboring suite (including `# doc-sync coverage` comments used for setup-performed or
+  `cwd`-expressed commands); it does not prove every command is executed and asserted. Its job is
+  catching *new/changed* upstream steps, not guaranteeing full behavioral coverage.
+- doc-sync only treats a fenced block as runnable when its info string is `bash` with a `run` flag
+  (e.g. ` ```bash,run `); a plain ` ```bash ``` ` block is not required to be covered.
+- Language runtimes in CI are provisioned by the workflow's `setup-dotnet`/`setup-java`/`setup-node`
+  steps (per matrix language), not by the setup script.

@@ -6,6 +6,7 @@ Suite Teardown    Terminate All Processes    kill=True
 
 *** Variables ***
 ${DAPR_VERSION}    1.18.0
+${DAPR_RUNTIME_VERSION}    1.18.0
 
 *** Test Cases ***
 Dapr CLI Reports Help
@@ -14,7 +15,7 @@ Dapr CLI Reports Help
 Dapr Version Matches Pinned Runtime
     ${r}=    Run And Expect RC Zero    dapr --version
     Should Contain    ${r.stdout}    CLI version: ${DAPR_VERSION}
-    Should Contain    ${r.stdout}    Runtime version: ${DAPR_VERSION}
+    Should Contain    ${r.stdout}    Runtime version: ${DAPR_RUNTIME_VERSION}
 
 Dapr Init Containers Are Running
     ${r}=    Run And Expect RC Zero    docker ps --format {{.Names}}

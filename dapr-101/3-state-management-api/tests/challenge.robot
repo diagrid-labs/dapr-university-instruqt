@@ -23,7 +23,7 @@ State Management API Round Trip
     Run And Expect RC Zero
     ...    curl -v -X DELETE -H "Content-Type: application/json" http://localhost:3500/v1.0/state/statestore/name
 
-    ${r}=    Run And Expect RC Zero    docker exec dapr_redis redis-cli KEYS *
+    ${r}=    Run And Expect RC Zero    docker exec dapr_redis redis-cli KEYS '*'
     Should Not Contain    ${r.stdout}    myapp||name
 
     Stop Process With SIGINT    sidecar

@@ -45,6 +45,7 @@ jobs:
           cd tools/track-tester
           uv run robot --outputdir results/ch2 \
             --variable "DAPR_VERSION:${DAPR_CLI_VERSION}" \
+            --variable "DAPR_RUNTIME_VERSION:${DAPR_RUNTIME_VERSION}" \
             ../../dapr-101/2-dapr-cli/tests/challenge.robot
           uv run robot --outputdir results/ch3 \
             ../../dapr-101/3-state-management-api/tests/challenge.robot
