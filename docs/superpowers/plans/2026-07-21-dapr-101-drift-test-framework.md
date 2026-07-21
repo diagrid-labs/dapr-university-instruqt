@@ -22,6 +22,29 @@
 - **Git:** end every commit message with:
   `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
 
+## Multi-track extensibility contract
+
+This framework is dapr-101 first, but more tracks (dapr-workflow, dapr-agents, catalyst-101, …) will
+get their own suites later. **Adding another track must never require editing dapr-101's artifacts.**
+The isolation boundary is enforced as follows:
+
+- **Per-track, owned by exactly one track (never shared):** its GitHub Actions workflow
+  (`.github/workflows/test-<track>.yml`), its CI setup script (`ci/setup-<track>.sh`), its variables
+  file (`variables/<track>.yaml`), and its challenge suites (`<track>/*/tests/challenge.robot`).
+  A new track *adds* these files; it does not touch dapr-101's copies. In particular, a track's
+  workflow tests only that track — there is no shared "test all tracks" workflow to edit.
+- **Shared, and modified additively only:** `resources/dapr.resource` (universal Dapr process/
+  assertion keywords) and `docsync/check_doc_sync.py`. Future work may **add** keywords, functions, or
+  `LANG_BY_SUMMARY` entries (e.g. `"Go": "go"`) and **add** dependencies to `pyproject.toml`, but must
+  never change or remove an existing keyword signature, function signature, or variable name that a
+  shipped track relies on.
+- **Track-specific keywords go in a track-specific resource file** (e.g. `resources/<track>.resource`),
+  never in the shared `resources/dapr.resource`. dapr-101's suites import only `dapr.resource` and use
+  only universal keywords, so they are unaffected by any later track's additions.
+- **Safety net:** every track's own workflow runs `robot --dryrun` on its suites plus the full
+  `docsync` pytest suite, so an accidental breaking change to a shared file is caught by *every*
+  track's CI, not silently.
+
 ---
 
 ### Task 1: Scaffold the shared harness project
@@ -427,6 +450,11 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ---
 
 ### Task 4: Shared Robot resources & variables
+
+> **Track-agnostic by contract:** `dapr.resource` holds only universal Dapr keywords (see the
+> Multi-track extensibility contract above). No dapr-101-specific values belong here — those live in
+> `variables/dapr_101.yaml`. A future track adds its own `variables/<track>.yaml` (and, if needed, a
+> `resources/<track>.resource`) without touching this file.
 
 **Files:**
 - Create: `tools/track-tester/resources/dapr.resource`
