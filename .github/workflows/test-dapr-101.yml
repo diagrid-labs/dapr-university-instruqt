@@ -1,0 +1,134 @@
+name: Test dapr-101 track
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'   # Mondays 06:00 UTC
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'dapr-101/**'
+      - 'tools/track-tester/**'
+      - '.github/workflows/test-dapr-101.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  docsync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Sync harness
+        run: (cd tools/track-tester && uv sync)
+      - name: Check doc-sync for all runnable challenges
+        run: |
+          cd tools/track-tester
+          for ch in 2-dapr-cli 3-state-management-api 4-service-invocation-api 5-pubsub-api; do
+            uv run python docsync/check_doc_sync.py \
+              ../../dapr-101/$ch/assignment.md \
+              ../../dapr-101/$ch/tests/challenge.robot
+          done
+
+  agnostic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Setup Dapr sandbox
+        run: bash tools/track-tester/ci/setup-dapr-101.sh
+      - name: Sync harness
+        run: (cd tools/track-tester && uv sync)
+      - name: Run challenges 2 and 3
+        run: |
+          cd tools/track-tester
+          uv run robot --outputdir results/ch2 \
+            --variable "DAPR_VERSION:${DAPR_CLI_VERSION}" \
+            ../../dapr-101/2-dapr-cli/tests/challenge.robot
+          uv run robot --outputdir results/ch3 \
+            ../../dapr-101/3-state-management-api/tests/challenge.robot
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robot-agnostic
+          path: tools/track-tester/results/
+
+  languages:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lang: [dotnet, python, java, javascript]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Set up .NET
+        if: matrix.lang == 'dotnet'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+      - name: Set up Java
+        if: matrix.lang == 'java'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Node
+        if: matrix.lang == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Setup Dapr sandbox
+        run: bash tools/track-tester/ci/setup-dapr-101.sh
+      - name: Sync harness
+        run: (cd tools/track-tester && uv sync)
+      - name: Run challenges 4 and 5 for ${{ matrix.lang }}
+        run: |
+          cd tools/track-tester
+          uv run robot --outputdir results/ch4 --include ${{ matrix.lang }} \
+            ../../dapr-101/4-service-invocation-api/tests/challenge.robot
+          uv run robot --outputdir results/ch5 --include ${{ matrix.lang }} \
+            ../../dapr-101/5-pubsub-api/tests/challenge.robot
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robot-${{ matrix.lang }}
+          path: tools/track-tester/results/
+
+  report:
+    needs: [docsync, agnostic, languages]
+    if: failure() && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'Dapr 101 track drift detected';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              `The scheduled dapr-101 drift test **failed**.`,
+              ``,
+              `- Run: ${runUrl}`,
+              `- Download the \`robot-*\` artifacts for the failing challenge/language and open \`log.html\`.`,
+              ``,
+              `_This issue is updated automatically each run; the failing step is in the workflow logs above._`,
+            ].join('\n');
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'drift-report',
+            });
+            const match = existing.data.find(i => i.title === title);
+            if (match) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: match.number, body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ['drift-report'],
+              });
+            }
