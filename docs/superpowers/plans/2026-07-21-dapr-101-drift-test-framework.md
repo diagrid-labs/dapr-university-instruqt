@@ -30,7 +30,7 @@ The isolation boundary is enforced as follows:
 
 - **Per-track, owned by exactly one track (never shared):** its GitHub Actions workflow
   (`.github/workflows/test-<track>.yml`), its CI setup script (`ci/setup-<track>.sh`), its variables
-  file (`variables/<track>.yaml`), and its challenge suites (`<track>/*/tests/challenge.robot`).
+  file (`variables/<track>.py`), and its challenge suites (`<track>/*/tests/challenge.robot`).
   A new track *adds* these files; it does not touch dapr-101's copies. In particular, a track's
   workflow tests only that track — there is no shared "test all tracks" workflow to edit.
 - **Shared, and modified additively only:** `resources/dapr.resource` (universal Dapr process/
@@ -453,12 +453,12 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 > **Track-agnostic by contract:** `dapr.resource` holds only universal Dapr keywords (see the
 > Multi-track extensibility contract above). No dapr-101-specific values belong here — those live in
-> `variables/dapr_101.yaml`. A future track adds its own `variables/<track>.yaml` (and, if needed, a
+> `variables/dapr_101.py`. A future track adds its own `variables/<track>.py` (and, if needed, a
 > `resources/<track>.resource`) without touching this file.
 
 **Files:**
 - Create: `tools/track-tester/resources/dapr.resource`
-- Create: `tools/track-tester/variables/dapr_101.yaml`
+- Create: `tools/track-tester/variables/dapr_101.py`
 - Create: `tools/track-tester/resources/tests/smoke.robot`
 
 **Interfaces:**
@@ -470,18 +470,24 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
   - `Assert Command Output Contains    ${command}    ${text}    ${cwd}=${EMPTY}` — run a shell command, assert `${text}` is a substring of stdout.
   - `Run Multi-App And Assert Markers    ${run_command}    ${cwd}    ${logfile}    ${markers}    ${timeout}=180s` — start `${run_command}` in the background, wait until every marker in the `@{markers}` list appears in `${logfile}`, then SIGINT.
   - `Assert Redis Keys Contain    ${key}` — run `docker exec dapr_redis redis-cli KEYS *`, assert `${key}` appears.
-- Produces (variables in `dapr_101.yaml`): `QUICKSTARTS_DIR` (default `%{HOME}/quickstarts`), `SVC_MARKERS` (list), `PUBSUB_MARKERS` (list).
+- Produces (variables in `dapr_101.py`): `QUICKSTARTS_DIR` (env `QUICKSTARTS_DIR` if set, else `~/quickstarts` expanded to an absolute path), `SVC_MARKERS` (list), `PUBSUB_MARKERS` (list).
 
-- [ ] **Step 1: Create `tools/track-tester/variables/dapr_101.yaml`**
+> **Why a Python variable file, not YAML:** Robot Framework does **not** substitute `${...}`/`%{...}` inside values loaded from a YAML variable file — the value stays literal (verified: a YAML `%{HOME}/quickstarts` resolves to the literal string `%{HOME}/quickstarts`, which then fails when used as a `cwd`). A `.py` variable file computes real values at import time, so `os.path.expanduser` and an env-var override work correctly. It also needs no `pyyaml` dependency, keeping the runtime dep `robotframework` only. (Env-var syntax `%{HOME}` *does* resolve inside a `.robot` `*** Variables ***`/`*** Test Cases ***` section — that is why challenge 3's `cat %{HOME}/.dapr/...` is fine — but not inside a YAML variables file.)
 
-```yaml
-QUICKSTARTS_DIR: "%{HOME}/quickstarts"
-SVC_MARKERS:
-  - "Order received"
-  - "Order passed"
-PUBSUB_MARKERS:
-  - "Published data"
-  - "Subscriber received"
+- [ ] **Step 1: Create `tools/track-tester/variables/dapr_101.py`**
+
+```python
+"""Shared variables for the dapr-101 track suites.
+
+QUICKSTARTS_DIR resolves (in order): the QUICKSTARTS_DIR environment variable if set
+(used by CI and by local runs pointing at an existing checkout), otherwise ~/quickstarts
+expanded to an absolute path (where ci/setup-dapr-101.sh clones the repo).
+"""
+import os
+
+QUICKSTARTS_DIR = os.environ.get("QUICKSTARTS_DIR") or os.path.expanduser("~/quickstarts")
+SVC_MARKERS = ["Order received", "Order passed"]
+PUBSUB_MARKERS = ["Published data", "Subscriber received"]
 ```
 
 - [ ] **Step 2: Create `tools/track-tester/resources/dapr.resource`**
@@ -548,7 +554,7 @@ Assert Redis Keys Contain
 ```robotframework
 *** Settings ***
 Resource    ../dapr.resource
-Variables   ../../variables/dapr_101.yaml
+Variables   ../../variables/dapr_101.py
 
 *** Test Cases ***
 Keywords Resolve
@@ -742,7 +748,7 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 *** Settings ***
 Documentation     Drift test for dapr-101 challenge 4 (Service Invocation) across languages.
 Resource          ../../../tools/track-tester/resources/dapr.resource
-Variables         ../../../tools/track-tester/variables/dapr_101.yaml
+Variables         ../../../tools/track-tester/variables/dapr_101.py
 Suite Teardown    Terminate All Processes    kill=True
 
 *** Variables ***
@@ -838,7 +844,7 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 *** Settings ***
 Documentation     Drift test for dapr-101 challenge 5 (Pub/Sub) across languages.
 Resource          ../../../tools/track-tester/resources/dapr.resource
-Variables         ../../../tools/track-tester/variables/dapr_101.yaml
+Variables         ../../../tools/track-tester/variables/dapr_101.py
 Suite Teardown    Terminate All Processes    kill=True
 
 *** Variables ***
@@ -1172,7 +1178,7 @@ Expected: the workflow runs; `docsync`, `agnostic`, and all four `languages` mat
 - §8 reporting — stable-title issue open/update via github-script (Task 10). ✓
 - §9 local/reuse — README run instructions (Task 1). ✓
 
-**Deviation from spec (noted):** the spec §5 suggested per-language *variable files* holding dir/build/run values. Because the build/run commands differ per-language in shape (not just values) and the variant subfolder differs per challenge (`http` vs `sdk`), the plan instead places the drift-prone commands inline in tagged test cases and keeps `variables/dapr_101.yaml` for the shared base dir + marker lists. This is still next-to-markdown and doc-sync-guarded; it is clearer for a zero-context implementer. Update the spec's §5/§10 wording if strict alignment is desired.
+**Deviation from spec (noted):** the spec §5 suggested per-language *variable files* holding dir/build/run values. Because the build/run commands differ per-language in shape (not just values) and the variant subfolder differs per challenge (`http` vs `sdk`), the plan instead places the drift-prone commands inline in tagged test cases and keeps `variables/dapr_101.py` for the shared base dir + marker lists. This is still next-to-markdown and doc-sync-guarded; it is clearer for a zero-context implementer. Update the spec's §5/§10 wording if strict alignment is desired.
 
 **Placeholder scan:** no TBD/TODO; all code blocks are complete. The `# doc-sync coverage` comment steps (Tasks 5–8) are conditional-on-output but give the exact lines to add. ✓
 
