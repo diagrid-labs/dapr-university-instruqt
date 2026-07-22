@@ -1,6 +1,11 @@
+# This suite mirrors challenge 4's structure (see 4-service-invocation-api for the
+# fuller syntax walkthrough): one tagged test per language, each building the apps
+# and then running them together while waiting for expected log markers.
+
 *** Settings ***
 Documentation     Drift test for dapr-101 challenge 5 (Pub/Sub) across languages.
 Resource          ../../../tools/track-tester/resources/dapr.resource
+# Imports ${QUICKSTARTS_DIR} and the ${PUBSUB_MARKERS} list from the Python vars file.
 Variables         ../../../tools/track-tester/variables/dapr_101.py
 Suite Teardown    Terminate All Processes    kill=True
 
@@ -10,6 +15,7 @@ ${LOG}        ${TEMPDIR}/dapr-101-ch5.log
 
 *** Test Cases ***
 DotNet Pub Sub
+    # `[Tags]` lets you run one language in isolation, e.g. `robot --include dotnet`.
     [Tags]    dotnet
     Run And Expect RC Zero    dotnet build csharp/sdk/checkout           ${BASE}
     Run And Expect RC Zero    dotnet build csharp/sdk/order-processor    ${BASE}
