@@ -1055,7 +1055,9 @@ Assert HTTP Success
     # curl exits 0 for any HTTP response (no -f), so a 4xx/5xx would slip past an rc check.
     # Discard the body, print only the numeric status code, and assert it is 2xx.
     [Arguments]    ${method}    ${url}
-    ${code}=    Capture Command Output    curl -s -o /dev/null -w "%{http_code}" --request ${method} --url ${url}
+    # \%{http_code} — the leading backslash stops Robot from reading %{...} as an
+    # environment-variable substitution; it reaches curl as the literal %{http_code}.
+    ${code}=    Capture Command Output    curl -s -o /dev/null -w "\%{http_code}" --request ${method} --url ${url}
     Should Match Regexp    ${code}    ^2\\d\\d$
 
 # doc-sync coverage (expressed via cwd / bash -c above):
