@@ -77,9 +77,11 @@ Stop Process With SIGINT
 Run And Expect RC Zero
     # Run a command to completion (blocking) and fail the test unless it exits 0.
     [Arguments]    ${command}    ${cwd}=${EMPTY}
-    # stdout=PIPE captures output into the result object; stderr merges into it.
+    # Omit stdout= so Robot captures it to a managed temp file it cleans up (result.stdout
+    # still works). Passing stdout=PIPE would write a stray file literally named "PIPE" in the
+    # cwd, since Robot's Run Process has no PIPE sentinel. stderr=STDOUT merges stderr in.
     ${result}=    Run Process    ${command}    shell=True    cwd=${cwd}
-    ...    stdout=PIPE    stderr=STDOUT    timeout=300s
+    ...    stderr=STDOUT    timeout=300s
     # ${result.rc} is the exit code. `msg=` is the failure message shown if it's non-zero;
     # \n is a newline so the captured output prints on its own line.
     Should Be Equal As Integers    ${result.rc}    0

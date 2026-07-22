@@ -8,6 +8,7 @@ on:
     paths:
       - 'dapr-workflow/**'
       - 'tools/track-tester/**'
+      - '.github/workflows/test-dapr-workflow.yml'
 
 permissions:
   contents: read

@@ -6,6 +6,3 @@ output.xml
 log.html
 report.html
 /results/
-# Stray file from Run Process stdout=PIPE (Robot treats PIPE as a filename, not a
-# sentinel); harmless, but keep it out of the tree.
-PIPE
