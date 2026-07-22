@@ -48,8 +48,30 @@ Stop Process With SIGINT
     # (it worked on macOS but hung on the Linux CI runner). Robot starts processes
     # in their own session/group, so this targets only our process, not the runner.
     Send Signal To Process    SIGINT    ${alias}    group=True
-    # Block until the process exits; if it overruns the timeout, force-kill it.
-    ${result}=    Wait For Process    ${alias}    timeout=${timeout}    on_timeout=kill
+    # Block until the process exits; if it overruns the timeout, do NOT rely on
+    # Robot's built-in on_timeout=kill, since that only force-kills the single
+    # tracked top-level PID (the `dapr run -f .` process), not its children.
+    # daprd and the app process can survive that as orphans, still squatting the
+    # fixed ports/app-id and corrupting the next test. Instead, wait without
+    # killing, and if it's still not done, force-kill the whole tree.
+    ${result}=    Wait For Process    ${alias}    timeout=${timeout}    on_timeout=continue
+    IF    $result is None
+        # SIGINT didn't stop the tree in time. `Send Signal To Process ... group=True`
+        # is NOT enough here: `dapr run -f .` (and even the app process it launches)
+        # each detach themselves into a NEW process group at startup, independent of
+        # the tracked alias's own group - confirmed empirically (macOS): when the
+        # tracked alias is itself a `bash -c '... && dapr run -f .'` wrapper (needed
+        # to activate a venv before running dapr), `dapr run`, daprd and the app end
+        # up in one or more process groups the wrapper's own group signal can never
+        # reach, so they survive as orphans (reparented to init) even after a
+        # group-targeted SIGKILL. The only reliable fallback is to walk the real
+        # OS parent/child PID tree (not process groups) from the tracked PID, any
+        # depth, and SIGKILL every descendant directly.
+        ${pid}=    Get Process Id    ${alias}
+        Run Process    bash    -c
+        ...    kill_tree() { for c in $(pgrep -P "$1" 2>/dev/null); do kill_tree "$c"; done; kill -9 "$1" 2>/dev/null; }; kill_tree ${pid}
+        ${result}=    Wait For Process    ${alias}    timeout=10s    on_timeout=kill
+    END
     RETURN    ${result}
 
 Run And Expect RC Zero

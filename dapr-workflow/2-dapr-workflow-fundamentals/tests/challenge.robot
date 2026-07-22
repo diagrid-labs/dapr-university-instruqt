@@ -6,7 +6,7 @@ Suite Teardown    Terminate All Processes    kill=True
 
 *** Variables ***
 ${LOG}        ${TEMPDIR}/dapr-workflow-ch2.log
-${OUTPUT}     "One Two Three"
+${OUTPUT}     \\"One Two Three\\"
 
 *** Test Cases ***
 DotNet Fundamentals
