@@ -25,6 +25,7 @@ jobs:
       - name: Check doc-sync for all runnable challenges
         run: |
           cd tools/track-tester
+          mkdir -p results
           # Check every challenge even if an earlier one drifts, so one report shows
           # all drift (the `if !` guard is exempt from `set -e`, so the loop continues).
           failed=""
@@ -39,9 +40,18 @@ jobs:
             fi
           done
           if [ -n "$failed" ]; then
+            # Record for the aggregate issue, then fail the job.
+            echo "docsync:$failed" > results/failed-docsync.txt
             echo "::error::doc-sync drift in:$failed"
             exit 1
           fi
+      - name: Upload doc-sync failure summary
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: failures-docsync
+          path: tools/track-tester/results/failed-docsync.txt
+          if-no-files-found: ignore
 
   languages:
     runs-on: ubuntu-latest
@@ -77,6 +87,7 @@ jobs:
       - name: Run all workflow challenges for ${{ matrix.lang }}
         run: |
           cd tools/track-tester
+          mkdir -p results
           # Run every challenge even if an earlier one fails, so a single run reports all
           # failing challenges for this language (the `if !` guard is exempt from `set -e`,
           # so the loop keeps going). Fail the job at the end if any challenge failed.
@@ -91,7 +102,14 @@ jobs:
               failed="$failed $dir"
             fi
           done
+          # Merge the per-challenge results into one indexed report (results/report.html +
+          # results/log.html) so a single file lists every challenge with its status at a
+          # glance. `|| true` because rebot's exit code reflects test failures too.
+          uv run rebot --outputdir results --name "dapr-workflow (${{ matrix.lang }})" \
+            results/ch*/output.xml || true
           if [ -n "$failed" ]; then
+            # Record for the aggregate issue, then fail the job.
+            echo "${{ matrix.lang }}:$failed" > results/failed-${{ matrix.lang }}.txt
             echo "::error::Failed challenges (${{ matrix.lang }}):$failed"
             exit 1
           fi
@@ -106,18 +124,47 @@ jobs:
     if: failure()
     runs-on: ubuntu-latest
     steps:
+      - name: Download failure summaries
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          path: artifacts
       - uses: actions/github-script@v7
         with:
           script: |
+            const fs = require('fs');
+            const path = require('path');
+            // Each failing leg wrote a `failed-<leg>.txt` (e.g. "python: 5-monitor")
+            // into its artifact; gather them so the issue names the exact failures.
+            const lines = [];
+            const root = 'artifacts';
+            const walk = (dir) => {
+              for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                const p = path.join(dir, entry.name);
+                if (entry.isDirectory()) walk(p);
+                else if (/^failed-.*\.txt$/.test(entry.name)) {
+                  const txt = fs.readFileSync(p, 'utf8').trim();
+                  if (txt) lines.push(txt);
+                }
+              }
+            };
+            if (fs.existsSync(root)) walk(root);
+            lines.sort();
+            const details = lines.length
+              ? lines.map(l => `  - \`${l}\``).join('\n')
+              : '  - (no per-challenge detail captured — check the failing job logs)';
             const title = 'Dapr Workflow track drift detected';
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const body = [
-              `The scheduled dapr-workflow drift test **failed**.`,
+              `The dapr-workflow drift test **failed**.`,
+              ``,
+              `**Failing legs (\`leg: challenge …\`):**`,
+              details,
               ``,
               `- Run: ${runUrl}`,
-              `- Download the \`robot-*\` artifacts for the failing language and open \`log.html\`.`,
+              `- For a per-language index, download the \`robot-<lang>\` artifact and open \`report.html\` (every challenge listed; failures in red) or \`log.html\`.`,
               ``,
-              `_This issue is updated automatically each run; the failing step is in the workflow logs above._`,
+              `_This issue is updated automatically each run._`,
             ].join('\n');
             const existing = await github.rest.issues.listForRepo({
               owner: context.repo.owner, repo: context.repo.repo,
