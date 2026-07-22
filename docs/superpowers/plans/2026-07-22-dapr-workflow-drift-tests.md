@@ -16,7 +16,8 @@
 - **Languages:** `.NET`, `Java`, `Python` only. No JavaScript.
 - **Runnable challenges:** 2–10. Challenges 1 and 11 are conceptual — no suites.
 - **Robot argument separator:** TWO OR MORE spaces separate a keyword from its arguments (a single space is part of the value).
-- **Never modify** the dapr-101 suites, `dapr.resource`, `check_doc_sync.py`, or any `dapr-workflow/**/assignment.md`.
+- **Never modify** the dapr-101 suites, `check_doc_sync.py`, or any `dapr-workflow/**/assignment.md`. (Exception, applied in Task 3: `Stop Process With SIGINT` in `dapr.resource` was made group/PID-tree-aware on the SIGINT-timeout path — a strict correctness fix; the graceful-exit path dapr-101 relies on is unchanged.)
+- **String workflow-output assertions use the escaped-quote form.** Dapr double-JSON-encodes string outputs, so the workflow-status response contains `\"value\"`. Robot source `\\"value\\"` collapses to the escaped substring at runtime. Applies only to suites asserting a bare quoted string (ch2/ch3/ch4); suites asserting an unquoted fragment need no escaping.
 - **Local verification per challenge:** `--dryrun` (all langs) + docsync + a real run with `--include python`. The `dotnet` and `java` tests are verified by CI (Java needs Docker/Testcontainers). If `dotnet`/`java` are available locally, run them too.
 - **Port/appID reference (.NET & Python):**
 
@@ -326,7 +327,10 @@ Suite Teardown    Terminate All Processes    kill=True
 
 *** Variables ***
 ${LOG}        ${TEMPDIR}/dapr-workflow-ch3.log
-${OUTPUT}     "This is task chaining"
+# Dapr double-JSON-encodes string workflow outputs, so the status response contains
+# escaped inner quotes (\"This is task chaining\"). Robot's \\ collapses to one
+# backslash at runtime, producing the escaped substring the response actually holds.
+${OUTPUT}     \\"This is task chaining\\"
 
 *** Test Cases ***
 DotNet Task Chaining
@@ -418,7 +422,9 @@ Suite Teardown    Terminate All Processes    kill=True
 
 *** Variables ***
 ${LOG}        ${TEMPDIR}/dapr-workflow-ch4.log
-${OUTPUT}     "is"
+# Escaped-quote form (see ch3 note): the status response holds \"is\". The bare "is"
+# would also match the input echo, so the quotes make the output assertion specific.
+${OUTPUT}     \\"is\\"
 ${DATA}       ["which","word","is","the","shortest"]
 
 *** Test Cases ***
