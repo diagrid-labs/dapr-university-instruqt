@@ -54,12 +54,17 @@ builds with `rebot`).
 
 # a whole track — the glob matches only challenges that have a suite (2–10 here);
 # one invocation ⇒ one report.html indexing every challenge
-(cd tools/track-tester && uv run robot ../../dapr-workflow/*/tests/challenge.robot)
+(cd tools/track-tester && uv run robot --name "Dapr Workflow" \
+  ../../dapr-workflow/*/tests/challenge.robot)
 
 # both tracks at once
-(cd tools/track-tester && uv run robot \
+(cd tools/track-tester && uv run robot --name "Dapr University" \
   ../../dapr-101/*/tests/challenge.robot ../../dapr-workflow/*/tests/challenge.robot)
 ```
+
+When you pass multiple suites, Robot names the combined run by joining the child suite
+names with ` & ` (e.g. `Ch2 Fundamentals & Ch3 Task Chaining & …`). Pass `--name` to give
+the combined run a clean top-level title instead.
 
 ### Selecting a language (tag)
 

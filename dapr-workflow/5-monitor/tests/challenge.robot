@@ -1,4 +1,5 @@
 *** Settings ***
+Name              Ch5 Monitor
 Documentation     Drift test for dapr-workflow challenge 5 (monitor pattern) across languages.
 Resource          ../../../tools/track-tester/resources/workflow.resource
 Variables         ../../../tools/track-tester/variables/dapr_workflow.py

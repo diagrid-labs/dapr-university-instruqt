@@ -1,4 +1,5 @@
 *** Settings ***
+Name              Ch2 Fundamentals
 Documentation     Drift test for dapr-workflow challenge 2 (fundamentals) across languages.
 Resource          ../../../tools/track-tester/resources/workflow.resource
 Variables         ../../../tools/track-tester/variables/dapr_workflow.py

@@ -1,4 +1,5 @@
 *** Settings ***
+Name              Ch6 External Events
 Documentation     Drift test for dapr-workflow challenge 6 (external events) across languages.
 Resource          ../../../tools/track-tester/resources/workflow.resource
 Variables         ../../../tools/track-tester/variables/dapr_workflow.py

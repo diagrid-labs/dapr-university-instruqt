@@ -1,4 +1,5 @@
 *** Settings ***
+Name              Ch3 Task Chaining
 Documentation     Drift test for dapr-workflow challenge 3 (task chaining) across languages.
 Resource          ../../../tools/track-tester/resources/workflow.resource
 Variables         ../../../tools/track-tester/variables/dapr_workflow.py

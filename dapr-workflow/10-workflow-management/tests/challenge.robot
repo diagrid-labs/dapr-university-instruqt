@@ -1,4 +1,5 @@
 *** Settings ***
+Name              Ch10 Workflow Management
 Documentation     Drift test for dapr-workflow challenge 10 (workflow management) across languages.
 Resource          ../../../tools/track-tester/resources/workflow.resource
 Variables         ../../../tools/track-tester/variables/dapr_workflow.py

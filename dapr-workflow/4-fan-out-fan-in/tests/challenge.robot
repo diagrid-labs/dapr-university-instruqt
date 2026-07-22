@@ -1,4 +1,5 @@
 *** Settings ***
+Name              Ch4 Fan-Out/Fan-In
 Documentation     Drift test for dapr-workflow challenge 4 (fan-out/fan-in) across languages.
 Resource          ../../../tools/track-tester/resources/workflow.resource
 Variables         ../../../tools/track-tester/variables/dapr_workflow.py

@@ -1,4 +1,5 @@
 *** Settings ***
+Name              Ch8 Resiliency & Compensation
 Documentation     Drift test for dapr-workflow challenge 8 (resiliency & compensation) across languages.
 Resource          ../../../tools/track-tester/resources/workflow.resource
 Variables         ../../../tools/track-tester/variables/dapr_workflow.py

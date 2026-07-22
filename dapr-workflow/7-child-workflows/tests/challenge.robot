@@ -1,4 +1,5 @@
 *** Settings ***
+Name              Ch7 Child Workflows
 Documentation     Drift test for dapr-workflow challenge 7 (child workflows) across languages.
 Resource          ../../../tools/track-tester/resources/workflow.resource
 Variables         ../../../tools/track-tester/variables/dapr_workflow.py
