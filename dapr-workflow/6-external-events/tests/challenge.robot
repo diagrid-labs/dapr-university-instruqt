@@ -31,6 +31,7 @@ Java External Events
     Run And Expect RC Zero
     ...    curl -i --request POST --url http://localhost:8080/event --header 'content-type: application/json' --data '{"orderId": "${ORDER_ID}","isApproved": true}'
     Wait Until Command Output Contains    curl -s http://localhost:8080/status    COMPLETED
+    Assert Command Output Contains    curl -s http://localhost:8080/status    ${OUTPUT}
 
 Python External Events
     [Tags]    python

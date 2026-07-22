@@ -18,6 +18,11 @@ DotNet Resiliency
     ${id}=    Capture Command Output
     ...    curl -s --request POST --url http://localhost:5264/start/1 -i | grep -i "^location:" | sed 's/^location: *//i' | tr -d '\\r\\n'
     Wait Until Workflow Completed    http://localhost:3564/v1.0/workflows/dapr/${id}    ${OUTPUT}
+    # Division fails on divisor 0 (retried per the resiliency policy); the workflow
+    # then compensates via PlusOne and records a custom_status message.
+    Wait Until Log Contains    ${LOG}    Division: Received divisor: 0.
+    Assert Command Output Contains
+    ...    curl -s http://localhost:3564/v1.0/workflows/dapr/${id}    Compensated MinusOne activity with PlusOne activity.
 
 Java Resiliency
     [Tags]    java
@@ -25,6 +30,8 @@ Java Resiliency
     Start Workflow App    mvn spring-boot:test-run    ${WF_BASE}/java/resiliency-and-compensation    ${LOG}    http://localhost:8080/    timeout=300s
     Run And Expect RC Zero    curl -i --request POST --url http://localhost:8080/start/1
     Wait Until Command Output Contains    curl -s http://localhost:8080/output    1
+    # Division fails on divisor 0 (retried per the resiliency policy) before compensation.
+    Wait Until Log Contains    ${LOG}    Received divisor: 0
 
 Python Resiliency
     [Tags]    python
@@ -35,6 +42,13 @@ Python Resiliency
     ${id}=    Capture Command Output
     ...    curl -s --request POST --url http://localhost:5264/start/1 -i | grep -o '"instance_id":"[^"]*"' | sed 's/"instance_id":"//;s/"//g' | tr -d '\\r\\n'
     Wait Until Workflow Completed    http://localhost:3564/v1.0/workflows/dapr/${id}    ${OUTPUT}
+    # Division fails on divisor 0 (retried per the resiliency policy); the workflow
+    # then compensates via plus_one and records a custom_status message.
+    # NB: the Python activity logs "Received input" (the C# one logs "Received divisor");
+    # the Python quickstart README/assignment document "Received divisor" — an upstream drift.
+    Wait Until Log Contains    ${LOG}    division: Received input: 0.
+    Assert Command Output Contains
+    ...    curl -s http://localhost:3564/v1.0/workflows/dapr/${id}    Compensated minus_one activity with plus_one activity.
 
 # doc-sync coverage (expressed via cwd / bash -c above):
 #   cd csharp/resiliency-and-compensation
