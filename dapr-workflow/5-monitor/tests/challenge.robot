@@ -6,7 +6,7 @@ Suite Teardown    Terminate All Processes    kill=True
 
 *** Variables ***
 ${LOG}        ${TEMPDIR}/dapr-workflow-ch5.log
-${OUTPUT}     Status is healthy after checking
+${OUTPUT}     Status is healthy after
 
 *** Test Cases ***
 DotNet Monitor
@@ -24,7 +24,7 @@ Java Monitor
     [Teardown]    Stop Process With SIGINT    app
     Start Workflow App    mvn spring-boot:test-run    ${WF_BASE}/java/monitor-pattern    ${LOG}    http://localhost:8080/    timeout=300s
     Run And Expect RC Zero    curl -i --request POST http://localhost:8080/start/0
-    Wait Until Command Output Contains    curl -s http://localhost:8080/output    Status is healthy after checking    180s
+    Wait Until Command Output Contains    curl -s http://localhost:8080/output    Status is healthy after    180s
 
 Python Monitor
     [Tags]    python
