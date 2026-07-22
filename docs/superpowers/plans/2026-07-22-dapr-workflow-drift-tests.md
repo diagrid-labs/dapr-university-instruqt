@@ -932,7 +932,7 @@ Python Combined Patterns
     [Tags]    python
     [Teardown]    Stop Process With SIGINT    app
     Run And Expect RC Zero    python3 -m venv venv    ${WF_BASE}/python/combined-patterns
-    Run And Expect RC Zero    bash -c 'source venv/bin/activate && pip3 install -r requirements.txt'    ${WF_BASE}/python/combined-patterns/workflow_app
+    Run And Expect RC Zero    bash -c 'source ../venv/bin/activate && pip3 install -r requirements.txt'    ${WF_BASE}/python/combined-patterns/workflow_app
     Run And Expect RC Zero    bash -c 'source ../venv/bin/activate && pip3 install -r requirements.txt'    ${WF_BASE}/python/combined-patterns/shipping_app
     Start Workflow App    bash -c 'source venv/bin/activate && dapr run -f .'    ${WF_BASE}/python/combined-patterns    ${LOG}    http://localhost:5260/
     Run And Expect RC Zero
