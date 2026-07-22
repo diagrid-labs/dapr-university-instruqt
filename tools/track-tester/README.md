@@ -79,6 +79,22 @@ suite will report a version mismatch — which is a *correct* signal, not a bug.
 `brew upgrade dapr` is the clean way to do that (it updates the `dapr` your `PATH` actually resolves,
 avoiding the shadowing problem above).
 
+### dapr-workflow suites
+
+The dapr-workflow suites live at `dapr-workflow/<n>-<name>/tests/challenge.robot` and
+share `resources/workflow.resource` + `variables/dapr_workflow.py`. They run the same
+way; e.g. one challenge for one language:
+
+```bash
+export QUICKSTARTS_DIR="$HOME/dev/dapr/quickstarts"
+(cd tools/track-tester && uv run robot --include python \
+  ../../dapr-workflow/3-task-chaining/tests/challenge.robot)
+```
+
+The Java tests use `mvn spring-boot:test-run` (Testcontainers-based Dapr) and need
+Docker running; they do not use `dapr run`. The .NET/Python tests use `dapr run -f .`
+and require `dapr init`.
+
 ## Limitations
 
 - doc-sync is a *presence* check: it verifies each assignment command string appears in the
