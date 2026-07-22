@@ -25,14 +25,23 @@ jobs:
       - name: Check doc-sync for all runnable challenges
         run: |
           cd tools/track-tester
+          # Check every challenge even if an earlier one drifts, so one report shows
+          # all drift (the `if !` guard is exempt from `set -e`, so the loop continues).
+          failed=""
           for ch in 2-dapr-workflow-fundamentals 3-task-chaining 4-fan-out-fan-in \
                     5-monitor 6-external-events 7-child-workflows \
                     8-resiliency-and-compensation 9-combined-patterns \
                     10-workflow-management; do
-            uv run python docsync/check_doc_sync.py \
+            if ! uv run python docsync/check_doc_sync.py \
               ../../dapr-workflow/$ch/assignment.md \
-              ../../dapr-workflow/$ch/tests/challenge.robot
+              ../../dapr-workflow/$ch/tests/challenge.robot; then
+              failed="$failed $ch"
+            fi
           done
+          if [ -n "$failed" ]; then
+            echo "::error::doc-sync drift in:$failed"
+            exit 1
+          fi
 
   languages:
     runs-on: ubuntu-latest
@@ -68,14 +77,24 @@ jobs:
       - name: Run all workflow challenges for ${{ matrix.lang }}
         run: |
           cd tools/track-tester
+          # Run every challenge even if an earlier one fails, so a single run reports all
+          # failing challenges for this language (the `if !` guard is exempt from `set -e`,
+          # so the loop keeps going). Fail the job at the end if any challenge failed.
+          failed=""
           for ch in 2-dapr-workflow-fundamentals:ch2 3-task-chaining:ch3 \
                     4-fan-out-fan-in:ch4 5-monitor:ch5 6-external-events:ch6 \
                     7-child-workflows:ch7 8-resiliency-and-compensation:ch8 \
                     9-combined-patterns:ch9 10-workflow-management:ch10; do
             dir="${ch%%:*}"; out="${ch##*:}"
-            uv run robot --outputdir "results/$out" --include ${{ matrix.lang }} \
-              "../../dapr-workflow/$dir/tests/challenge.robot"
+            if ! uv run robot --outputdir "results/$out" --include ${{ matrix.lang }} \
+              "../../dapr-workflow/$dir/tests/challenge.robot"; then
+              failed="$failed $dir"
+            fi
           done
+          if [ -n "$failed" ]; then
+            echo "::error::Failed challenges (${{ matrix.lang }}):$failed"
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
