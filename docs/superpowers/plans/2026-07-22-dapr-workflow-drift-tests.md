@@ -503,7 +503,7 @@ git commit -m "test(dapr-workflow): add challenge 4 (fan-out/fan-in) drift test"
 
 ## Task 6: Challenge 5 — monitor
 
-Note: the monitor workflow reschedules itself a random number of times before completing, so assert the deterministic prefix `Status is healthy after checking` (not the count) and allow a longer timeout. Also assert the per-language app-log activity marker appears.
+Note: the monitor workflow reschedules itself a random number of times before completing, so assert the deterministic prefix `Status is healthy after` (not the count) and allow a longer timeout. Also assert the per-language app-log activity marker appears. (The prefix stops at `after` — not `after checking` — because upstream `dapr/quickstarts` Python `monitor-pattern` emits `"Status is healthy after N times."` (no "checking"), diverging from .NET/Java and the assignment; `Status is healthy after` matches all three. This upstream inconsistency was surfaced to the track owner.)
 
 **Files:**
 - Create: `dapr-workflow/5-monitor/tests/challenge.robot`
@@ -519,7 +519,7 @@ Suite Teardown    Terminate All Processes    kill=True
 
 *** Variables ***
 ${LOG}        ${TEMPDIR}/dapr-workflow-ch5.log
-${OUTPUT}     Status is healthy after checking
+${OUTPUT}     Status is healthy after
 
 *** Test Cases ***
 DotNet Monitor
@@ -537,7 +537,7 @@ Java Monitor
     [Teardown]    Stop Process With SIGINT    app
     Start Workflow App    mvn spring-boot:test-run    ${WF_BASE}/java/monitor-pattern    ${LOG}    http://localhost:8080/    timeout=300s
     Run And Expect RC Zero    curl -i --request POST http://localhost:8080/start/0
-    Wait Until Command Output Contains    curl -s http://localhost:8080/output    Status is healthy after checking    180s
+    Wait Until Command Output Contains    curl -s http://localhost:8080/output    Status is healthy after    180s
 
 Python Monitor
     [Tags]    python
