@@ -1,0 +1,184 @@
+name: Test dapr-workflow track
+
+on:
+  schedule:
+    - cron: '30 6 * * 1'   # Mondays 06:30 UTC (offset from dapr-101's 06:00)
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'dapr-workflow/**'
+      - 'tools/track-tester/**'
+      - '.github/workflows/test-dapr-workflow.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  docsync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Sync harness
+        run: (cd tools/track-tester && uv sync)
+      - name: Check doc-sync for all runnable challenges
+        run: |
+          cd tools/track-tester
+          mkdir -p results
+          # Check every challenge even if an earlier one drifts, so one report shows
+          # all drift (the `if !` guard is exempt from `set -e`, so the loop continues).
+          failed=""
+          for ch in 2-dapr-workflow-fundamentals 3-task-chaining 4-fan-out-fan-in \
+                    5-monitor 6-external-events 7-child-workflows \
+                    8-resiliency-and-compensation 9-combined-patterns \
+                    10-workflow-management; do
+            if ! uv run python docsync/check_doc_sync.py \
+              ../../dapr-workflow/$ch/assignment.md \
+              ../../dapr-workflow/$ch/tests/challenge.robot; then
+              failed="$failed $ch"
+            fi
+          done
+          if [ -n "$failed" ]; then
+            # Record for the aggregate issue, then fail the job.
+            echo "docsync:$failed" > results/failed-docsync.txt
+            echo "::error::doc-sync drift in:$failed"
+            exit 1
+          fi
+      - name: Upload doc-sync failure summary
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: failures-docsync
+          path: tools/track-tester/results/failed-docsync.txt
+          if-no-files-found: ignore
+
+  languages:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lang: [dotnet, java, python]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Set up .NET
+        if: matrix.lang == 'dotnet'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+      - name: Set up Java
+        if: matrix.lang == 'java'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Python
+        if: matrix.lang == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Setup Dapr sandbox
+        run: bash tools/track-tester/ci/setup-dapr-workflow.sh
+      - name: Sync harness
+        run: (cd tools/track-tester && uv sync)
+      - name: Run all workflow challenges for ${{ matrix.lang }}
+        run: |
+          cd tools/track-tester
+          mkdir -p results
+          # Run every challenge even if an earlier one fails, so a single run reports all
+          # failing challenges for this language (the `if !` guard is exempt from `set -e`,
+          # so the loop keeps going). Fail the job at the end if any challenge failed.
+          failed=""
+          for ch in 2-dapr-workflow-fundamentals:ch2 3-task-chaining:ch3 \
+                    4-fan-out-fan-in:ch4 5-monitor:ch5 6-external-events:ch6 \
+                    7-child-workflows:ch7 8-resiliency-and-compensation:ch8 \
+                    9-combined-patterns:ch9 10-workflow-management:ch10; do
+            dir="${ch%%:*}"; out="${ch##*:}"
+            if ! uv run robot --outputdir "results/$out" --include ${{ matrix.lang }} \
+              "../../dapr-workflow/$dir/tests/challenge.robot"; then
+              failed="$failed $dir"
+            fi
+          done
+          # Merge the per-challenge results into one indexed report (results/report.html +
+          # results/log.html) so a single file lists every challenge with its status at a
+          # glance. `|| true` because rebot's exit code reflects test failures too.
+          uv run rebot --outputdir results --name "dapr-workflow (${{ matrix.lang }})" \
+            results/ch*/output.xml || true
+          if [ -n "$failed" ]; then
+            # Record for the aggregate issue, then fail the job.
+            echo "${{ matrix.lang }}:$failed" > results/failed-${{ matrix.lang }}.txt
+            echo "::error::Failed challenges (${{ matrix.lang }}):$failed"
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robot-${{ matrix.lang }}
+          path: tools/track-tester/results/
+
+  report:
+    needs: [docsync, languages]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download failure summaries
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          path: artifacts
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            // Each failing leg wrote a `failed-<leg>.txt` (e.g. "python: 5-monitor")
+            // into its artifact; gather them so the issue names the exact failures.
+            const lines = [];
+            const root = 'artifacts';
+            const walk = (dir) => {
+              for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                const p = path.join(dir, entry.name);
+                if (entry.isDirectory()) walk(p);
+                else if (/^failed-.*\.txt$/.test(entry.name)) {
+                  const txt = fs.readFileSync(p, 'utf8').trim();
+                  if (txt) lines.push(txt);
+                }
+              }
+            };
+            if (fs.existsSync(root)) walk(root);
+            lines.sort();
+            const details = lines.length
+              ? lines.map(l => `  - \`${l}\``).join('\n')
+              : '  - (no per-challenge detail captured — check the failing job logs)';
+            const title = 'Dapr Workflow track drift detected';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              `The dapr-workflow drift test **failed**.`,
+              ``,
+              `**Failing legs (\`leg: challenge …\`):**`,
+              details,
+              ``,
+              `- Run: ${runUrl}`,
+              `- For a per-language index, download the \`robot-<lang>\` artifact and open \`report.html\` (every challenge listed; failures in red) or \`log.html\`.`,
+              ``,
+              `_This issue is updated automatically each run._`,
+            ].join('\n');
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'drift-report',
+            });
+            const match = existing.data.find(i => i.title === title);
+            if (match) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: match.number, body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ['drift-report'],
+              });
+            }
