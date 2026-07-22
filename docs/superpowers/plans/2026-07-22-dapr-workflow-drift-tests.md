@@ -1142,9 +1142,10 @@ if ! command -v uv >/dev/null 2>&1; then
   echo "$HOME/.local/bin" >> "${GITHUB_PATH:-/dev/null}"
 fi
 
-# 3. Install the Dapr CLI (latest, matching the track's sandbox-setup.sh) and init.
+# 3. Install the Dapr CLI (latest master, matching the track's sandbox-setup.sh) and init.
+# curl (not wget) for macOS portability, consistent with the uv step and setup-dapr-101.sh.
 if ! command -v dapr >/dev/null 2>&1; then
-  wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
+  curl -fsSL https://raw.githubusercontent.com/dapr/cli/master/install/install.sh | /bin/bash
 fi
 dapr uninstall --all >/dev/null || true
 dapr init
