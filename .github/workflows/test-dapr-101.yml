@@ -8,7 +8,6 @@ on:
     paths:
       - 'dapr-101/**'
       - 'tools/track-tester/**'
-      - '.github/workflows/test-dapr-101.yml'
 
 permissions:
   contents: read
