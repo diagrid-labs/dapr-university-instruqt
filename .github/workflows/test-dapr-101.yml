@@ -8,6 +8,7 @@ on:
     paths:
       - 'dapr-101/**'
       - 'tools/track-tester/**'
+      - '.github/workflows/test-dapr-101.yml'
 
 permissions:
   contents: read
@@ -24,11 +25,30 @@ jobs:
       - name: Check doc-sync for all runnable challenges
         run: |
           cd tools/track-tester
+          mkdir -p results
+          # Check every challenge even if an earlier one drifts, so one report shows
+          # all drift (the `if !` guard is exempt from `set -e`, so the loop continues).
+          failed=""
           for ch in 2-dapr-cli 3-state-management-api 4-service-invocation-api 5-pubsub-api; do
-            uv run python docsync/check_doc_sync.py \
+            if ! uv run python docsync/check_doc_sync.py \
               ../../dapr-101/$ch/assignment.md \
-              ../../dapr-101/$ch/tests/challenge.robot
+              ../../dapr-101/$ch/tests/challenge.robot; then
+              failed="$failed $ch"
+            fi
           done
+          if [ -n "$failed" ]; then
+            # Record for the aggregate issue, then fail the job.
+            echo "docsync:$failed" > results/failed-docsync.txt
+            echo "::error::doc-sync drift in:$failed"
+            exit 1
+          fi
+      - name: Upload doc-sync failure summary
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: failures-docsync
+          path: tools/track-tester/results/failed-docsync.txt
+          if-no-files-found: ignore
 
   agnostic:
     runs-on: ubuntu-latest
@@ -42,12 +62,32 @@ jobs:
       - name: Run challenges 2 and 3
         run: |
           cd tools/track-tester
-          uv run robot --outputdir results/ch2 \
+          mkdir -p results
+          # Run both challenges even if the first fails, so a single run reports all
+          # failing challenges (the `if !` guard is exempt from `set -e`). ch2 needs the
+          # Dapr version variables; ch3 does not, so they run as two explicit steps.
+          failed=""
+          if ! uv run robot --outputdir results/ch2 \
             --variable "DAPR_VERSION:${DAPR_CLI_VERSION}" \
             --variable "DAPR_RUNTIME_VERSION:${DAPR_RUNTIME_VERSION}" \
-            ../../dapr-101/2-dapr-cli/tests/challenge.robot
-          uv run robot --outputdir results/ch3 \
-            ../../dapr-101/3-state-management-api/tests/challenge.robot
+            ../../dapr-101/2-dapr-cli/tests/challenge.robot; then
+            failed="$failed 2-dapr-cli"
+          fi
+          if ! uv run robot --outputdir results/ch3 \
+            ../../dapr-101/3-state-management-api/tests/challenge.robot; then
+            failed="$failed 3-state-management-api"
+          fi
+          # Merge the per-challenge results into one indexed report (results/report.html +
+          # results/log.html) so a single file lists every challenge with its status at a
+          # glance. `|| true` because rebot's exit code reflects test failures too.
+          uv run rebot --outputdir results --name "dapr-101 (agnostic)" \
+            results/ch*/output.xml || true
+          if [ -n "$failed" ]; then
+            # Record for the aggregate issue, then fail the job.
+            echo "agnostic:$failed" > results/failed-agnostic.txt
+            echo "::error::Failed challenges (agnostic):$failed"
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -88,10 +128,29 @@ jobs:
       - name: Run challenges 4 and 5 for ${{ matrix.lang }}
         run: |
           cd tools/track-tester
-          uv run robot --outputdir results/ch4 --include ${{ matrix.lang }} \
-            ../../dapr-101/4-service-invocation-api/tests/challenge.robot
-          uv run robot --outputdir results/ch5 --include ${{ matrix.lang }} \
-            ../../dapr-101/5-pubsub-api/tests/challenge.robot
+          mkdir -p results
+          # Run every challenge even if an earlier one fails, so a single run reports all
+          # failing challenges for this language (the `if !` guard is exempt from `set -e`,
+          # so the loop keeps going). Fail the job at the end if any challenge failed.
+          failed=""
+          for ch in 4-service-invocation-api:ch4 5-pubsub-api:ch5; do
+            dir="${ch%%:*}"; out="${ch##*:}"
+            if ! uv run robot --outputdir "results/$out" --include ${{ matrix.lang }} \
+              "../../dapr-101/$dir/tests/challenge.robot"; then
+              failed="$failed $dir"
+            fi
+          done
+          # Merge the per-challenge results into one indexed report (results/report.html +
+          # results/log.html) so a single file lists every challenge with its status at a
+          # glance. `|| true` because rebot's exit code reflects test failures too.
+          uv run rebot --outputdir results --name "dapr-101 (${{ matrix.lang }})" \
+            results/ch*/output.xml || true
+          if [ -n "$failed" ]; then
+            # Record for the aggregate issue, then fail the job.
+            echo "${{ matrix.lang }}:$failed" > results/failed-${{ matrix.lang }}.txt
+            echo "::error::Failed challenges (${{ matrix.lang }}):$failed"
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -103,18 +162,47 @@ jobs:
     if: failure()
     runs-on: ubuntu-latest
     steps:
+      - name: Download failure summaries
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          path: artifacts
       - uses: actions/github-script@v7
         with:
           script: |
+            const fs = require('fs');
+            const path = require('path');
+            // Each failing leg wrote a `failed-<leg>.txt` (e.g. "python: 5-pubsub-api")
+            // into its artifact; gather them so the issue names the exact failures.
+            const lines = [];
+            const root = 'artifacts';
+            const walk = (dir) => {
+              for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                const p = path.join(dir, entry.name);
+                if (entry.isDirectory()) walk(p);
+                else if (/^failed-.*\.txt$/.test(entry.name)) {
+                  const txt = fs.readFileSync(p, 'utf8').trim();
+                  if (txt) lines.push(txt);
+                }
+              }
+            };
+            if (fs.existsSync(root)) walk(root);
+            lines.sort();
+            const details = lines.length
+              ? lines.map(l => `  - \`${l}\``).join('\n')
+              : '  - (no per-challenge detail captured — check the failing job logs)';
             const title = 'Dapr 101 track drift detected';
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const body = [
-              `The scheduled dapr-101 drift test **failed**.`,
+              `The dapr-101 drift test **failed**.`,
+              ``,
+              `**Failing legs (\`leg: challenge …\`):**`,
+              details,
               ``,
               `- Run: ${runUrl}`,
-              `- Download the \`robot-*\` artifacts for the failing challenge/language and open \`log.html\`.`,
+              `- For a per-language index, download the \`robot-<lang>\` (or \`robot-agnostic\`) artifact and open \`report.html\` (every challenge listed; failures in red) or \`log.html\`.`,
               ``,
-              `_This issue is updated automatically each run; the failing step is in the workflow logs above._`,
+              `_This issue is updated automatically each run._`,
             ].join('\n');
             const existing = await github.rest.issues.listForRepo({
               owner: context.repo.owner, repo: context.repo.repo,
