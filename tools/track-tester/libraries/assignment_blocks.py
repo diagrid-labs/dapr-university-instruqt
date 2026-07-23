@@ -150,6 +150,7 @@ class AssignmentBlocks:
     """Robot Framework library that reconstructs the aspire app from an assignment."""
 
     ROBOT_LIBRARY_SCOPE = "GLOBAL"
+    ROBOT_AUTO_KEYWORDS = True  # RF: class name != module name, so mark this the library class
 
     def apply_challenge(self, assignment_path, start_dir, solution_dir,
                         files_manifest, skip_prefixes=("aspire run", "docker run")):
