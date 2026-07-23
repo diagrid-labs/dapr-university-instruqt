@@ -15,6 +15,16 @@ permissions:
   issues: write
 
 jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Sync harness
+        run: (cd tools/track-tester && uv sync)
+      - name: Run harness unit tests
+        run: (cd tools/track-tester && uv run pytest -v)
+
   build-and-run:
     runs-on: ubuntu-latest
     steps:
