@@ -38,6 +38,17 @@ Wait Until Command Output Contains
     Wait Until Keyword Succeeds    ${timeout}    3s
     ...    Assert Command Output Contains    ${command}    ${text}
 
+Enable Testcontainers Reuse
+    # Testcontainers only reuses a running container across processes when the
+    # user-level flag testcontainers.reuse.enable=true is present in
+    # ~/.testcontainers.properties. Without it, `--reuse=true` is ignored and each
+    # Spring Boot app spins up its own container, so the two Java apps in the
+    # combined-patterns challenge can't share one (and the run fails/times out).
+    # Ensure the flag idempotently: create the file if missing, and append the line
+    # only when it isn't already there so we don't clobber other properties.
+    Run And Expect RC Zero
+    ...    bash -c 'touch ~/.testcontainers.properties && grep -qxF "testcontainers.reuse.enable=true" ~/.testcontainers.properties || echo "testcontainers.reuse.enable=true" >> ~/.testcontainers.properties'
+
 Wait Until Workflow Completed
     # Poll the Dapr workflow status endpoint until the instance reports COMPLETED,
     # then (optionally) assert the workflow output contains an expected substring.

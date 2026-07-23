@@ -24,6 +24,7 @@ DotNet Combined Patterns
 
 Java Combined Patterns
     [Tags]    java
+    [Setup]    Enable Testcontainers Reuse
     [Teardown]    Run Keywords    Stop Process With SIGINT    app    AND    Stop Process With SIGINT    shipping
     Start Workflow App    mvn clean -Dspring-boot.run.arguments="--reuse=true" spring-boot:test-run    ${WF_BASE}/java/combined-patterns/workflow-app    ${LOG}    http://localhost:8080/    app    timeout=300s
     Start Background Process    mvn clean -Dspring-boot.run.arguments="--reuse=true" spring-boot:test-run    ${LOG2}    shipping    cwd=${WF_BASE}/java/combined-patterns/shipping-app
