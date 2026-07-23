@@ -73,7 +73,12 @@ jobs:
               `The dapr-workflow-aspire drift test **failed**.`,
               ``,
               `- Run: ${runUrl}`,
-              `- Download the \`robot-aspire\` artifact and open \`report.html\` / \`log.html\` for the failing checkpoint.`,
+              `- Download the \`robot-aspire\` artifact and open \`report.html\` (every checkpoint listed; failures in red) or \`log.html\`.`,
+              ``,
+              `Download and open the report:`,
+              '```bash',
+              `gh run download ${context.runId} -n robot-aspire -D ./report-aspire`,
+              '```',
               ``,
               `_This issue is updated automatically each run._`,
             ].join('\n');
