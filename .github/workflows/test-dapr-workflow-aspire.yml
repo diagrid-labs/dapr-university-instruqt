@@ -39,10 +39,10 @@ jobs:
           curl -sSL https://aspire.dev/install.sh | bash
           # The installer prints the install dir; add the common location to PATH.
           echo "$HOME/.aspire/bin" >> "$GITHUB_PATH"
-      - name: Install Aspire project templates
-        # Provides `dotnet new aspire-starter`. If drift makes the scaffold fail,
-        # pin the version here to match the sandbox image (see spec deferred item).
-        run: dotnet new install Aspire.ProjectTemplates
+      # The Aspire project templates are NOT installed here: the suite's first
+      # checkpoint (Ch1) runs the pinned `dotnet new install Aspire.ProjectTemplates@<ver>`
+      # command extracted from 1-introduction/assignment.md, so the pinned version
+      # stays a single source of truth in the assignment (and drift in it is caught).
       - name: Setup Dapr sandbox
         run: bash tools/track-tester/ci/setup-dapr-workflow-aspire.sh
       - name: Sync harness

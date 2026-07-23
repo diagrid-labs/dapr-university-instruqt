@@ -12,6 +12,7 @@ Suite Teardown    Terminate All Processes    kill=True
 ${WORKDIR}        ${TEMPDIR}${/}eds-track
 ${SOLUTION_DIR}   ${WORKDIR}${/}EnterpriseDiagnostics
 ${LOG}            ${TEMPDIR}/dapr-workflow-aspire.log
+${ASSIGN_1}       ${CURDIR}/../1-introduction/assignment.md
 ${ASSIGN_2}       ${CURDIR}/../2-project-creation/assignment.md
 ${ASSIGN_3}       ${CURDIR}/../3-workflow-definition/assignment.md
 ${ASSIGN_4}       ${CURDIR}/../4-apphost-resources/assignment.md
@@ -24,6 +25,16 @@ Prepare Workdir
     Create Directory    ${WORKDIR}
 
 *** Test Cases ***
+Ch1 Install Aspire Templates
+    # ch1 sets up the environment. The one drift-sensitive, environment-agnostic
+    # step is pinning the Aspire project templates to a sandbox-compatible version
+    # (the assignment warns NOT to use 13.4.*, which rejects the 0.0.0.0 binding
+    # used later). Extract and run that pin from the assignment so it auto-follows
+    # if the pinned version changes. The Aspire CLI install (`curl | bash`) and the
+    # `source /root/.bashrc` shell reload are sandbox/CI provisioning, not run here.
+    ${pin}=    Get Command Containing    ${ASSIGN_1}    Aspire.ProjectTemplates
+    Run And Expect RC Zero    ${pin}
+
 Ch2 Scaffold And Build
     # Scaffold runs in ${WORKDIR}; the assignment's `cd EnterpriseDiagnostics`
     # moves into the solution. Writes launchSettings.json, adds the pinned NuGet
