@@ -80,3 +80,11 @@ def test_resolve_files_raises_when_anchor_matches_nothing():
     ]
     with pytest.raises(UnmappedBlockError):
         resolve_files(blocks, manifest)
+
+
+def test_resolve_files_raises_when_anchor_matches_multiple_blocks():
+    md = "```csharp,copy\nclass A { // SHARED\n}\n```\n\n```csharp,copy\nclass B { // SHARED\n}\n```"
+    blocks = parse_blocks(md)
+    manifest = [("SHARED", "Shared.cs", "write")]
+    with pytest.raises(UnmappedBlockError):
+        resolve_files(blocks, manifest)

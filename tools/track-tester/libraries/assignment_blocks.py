@@ -101,4 +101,7 @@ def resolve_files(blocks: list[Block], manifest: list[tuple[str, str, str]]) -> 
     missing = [a for a, n in hits.items() if n == 0]
     if missing:
         raise UnmappedBlockError(f"Manifest anchors matched no block: {missing!r}")
+    over = [a for a, n in hits.items() if n > 1]
+    if over:
+        raise UnmappedBlockError(f"Manifest anchors matched multiple blocks: {over!r}")
     return resolved
