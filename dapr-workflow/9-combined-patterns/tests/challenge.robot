@@ -28,6 +28,11 @@ Java Combined Patterns
     [Teardown]    Run Keywords    Stop Process With SIGINT    app    AND    Stop Process With SIGINT    shipping
     Start Workflow App    mvn clean -Dspring-boot.run.arguments="--reuse=true" spring-boot:test-run    ${WF_BASE}/java/combined-patterns/workflow-app    ${LOG}    http://localhost:8080/    app    timeout=300s
     Start Background Process    mvn clean -Dspring-boot.run.arguments="--reuse=true" spring-boot:test-run    ${LOG2}    shipping    cwd=${WF_BASE}/java/combined-patterns/shipping-app
+    # Wait until the shipping-app is ready too (probe :8081). The workflow's
+    # RegisterShipment step and the shipment-registered-event round-trip go over
+    # pub/sub to this app, so POSTing /start before it is up loses those messages
+    # and the workflow never completes.
+    Wait Until App Responds    http://localhost:8081/    300s
     Run And Expect RC Zero
     ...    curl -i --request POST --url http://localhost:8080/start --header 'content-type: application/json' --data '{"id": "${ORDER_ID}","orderItem" : {"productId": "RBD001","productName": "Rubber Duck","quantity": 10,"totalPrice": 15.00},"customerInfo" : {"id" : "Customer1","country" : "The Netherlands"}}'
     Wait Until Command Output Contains    curl -s "http://localhost:8080/output?instanceId=${ORDER_ID}"    processed successfully    180s
