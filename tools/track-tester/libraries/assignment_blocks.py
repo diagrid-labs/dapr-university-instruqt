@@ -105,3 +105,75 @@ def resolve_files(blocks: list[Block], manifest: list[tuple[str, str, str]]) -> 
     if over:
         raise UnmappedBlockError(f"Manifest anchors matched multiple blocks: {over!r}")
     return resolved
+
+
+def _read(path: str) -> str:
+    with open(path, encoding="utf-8") as fh:
+        return fh.read()
+
+
+def _write(path: str, body: str) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(body if body.endswith("\n") else body + "\n")
+
+
+def _resolve_cd(cwd: str, target: str) -> str:
+    return target if os.path.isabs(target) else os.path.normpath(os.path.join(cwd, target))
+
+
+def _run(command: str, cwd: str) -> None:
+    result = subprocess.run(command, shell=True, cwd=cwd, capture_output=True, text=True, timeout=600)
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Command failed (rc={result.returncode}) in {cwd}: {command}\n"
+            f"{result.stdout}\n{result.stderr}"
+        )
+
+
+def _apply_block(solution_dir: str, dest: str, mode: str, body: str) -> None:
+    path = os.path.join(solution_dir, dest)
+    if mode == "write":
+        _write(path, body)
+    elif mode.startswith("insert_before:"):
+        marker = mode.split(":", 1)[1]
+        content = _read(path)
+        if body.strip() in content:
+            return  # idempotent
+        snippet = body if body.endswith("\n") else body + "\n"
+        _write(path, content.replace(marker, snippet + marker, 1))
+    else:
+        raise ValueError(f"Unknown manifest mode: {mode!r}")
+
+
+class AssignmentBlocks:
+    """Robot Framework library that reconstructs the aspire app from an assignment."""
+
+    ROBOT_LIBRARY_SCOPE = "GLOBAL"
+
+    def apply_challenge(self, assignment_path, start_dir, solution_dir,
+                        files_manifest, skip_prefixes=("aspire run", "docker run")):
+        blocks = parse_blocks(_read(assignment_path))
+        resolve_files(blocks, files_manifest)  # fail-loud coverage check up front
+        cwd = start_dir
+        for b in blocks:
+            if is_run_block(b):
+                for cmd in command_lines(b.body):
+                    if any(cmd.startswith(p) for p in skip_prefixes):
+                        continue
+                    if cmd.startswith("cd "):
+                        cwd = _resolve_cd(cwd, cmd[3:].strip())
+                        continue
+                    _run(cmd, cwd)
+            elif is_writable_block(b):
+                dest, mode = dest_for_block(b, files_manifest)
+                _apply_block(solution_dir, dest, mode, b.body)
+
+    def get_command_containing(self, assignment_path, needle):
+        for b in parse_blocks(_read(assignment_path)):
+            if not is_run_block(b):
+                continue
+            for cmd in command_lines(b.body):
+                if needle in cmd:
+                    return cmd
+        raise ValueError(f"No run command containing {needle!r} in {assignment_path}")
