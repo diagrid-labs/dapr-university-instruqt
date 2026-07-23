@@ -191,6 +191,15 @@ jobs:
             const details = lines.length
               ? lines.map(l => `  - \`${l}\``).join('\n')
               : '  - (no per-challenge detail captured — check the failing job logs)';
+            // Build one `gh run download` line per failing leg that produced a robot
+            // report (docsync uploads only a text summary, no report). Each downloads
+            // into its own ./report-<leg> folder so multiple reports can co-exist.
+            const reportLegs = [...new Set(lines.map(l => l.split(':')[0].trim()))]
+              .filter(leg => leg && leg !== 'docsync');
+            const downloadCmds = (reportLegs.length ? reportLegs : ['<lang>'])
+              .map(leg => `gh run download ${context.runId} -n robot-${leg} -D ./report-${leg}`)
+              .join('\n');
+            const openLeg = reportLegs.length ? reportLegs[0] : '<lang>';
             const title = 'Dapr 101 track drift detected';
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const body = [
@@ -202,12 +211,9 @@ jobs:
               `- Run: ${runUrl}`,
               `- For a per-language index, download the \`robot-<lang>\` (or \`robot-agnostic\`) artifact and open \`report.html\` (every challenge listed; failures in red) or \`log.html\`.`,
               ``,
-              `Download and open the report directly (replace \`robot-<lang>\` with the failing leg's artifact, e.g. \`robot-agnostic\`):`,
+              `Download and open the report(s) for the failing leg(s):`,
               '```bash',
-              `gh run download ${context.runId} -n robot-<lang> -D ./report`,
-              `open ./report/report.html        # macOS`,
-              `xdg-open ./report/report.html    # Linux`,
-              `start ./report/report.html       # Windows`,
+              downloadCmds,
               '```',
               ``,
               `_This issue is updated automatically each run._`,
