@@ -164,6 +164,14 @@ jobs:
               `- Run: ${runUrl}`,
               `- For a per-language index, download the \`robot-<lang>\` artifact and open \`report.html\` (every challenge listed; failures in red) or \`log.html\`.`,
               ``,
+              `Download and open the report directly (replace \`robot-<lang>\` with the failing leg's artifact, e.g. \`robot-python\`):`,
+              '```bash',
+              `gh run download ${context.runId} -n robot-<lang> -D ./report`,
+              `open ./report/report.html        # macOS`,
+              `xdg-open ./report/report.html    # Linux`,
+              `start ./report/report.html       # Windows`,
+              '```',
+              ``,
               `_This issue is updated automatically each run._`,
             ].join('\n');
             const existing = await github.rest.issues.listForRepo({
