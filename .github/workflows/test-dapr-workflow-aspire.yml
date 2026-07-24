@@ -2,7 +2,7 @@ name: Test dapr-workflow-aspire track
 
 on:
   schedule:
-    - cron: '30 6 * * 2'   # Tuesdays 06:30 UTC (offset from dapr-workflow's Monday run)
+    - cron: '30 6 * * *'   # Daily 06:30 UTC (staggered 30 min after dapr-101)
   workflow_dispatch:
   pull_request:
     paths:
