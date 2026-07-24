@@ -1,0 +1,100 @@
+name: Test dapr-workflow-aspire track
+
+on:
+  schedule:
+    - cron: '30 6 * * 2'   # Tuesdays 06:30 UTC (offset from dapr-workflow's Monday run)
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'dapr-workflow-aspire/**'
+      - 'tools/track-tester/**'
+      - '.github/workflows/test-dapr-workflow-aspire.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Sync harness
+        run: (cd tools/track-tester && uv sync)
+      - name: Run harness unit tests
+        run: (cd tools/track-tester && uv run pytest -v)
+
+  build-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Install Aspire CLI
+        run: |
+          curl -sSL https://aspire.dev/install.sh | bash
+          # The installer prints the install dir; add the common location to PATH.
+          echo "$HOME/.aspire/bin" >> "$GITHUB_PATH"
+      # The Aspire project templates are NOT installed here: the suite's first
+      # checkpoint (Ch1) runs the pinned `dotnet new install Aspire.ProjectTemplates@<ver>`
+      # command extracted from 1-introduction/assignment.md, so the pinned version
+      # stays a single source of truth in the assignment (and drift in it is caught).
+      - name: Setup Dapr sandbox
+        run: bash tools/track-tester/ci/setup-dapr-workflow-aspire.sh
+      - name: Sync harness
+        run: (cd tools/track-tester && uv sync)
+      - name: Run aspire track suite
+        run: |
+          cd tools/track-tester
+          mkdir -p results
+          uv run robot --outputdir results --name "dapr-workflow-aspire" \
+            ../../dapr-workflow-aspire/tests/challenge.robot
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robot-aspire
+          path: tools/track-tester/results/
+
+  report:
+    needs: [build-and-run]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'Dapr Workflow Aspire track drift detected';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              `The dapr-workflow-aspire drift test **failed**.`,
+              ``,
+              `- Run: ${runUrl}`,
+              `- Download the \`robot-aspire\` artifact and open \`report.html\` (every checkpoint listed; failures in red) or \`log.html\`.`,
+              ``,
+              `Download and open the report:`,
+              '```bash',
+              `gh run download ${context.runId} -n robot-aspire -D ./report-aspire`,
+              '```',
+              ``,
+              `_This issue is updated automatically each run._`,
+            ].join('\n');
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'drift-report',
+            });
+            const match = existing.data.find(i => i.title === title);
+            if (match) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: match.number, body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ['drift-report'],
+              });
+            }
