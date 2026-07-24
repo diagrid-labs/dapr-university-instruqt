@@ -11,7 +11,7 @@ Suite Teardown    Terminate All Processes    kill=True
 *** Variables ***
 ${WORKDIR}        ${TEMPDIR}${/}eds-track
 ${SOLUTION_DIR}   ${WORKDIR}${/}EnterpriseDiagnostics
-${LOG}            ${TEMPDIR}/dapr-workflow-aspire.log
+${LOG}            ${OUTPUT DIR}/aspire-run.log
 ${ASSIGN_1}       ${CURDIR}/../1-introduction/assignment.md
 ${ASSIGN_2}       ${CURDIR}/../2-project-creation/assignment.md
 ${ASSIGN_3}       ${CURDIR}/../3-workflow-definition/assignment.md
