@@ -15,7 +15,7 @@ version: 1
 common:
   resourcesPath: ../../components/
 apps:
-  - appID: order-processor
+  - appID: order-processor-sdk
     appDirPath: ./order-processor/
     appPort: 7006
     command: ["dotnet", "run"]
