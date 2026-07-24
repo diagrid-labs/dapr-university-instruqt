@@ -42,8 +42,8 @@ Replace the entire contents of the file with this json:
         "DOTNET_ENVIRONMENT": "Development",
         "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://0.0.0.0:17001",
         "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://0.0.0.0:17003",
-        "DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS": true,
-        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": true
+        "DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS": "true",
+        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true"
       }
     }
   }
