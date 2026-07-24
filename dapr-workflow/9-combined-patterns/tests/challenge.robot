@@ -18,6 +18,10 @@ DotNet Combined Patterns
     Run And Expect RC Zero    dotnet build ShippingApp    ${WF_BASE}/csharp/combined-patterns
     Run And Expect RC Zero    dotnet build WorkflowApp    ${WF_BASE}/csharp/combined-patterns
     Start Workflow App    dapr run -f .    ${WF_BASE}/csharp/combined-patterns    ${LOG}    http://localhost:5260/
+    # Wait until the shipping app (:5261) is ready too. The workflow's first
+    # activity (CheckShippingDestination) service-invokes the shipping app, so
+    # POSTing /start before it is up returns 500 and the workflow fails immediately.
+    Wait Until App Responds    http://localhost:5261/    120s
     Run And Expect RC Zero
     ...    curl -i --request POST --url http://localhost:5260/start --header 'content-type: application/json' --data '{"id": "${ORDER_ID}","orderItem" : {"productId": "RBD001","productName": "Rubber Duck","quantity": 10,"totalPrice": 15.00},"customerInfo" : {"id" : "Customer1","country" : "The Netherlands"}}'
     Wait Until Workflow Completed    http://localhost:3560/v1.0/workflows/dapr/${ORDER_ID}    ${OUTPUT}
@@ -44,6 +48,10 @@ Python Combined Patterns
     Run And Expect RC Zero    bash -c 'source ../venv/bin/activate && pip3 install -r requirements.txt'    ${WF_BASE}/python/combined-patterns/workflow_app
     Run And Expect RC Zero    bash -c 'source ../venv/bin/activate && pip3 install -r requirements.txt'    ${WF_BASE}/python/combined-patterns/shipping_app
     Start Workflow App    bash -c 'source venv/bin/activate && dapr run -f .'    ${WF_BASE}/python/combined-patterns    ${LOG}    http://localhost:5260/
+    # Wait until the shipping app (:5261) is ready too. The workflow's first
+    # activity (CheckShippingDestination) service-invokes the shipping app, so
+    # POSTing /start before it is up returns 500 and the workflow fails immediately.
+    Wait Until App Responds    http://localhost:5261/    120s
     Run And Expect RC Zero
     ...    curl -i --request POST --url http://localhost:5260/start --header 'content-type: application/json' --data '{"id": "${ORDER_ID}","order_item" : {"product_id": "RBD001","product_name": "Rubber Duck","quantity": 10,"total_price": 15.00},"customer_info" : {"id" : "Customer1","country" : "The Netherlands"}}'
     Wait Until Workflow Completed    http://localhost:3560/v1.0/workflows/dapr/${ORDER_ID}    ${OUTPUT}
