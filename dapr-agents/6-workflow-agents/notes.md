@@ -1,4 +1,4 @@
-The sandbox for this challenge is being prepared. Once it's ready, click the *Start* button. You can select which challenge you want to run via the *Progress* button in the top right, if you don't want to run them all in order.
+The sandbox for this challenge is being prepared, it should be ready within a few seconds. Once it's ready, click the *Start* button. You can select which challenge you want to run via the *Progress* button in the top right, if you don't want to run them all in order.
 
 ---
 

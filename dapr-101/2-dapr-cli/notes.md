@@ -1,4 +1,4 @@
-The sandbox for this challenge is being prepared. Once it's ready, click the *Start* button.
+The sandbox for this challenge is being prepared, it should be ready within a few seconds. Once it's ready, click the *Start* button.
 
 In this challenge you'll install the **Dapr CLI**, and initialize Dapr in self-hosted mode, so it can be used for local development.
 
