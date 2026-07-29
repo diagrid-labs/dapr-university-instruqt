@@ -6,9 +6,10 @@ Full templates and details for `creating-dapr-university-tracks`. Load this when
 
 | Track | Languages | Source-code model | Notable conventions |
 |---|---|---|---|
-| `dapr-101` | .NET/Python/Java/JS | Clones `dapr/quickstarts` in sandbox-setup | Numbered steps, Instruqt-Var versions, `scripts/check.sh`+`solve.sh`, badge image in notes |
-| `dapr-workflow` | .NET/Java/Python | Clones `dapr/quickstarts` | Heavy `<details>` per-language blocks, `images/` diagrams, 11 challenges (legacy — longer than the 4–5 default) |
-| `dapr-workflow-aspire` | .NET only | Build-it-live (learner scaffolds) | `tabs.md` with Editor/Terminal/Aspire webapp tabs, custom VM image, `,copy` code blocks |
+| `dapr-101` | .NET/Python/Java/JS | Clones `dapr/quickstarts` in sandbox-setup | Numbered steps, Instruqt-Var versions, `scripts/check.sh`+`solve.sh`, per-challenge `tests/challenge.robot`, badge image in notes |
+| `dapr-workflow` | .NET/Java/Python | Clones `dapr/quickstarts` | Heavy `<details>` per-language blocks, `images/` diagrams, per-challenge `tests/challenge.robot` (no check/solve), 11 challenges (legacy — longer than the 4–5 default) |
+| `dapr-workflow-aspire` | .NET only | Build-it-live (learner scaffolds) | `tabs.md` with Editor/Terminal/Aspire webapp tabs, custom VM image, `,copy` code blocks, single track-level `tests/challenge.robot` |
+| `ai-agents-maf` | .NET only | Clones `diagrid-labs/ai-agent-tracks-instruqt` | Requires an OpenAI key (set by learner in ch1, validated by `check.sh`), `scripts/setup.sh`, Editor+Terminal tabs — reference for AI/secret tracks |
 
 When the new track resembles one of these, copy its closest challenge folder and adapt rather than starting from scratch.
 
@@ -34,9 +35,13 @@ Marketing copy rendered on the Dapr University site. Free-form Markdown with sec
 ...
 ```
 
-## notes.md template
+## notes.md templates
 
-Shown beside the **Start** button while the sandbox boots. Keep it short.
+Shown beside the **Start** button while the sandbox boots. Keep it short. **The opener differs between challenge 1 and the rest.**
+
+### Challenge 1 (full intro)
+
+The first challenge carries the full intro + (optionally) a badge image.
 
 ```markdown
 Click the *Start* button to setup the sandbox environment for this training, this may take up to 2 minutes. Once the environment is ready, click the *Start* button again.
@@ -53,7 +58,18 @@ In this challenge, you'll:
 If you have any questions or feedback about this track, let us know in the *#university* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
 ```
 
-The first challenge's `notes.md` usually carries the full intro + (optionally) a badge image. Later challenges can have a shorter `notes.md`.
+### Challenges 2 and onwards
+
+Every later challenge's `notes.md` MUST start with this exact opener, then summarize what the learner will achieve:
+
+```markdown
+The sandbox for this challenge is being prepared, it should be ready within a few seconds. Once it's ready, click the *Start* button.
+
+---
+In this challenge you'll <one- or two-sentence summary of what the learner will achieve>. It will take about <N> minutes to complete.
+
+If you have any questions or feedback about this track, you can let us know in the *#university* channel of the [Dapr Discord server](https://diagrid.ws/dapr-discord).
+```
 
 ## assignment.md full example (single language)
 
@@ -218,10 +234,48 @@ No app code is committed or cloned. The learner runs scaffolding commands (`dotn
 
 Either way, **do not commit a full application into this tracks repo** — it holds track definitions, instructions, setup scripts, and small assets (images), not application source. If new source code is genuinely needed, create/extend a separate examples repo and clone it.
 
+## Secrets (AI / Catalyst tracks) in depth
+
+Any track that calls an LLM (all AI-based tracks) or Catalyst needs a secret such as an OpenAI API key. **Never** bake a key into the VM image, `sandbox-setup.sh`, or any committed file. The learner supplies it themselves during the **first** challenge, via one of:
+
+- **`.env` file** — commit a `.env.example` with empty/placeholder values; the assignment has the learner `cp .env.example .env` and paste their key. Keep the real `.env` git-ignored.
+- **Shell environment variable** — the assignment has the learner `export OPENAI_API_KEY=...` in the terminal tab.
+
+Announce the requirement in the track `README.md` teaser (e.g. add "Requires an OpenAI API key." to the Languages/Duration line) and validate it in `scripts/check.sh`. Example — fail the Check until a non-empty value is present:
+
+```bash
+if [ ! -f ".env" ]; then
+    fail-message "No .env file found. Copy .env.example to .env and paste your OpenAI API key."
+elif ! grep -qE '^OPENAI_API_KEY=.+' .env; then
+    fail-message "OPENAI_API_KEY is empty in .env. Paste your key after the '=' sign."
+fi
+```
+
+## Drift testing (Robot Framework)
+
+Runnable tracks depend on upstream code and can silently drift out of sync with what the learner sees. The repo catches this with an end-to-end harness in `tools/track-tester/` (Robot Framework) that runs the *actual* `,run` commands from each `assignment.md` and asserts on their output. This — **not** `solve.sh` — is how a track is tested end-to-end. Read `tools/track-tester/README.md` before writing suites.
+
+**Where the suite lives:**
+- **Clone-an-external-repo tracks** (e.g. `dapr-101`, `dapr-workflow`): one suite per runnable challenge at `<track>/<n>-<slug>/tests/challenge.robot`, with test cases tagged per language (`dotnet` / `java` / `python` / `javascript`).
+- **Build-it-live tracks** (e.g. `dapr-workflow-aspire`): a single track-level suite at `<track>/tests/challenge.robot` with one test case per challenge that reconstructs the app from the assignments and builds/runs it.
+
+**How suites stay DRY:** they pull commands out of the assignment at runtime (e.g. `Get Command Containing ${ASSIGN} "aspire run"`) rather than hard-coding them, so the assignment stays the single source of truth and drift in it is caught. Shared keywords live in `tools/track-tester/resources/`, shared values in `variables/`.
+
+**doc-sync:** `tools/track-tester/docsync/check_doc_sync.py` asserts every `` ```bash,run `` command in an `assignment.md` is covered by its suite (a *presence* check). A command that can't be executed directly can be satisfied with a `# doc-sync coverage: <cmd>` comment in the suite.
+
+**CI workflow:** add `.github/workflows/test-<track>.yml`. Copy `test-dapr-workflow-aspire.yml` (build-it-live) or `test-dapr-workflow.yml` (multi-language matrix) and swap the track name/paths. Every workflow:
+- triggers on a daily `schedule` (stagger the cron a few minutes off the others), `workflow_dispatch`, and `pull_request` touching `<track>/**`, `tools/track-tester/**`, and the workflow file;
+- provisions language runtimes (`setup-dotnet`/`setup-java`/`setup-node`/`setup-python`) and the Dapr sandbox (`tools/track-tester/ci/setup-<track>.sh`), then runs the suite with `uv run robot`;
+- has a `report` job (`if: failure()`) that opens/updates a `drift-report` labelled issue linking the failing run and the Robot artifact.
+
+Add a matching `tools/track-tester/ci/setup-<track>.sh` if the track needs its own sandbox reproduction, and a row to the workflow table in the repo `README.md`.
+
 ## Final pre-flight checks
 
-- Durations in challenge intros sum to < 30 min and match the track `README.md` time limit.
+- Durations in challenge intros sum to < 30 min (unless the user approved more) and match the track `README.md` time limit.
 - Every `,run` command actually works in the sandbox image (tools installed in the image script).
 - Every `check.sh` has a matching `solve.sh`; running `solve.sh` then `check.sh` passes.
+- Any required secret is set by the learner in challenge 1 (`.env` or env var), announced in the teaser, and validated by `check.sh` — never committed or baked into the image.
+- Every runnable challenge has a `tests/challenge.robot` suite; doc-sync passes; `.github/workflows/test-<track>.yml` and any `ci/setup-<track>.sh` are added, and the repo `README.md` workflow table has a row.
 - All `Instruqt-Var` keys used in assignments are `agent variable set` in `sandbox-setup.sh`, and `hostname=` matches a real host.
 - Image-build CI added/updated if the track introduces a new `_setup` image.
