@@ -41,6 +41,10 @@ Three workflows in [`.github/workflows/`](.github/workflows/) run the suites aut
 | [`test-dapr-workflow.yml`](.github/workflows/test-dapr-workflow.yml) | `dapr-workflow` | 06:15 daily | dotnet, java, python (doc-sync + per-language matrix) |
 | [`test-dapr-workflow-aspire.yml`](.github/workflows/test-dapr-workflow-aspire.yml) | `dapr-workflow-aspire` | 06:30 daily | .NET 10 + Aspire CLI (harness unit tests + build-and-run) |
 
+## Contributing
+
+Working on the tracks or the test harness? See [`AGENTS.md`](AGENTS.md) for a detailed guide to the repository — track and challenge anatomy, assignment annotations, and an in-depth reference for the `track-tester` drift-testing harness (shared keywords, variable resolution, doc-sync, and the CI workflows).
+
 ---
 
 Join the [Dapr Discord](https://diagrid.ws/dapr-discord) for Q&A and chat with other community members!
