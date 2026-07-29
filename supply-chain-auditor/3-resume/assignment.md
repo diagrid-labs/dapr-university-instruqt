@@ -58,7 +58,7 @@ rm -f audit-out/audit-ledger.log
 ```
 
 > [!NOTE]
-> The ledger must be removed too — stale lines would push `ledger.count()` to 2 and trip the crash gate before the pipeline even reaches `render_report`.
+> The ledger must be removed too — otherwise its stale lines stay in the count, so a fresh run won't show the clean "two lines, then three" sequence the proof depends on (and a leftover count of 2 or more re-trips the crash gate in `render_report`).
 
 ## Recap
 
