@@ -23,6 +23,7 @@ application code lives in a **separate repo** and is used **as-is**.
 | LLM provider | Anthropic / Claude (`ANTHROPIC_API_KEY`) | `LLM_MODEL` default `claude-sonnet-4-6`. |
 | GitHub data | Live GitHub, **dry-run** (never posts) | Optional read-only `GITHUB_TOKEN` for authenticated reads; a read-only token makes any post attempt 403 gracefully ("nothing was sent"). |
 | Runtime | Local Dapr **1.18** sidecar (not Catalyst) | `DAPR_GRPC_ENDPOINT` / `DAPR_API_TOKEN` stay empty. |
+| Inputs | All in `.env`, written by `setup.sh` | `PR_REPO` / `PR_NUMBER` / `DEP_ECOSYSTEM` **prefilled**; learner supplies only `ANTHROPIC_API_KEY`. `app.py` `load_dotenv()` picks them up, so the run command is a bare `python app.py` (no inline env vars). |
 | Sandbox host | **Reuse** the `ai-agents-deepagents` host/image | Python 3.12 + uv + docker + dapr + gh. `host: {{...}}` convention in `tabs.md`. |
 | Demo PR | `dapr/dapr-agents#635` (`DEP_ECOSYSTEM=pip`) | Must resolve to a source repo so the `analyze` (LLM) branch runs. |
 | Arc | 3 challenges | Security model is reading/framing, not a dedicated challenge. |
@@ -55,23 +56,24 @@ Only `analyze` calls Claude; every node is a checkpointed Dapr Workflow activity
   in-flight instance and polls it to completion instead of scheduling a new run —
   Dapr re-dispatches the pending `render_report` node into the restarted process.
 
-Two-run demo (from the demo README, verbatim commands):
+Two-run demo. Every input (`PR_REPO` / `PR_NUMBER` / `DEP_ECOSYSTEM` +
+`ANTHROPIC_API_KEY`) is read from `.env` by `app.py`'s `load_dotenv()`, so the run
+command carries no inline env vars. `AUDIT_OUTPUT_DIR` is left at its default, so
+the ledger + report land in `./audit-out` within the app directory.
 
 ```bash
 # Run 1 (armed crash — no edit)
-export AUDIT_OUTPUT_DIR="$PWD/audit-out"
-ANTHROPIC_API_KEY=sk-ant-... PR_REPO=dapr/dapr-agents PR_NUMBER=635 DEP_ECOSYSTEM=pip \
-  uv run dapr run --app-id supply-chain-auditor-langgraph --resources-path ./resources -- python app.py
-cat "$AUDIT_OUTPUT_DIR/audit-ledger.log"   # 2 lines: gather_evidence, analyze
+uv run dapr run --app-id supply-chain-auditor-langgraph --resources-path ./resources -- python app.py
+cat audit-out/audit-ledger.log   # 2 lines: gather_evidence, analyze
 
 # Run 2 (comment out `if ledger.count() >= 2: os._exit(1)` in graph.py, re-run same command)
 # → resumes, runs only render_report, Completed, report printed
-cat "$AUDIT_OUTPUT_DIR/audit-ledger.log"   # 3 lines: +render_report, analyze NOT repeated
+cat audit-out/audit-ledger.log   # 3 lines: +render_report, analyze NOT repeated
 ```
 
 Reset for a fresh run: `docker exec dapr_redis redis-cli flushall` **and**
-`rm -f "$AUDIT_OUTPUT_DIR/audit-ledger.log"` (stale ledger lines otherwise trip
-the `count() >= 2` gate).
+`rm -f audit-out/audit-ledger.log` (stale ledger lines otherwise trip the
+`count() >= 2` gate).
 
 ## The security model (reading — woven into ch1 & ch2)
 
@@ -97,21 +99,39 @@ live PR). Mentioned as reading, with an optional pointer to
   `dapr init --runtime-version <1.18.x>`, verify the `dapr_redis`/placement/
   scheduler/zipkin containers, install `uv`.
 - `scripts/setup.sh`: `git clone https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git`,
-  `cd ai-agent-tracks-instruqt/langgraph/supply_chain_auditor`, `cp .env.template .env`.
+  then **write** `langgraph/supply_chain_auditor/.env` via a heredoc (do **not**
+  copy `.env.template` — it lacks the PR vars), prefilling the fixed inputs and a
+  placeholder key:
+
+  ```bash
+  cat > ai-agent-tracks-instruqt/langgraph/supply_chain_auditor/.env << 'EOF'
+  ANTHROPIC_API_KEY=your_key_here
+  GITHUB_TOKEN=
+  PR_REPO=dapr/dapr-agents
+  PR_NUMBER=635
+  DEP_ECOSYSTEM=pip
+  LLM_MODEL=claude-sonnet-4-6
+  LOG_LEVEL=INFO
+  EOF
+  ```
+
 - `assignment.md`: frame the supply-chain-attack problem and the staged pipeline
   diagram + security-model overview (reading). Steps: verify `dapr -v`; open the
-  Editor `.env` and paste `ANTHROPIC_API_KEY` (note optional read-only
-  `GITHUB_TOKEN`); `uv sync`. Check gate.
-- `scripts/check.sh`: fail until `.env` exists and `ANTHROPIC_API_KEY` is
-  non-empty (pattern from `ai-agents-maf`, adapted to the Anthropic key).
-- `scripts/solve.sh`: write a placeholder key into `.env` so check passes.
+  Editor `.env` and replace `your_key_here` with the real `ANTHROPIC_API_KEY`
+  (note `PR_REPO`/`PR_NUMBER`/`DEP_ECOSYSTEM` are already filled in, and the
+  optional read-only `GITHUB_TOKEN`); `uv sync`. Check gate.
+- `scripts/check.sh`: fail until `.env` exists and `ANTHROPIC_API_KEY` is a real
+  value — non-empty **and** not the `your_key_here` placeholder (pattern from
+  `ai-agents-maf`, adapted to the Anthropic key).
+- `scripts/solve.sh`: replace the placeholder in `.env` with a dummy key so check
+  passes.
 
 ### 2 · Run the durable pipeline & crash it (`2-run-and-crash`, ~8 min)
-- `assignment.md`: `export AUDIT_OUTPUT_DIR="$PWD/audit-out"`, run the **armed**
-  workflow against `dapr/dapr-agents#635` (no edit). Watch `gather_evidence →
-  analyze` (the single Claude call) execute as Dapr activities, then the process
-  die inside `render_report` (non-zero exit). Inspect the ledger (2 lines) and the
-  checkpointed Redis keys that survived the crash
+- `assignment.md`: run the **armed** workflow (a bare `python app.py` — inputs
+  come from `.env`; no edit needed). Watch `gather_evidence → analyze` (the single
+  Claude call) execute as Dapr activities, then the process die inside
+  `render_report` (non-zero exit). Inspect the ledger (`cat audit-out/audit-ledger.log`,
+  2 lines) and the checkpointed Redis keys that survived the crash
   (`docker exec dapr_redis redis-cli keys "*"`). Explain: only `analyze` hits the
   LLM; each node is a checkpointed activity; the crash lands *after* the expensive
   call. Reading: what the heuristic floor / guardrail mean for the verdict.
