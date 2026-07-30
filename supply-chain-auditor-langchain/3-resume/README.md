@@ -4,7 +4,7 @@ Resume and Recover the LangGraph agent
 
 ## Url
 
-resume
+supply-chain-auditor-langgraph-resume
 
 ### Description
 

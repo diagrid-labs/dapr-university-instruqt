@@ -1,6 +1,6 @@
 # Name
 
-Audit dependency bumps for supply-chain attacks with Dapr Workflow
+Make LangGraph agents durable with Dapr Workflow - Supply Chain Auditor
 
 ## Url
 
@@ -8,7 +8,7 @@ supply-chain-auditor
 
 ## Teaser
 
-Run an AI agent that audits a real Dependabot PR for a supply-chain attack — where a dependency's changelog says "docs only" but the code slips in something malicious. It runs as a durable Dapr Workflow, so when you crash it mid-audit it resumes from durable state without repeating the expensive Claude analysis.
+Run a LanggGaph agent that audits a real Dependabot PR for a supply-chain attack. It runs as a durable Dapr Workflow, so when you crash it mid-audit it resumes from durable state without repeating the expensive Claude analysis.
 
 Languages: Python. Duration: 30 min. Requires an Anthropic API key.
 
@@ -28,7 +28,7 @@ In this self-paced track, you'll learn:
 - How each pipeline node becomes a Dapr Workflow activity checkpointed to a Redis state store.
 - How a real mid-run crash resumes from durable state — replaying the completed `gather_evidence` and `analyze` steps from history instead of re-fetching from GitHub or calling Claude again.
 
-You'll probably need around 22 minutes to complete the 3 challenges.
+You'll probably need around 25 minutes to complete the 3 challenges.
 
 If your session is idle for more than 10 minutes the session will stop and you'll need to restart the track. Tracks can be started up to 5 times and you can skip challenges to continue with the challenges you didn't finish previously.
 

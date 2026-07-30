@@ -2,7 +2,7 @@ In this challenge you'll run the _Supply Chain Auditor_ against a real Dependabo
 
 ## 1. Look at the crash line
 
-The durability demo ships with a deliberate crash, armed by default. Open `graph.py` in the **Editor** and find it in the `render_report` node:
+The durability demo ships with a deliberate crash, armed by default. Open `graph.py` in the **Editor** and find it in the `render_report` node (line 132):
 
 ```python,nocopy
 if ledger.count() >= 2: os._exit(1)     # ← comment out for the resume run
@@ -27,15 +27,21 @@ Watch the terminal:
 2. `analyze` calls **Claude** to judge the notes against the diff.
 3. `render_report` starts — and the process **dies by itself**:
 
+> [!NOTE]
+> It might take a minute or two before the application crashes, since several calls to GitHub are made (which can result in 429) and a call to Claude.
+
 ```text,nocopy
 ❌  The App process exited with error code: 1
 ```
 
-That crash landed *after* the Claude call completed. Look at the ledger — it holds the two stages that ran before the crash:
+That crash landed *after* the Claude call completed. Look at the ledger, it holds the two stages that ran before the crash:
 
 ```bash,run
 cat audit-out/audit-ledger.log
 ```
+
+> [!NOTE]
+> Alternatively, you can also inspect the ledger by refreshing the **Editor** view by clicking the circular arrow, and navigating to the audit-out folder.
 
 You'll see a `gather_evidence` line and an `analyze` line, each with a timestamp.
 

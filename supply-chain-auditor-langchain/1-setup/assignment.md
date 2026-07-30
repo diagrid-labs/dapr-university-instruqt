@@ -18,9 +18,9 @@ START → gather_evidence → ┬─ analyze  ─┐→ render_report → END
          run heuristics)      reconciled)
 ```
 
-- **`gather_evidence`** resolves the bumped package to its upstream GitHub repo, fetches the release notes and the real source diff, and runs deterministic red-flag heuristics — no LLM.
-- **`analyze`** is the only node that calls **Claude**. It grounds its judgement in the untrusted, nonce-tagged evidence and produces a structured verdict.
-- **`render_report`** renders the verdict to a Markdown comment.
+- **`gather_evidence`** (graph.py, line 64) resolves the bumped package to its upstream GitHub repo, fetches the release notes and the real source diff, and runs deterministic red-flag heuristics — no LLM.
+- **`analyze`** (graph.py, line 90) is the only node that calls **Claude**. It grounds its judgement in the untrusted, nonce-tagged evidence and produces a structured verdict.
+- **`render_report`** (graph.py, line 122) renders the verdict to a Markdown comment.
 
 Every node runs as a durable **Dapr Workflow activity** — which is what makes the crash-and-resume in the next challenges possible.
 

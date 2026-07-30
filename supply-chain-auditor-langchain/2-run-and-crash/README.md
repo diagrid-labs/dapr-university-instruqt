@@ -4,7 +4,7 @@ Run and Crash the LangGraph agent
 
 ## Url
 
-run-and-crash
+supply-chain-auditor-langgraph-run-and-crash
 
 ### Description
 

@@ -8,7 +8,7 @@ Open `graph.py` in the **Editor** and comment out the crash line in `render_repo
 # if ledger.count() >= 2: os._exit(1)     # ← comment out for the resume run
 ```
 
-Save the file.
+The file will autosave.
 
 ## 2. Re-run the exact same command
 
