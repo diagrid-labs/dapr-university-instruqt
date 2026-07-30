@@ -9,4 +9,3 @@ There are 3 challenges to complete, each takes about 6-8 minutes. If your sessio
 - What the Supply Chain Auditor does and the attack it defends against
 - How the staged LangGraph pipeline is wired, and which node calls the LLM
 - How the deterministic heuristics set a floor the model can only raise
-- How to confirm your sandbox is ready and add your Anthropic API key

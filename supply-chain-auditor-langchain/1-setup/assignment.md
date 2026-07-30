@@ -1,6 +1,6 @@
-Welcome to **Audit dependency bumps for supply-chain attacks with Dapr Workflow**. In this track you'll run the **Supply Chain Auditor** — an AI agent that checks whether a Dependabot dependency bump's upstream release notes match its actual source code changes — then make that audit survive a crash with Dapr Workflow.
+Welcome to **Make Langgraph durable with Dapr Workflow - Supply Chain Auditor**. In this track you'll run the _Supply Chain Auditor_, an AI agent that checks whether a Dependabot dependency bump's upstream release notes match its actual source code changes. The agent will intentionally crash, and by restarting it, you will see that none of the previously completed steps will be executed again. The agent is made durable with Dapr Workflow.
 
-In this first challenge you'll set up the sandbox and add your Anthropic API key. This challenge takes about 6 minutes to complete.
+In this first challenge you'll set up the sandbox and add your Anthropic API key. This challenge takes about 5 minutes to complete.
 
 ## The attack
 
@@ -8,7 +8,7 @@ A dependency update's changelog is written by whoever published the release — 
 
 ## The auditor
 
-The Supply Chain Auditor is a staged [LangGraph](https://www.langchain.com/langgraph) pipeline:
+The _Supply Chain Auditor_ is a staged [LangGraph](https://www.langchain.com/langgraph) pipeline:
 
 ```text,nocopy
 START → gather_evidence → ┬─ analyze  ─┐→ render_report → END
@@ -23,6 +23,9 @@ START → gather_evidence → ┬─ analyze  ─┐→ render_report → END
 - **`render_report`** renders the verdict to a Markdown comment.
 
 Every node runs as a durable **Dapr Workflow activity** — which is what makes the crash-and-resume in the next challenges possible.
+
+> [!NOTE]
+> You can use the **Editor** window on the left to inspect the code.
 
 ## The security model
 
@@ -41,13 +44,7 @@ dapr -v
 ```
 
 > [!NOTE]
-> You should see both a **CLI version** and a **Runtime version**. If the Runtime version is blank, run `dapr init --runtime-version 1.18.0`. If you hit any other blocking issue during this track, send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
-
-Confirm the Redis state store that backs the Dapr Workflow engine is running:
-
-```bash,run
-docker ps | grep dapr_redis
-```
+> You should see both a **CLI version** and a **Runtime version**. If the Runtime version is blank, run `dapr init`. If you hit any other blocking issue during this track, send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
 
 ## 2. Add your Anthropic API key
 
@@ -75,4 +72,4 @@ uv sync
 
 ---
 
-You've got a working sandbox, the auditor cloned, and your key in place. Next you'll run the audit as a durable Dapr Workflow — and crash it on purpose.
+You've got a working sandbox, the _Supply Chain Auditor_ cloned, and your key in place. Next you'll run the audit as a durable Dapr Workflow — and crash it on purpose.

@@ -1,21 +1,21 @@
-In this challenge you'll run the auditor against a real Dependabot PR as a durable Dapr Workflow — and it will crash on purpose partway through. This challenge takes about 8 minutes to complete.
+In this challenge you'll run the _Supply Chain Auditor_ against a real Dependabot PR as a durable Dapr Workflow. The agent will crash on purpose partway through to simulate a serious issue that you might encounter in production. This challenge takes about 8 minutes to complete.
 
 ## 1. Look at the crash line
 
-The durability demo ships with a deliberate crash, **armed by default**. Open `graph.py` in the **Editor** and find it in the `render_report` node:
+The durability demo ships with a deliberate crash, armed by default. Open `graph.py` in the **Editor** and find it in the `render_report` node:
 
 ```python,nocopy
 if ledger.count() >= 2: os._exit(1)     # ← comment out for the resume run
 ```
 
-By the time `render_report` runs, `gather_evidence` and `analyze` have each recorded one line in a stage *ledger* (`audit-out/audit-ledger.log`) — so `ledger.count()` is 2 and the process dies **right after** the expensive Claude call has completed and been checkpointed. `os._exit(1)` kills the process immediately — no cleanup, like a pod eviction or an OOM kill.
+By the time `render_report` runs, `gather_evidence` and `analyze` have each recorded one line in a stage *ledger* (`audit-out/audit-ledger.log`) — so `ledger.count()` is 2 and the process dies **right after** the expensive Claude call has completed and been checkpointed. `os._exit(1)` kills the process immediately — no cleanup, like a pod eviction or an OOM kill. The ledger exists just for demonstration purposes, it is not used by Dapr Worfklow since the workflow state is captured in a local Redis instance.
 
-> [!NOTE]
-> Leave this line as-is for now. You'll comment it out in the next challenge to watch the workflow resume.
+> [!IMPORTANT]
+> Leave the crash line as-is for now. You'll comment it out in the next challenge to watch the workflow resume.
 
 ## 2. Run the audit
 
-Use the **Terminal** to run the auditor. `dapr run` starts a Dapr sidecar and runs `python app.py` against it. All inputs (the PR to audit, your key) come from `.env`:
+Use the **Terminal** to run the auditor. `dapr run` starts a Dapr sidecar and runs `python app.py` against it. All inputs (the PR to audit, your Anthropic key) come from `.env`:
 
 ```bash,run
 uv run dapr run --app-id supply-chain-auditor-langgraph --resources-path ./resources -- python app.py
@@ -41,7 +41,7 @@ You'll see a `gather_evidence` line and an `analyze` line, each with a timestamp
 
 ## 3. See the state that survived
 
-Even though the process died, Dapr checkpointed each completed node to Redis. Confirm the workflow instance is still there:
+Even though the process died, Dapr checkpointed each completed node to Redis. Confirm the workflow instance is still there by running this in the **Terminal**:
 
 ```bash,run
 docker exec dapr_redis redis-cli keys "*audit-dapr-dapr-agents-635*"

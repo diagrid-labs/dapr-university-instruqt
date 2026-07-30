@@ -1,4 +1,4 @@
-The audit crashed in the last challenge, but Dapr checkpointed every completed step to Redis. In this final challenge you'll comment out the crash and re-run the exact same command — and watch the workflow resume instead of starting over. This challenge takes about 8 minutes to complete.
+The audit crashed in the previous challenge, but Dapr checkpointed every completed step to Redis. In this final challenge you'll comment out the crash and re-run the exact same command — and watch the workflow **resume** instead of starting over. This challenge takes about 8 minutes to complete.
 
 ## 1. Disarm the crash
 
@@ -12,7 +12,7 @@ Save the file.
 
 ## 2. Re-run the exact same command
 
-Use the **Terminal** to run the same command as before — the inputs still come from `.env`:
+Use the **Terminal** to run the same command as before:
 
 ```bash,run
 uv run dapr run --app-id supply-chain-auditor-langgraph --resources-path ./resources -- python app.py
@@ -76,7 +76,7 @@ Congratulations! 🎉 You've completed the *Audit dependency bumps for supply-ch
 We have more ways for you to learn and share knowledge:
 
 **Try another university track**
-- [Make DeepAgents reliable with Dapr Workflow](https://www.diagrid.io/university)
+- [Make DeepAgents reliable with Dapr Workflow](https://www.diagrid.io/university/ai-agents-deepagents)
 - [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
 
 **Read more**
