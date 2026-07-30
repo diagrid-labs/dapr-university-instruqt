@@ -2,7 +2,7 @@ Welcome to **Make Langgraph durable with Dapr Workflow - Supply Chain Auditor**.
 
 In this first challenge you'll set up the sandbox and add your Anthropic API key. This challenge takes about 5 minutes to complete.
 
-## The attack
+## Supply chain attack
 
 A dependency update's changelog is written by whoever published the release — including an attacker. The classic supply-chain attack ships malicious code (an install hook, a credential grab, an obfuscated payload) inside an update whose notes say something innocent like "documentation only". If you trust the changelog, you merge the attack.
 
@@ -22,10 +22,16 @@ START → gather_evidence → ┬─ analyze  ─┐→ render_report → END
 - **`analyze`** (graph.py, line 90) is the only node that calls **Claude**. It grounds its judgement in the untrusted, nonce-tagged evidence and produces a structured verdict.
 - **`render_report`** (graph.py, line 122) renders the verdict to a Markdown comment.
 
-Every node runs as a durable **Dapr Workflow activity** — which is what makes the crash-and-resume in the next challenges possible.
+Every node runs as a durable **Dapr Workflow activity**, which is what makes the crash-and-resume in the next challenges possible.
 
 > [!NOTE]
 > You can use the **Editor** window on the left to inspect the code.
+
+## Why durability matters
+
+A single audit is a chain of slow, costly steps: resolving the upstream repo, fetching release notes and the real source diff over the network, and a **Claude** call to judge them. All of that lives in memory by default. Crash the process after the evidence is gathered and the LLM has spoken, and you lose everything — re-fetching every diff and paying for the Claude call again on restart.
+
+In this track you'll see how the pipeline is wrapped in a **Dapr Workflow**, so once a node completes its result is checkpointed to durable state. When the app crashes mid-run — which it will, on purpose — the workflow rehydrates and replays completed nodes from history instead of redoing the work. The Dapr Workflow integration for LangGraph is provided by Diagrid via the [`diagrid[langgraph]`](https://github.com/diagridio/python-ai) package.
 
 ## The security model
 

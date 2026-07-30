@@ -14,7 +14,7 @@ DeepAgents is a framework, built on [LangGraph](https://www.langchain.com/langgr
 
 A real issue investigation isn't one LLM call — it's dozens of tool calls and reasoning steps, and it can take minutes. All of that lives in memory by default. Kill the process at step 30 of 40 and you lose everything: the scratchpad, the partial report, and every dollar spent on LLM calls so far.
 
-In challenges 3 and 4 you'll back that scratchpad with a **Dapr state store** and wrap the run in a **Dapr Workflow**, so a crashed investigation resumes exactly where it left off instead of starting over.
+In challenges 3 and 4 you'll back that scratchpad with a **Dapr state store** and wrap the run in a **Dapr Workflow**, so a crashed investigation resumes exactly where it left off instead of starting over. The Dapr Workflow integration for DeepAgents is provided by Diagrid via the [`diagrid[deepagents]`](https://github.com/diagridio/python-ai) package.
 
 ## The target issue
 
