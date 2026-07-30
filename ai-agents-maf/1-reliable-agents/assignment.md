@@ -13,7 +13,7 @@ The agents talk to OpenAI's `gpt-4o-mini` model through the **Dapr conversation 
 
 ## 2. Why durable execution for agents?
 
-Each `PrAnalyzer` call is an LLM round-trip — the most expensive and slowest part of the run. Dapr Workflow treats every agent call as a **checkpointed child workflow**: once a call completes, its result is written to durable state. If the process crashes mid-run, the workflow **rehydrates from that state and replays completed calls from history instead of calling the LLM again**. This principle is known as **durable execution**. You'll prove this later in the track by crashing the app on purpose.
+Each `PrAnalyzer` call is an LLM round-trip — the most expensive and slowest part of the run. Dapr Workflow treats every agent call as a **checkpointed child workflow**: once a call completes, its result is written to durable state. If the process crashes mid-run, the workflow **rehydrates from that state and replays completed calls from history instead of calling the LLM again**. This principle is known as **durable execution**. You'll prove this later in the track by crashing the app on purpose. The Dapr Workflow integration for the Microsoft Agent Framework is provided by Diagrid via the [`Diagrid.AI.Microsoft.AgentFramework`](https://github.com/diagridio/dotnet-ai) package.
 
 Before we can inspect and run the PrDigest application let's verify and configure the sandbox environment.
 
