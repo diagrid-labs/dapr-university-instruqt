@@ -1,10 +1,10 @@
 # Name
 
-Making LangGraph agents durable with Dapr Workflow
+Making LangGraph agents durable with Dapr Workflow - Schedule Planner
 
 ## Url
 
-ai-agents-langgraph
+ai-agents-langgraph-schedule-planner
 
 ## Teaser
 

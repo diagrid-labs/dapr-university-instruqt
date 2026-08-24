@@ -4,7 +4,7 @@ Run it durable
 
 ## Url
 
-ai-agents-langgraph-run-it-durable
+ai-agents-langgraph-schedule-planner-run-it-durable
 
 ### Description
 

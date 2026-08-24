@@ -4,7 +4,7 @@ Introduction
 
 ## Url
 
-ai-agents-langgraph-introduction
+ai-agents-langgraph-schedule-planner-introduction
 
 ### Description
 

@@ -1,4 +1,4 @@
-# Making LangGraph agents durable with Dapr Workflow
+# Making LangGraph agents durable with Dapr Workflow - Schedule Planner
 
 LangGraph gives an LLM the structure to act as a state machine: nodes, edges, and shared state driving a tool-calling loop. What it doesn't give you is durability. Kill the process mid-run and everything in memory is gone. In this hands-on track you'll see how Dapr Workflow turns a LangGraph graph into a durable, crash-proof application.
 

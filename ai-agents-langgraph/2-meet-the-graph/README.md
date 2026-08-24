@@ -4,7 +4,7 @@ Meet the graph
 
 ## Url
 
-ai-agents-langgraph-meet-the-graph
+ai-agents-langgraph-schedule-planner-meet-the-graph
 
 ### Description
 

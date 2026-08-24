@@ -4,7 +4,7 @@ Crash and recover
 
 ## Url
 
-ai-agents-langgraph-crash-and-recover
+ai-agents-langgraph-schedule-planner-crash-and-recover
 
 ### Description
 

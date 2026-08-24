@@ -22,7 +22,17 @@ curl -i -X POST http://localhost:8005/agent/run \
 
 ## 3. Observe the log stream
 
-Switch back to **Terminal** and watch the output. You'll see `Event: workflow_started`, the `check_availability` tool being invoked, and `Event: workflow_completed` once the agent has an answer.
+Switch back to **Terminal** and watch the output. You'll see the following output in the logs:
+
+```text,nocopy
+...
+[WORKFLOW] Step 1, pending_nodes=['tools']
+...
+[WORKFLOW] Step 2, pending_nodes=['agent']
+...
+[WORKFLOW] Step 3, pending_nodes=['__end__']
+...
+```
 
 ## 4. Inspect the state store
 
@@ -45,17 +55,17 @@ spec:
     value: "true"
 ```
 
-This is a Redis-backed Dapr state store. `actorStateStore: "true"` is what makes it usable by the Dapr Workflow engine. Workflows run on Dapr's actor runtime under the hood, and this component is where that runtime persists its state.
+This is a Redis-backed Dapr state store. `actorStateStore: "true"` is what makes it usable by the Dapr Workflow engine. Workflows run on Dapr's actors under the hood, and this component describes where the actors store their state.
 
 ## 5. Peek into Redis
 
-Use **Terminal 2**:
+Use **Terminal Redis** to list the Redis keys that belong to this workflow:
 
 ```bash,run
 docker exec dapr_redis redis-cli keys "*schedule-planner*"
 ```
 
-These keys are the workflow instance state, its activity results, and its execution history. All of it was written to Redis as the graph ran, before you even looked.
+These keys are the workflow instance state, its activity results, and its execution history. All of it was written to Redis as the graph ran.
 
 ## 6. How this works
 

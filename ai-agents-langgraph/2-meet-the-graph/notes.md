@@ -7,6 +7,7 @@ This challenge is pure reading, no running yet. You'll open `main.py` and see ex
 ### What you'll learn in this challenge
 
 - How LangGraph builds an agent from nodes, edges, and state
+- How `bind_tools` tells the LLM which tools it can call
 - What a conditional edge is and how the tool-calling loop works
 - What `DaprWorkflowGraphRunner` adds on top of the graph
 - How the agent becomes an HTTP service

@@ -17,7 +17,19 @@ def check_availability(venue: str, date: str) -> str:
 
 A LangGraph tool is just a Python function decorated with `@tool`. The LLM never calls this function directly. It decides *when* to call it and *with what arguments*, and LangGraph runs it on the LLM's behalf.
 
-## 3. Inspect the nodes
+## 3. Bind the tool to the model
+
+Look at lines 19-21:
+
+```python,nocopy
+tools = [check_availability]
+tools_by_name = {t.name: t for t in tools}
+model = ChatOpenAI(model="gpt-4.1-2025-04-14").bind_tools(tools)
+```
+
+`bind_tools(tools)` is what makes the LLM aware the tool exists. LangChain turns each `@tool` function into a JSON schema and sends it along with every request, so the model can answer with a *tool call* instead of text. `tools_by_name` is the lookup the next node uses to find the matching Python function when a tool call comes back.
+
+## 4. Inspect the nodes
 
 Look at lines 24-35. There are two functions here, each a **node** in the graph:
 
@@ -32,13 +44,14 @@ def call_tools(state: MessagesState) -> dict:
     results = []
     for tc in last_message.tool_calls:
         result = tools_by_name[tc["name"]].invoke(tc["args"])
+        ToolMessage(content=str(result), tool_call_id=tc["id"])
         results.append(ToolMessage(content=str(result), tool_call_id=tc["id"]))
     return {"messages": results}
 ```
 
 `call_model` sends the conversation so far to the LLM. `call_tools` executes whatever tool calls the LLM asked for. Each is a plain function that reads the shared `MessagesState` and returns updates to it. That's all a LangGraph node is.
 
-## 4. Inspect the routing
+## 5. Inspect the routing
 
 Look at lines 38-42:
 
@@ -52,7 +65,7 @@ def should_use_tools(state: MessagesState) -> str:
 
 `should_use_tools` decides where to go after `call_model` runs. It goes back to `tools` if the LLM asked for a tool call, or ends the graph if it didn't. This is the **conditional edge** that creates the tool-calling loop. Without it, the graph would only ever run once.
 
-## 5. Inspect the graph construction
+## 6. Inspect the graph construction
 
 Look at lines 45-50:
 
@@ -67,7 +80,7 @@ graph.add_edge("tools", "agent")
 
 Nodes are registered, then edges are wired: `START → agent → (conditional) → tools → agent → …`. The graph keeps looping between `agent` and `tools` until `should_use_tools` returns `__end__`.
 
-## 6. Inspect the runner
+## 7. Inspect the runner
 
 Look at lines 52-66:
 
@@ -90,7 +103,7 @@ runner.serve(
 
 `DaprWorkflowGraphRunner(...)` wraps the compiled graph. That one line is the entire durability layer, and you'll see what it actually does in challenge 3. `runner.serve(...)` starts an HTTP server on port `8005` and subscribes to a pub/sub topic, so the same graph can be triggered either way.
 
-## 7. How this works
+## 8. How this works
 
 Putting it together:
 

@@ -1,4 +1,4 @@
-Welcome to **Making LangGraph Agents Durable with Dapr Workflow**. In this track you'll run a LangGraph agent, a **Schedule Planner** that checks venue availability. Then you'll make it durable enough to survive a crash. This first challenge takes about 4 minutes.
+Welcome to **Making LangGraph Agents Durable with Dapr Workflow - Schedule Planner**. In this track you'll run a LangGraph agent, a **Schedule Planner** that checks venue availability. Then you'll make it durable enough to survive a crash. This first challenge takes about 4 minutes.
 
 ## What is LangGraph?
 
@@ -29,23 +29,29 @@ dapr -v
 ```
 
 > [!NOTE]
-> You should see both a **CLI version** and a **Runtime version** listed. If the Runtime version is blank, run `dapr init` below to initialize it. If you run into any other blocking issue during this course, send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
-
-```bash,run
-dapr init
-```
+> You should see both a **CLI version** and a **Runtime version** listed. If the Runtime version is blank, run `dapr init` in the **Terminal** to initialize it. If you run into any other blocking issue during this course, send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
 
 ## 2. Add your OpenAI API key
 
-`main.py` reads `OPENAI_API_KEY` straight from the shell environment. There's no `.env` file involved. So that the key is available in every terminal tab across the rest of this track, not just the one you're in right now, append it to `~/.bashrc`:
+`main.py` reads `OPENAI_API_KEY` straight from the shell environment. Copy the following command, add your OPENAI_API_KEY, and append it to `~/.bashrc` so your API key is available in every terminal tab across the rest of this track:
 
-```bash,run,copy
+```bash,copy
 echo 'export OPENAI_API_KEY="your_key_here"' >> ~/.bashrc
+```
+
+Refresh the shell environment:
+
+```bash,copy,run
 source ~/.bashrc
 ```
 
 > [!NOTE]
-> You'll need a real key from https://platform.openai.com/signup. The agent calls `gpt-4.1` in challenge 3. Replace `your_key_here` with your actual key before running the command above.
+> You'll need a real key from https://platform.openai.com/signup. Replace `your_key_here` with your actual key before running the command. The agent calls OpenAI's `gpt-4.1` model in challenge 3, so make sure your key has access to it.
+
+You should be good to go now!
+
+> [!IMPORTANT]
+> Click the *Check* button to verify that the Dapr containers are running and that `OPENAI_API_KEY` is set to a real key. If you ran the command with the placeholder still in it, just run it again with your real key — the last export in `~/.bashrc` is the one that counts.
 
 ---
 
