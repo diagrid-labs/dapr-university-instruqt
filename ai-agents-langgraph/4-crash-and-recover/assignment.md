@@ -1,4 +1,7 @@
-You're going to crash a workflow on purpose, then prove Dapr picks up exactly where it left off. This challenge takes about 7 minutes.
+You're going to crash a workflow on purpose, then prove Dapr Workflow picks up exactly where it left off. This challenge takes about 7 minutes.
+
+> [!IMPORTANT]
+> This challenge uses two terminals: *Terminal 1* for running the app, and *Terminal 2* for triggering it via HTTP. When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
 ## 1. Open crash_test.py
 
@@ -16,7 +19,7 @@ os._exit(1)  # 💥 Simulates a crash — comment out this line before the secon
 
 ## 3. Start the crash test app
 
-Use the **Terminal** window:
+Use the **Terminal 1** window:
 
 ```bash,run
 uv run dapr run --app-id langgraph-crash-test --resources-path ./resources -- python crash_test.py
@@ -36,7 +39,7 @@ curl -X POST http://localhost:8001/run \
 
 ## 5. Observe the crash
 
-Switch to **Terminal**. You'll see:
+Switch to **Terminal 1**. You'll see:
 
 ```text,nocopy
 >>> STEP 1: Checking venue availability for 'company gala on March 15'...
@@ -60,7 +63,7 @@ Back in the **Editor**, comment out line 30 in `crash_test.py`:
 
 ## 7. Restart the app
 
-Use the **Terminal** window:
+Use the **Terminal 1** window:
 
 ```bash,run
 uv run dapr run --app-id langgraph-crash-test --resources-path ./resources -- python crash_test.py
@@ -70,7 +73,7 @@ Because `thread_id="crash-recovery-demo"` is hardcoded in `crash_test.py`, the w
 
 ## 8. Watch the recovery
 
-Watch the logs in the **Terminal**. You'll see step 2 run again, this time without crashing, followed by step 3, and the workflow completes:
+Watch the logs in the **Terminal 1**. You'll see step 2 run again, this time without crashing, followed by step 3, and the workflow completes:
 
 ```text,nocopy
 >>> STEP 2: Comparing venue options...

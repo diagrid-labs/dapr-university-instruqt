@@ -2,7 +2,7 @@ The sandbox for this challenge is being prepared, it should be ready within a fe
 
 ---
 
-This challenge is pure reading, no running yet. You'll open `main.py` and see exactly how LangGraph builds the Schedule Planner's tool-calling loop, and how a single line turns it into a Dapr Workflow. This challenge takes about 4 minutes.
+This challenge takes you through the application code. You'll open `main.py` and see exactly how LangGraph builds the Schedule Planner's tool-calling loop, and how a single line turns it into a Dapr Workflow. This challenge takes about 4 minutes.
 
 ### What you'll learn in this challenge
 

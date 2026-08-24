@@ -1,8 +1,11 @@
 Time to run the Schedule Planner for real and watch the durability layer at work. This challenge takes about 6 minutes.
 
+> [!IMPORTANT]
+> This challenge uses two terminals: *Terminal 1* for running the agent, and *Terminal 2* for triggering it with HTTP. When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
+
 ## 1. Start the agent with Dapr
 
-Use the **Terminal** window:
+Use the **Terminal 1** window:
 
 ```bash,run
 uv run dapr run --app-id schedule-planner --resources-path ./resources -- python main.py
@@ -22,7 +25,7 @@ curl -i -X POST http://localhost:8005/agent/run \
 
 ## 3. Observe the log stream
 
-Switch back to **Terminal** and watch the output. You'll see the following output in the logs:
+Switch back to **Terminal 1** and watch the output. You'll see the following output in the logs:
 
 ```text,nocopy
 ...
@@ -59,7 +62,7 @@ This is a Redis-backed Dapr state store. `actorStateStore: "true"` is what makes
 
 ## 5. Peek into Redis
 
-Use **Terminal Redis** to list the Redis keys that belong to this workflow:
+Use **Terminal 2** to list the Redis keys that belong to this workflow:
 
 ```bash,run
 docker exec dapr_redis redis-cli keys "*schedule-planner*"
@@ -76,7 +79,7 @@ These keys are the workflow instance state, its activity results, and its execut
 
 ## 7. Stop the app
 
-Use `Ctrl+C` in the **Terminal** window to stop the Dapr application before moving on.
+Use `Ctrl+C` in the **Terminal 1** window to stop the Dapr application before moving on.
 
 ---
 

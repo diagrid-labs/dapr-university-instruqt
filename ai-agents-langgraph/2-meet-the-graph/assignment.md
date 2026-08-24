@@ -113,4 +113,4 @@ Putting it together:
 
 ---
 
-You've read the whole graph without running a single command. Let's move on to challenge 3 where you'll actually run it and watch the durability layer in action.
+You've read the whole graph without running a single command. Let's move on to challenge 3 where you'll run the graph and watch the durability layer in action.

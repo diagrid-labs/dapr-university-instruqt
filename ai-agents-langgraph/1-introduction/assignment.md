@@ -1,4 +1,4 @@
-Welcome to **Making LangGraph Agents Durable with Dapr Workflow - Schedule Planner**. In this track you'll run a LangGraph agent, a **Schedule Planner** that checks venue availability. Then you'll make it durable enough to survive a crash. This first challenge takes about 4 minutes.
+Welcome to **Making LangGraph Agents Durable with Dapr Workflow - Schedule Planner**. In this track you'll run a LangGraph agent, a **Schedule Planner** that checks venue availability. Then you'll test the durability by making it crash and see it recover on the next run. This first challenge takes about 4 minutes.
 
 ## What is LangGraph?
 
@@ -16,7 +16,7 @@ A LangGraph graph runs entirely in process memory by default. Every node executi
 
 LangGraph gives you the structure for an agent. It doesn't give you durability. That's what **Dapr Workflow** adds. Wrap the same compiled graph in a `DaprWorkflowGraphRunner` and every node execution becomes a checkpointed Dapr Workflow activity, persisted to Redis before the graph moves to the next step. In challenges 3 and 4 you'll run that durable version and prove it survives a real crash.
 
-## What you'll build
+## What you'll run
 
 You'll run **Schedule Planner**, a LangGraph agent with a single tool called `check_availability` that checks whether a venue is free on a given date. The agent is wrapped in a Dapr Workflow and exposed over HTTP. A `POST` to `/agent/run` triggers a run, the LLM decides to call `check_availability`, and the agent returns the available time slots.
 
@@ -24,7 +24,7 @@ You'll run **Schedule Planner**, a LangGraph agent with a single tool called `ch
 
 Use the **Terminal** window to confirm the Dapr CLI and runtime are ready:
 
-```bash,run
+```bash,run,copy
 dapr -v
 ```
 
@@ -48,11 +48,9 @@ source ~/.bashrc
 > [!NOTE]
 > You'll need a real key from https://platform.openai.com/signup. Replace `your_key_here` with your actual key before running the command. The agent calls OpenAI's `gpt-4.1` model in challenge 3, so make sure your key has access to it.
 
-You should be good to go now!
-
-> [!IMPORTANT]
-> Click the *Check* button to verify that the Dapr containers are running and that `OPENAI_API_KEY` is set to a real key. If you ran the command with the placeholder still in it, just run it again with your real key — the last export in `~/.bashrc` is the one that counts.
-
 ---
 
 You now have a working sandbox and know why a durability layer is worth adding to a LangGraph agent. Let's move on to challenge 2 where you'll read through the Schedule Planner's graph.
+
+> [!IMPORTANT]
+> Click the *Check* button to verify that the Dapr containers are running and that `OPENAI_API_KEY` is set to a real key.

@@ -2,10 +2,7 @@ The sandbox for this challenge is being prepared, it should be ready within a fe
 
 ---
 
-Time to see the durability layer at work. You'll start the agent under Dapr, trigger a run, and watch each node execute as a checkpointed workflow activity. This challenge takes about 6 minutes.
-
-> [!IMPORTANT]
-> This challenge uses two terminals: *Terminal* for running the agent, and *Terminal 2* for triggering it. When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
+Time to see the durability layer at work. You'll start the agent with Dapr, trigger a run, and watch each node execute as a checkpointed workflow activity. This challenge takes about 6 minutes.
 
 ### What you'll learn in this challenge
 
