@@ -42,8 +42,8 @@ Replace the entire contents of the file with this json:
         "DOTNET_ENVIRONMENT": "Development",
         "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://0.0.0.0:17001",
         "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://0.0.0.0:17003",
-        "DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS": true,
-        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": true
+        "DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS": "true",
+        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true"
       }
     }
   }
@@ -55,13 +55,12 @@ Replace the entire contents of the file with this json:
 
 ## 3. Add the NuGet packages
 
-Now let's install some dependencies the solution requires. You're building a Dapr Workflow solution and this needs: `Dapr.Workflow`, `Dapr.Workflow.Versioning` and `CommunityToolkit.Aspire.Hosting.Dapr`.
+Now let's install some dependencies the solution requires. You're building a Dapr Workflow solution and this needs: `Dapr.Workflow` and `CommunityToolkit.Aspire.Hosting.Dapr`. As of version 1.18, the workflow-versioning APIs are included in the `Dapr.Workflow` package itself, so there's no separate package to add for that.
 
 1. Use the *Terminal* (ensure you're in `EnterpriseDiagnostics/`) to install all the required packages to the correct projects:
 
 ```shell,run,copy
 dotnet add EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj package Dapr.Workflow --version 1.18.4
-dotnet add EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj package Dapr.Workflow.Versioning --version 1.18.4
 dotnet add EnterpriseDiagnostics.AppHost/EnterpriseDiagnostics.AppHost.csproj package CommunityToolkit.Aspire.Hosting.Dapr --version 13.0.0
 ```
 
@@ -75,7 +74,6 @@ The ApiService project  should have these packages:
 
 ```text,nocopy
 <PackageReference Include="Dapr.Workflow" Version="1.18.4" />
-<PackageReference Include="Dapr.Workflow.Versioning" Version="1.18.4" />
 <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7" />
 ```
 

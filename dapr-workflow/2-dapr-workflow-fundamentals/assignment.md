@@ -8,7 +8,7 @@ In this challenge, you'll learn:
 This hands-on challenge takes about 10 minutes to complete.
 
 > [!IMPORTANT]
-> You'll work with read-only *language tabs* that hold the sample code, and *terminal* tabs (such as *Dapr CLI* and *curl*) where you run commands. If a tab isn't available — or you hit any blocking issue during this course — send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
+> You'll work with *language tabs* that hold the sample code, and *terminal* tabs (such as *Dapr CLI* and *curl*) where you run commands. If a tab isn't available — or you hit any blocking issue during this course — send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
 
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
@@ -335,9 +335,6 @@ In the **curl** window, run the following command to start the workflow:
 ```curl,run
 curl -i --request POST http://localhost:5254/start/One
 ```
-
->[!WARNING]
-> You might see a warning in the Dapr CLI log window about `Error processing operation DaprBuiltInActorNotFoundRetries.`. Don't worry, this is a transient error, the Dapr process is trying to communicate to the actor that is responsible for scheduling the workflow.
 
 Expected output:
 
