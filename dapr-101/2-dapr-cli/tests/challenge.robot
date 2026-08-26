@@ -17,7 +17,10 @@ Suite Teardown    Terminate All Processes    kill=True
 
 *** Variables ***
 # Scalar variables, referenced elsewhere as ${DAPR_VERSION}. Defined once here so
-# the pinned version is easy to bump in a single place.
+# the pinned version is easy to bump in a single place. CI overrides both with
+# `robot --variable DAPR_VERSION:<x>` from the values in _setup/sandbox-setup.sh.
+# Only the MAJOR.MINOR part (1.18) is asserted - see the version test below - so a
+# patch release does not need a bump here.
 ${DAPR_VERSION}    1.18.0
 ${DAPR_RUNTIME_VERSION}    1.18.0
 
@@ -28,13 +31,16 @@ Dapr CLI Reports Help
     # contains the given text. First arg is the command, second is the expected text.
     Assert Command Output Contains    dapr -h    Distributed Application Runtime
 
-Dapr Version Matches Pinned Runtime
+Dapr Version Matches Pinned Minor Version
     # `${r}=` captures the keyword's return value into a local variable.
     ${r}=    Run And Expect RC Zero    dapr --version
-    # `${r.stdout}` reads the .stdout attribute of the returned result object.
-    # `Should Contain` (from a built-in library) fails the test if the substring is absent.
-    Should Contain    ${r.stdout}    CLI version: ${DAPR_VERSION}
-    Should Contain    ${r.stdout}    Runtime version: ${DAPR_RUNTIME_VERSION}
+    # Custom keyword from dapr.resource. It asserts only the MAJOR.MINOR of the pinned
+    # version against the labelled line in `${r.stdout}`, so a Dapr patch release
+    # (1.18.0 -> 1.18.4) doesn't fail this suite. A minor/major bump still does, because
+    # that IS the drift to act on: it means the assignment's expected output and the
+    # pinned versions in _setup/sandbox-setup.sh need updating.
+    Assert Version Line Matches Minor    ${r.stdout}    CLI version    ${DAPR_VERSION}
+    Assert Version Line Matches Minor    ${r.stdout}    Runtime version    ${DAPR_RUNTIME_VERSION}
 
 Dapr Init Containers Are Running
     ${r}=    Run And Expect RC Zero    docker ps --format {{.Names}}

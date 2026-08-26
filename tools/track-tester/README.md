@@ -25,8 +25,8 @@ that in a subshell: `(cd tools/track-tester && …)`, so you can paste them from
 
 ```bash
 # One-time: reproduce the sandbox environment. Clones dapr/quickstarts to ~/quickstarts,
-# installs the pinned Dapr CLI, and runs `dapr init` (this re-inits your local Dapr).
-bash tools/track-tester/ci/setup-dapr-101.sh     # dapr-101 (pins the Dapr CLI version)
+# installs the Dapr CLI if you don't have one, and runs `dapr init` (re-inits your local Dapr).
+bash tools/track-tester/ci/setup-dapr-101.sh     # dapr-101 (installs Dapr CLI from master)
 bash tools/track-tester/ci/setup-dapr-workflow.sh # dapr-workflow (installs Dapr CLI from master)
 
 # Optional: point the suites at an existing quickstarts checkout instead of ~/quickstarts.
@@ -131,17 +131,17 @@ If you ran challenges into separate output dirs (as CI does, one per challenge),
 ## Local development on macOS
 
 The `ci/setup-dapr-101.sh` script is written for the **Ubuntu CI runner** — it reproduces the Instruqt
-sandbox from scratch (clone quickstarts, install the pinned Dapr CLI, `dapr init`). On macOS it works,
+sandbox from scratch (clone quickstarts, install the Dapr CLI, `dapr init`). On macOS it works,
 but two things bite:
 
 - **`dapr init` needs the Docker daemon running** (it starts the Redis/placement/scheduler/zipkin
   containers).
 - **Dual `dapr` installs shadow each other.** Dapr's `install.sh` (which the script pipes to) installs
   to `/usr/local/bin`, but if you also have Dapr from Homebrew (`/opt/homebrew/bin`), Homebrew's copy
-  comes **first** on `PATH` on Apple Silicon. The script's version check reads whichever `dapr` is
-  first on `PATH` (the Homebrew one); if that version differs from the pinned one, the script
-  reinstalls to `/usr/local/bin` every run — where it stays shadowed. Result: a reinstall loop that
-  never changes the `dapr` your shell actually resolves.
+  comes **first** on `PATH` on Apple Silicon. The script no longer reinstalls when a `dapr` is
+  already on `PATH` (it used to repin to an exact version on every run, into a location that stayed
+  shadowed — a loop that never changed the `dapr` your shell resolves). So whichever `dapr` comes
+  first on `PATH` is the one challenge 2 asserts against; `which -a dapr` shows which that is.
 
 **Recommended for local suite development: skip the setup script's installer entirely.** You almost
 certainly already have Docker and a Dapr CLI. Just point the suites at a quickstarts checkout and use
@@ -159,9 +159,12 @@ export QUICKSTARTS_DIR="$HOME/dev/dapr/quickstarts"
   ../../dapr-101/4-service-invocation-api/tests/challenge.robot)
 ```
 
-Only **challenge 2** asserts the exact pinned version (`1.18.0`). If your local `dapr` differs, that
-suite will report a version mismatch — which is a *correct* signal, not a bug. Either skip it locally
-(run the other challenges) or bring your Dapr to the pinned version. If you manage Dapr with Homebrew,
+Only **challenge 2** asserts a version, and only its **MAJOR.MINOR** (`1.18.x`, taken from the pin in
+`dapr-101/_setup/sandbox-setup.sh`): any patch release passes, so neither the suite nor the pin has to
+be touched when Dapr ships 1.18.4. If your local `dapr` is on a different *minor*, that suite reports
+a mismatch — which is a *correct* signal, not a bug: it's the same signal the nightly run gives when
+Dapr's minor moves and the assignment's expected output needs updating. Either skip it locally (run
+the other challenges) or bring your Dapr up to that minor. If you manage Dapr with Homebrew,
 `brew upgrade dapr` is the clean way to do that (it updates the `dapr` your `PATH` actually resolves,
 avoiding the shadowing problem above).
 
