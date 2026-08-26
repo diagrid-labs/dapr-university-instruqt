@@ -111,3 +111,24 @@ Assert Redis Keys Contain
     # Run `redis-cli KEYS *` inside the Dapr Redis container and assert ${key} is listed.
     [Arguments]    ${key}
     Assert Command Output Contains    docker exec dapr_redis redis-cli KEYS '*'    ${key}
+
+Assert Version Line Matches Minor
+    # Assert ${output} contains a `${label}: X.Y.Z` line whose X.Y equals the MAJOR.MINOR
+    # of ${pinned}, with ANY patch (and any pre-release suffix). Patch releases
+    # (1.18.0 -> 1.18.4) therefore don't fail the suite, while a minor/major bump still
+    # does - that's the drift worth reporting, since that's when the assignment's expected
+    # output (and the pinned version in _setup/sandbox-setup.sh) genuinely needs revisiting.
+    [Arguments]    ${output}    ${label}    ${pinned}
+    # The pattern is assembled in Python (via Evaluate) because it must not contain a
+    # literal backslash: Robot strips backslashes out of test data before the expression
+    # is evaluated, so even r"\.\d+" arrives at Python as "..d+". Hence re.escape() for
+    # the "label: MAJOR.MINOR" prefix (its backslashes are produced at runtime, safely),
+    # then backslash-free classes: [.] for the literal dot, [0-9]+ for the patch, and a
+    # trailing class allowing any pre-release/build suffix such as "-rc.1".
+    ${pattern}=    Evaluate
+    ...    re.escape($label + ": " + ".".join($pinned.split(".")[:2])) + "[.][0-9]+[-+.0-9A-Za-z]*"
+    ...    modules=re
+    # Should Match Regexp (BuiltIn) searches anywhere in the string, so the surrounding
+    # lines of `dapr --version` output don't need to be part of the pattern.
+    Should Match Regexp    ${output}    ${pattern}
+    ...    msg=No "${label}: <MAJOR.MINOR of ${pinned}>.x" line in output:\n${output}
