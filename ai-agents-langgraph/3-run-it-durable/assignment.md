@@ -23,11 +23,16 @@ curl -i -X POST http://localhost:8005/agent/run \
   -d '{"task": "Check if the Grand Ballroom is available on March 15th"}'
 ```
 
+> [!NOTE]
+> Unless you opted into a real provider in challenge 1, this runs against the canned offline model from `build_model()`. It returns the same tool call and the same answer every time, which is exactly what you want when the point is to compare a run against its replay.
+
 ## 3. Observe the log stream
 
 Switch back to **Terminal 1** and watch the output. You'll see the following output in the logs:
 
 ```text,nocopy
+...
+[WORKFLOW] Step 0, pending_nodes=['agent']
 ...
 [WORKFLOW] Step 1, pending_nodes=['tools']
 ...

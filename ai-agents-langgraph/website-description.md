@@ -20,4 +20,4 @@ Python
 
 ## Prerequisites
 
-Familiarity with Python is recommended. The sandbox comes preconfigured with Docker, Python, uv, and Dapr. You'll need your own OpenAI API key to run the agent.
+Familiarity with Python is recommended. The sandbox comes preconfigured with Docker, Python, uv, and Dapr. The agent runs on a canned offline model, so no API key is needed. If you'd rather watch a real LLM make the tool-calling decision, you can plug in your own OpenAI key.

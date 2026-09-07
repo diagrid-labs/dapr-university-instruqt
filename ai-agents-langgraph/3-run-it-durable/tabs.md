@@ -6,7 +6,7 @@ type: code editor
 host: {{...}}
 path: catalyst-quickstarts/agents/langgraph
 
-## Terminal
+## Terminal 1
 
 type: terminal
 host: {{...}}

@@ -10,7 +10,7 @@ ai-agents-langgraph-schedule-planner
 
 Run a LangGraph agent as a durable Dapr Workflow. Then crash it mid-run and watch it resume from a checkpoint in Redis, without re-running the steps that already completed.
 
-Languages: Python. Duration: 30 min. Requires an OpenAI API key.
+Languages: Python. Duration: 30 min. No API key required.
 
 ## Time limit (minutes)
 

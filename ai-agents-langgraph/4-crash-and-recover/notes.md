@@ -2,7 +2,7 @@ The sandbox for this challenge is being prepared, it should be ready within a fe
 
 ---
 
-This is the payoff. You're going to crash a LangGraph workflow on purpose, then prove it picks up exactly where it left off. This challenge takes about 7 minutes.
+This is the payoff. You're going to crash a LangGraph workflow on purpose, then prove it picks up exactly where it left off. This challenge takes about 8 minutes.
 
 ### What you'll learn in this challenge
 

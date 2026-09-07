@@ -19,5 +19,5 @@ fi
 
 wget -qO- https://astral.sh/uv/install.sh | sh
 
-# Install project dependencies so the first `uv run` in challenge 1 is instant.
+# Install project dependencies so the first `uv run` in challenge 3 is instant.
 cd catalyst-quickstarts/agents/langgraph && ~/.local/bin/uv sync
