@@ -1,8 +1,6 @@
-LangGraph's whole point is the graph, so before running anything, let's read one. This challenge is Editor-only. No terminal, no running. This challenge takes about 6 minutes.
+LangGraph's whole point is the graph, so before running anything, let's go through one. You'll only use the Editor window in challenge to read the code. This challenge takes about 6 minutes.
 
-## 1. Open main.py
-
-Open `main.py` in the **Editor**. At a high level, this file builds a LangGraph graph, wraps it in a Dapr Workflow runner, and serves it over HTTP. Let's walk through it top to bottom.
+## 1. Open the files
 
 The graph is spread over three files. `main.py` builds and wires the graph, `tools.py` holds the agent's tools, and `fake_model.py` holds the canned offline model. Open all three in the **Editor** as you go.
 
@@ -25,7 +23,7 @@ A LangGraph tool is just a Python function decorated with `@tool`. The model nev
 
 ## 3. Choose the model
 
-Back in `main.py`, look at lines 13-25:
+In `main.py`, look at lines 13-25:
 
 ```python,nocopy
 def build_model():
@@ -43,7 +41,7 @@ def build_model():
     return build_canned_model()
 ```
 
-Unless you set `DIAGRID_QUICKSTART_MODEL=openai`, this returns the canned model from `fake_model.py`. Open that file and look at lines 47-58:
+This returns the canned model from `fake_model.py` (unless you set `DIAGRID_QUICKSTART_MODEL=openai` and provide an OpenAI API key). Open `fake_model.py` and look at lines 47-58:
 
 ```python,nocopy
     def _generate(
@@ -64,7 +62,7 @@ Two canned turns: ask for the tool, then answer from the tool's result. Note *ho
 
 ## 4. Bind the tool to the model
 
-Look at line 28:
+Look at line 28 in `main.py`:
 
 ```python,nocopy
 model = build_model().bind_tools(tools)
@@ -74,7 +72,7 @@ model = build_model().bind_tools(tools)
 
 ## 5. Inspect the nodes
 
-Look at lines 31-42. There are two functions here, each a **node** in the graph:
+Look at lines 31-42 in `main.py`. There are two functions here, each a **node** in the graph:
 
 ```python,nocopy
 def call_model(state: MessagesState) -> dict:
@@ -95,7 +93,7 @@ def call_tools(state: MessagesState) -> dict:
 
 ## 6. Inspect the routing
 
-Look at lines 45-49:
+Look at lines 45-49 in `main.py`:
 
 ```python,nocopy
 def should_use_tools(state: MessagesState) -> str:
@@ -159,4 +157,4 @@ Putting it together:
 
 ---
 
-You've read the whole graph without running a single command. Let's move on to challenge 3 where you'll run the graph and watch the durability layer in action.
+You've read the whole graph now. Let's move on to challenge 3 where you'll run the graph and watch the durability layer in action.
