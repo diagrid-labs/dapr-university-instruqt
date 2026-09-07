@@ -37,14 +37,6 @@ The Schedule Planner ships with a **canned offline model**. It needs no API key,
 
 You'll read the code that picks the model in the next challenge.
 
-> [!NOTE]
-> Want a real LLM to make the tool-calling decision instead? Run the two commands below in the **Terminal**, then run `source ~/.bashrc`. Everything else in this track works the same way. This is entirely optional, and the rest of the instructions assume you skipped it.
->
-> ```bash,copy
-> echo 'export DIAGRID_QUICKSTART_MODEL="openai"' >> ~/.bashrc
-> echo 'export OPENAI_API_KEY="your_key_here"' >> ~/.bashrc
-> ```
-
 ---
 
 You now have a working sandbox and know why a durability layer is worth adding to a LangGraph agent. Let's move on to challenge 2 where you'll read through the Schedule Planner's graph.

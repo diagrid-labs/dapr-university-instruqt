@@ -5,7 +5,7 @@ Time to run the Schedule Planner for real and watch the durability layer at work
 
 ## 1. Start the agent with Dapr
 
-Use the **Terminal 1** window:
+Use the **Terminal 1** window to start the schedule-planner agent with Dapr:
 
 ```bash,run
 uv run dapr run --app-id schedule-planner --resources-path ./resources -- python main.py
@@ -15,7 +15,7 @@ This starts the Dapr sidecar alongside the FastAPI server. Wait until you see `U
 
 ## 2. Trigger a run
 
-Use the **Terminal 2** window:
+Use the **Terminal 2** window to call the agent:
 
 ```bash,run
 curl -i -X POST http://localhost:8005/agent/run \
@@ -42,7 +42,7 @@ Switch back to **Terminal 1** and watch the output. You'll see the following out
 ...
 ```
 
-## 4. Inspect the state store
+## 4. Inspect the state store configuration
 
 Open `resources/wfstatestore.yaml` in the **Editor**:
 
@@ -67,13 +67,13 @@ This is a Redis-backed Dapr state store. `actorStateStore: "true"` is what makes
 
 ## 5. Peek into Redis
 
-Use **Terminal 2** to list the Redis keys that belong to this workflow:
+Use **Terminal 2** to list the Redis keys that belong to the workflow your just ran:
 
 ```bash,run
 docker exec dapr_redis redis-cli keys "*schedule-planner*"
 ```
 
-These keys are the workflow instance state, its activity results, and its execution history. All of it was written to Redis as the graph ran.
+These keys point to the workflow instance state, its activity results, and its execution history. All of it was written to Redis as the graph ran.
 
 ## 6. How this works
 

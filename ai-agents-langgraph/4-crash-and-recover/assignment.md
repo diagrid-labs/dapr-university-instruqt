@@ -15,7 +15,7 @@ The order is the whole point. `check_venues` finishes and its result is checkpoi
 
 ## 2. Find the slow step
 
-Look at `compare_options`, starting at line 50. Two lines carry the demo:
+Look at `compare_options`, starting at line 50. Look for the `delay` definition and usage:
 
 ```python,nocopy
     delay = int(os.environ.get("CRASH_DELAY_SECONDS", "30"))
@@ -52,21 +52,21 @@ class CrashRunRequest(BaseModel):
     kill_after_seconds: Optional[int] = None
 ```
 
-`id` is the workflow instance ID, and **you** choose it. That's what lets you find the same run again after the process that started it is gone.
+`id` is the workflow instance ID, and **you** define it in the request it. That's what lets you find the same run again after the process that started it is gone.
 
 ## 4. Start the crash test app
 
-Use the **Terminal 1** window:
+Use the **Terminal 1** window to start the application:
 
 ```bash,run
 uv run dapr run --app-id langgraph-crash-test --resources-path ./resources -- python crash_test.py
 ```
 
-Wait for `Uvicorn running on http://0.0.0.0:8001`.
+Wait for `Uvicorn running on http://0.0.0.0:8001` to appear in the logs.
 
 ## 5. Start a run that crashes itself
 
-Use the **Terminal 2** window:
+Use the **Terminal 2** window to make the request that will run and then crash the application:
 
 ```bash,run
 curl -X POST http://localhost:8001/crash/run \
@@ -76,7 +76,7 @@ curl -X POST http://localhost:8001/crash/run \
 
 Three things to notice in that body:
 
-- `id` names the workflow instance `gala-42`. You own it, so you can come back to it later.
+- `id` names the workflow instance `gala-42`. Since it's part of the request, we can reuse this ID to come back to it later.
 - `kill_after_seconds: 8` tells the app to kill itself 8 seconds into `compare_options`, comfortably inside that node's 30 second window.
 - The request **blocks** until the run finishes, which it never will, because the app dies first.
 
@@ -101,7 +101,7 @@ Step 1 finished and was checkpointed. Step 2 started, then the process died 8 se
 
 ## 7. Restart the app
 
-Use the **Terminal 1** window:
+Use the **Terminal 1** window to restart the application:
 
 ```bash,run
 uv run dapr run --app-id langgraph-crash-test --resources-path ./resources -- python crash_test.py
@@ -111,7 +111,7 @@ You do **not** need to send another request. The workflow instance `gala-42` was
 
 ## 8. Watch the recovery
 
-Watch the logs in **Terminal 1**. Step 2 runs again from the beginning, and this time it is allowed to finish, so give it about 30 seconds:
+Watch the logs in **Terminal 1**. You need to wait for 30 seconds (set with the `CRASH_DELAY_SECONDS`) for the workflow to continue where it left off. Step 2 runs again from the beginning, and this time it is allowed to finish, so give it about 30 seconds:
 
 ```text,nocopy
 >>> STEP 2: Comparing venue options over ~30s. KILL THE APP NOW to test crash recovery (POST /crash/kill, or kill -9). It resumes on restart.
@@ -163,7 +163,7 @@ And `curl` returns the recorded final state of the graph, including all three st
 ## 10. Recap
 
 - Each LangGraph node runs as a checkpointed Dapr Workflow activity.
-- `kill_after_seconds` armed the same `os._exit(1)` that `POST /crash/kill` uses, killing the process hard in the middle of step 2.
+- `kill_after_seconds` arms the `os._exit(1)` call, killing the process hard in the middle of step 2.
 - The workflow instance survived the process, because it lives in Redis rather than in memory.
 - On restart, Dapr found the instance by the ID you gave it and replayed history from the checkpoint store. Step 1's saved result came back without re-executing the node, and the workflow resumed at step 2.
 - The workflow completed even though the process that started it had died, and you collected its answer from a connection that didn't exist when the run began.
