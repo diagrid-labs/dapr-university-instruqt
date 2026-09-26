@@ -1,0 +1,118 @@
+name: Test dapr-bindings track
+
+on:
+  schedule:
+    - cron: '45 6 * * *'   # Daily 06:45 UTC (staggered 15 min after dapr-workflow-aspire)
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'dapr-bindings/**'
+      - 'tools/track-tester/**'
+      - '.github/workflows/test-dapr-bindings.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  docsync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Sync harness
+        run: (cd tools/track-tester && uv sync)
+      - name: Check doc-sync for all runnable challenges
+        run: |
+          cd tools/track-tester
+          mkdir -p results
+          failed=""
+          for ch in 1-introduction 2-save-state 3-query-state; do
+            if ! uv run python docsync/check_doc_sync.py \
+              ../../dapr-bindings/$ch/assignment.md \
+              ../../dapr-bindings/$ch/tests/challenge.robot; then
+              failed="$failed $ch"
+            fi
+          done
+          if [ -n "$failed" ]; then
+            echo "docsync:$failed" > results/failed-docsync.txt
+            echo "::error::doc-sync drift in:$failed"
+            exit 1
+          fi
+      - name: Upload doc-sync failure summary
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: failures-docsync
+          path: tools/track-tester/results/failed-docsync.txt
+          if-no-files-found: ignore
+
+  build-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Setup Dapr + Postgres sandbox
+        run: bash tools/track-tester/ci/setup-dapr-bindings.sh
+      - name: Sync harness
+        run: (cd tools/track-tester && uv sync)
+      - name: Run all three challenges
+        run: |
+          cd tools/track-tester
+          mkdir -p results
+          # Challenges share the same Postgres container across the run, same as a
+          # learner going through the track in order, so they run as one invocation
+          # rather than three isolated ones.
+          uv run robot --outputdir results --name "dapr-bindings" \
+            ../../dapr-bindings/1-introduction/tests/challenge.robot \
+            ../../dapr-bindings/2-save-state/tests/challenge.robot \
+            ../../dapr-bindings/3-query-state/tests/challenge.robot
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robot-dapr-bindings
+          path: tools/track-tester/results/
+
+  report:
+    needs: [docsync, build-and-run]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'Dapr Bindings track drift detected';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              `The dapr-bindings drift test **failed**.`,
+              ``,
+              `- Run: ${runUrl}`,
+              `- Download the \`robot-dapr-bindings\` artifact (or \`failures-docsync\` for doc-sync) and open \`report.html\` (every challenge listed; failures in red) or \`log.html\`.`,
+              ``,
+              `Download and open the report:`,
+              '```bash',
+              `gh run download ${context.runId} -n robot-dapr-bindings -D ./report-dapr-bindings`,
+              '```',
+              ``,
+              `_This issue is updated automatically each run._`,
+            ].join('\n');
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'drift-report',
+            });
+            const match = existing.data.find(i => i.title === title);
+            if (match) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: match.number, body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ['drift-report'],
+              });
+            }

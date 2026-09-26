@@ -23,6 +23,7 @@ The tracks are not intended to be run locally — they are hosted on Instruqt an
 - `ai-agents-deepagents/` — Make a [DeepAgents](https://docs.langchain.com/oss/python/deepagents) app durable with Dapr Workflow (Python): crash it mid-investigation and watch it resume from durable state without re-running completed LLM calls.
 - `ai-agents-maf/` — Make Microsoft Agent Framework (MAF) agents reliable with Dapr Workflow (.NET Aspire): crash a multi-agent app mid-run and watch it resume from durable state.
 - `catalyst-101/` — Introductory Diagrid Catalyst track.
+- `dapr-bindings/` — Using the Dapr Bindings API with PostgreSQL (Python): save and query data through a single output binding, no database driver in application code.
 - `tools/track-tester/` — Robot Framework harness that drift-tests the tracks (see below).
 
 ## Testing
@@ -40,6 +41,7 @@ Three workflows in [`.github/workflows/`](.github/workflows/) run the suites aut
 | [`test-dapr-101.yml`](.github/workflows/test-dapr-101.yml) | `dapr-101` | 06:00 daily | dotnet, python, java, javascript |
 | [`test-dapr-workflow.yml`](.github/workflows/test-dapr-workflow.yml) | `dapr-workflow` | 06:15 daily | dotnet, java, python (doc-sync + per-language matrix) |
 | [`test-dapr-workflow-aspire.yml`](.github/workflows/test-dapr-workflow-aspire.yml) | `dapr-workflow-aspire` | 06:30 daily | .NET 10 + Aspire CLI (harness unit tests + build-and-run) |
+| [`test-dapr-bindings.yml`](.github/workflows/test-dapr-bindings.yml) | `dapr-bindings` | 06:45 daily | Python (doc-sync + build-and-run against a local Postgres container) |
 
 ## Contributing
 
