@@ -15,8 +15,8 @@ You'll run **Venue Bookings**, a small app with two endpoints. Both go through t
 
 ## Supported language
 
-Python
+Python, .NET, Java
 
 ## Prerequisites
 
-Familiarity with Python is recommended. The sandbox comes preconfigured with Docker, Python, uv, Dapr, and a local PostgreSQL container. No API key is needed.
+Familiarity with Python, .NET or Java is recommended, you pick one. The sandbox comes preconfigured with Docker, Python, uv, the .NET SDK, Java, Maven, Dapr, and a local PostgreSQL container. No API key is needed.

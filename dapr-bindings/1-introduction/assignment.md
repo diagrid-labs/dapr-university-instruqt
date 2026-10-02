@@ -21,6 +21,8 @@ So if all you need is key-based storage, the State Store API is the simpler fit.
 
 You'll run **Venue Bookings**, a small app with two endpoints. `POST /bookings` saves a booking, `GET /bookings` reads them back. Both go through the exact same Dapr binding to Postgres. There's no separate binding for reading versus writing.
 
+The app exists in three languages: Python, .NET and Java. They do exactly the same thing. In challenges 2 and 3, expand the section for the language you want to use.
+
 > [!NOTE]
 > PostgreSQL only has an **output** binding in Dapr. There's no Postgres input binding, since nothing about a database can reach into your app and trigger it the way a Cron schedule or a queue message can. You'll see in challenges 2 and 3 that saving and querying both use the same output binding, just with a different operation.
 

@@ -10,7 +10,7 @@ dapr-bindings
 
 Save and query data in PostgreSQL through Dapr's Bindings API, without your app ever holding a database driver or a connection string in code.
 
-Languages: Python. Duration: 20 min. No API key required.
+Languages: Python, .NET, Java. Duration: 20 min. No API key required.
 
 ## Time limit (minutes)
 

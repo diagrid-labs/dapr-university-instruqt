@@ -1,4 +1,4 @@
-cd ai-agent-tracks-instruqt/bindings/venue-bookings
+cd ai-agent-tracks-instruqt/bindings/venue-bookings/python
 
 uv run dapr run --app-id venue-bookings --resources-path ./resources -- python app.py &
 APP_PID=$!

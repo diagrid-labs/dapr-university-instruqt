@@ -31,7 +31,7 @@ docker run -d --name dapr_postgres \
   -e POSTGRES_PASSWORD=dapr123 \
   -e POSTGRES_DB=venuedb \
   -p 5432:5432 \
-  -v "$AI_AGENT_TRACKS_DIR/bindings/venue-bookings/init.sql:/docker-entrypoint-initdb.d/init.sql:ro" \
+  -v "$AI_AGENT_TRACKS_DIR/bindings/venue-bookings/python/init.sql:/docker-entrypoint-initdb.d/init.sql:ro" \
   postgres:16
 
 # Wait for Postgres to actually accept connections before handing control back.
@@ -42,8 +42,8 @@ for i in $(seq 1 30); do
   sleep 1
 done
 
-# 5. Install the app's dependencies.
-(cd "$AI_AGENT_TRACKS_DIR/bindings/venue-bookings" && uv sync)
+# 5. Pre-install the Python dependencies (dotnet and java restore/build on first run, inside the suites).
+(cd "$AI_AGENT_TRACKS_DIR/bindings/venue-bookings/python" && uv sync)
 
 echo "Setup complete. AI_AGENT_TRACKS_DIR=$AI_AGENT_TRACKS_DIR"
 dapr --version

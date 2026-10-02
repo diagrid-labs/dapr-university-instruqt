@@ -19,15 +19,19 @@ fi
 
 # Start the local Postgres container the bindings component connects to. init.sql
 # (mounted read-only into Postgres's own init directory) creates the `bookings`
-# table the first time the container boots.
+# table the first time the container boots. It is identical in every language folder.
 docker run -d --name dapr_postgres \
   -e POSTGRES_PASSWORD=dapr123 \
   -e POSTGRES_DB=venuedb \
   -p 5432:5432 \
-  -v "$HOME/ai-agent-tracks-instruqt/bindings/venue-bookings/init.sql:/docker-entrypoint-initdb.d/init.sql:ro" \
+  -v "$(pwd)/ai-agent-tracks-instruqt/bindings/venue-bookings/python/init.sql:/docker-entrypoint-initdb.d/init.sql:ro" \
   postgres:16
 
 wget -qO- https://astral.sh/uv/install.sh | sh
 
-# Install project dependencies so the first `uv run` in challenge 1 is instant.
-cd ai-agent-tracks-instruqt/bindings/venue-bookings && ~/.local/bin/uv sync
+# Install the dependencies for all three languages so the first run in
+# challenge 2 is quick, whichever language the learner picks.
+cd ai-agent-tracks-instruqt/bindings/venue-bookings
+(cd python && ~/.local/bin/uv sync)
+(cd dotnet && dotnet restore)
+(cd java && mvn -q -B package -DskipTests)
