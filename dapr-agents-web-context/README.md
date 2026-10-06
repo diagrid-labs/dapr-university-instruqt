@@ -10,7 +10,7 @@ dapr-agents-advanced
 
 Build an end-user-facing expert agent with a Chainlit chat UI that uses a `before_llm_call` hook to silently inject fresh Tavily web-search results into every prompt.
 
-Languages: Python. Duration: 45 min. Required an OpenAI API key, and a Tavily API key.
+Languages: Python. Duration: 45 min.
 
 ## Time limit (minutes)
 
@@ -27,7 +27,7 @@ In this self-paced track you'll learn:
 
 This is the follow-up to the **Dapr Agents** fundamentals track. We assume you're already comfortable with `DurableAgent`, tool calls, and basic Dapr Workflow concepts.
 
-You'll need an OpenAI API key (https://platform.openai.com/signup) and a Tavily API key (https://tavily.com — free tier covers 1000 searches/month) to complete this track.
+OpenAI and Tavily API keys are provided in the sandbox, so you don't need your own.
 
 This track has 3 challenges. You'll probably need about 30 minutes to complete them.
 

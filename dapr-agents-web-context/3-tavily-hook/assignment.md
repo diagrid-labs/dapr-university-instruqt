@@ -1,16 +1,18 @@
-In this challenge you'll re-enable the `before_llm_call` hook and watch the same question from challenge 2 get a much better answer. This hands-on challenge takes about 10 minutes to complete.
+In this challenge the `before_llm_call` hook is re-enabled, and you'll watch the same question from challenge 2 get a much better answer. This hands-on challenge takes about 10 minutes to complete.
 
 ## 1. Inspect the hook
 
 Open `dapr-agents/examples/11-expert-agent-tavily/hooks.py` in the **Editor** window and inspect the code.
 
-A `before_llm_call` hook receives a `HookContext` whose `payload` is the LLM call's kwargs — most usefully, `messages`. The hook pulls out the latest user question, web-searches it with Tavily, and returns `Modify(payload=...)` to splice the results into the prompt as a system message right before the user's question.
+A `before_llm_call` hook receives an `LLMHookContext` whose `payload` is the LLM call's kwargs — most usefully, `messages`. The hook pulls out the latest user question, web-searches it with Tavily, and returns `Mutate(payload={"messages": enriched_messages})` to splice the results into the prompt as a system message right before the user's question.
 
-The returned `Modify(payload=...)` replaces the LLM kwargs before `self.llm.generate(...)` actually fires.
+For `before_llm_call`, the `Mutate` payload is *shallow-merged* into the LLM kwargs before `self.llm.generate(...)` actually fires. You only return the keys you change (here `messages`); other kwargs such as `tools` are preserved. If there's nothing to add, the hook returns `Proceed()` and the call runs unchanged.
+
+The search results are wrapped in `<web_context>` tags, preceded by a guardrail that tells the model to treat the web content as untrusted reference data and not to follow any instructions inside it. Web search results can contain prompt injection attempts, so this matters whenever you feed external content into a prompt.
 
 ## 2. Look at where the hook is registered
 
-Open `agent.py` and uncomment the `# hooks=` line at the bottom. It should look like this after uncommenting:
+Open `agent.py` and find the `hooks=` line at the bottom of the `DurableAgent` constructor. The setup script for this challenge already uncommented it, so it looks like this:
 
 ```python,nocopy
 hooks=Hooks(before_llm_call=[enrich_with_tavily]),
@@ -58,7 +60,7 @@ Anything that needs fresh data is a good demo:
 
 ## 6. Inspect the trace (optional)
 
-Dapr ships Zipkin out of the box. Open the *Zipkin* tab and find your agent's trace — drill into the `call_llm` activity span and look at the input. You'll see the injected `Fresh web context (Tavily):` system message right before the user message, exactly the way the hook spliced it in.
+Dapr ships Zipkin out of the box. Open the *Zipkin* tab and find your agent's trace — drill into the `call_llm` activity span and look at the input. You'll see the injected system message with the guardrail and the `<web_context>` block right before the user message, exactly the way the hook spliced it in.
 
 ## 7. Stop the agent
 
@@ -83,9 +85,9 @@ We have more opportunities for you to learn and share knowledge:
 - [Dapr Agents: build LLM-powered applications with tools and workflows](https://www.diagrid.io/university/dapr-agents)
 - [Make MAF agents reliable with Dapr Workflow](https://www.diagrid.io/university/ai-agents-maf)
 
-**Read more**
-- Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
-- Read [Building Production-Ready AI Agents: What Your Framework Needs](https://www.diagrid.io/blog/building-production-ready-ai-agents-what-your-framework-needs).
+**Try these Dapr tools**
+- [Dapr Dev Dashbord](https://docs.diagrid.io/dapr-open-source/dapr-dev-dashboard/), a free & OSS companion tool for local Dapr development.
+- [Dapr Ops Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-ops-dashboard/), a free SaaS solution that automates the operational management of Dapr on Kubernetes.
 
 **Join the community**
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#ai*, and *#python* channels.

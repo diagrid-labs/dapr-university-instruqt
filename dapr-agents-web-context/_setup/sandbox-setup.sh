@@ -1,4 +1,4 @@
-git clone https://github.com/dapr/dapr-agents.git
+git clone --depth 1 --branch v1.0.7 https://github.com/dapr/dapr-agents.git
 
 wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
 docker login -u ${DockerUSER} -p ${DockerPAT}
@@ -12,5 +12,3 @@ else
     dapr uninstall
     dapr init
 fi
-
-wget -qO- https://astral.sh/uv/install.sh | sh
