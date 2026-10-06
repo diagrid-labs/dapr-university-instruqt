@@ -295,10 +295,10 @@ Details worth knowing when editing CI:
 - The dapr-workflow **Java** leg caches `~/.m2` and **pre-warms Maven deps outside the timed
   run** — the Java challenges start via `mvn spring-boot:test-run` under a 300s readiness
   timeout, and a cold `~/.m2` download would otherwise eat into compile+startup time.
-- The aspire workflow does **not** install the Aspire project templates itself: the suite's
-  first checkpoint runs the pinned `dotnet new install Aspire.ProjectTemplates@<ver>` command
-  extracted from the assignment, keeping the pinned version a single source of truth (and
-  catching drift in it).
+- The aspire workflow does **not** install the Aspire project templates: the suite's Ch2
+  checkpoint runs the assignment's `aspire new aspire-starter ... --non-interactive
+  --suppress-agent-init` command, which fetches the latest templates (so template drift is
+  caught). The CI setup script installs the Dapr Dev Dashboard binary, which the AppHost starts.
 - Each per-language leg runs **every** challenge even if an earlier one fails (the `if !`
   guard is exempt from `set -e`), writes a `failed-<leg>.txt` summary, merges per-challenge
   results with `rebot`, and uploads a `robot-<lang>` artifact.
@@ -314,8 +314,8 @@ Details worth knowing when editing CI:
 - **A drift-test failure is often a *correct* signal**, not a harness bug — upstream
   quickstarts changed, or an assignment's expected output no longer matches. Read the failing
   Robot `report.html`/`log.html` before assuming the test is wrong.
-- **`dapr-workflow-aspire` ch1 is not pure-reading**: its suite runs the pinned
-  `Aspire.ProjectTemplates` install; that version pin matters (a known-bad range breaks the
-  `0.0.0.0` binding).
+- **`aspire new` must stay non-interactive** in the `dapr-workflow-aspire` assignment: without a
+  TTY it fails at its first prompt, and without `--suppress-agent-init` it installs AI-agent
+  skills and telemetry hooks into the user's home directory.
 - Only edit tracks in place and push to the relevant Instruqt track — there is no local
   "run the track" path for learners.

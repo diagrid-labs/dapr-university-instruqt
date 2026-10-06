@@ -1,9 +1,8 @@
-In this challenge you'll start the full Aspire stack, run the Diagrid Dev Dashboard, trigger the USS Enterprise diagnostics workflow via curl, inspect the results, and explore the workflow timeline. It will take about 5 minutes to run through all the steps.
+In this challenge you'll start the full Aspire stack, including the Dapr Dev Dashboard, trigger the USS Enterprise diagnostics workflow via curl, inspect the results, and explore the workflow timeline. It will take about 5 minutes to run through all the steps.
 
-This challenge uses 3 terminal windows:
+This challenge uses 2 terminal windows:
 
 - *Aspire Terminal*, for running the `aspire run` command
-- *Diagrid Terminal*, for running the docker command to start the Diagrid Dev Dashboard
 - *Curl Terminal*, for running curl commands to start the workflow
 
 > [!IMPORTANT]
@@ -19,23 +18,11 @@ Ensure that all *Terminal* paths are currently in `EnterpriseDiagnostics/`.
 aspire run
 ```
 
-2. Switch to the *Aspire* tab and wait until all resources are **Running**.
+2. Switch to the *Aspire* tab and wait until all resources are **Running**. Next to the `apiservice` and its Dapr sidecar you'll see the `dapr-dev-dashboard` resource, which runs the Dapr Dev Dashboard.
 
-## 2. Start the Diagrid Dev Dashboard
+## 2. Open the Dapr Dev Dashboard
 
-1. Run the following command in the *Diagrid Terminal* to start the Diagrid Dev Dashboard:
-
-```shell,copy,run
-docker run -p 18080:8080 \
- -v ./EnterpriseDiagnostics.AppHost/Resources/dapr/diagrid-dashboard-components/diagrid-dashboard-state.yaml:/app/components/custom_state.yaml \
- -e COMPONENT_FILE=/app/components/custom_state.yaml \
- ghcr.io/diagridio/diagrid-dashboard:latest
- ```
-
-> [!NOTE]
-> When doing development on your local machine, the Diagrid Dev Dashboard can be added to Aspire via the [Diagrid Dev Dashboard Aspire integration](https://github.com/diagrid-labs/dashboard-aspire/tree/main/). At the moment, this integration is not yet working in this sandbox environment, and therefore requires starting manually.
-
-2. Open the *Diagrid Dev Dashboard* tab, to show the dashboard and navigate to the *Observe* > *Workflows* page.
+Open the *Dapr Dev Dashboard* tab to show the dashboard, and navigate to the *Workflows* page.
 
 ## 3. Start a workflow with curl
 
@@ -51,11 +38,11 @@ The response returns the `instanceId`:
 { "instanceId": "mission-001" }
 ```
 
-## 4. Inspect workflow state using the Diagrid Dev Dashboard
+## 4. Inspect workflow state using the Dapr Dev Dashboard
 
-In the *Workflow Executions* page on the Diagrid Dev Dashboard you'll see a new workflow entry. On this page, all workflow executions are presented with their status, instance ID, workflow name, app ID, start/end time, and duration (the clock icon).
+On the *Workflows* page of the Dapr Dev Dashboard you'll see a new workflow entry with instance ID `mission-001`. On this page, all workflow executions are presented with their status, instance ID, workflow name, app ID, and start/end time.
 
-1. Click on the instance ID of the workflow you just started to drill down to the *Workflow Execution Details* page.
+1. Click on the instance ID of the workflow you just started to drill down to the workflow details page.
 
 Here you'll see the input and output of the workflow, and the *Execution History* table with all the events. The most recent events are at the top.
 
@@ -66,7 +53,7 @@ Here you'll see the input and output of the workflow, and the *Execution History
 
 ---
 
-You've run the complete USS Enterprise diagnostics workflow end-to-end. Aspire orchestrates the API service containing the workflow and its Dapr sidecar. Workflow state is stored in the `dapr_redis` container and you've inspected this state with the [Diagrid Dev Dashboard](https://docs.diagrid.io/develop/local-development/dev-dashboard), an essential tool when developing Dapr workflows. This final challenge will take about 5 minutes to complete.
+You've run the complete USS Enterprise diagnostics workflow end-to-end. Aspire orchestrates the API service containing the workflow, its Dapr sidecar, and the Dapr Dev Dashboard. Workflow state is stored in the Valkey container and you've inspected this state with the [Dapr Dev Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-dev-dashboard/), an essential tool when developing Dapr workflows. This final challenge will take about 5 minutes to complete.
 
 ## Feedback and further learning
 
@@ -78,9 +65,9 @@ We have more opportunities for you to learn and share knowledge:
 - [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
 - [Make MAF agents reliable with Dapr Workflow](https://www.diagrid.io/university/ai-agents-maf)
 
-**Read more**
-- Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
-- Read [How to Version .NET Dapr Workflows in Aspire](https://www.diagrid.io/blog/how-to-version-net-workflows).
+**Try these Dapr tools**
+- [Dapr Dev Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-dev-dashboard/), a free & OSS companion tool for local Dapr development.
+- [Dapr Ops Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-ops-dashboard/), a free SaaS solution that automates the operational management of Dapr on Kubernetes.
 
 **Join the community**
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#ai* and language channels.

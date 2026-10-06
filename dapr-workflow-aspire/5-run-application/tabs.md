@@ -25,5 +25,5 @@ protocol: http
 type: service/webapp
 host: dotnet-10-aspire
 path: (empty)
-port: 17000
+port: 9090
 protocol: http

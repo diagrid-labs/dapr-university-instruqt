@@ -36,8 +36,6 @@ MANIFEST_CH3 = [
 MANIFEST_CH4 = [
     ("name: workflow-state",
      "EnterpriseDiagnostics.AppHost/Resources/dapr/workflow-state.yaml", "write"),
-    ("name: diagrid-dashboard-store",
-     "EnterpriseDiagnostics.AppHost/Resources/dapr/diagrid-dashboard-components/diagrid-dashboard-state.yaml", "write"),
     ("<Content Include=\"Resources",
      "EnterpriseDiagnostics.AppHost/EnterpriseDiagnostics.AppHost.csproj", "insert_before:</Project>"),
     ("using CommunityToolkit.Aspire.Hosting.Dapr",

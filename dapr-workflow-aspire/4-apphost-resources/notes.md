@@ -2,7 +2,8 @@ The sandbox for this challenge is being prepared, it should be ready within a fe
 
 In this challenge, you'll:
 
-- Create Dapr state store component files for Dapr Workflow and the Diagrid Dev Dashboard.
+- Create a Dapr state store component file for Dapr Workflow.
+- Add the Diagrid Dapr Dev Dashboard to the AppHost.
 - Ensure Dapr component files are copied to the output directory on build.
 - Configure the Aspire AppHost to run the API service with a Dapr sidecar.
 

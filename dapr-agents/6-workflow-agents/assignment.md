@@ -178,7 +178,7 @@ We have more opportunities for you to learn and share knowledge:
 - [Make MAF agents reliable with Dapr Workflow](https://www.diagrid.io/university/ai-agents-maf)
 
 **Try these Dapr tools**
-- [Dapr Dev Dashbord](https://docs.diagrid.io/dapr-open-source/dapr-dev-dashboard/), a free & OSS companion tool for local Dapr development.
+- [Dapr Dev Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-dev-dashboard/), a free & OSS companion tool for local Dapr development.
 - [Dapr Ops Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-ops-dashboard/), a free SaaS solution that automates the operational management of Dapr on Kubernetes.
 
 **Join the community**

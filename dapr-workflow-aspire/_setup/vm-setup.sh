@@ -9,10 +9,4 @@ sudo apt-get update && \
   sudo apt-get install -y dotnet-sdk-10.0
 
 # Install Dapr CLI
-
 wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
-
-# Install Aspire CLI
-curl -sSL https://aspire.dev/install.sh | /bin/bash
-
-source /root/.bashrc

@@ -3,9 +3,9 @@
 # The track builds the app live from the assignments, so there is no repo to
 # clone. This script provisions the runtime bits the suite needs at test time:
 # uv (to run robot), the Dapr CLI, and `dapr init` (the workflow state store
-# points at the dapr_redis container it starts). .NET 10 + the Aspire CLI and
-# project templates are installed by the workflow's own steps. The diagrid
-# dashboard is NOT pulled — the suite does not run it.
+# points at the dapr_redis container it starts), plus the Dapr Dev Dashboard
+# binary that the AppHost starts via AddExecutable. .NET 10 + the Aspire CLI are
+# installed by the workflow's own steps; `aspire new` fetches the templates.
 set -euo pipefail
 
 # 1. Install uv (used to run robot).
@@ -22,5 +22,10 @@ if ! command -v dapr >/dev/null 2>&1; then
 fi
 dapr uninstall --all >/dev/null || true
 dapr init
+
+# 3. Install the Dapr Dev Dashboard (the AppHost starts `diagrid-dev-dashboard`),
+#    matching the track's _setup. It installs to ~/.local/bin.
+curl -sSL https://raw.githubusercontent.com/diagridio/dev-dashboard/main/scripts/install.sh | sh
+echo "$HOME/.local/bin" >> "${GITHUB_PATH:-/dev/null}"
 
 echo "Setup complete."

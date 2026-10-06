@@ -1,4 +1,4 @@
-Welcome to the *Dapr Workflow with .NET Aspire* learning track! In the upcoming challenges you'll build the **USS Enterprise Diagnostics** application. This application performs diagnostics on the USS Enterprise star ship. It uses Dapr Workflow to fan out to three star ship subsystem activities in parallel, aggregates the results into a prioritized report, and conditionally notifies the bridge. Along the way you'll scaffold an Aspire solution, add Dapr Workflow dependencies, wire up a Redis state store, and use the Diagrid Dev Dashboard to inspect workflow instances. By the end of the track you have ran a Dapr Workflow application with Aspire and inspected the workflow state in detail. This first challenge will take about 5 minutes to complete.
+Welcome to the *Dapr Workflow with .NET Aspire* learning track! In the upcoming challenges you'll build the **USS Enterprise Diagnostics** application. This application performs diagnostics on the USS Enterprise star ship. It uses Dapr Workflow to fan out to three star ship subsystem activities in parallel, aggregates the results into a prioritized report, and conditionally notifies the bridge. Along the way you'll scaffold an Aspire solution, add Dapr Workflow dependencies, wire up a Valkey state store, and use the Diagrid Dev Dashboard to inspect workflow instances. By the end of the track you have ran a Dapr Workflow application with Aspire and inspected the workflow state in detail. This first challenge will take about 5 minutes to complete.
 
 > [!IMPORTANT]
 > On the left you should see an empty *Editor* tab, and a *Terminal* window where you run commands. If a tab or window isn't available — or you hit any blocking issue during this course — send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
@@ -29,7 +29,7 @@ Check that Dapr is initialized by running the following command in the *Terminal
 dapr -v
 ```
 
-Only if the **Runtime version** is empty, initialize Dapr by running `dapr init`. This will install several containers that Dapr requires, including a Redis container that is used for the workflow state.
+Only if the **Runtime version** is empty, initialize Dapr by running `dapr init`. This will install several containers that Dapr requires, including the scheduler service that Dapr Workflow uses.
 
 ## Install the Aspire CLI
 
@@ -43,12 +43,6 @@ Then reload the shell so the `aspire` command is on your `PATH`:
 
 ```shell,run,copy
 source /root/.bashrc
-```
-
-Now, pin the Aspire project templates version to `13.3.5`, so they work inside this sandbox environment. The latest Aspire version does not work yet, so **don't** upgrade to `13.4.*`.
-
-```shell,run,copy
-dotnet new install Aspire.ProjectTemplates@13.3.5
 ```
 
 ---

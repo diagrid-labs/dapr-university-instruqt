@@ -14,7 +14,7 @@ MD = """
 Intro.
 
 ```shell,run
-dotnet new aspire-starter -n EnterpriseDiagnostics -o EnterpriseDiagnostics
+aspire new aspire-starter -n EnterpriseDiagnostics -o EnterpriseDiagnostics --non-interactive --suppress-agent-init
 ```
 
 ```shell,run,copy
@@ -39,7 +39,7 @@ def test_parse_captures_lang_tags_body():
         ("json", ("copy",)),
         ("text", ("nocopy",)),
     ]
-    assert blocks[0].body == "dotnet new aspire-starter -n EnterpriseDiagnostics -o EnterpriseDiagnostics"
+    assert blocks[0].body == "aspire new aspire-starter -n EnterpriseDiagnostics -o EnterpriseDiagnostics --non-interactive --suppress-agent-init"
 
 
 def test_classification():

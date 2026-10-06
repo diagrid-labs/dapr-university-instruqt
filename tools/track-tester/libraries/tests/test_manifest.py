@@ -24,4 +24,4 @@ def test_ch3_manifest_matches_real_assignment():
 
 
 def test_ch4_manifest_matches_real_assignment():
-    assert len(_resolve("4-apphost-resources", MANIFEST_CH4)) == 4
+    assert len(_resolve("4-apphost-resources", MANIFEST_CH4)) == 3
