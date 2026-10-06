@@ -2,7 +2,7 @@ In this challenge you'll inspect the PrDigest application. You'll look at the Ap
 
 ## 1. Build the application
 
-Build the Aspire solution using the ***Aspire Terminal***:
+Build the Aspire solution using the **Aspire Terminal**:
 
 ```shell,run,copy
 dotnet build
@@ -29,6 +29,7 @@ Open `PrDigest.AppHost/AppHost.cs`. This is where Aspire wires everything togeth
 - `AddValkey(...)` starts the state store container, pinned to port `16379` and secured by a `cache-password` parameter.
 - `AddProject<Projects.PrDigest_ApiService>("pr-digest")` registers the API service, waits for the state store, and passes `DATA_DIR`/`REPO` environment variables that tell the app which PR fixtures to read.
 - `.WithDaprSidecar(...)` attaches a Dapr sidecar to the API service with `AppId = "pr-digest"`, loading Dapr components from the `resources` folder.
+- `.AddExecutable(...)` starts the Dapr Dev Dashboard executable, you'll use this to inspect the workflow progress.
 
 You'll force a crash mid-workflow later in the track to prove durable execution, using a one-line toggle in `RecordAgentCallActivity.cs` (shown further down).
 
@@ -54,6 +55,10 @@ builder.AddProject<Projects.PrDigest_ApiService>("pr-digest")
         AppId = "pr-digest",
         ResourcesPaths = ["resources"]
     });
+
+builder.AddExecutable("dapr-dev-dashboard", "diagrid-dev-dashboard", ".",
+        "--port", "9090", "--bind", "0.0.0.0", "--no-open")
+    .WithHttpEndpoint(port: 9090, isProxied: false);
 
 builder.Build().Run();
 ```
@@ -102,7 +107,7 @@ app.MapPost("/start", async (
 
 #### Conversation component
 
-The `.WithAgent()` registrations in the `Program.cs` reference a conversation component name `conversation-prdigest`. You'll find the component file in `PrDigest.AppHost/resources/conversation.yaml`. This file describes which underlying conversation type is used (`conversation.openai`), which model (`gpt-4o-mini`), and how to connect to OpenAI (a secret key reference, that uses a local secret store):
+The `.WithAgent()` registrations in the `Program.cs` reference a conversation component name `conversation-prdigest`. You'll find the component file in `PrDigest.AppHost/resources/conversation.yaml`. This file describes which underlying conversation type is used (`conversation.openai`), which model (`gpt-4.1-mini`), and how to connect to OpenAI (a secret key reference, that uses a local secret store):
 
 ```yaml,nocopy
 apiVersion: dapr.io/v1alpha1
@@ -117,7 +122,7 @@ spec:
       name: openai-api-key
       key: openai-api-key
   - name: model
-    value: gpt-4o-mini
+    value: gpt-4.1-mini
   - name: cacheTTL
     value: 0
 auth:

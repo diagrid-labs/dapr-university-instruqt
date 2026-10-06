@@ -1,4 +1,4 @@
-Welcome to the *Making MAF agents reliable with Dapr Workflow* learning track! Agents call large language models, and LLM calls are **slow, costly, and non-deterministic**. When a multi-agent application crashes halfway through, re-running every call from scratch wastes time and money. In this track you'll see how **Dapr Workflow** turns a fleet of **Microsoft Agent Framework (MAF)** agents into a durable, fault-tolerant application. In this first challenge you'll install the Aspire CLI and add your own OpenAI API key. This challenge takes about 5 minutes to complete.
+Welcome to the *Making MAF agents reliable with Dapr Workflow* learning track! Agents call large language models, and LLM calls are **slow, costly, and non-deterministic**. When a multi-agent application crashes halfway through, re-running every call from scratch wastes time and money. In this track you'll see how **Dapr Workflow** turns a fleet of **Microsoft Agent Framework (MAF)** agents into a durable, fault-tolerant application. In this first challenge you'll install the Aspire CLI and verify the sandbox environment. This challenge takes about 5 minutes to complete.
 
 ## 1. The PrDigest application
 
@@ -9,7 +9,7 @@ In this course, you'll run **PrDigest**, a .NET Aspire application that triages 
 - A **`Summarize`** MAF agent that writes a short headline telling the maintainer where to focus first.
 - The workflow writes a ranked Markdown digest (`pr-digest.md`).
 
-The agents talk to OpenAI's `gpt-4o-mini` model through the **Dapr conversation API**, so the application code never holds an API key or a model client directly.
+The agents talk to OpenAI's `gpt-4.1-mini` model through the **Dapr conversation API**, so the application code never holds an API key or a model client directly.
 
 ## 2. Why durable execution for agents?
 
@@ -24,7 +24,7 @@ Before we can inspect and run the PrDigest application let's verify and configur
 
 This sandbox environment comes with Docker, the .NET 10 SDK, and Dapr preinstalled, and the `PrDigest` source has been cloned for you.
 
-You only need to install the Aspire CLI and set your OpenAI API key as an environment variable.
+You only need to install the Aspire CLI.
 
 1. Let start by installing the Aspire CLI using the **Aspire Terminal**:
 
@@ -48,32 +48,13 @@ dapr -v
 > [!NOTE]
 > You should see both a **CLI version** and a **Runtime version** listed. If the Runtime version is blank, run `dapr init` to initialize it.
 
-## 4. Add your OpenAI API key
+## 4. OpenAI API key
 
-The agents reach OpenAI through the Dapr conversation component, which reads the key from a local secret store (`PrDigest.AppHost/secrets.json`). That file is git-ignored and not part of the clone, so create it from the `secrets.example.json` file.
+The agents reach OpenAI through the Dapr conversation component, which reads the API key from a local secret store. An OpenAI API key has already been provisioned for this sandbox, so you don't need to bring your own.
 
-In the **Aspire Terminal** run:
-
-```shell,run,copy
-cp PrDigest.AppHost/secrets.example.json PrDigest.AppHost/secrets.json
-```
-
-> [!IMPORTANT]
-> Refresh the *Editor* tab, so it detects the newly created file. You'll find the circular arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
-
-Now navigate to the `PrDigest.AppHost/secrets.json` file, open it, and paste your key so it looks like this:
-
-```json,nocopy
-{
-  "openai-api-key": "sk-...your-key..."
-}
-```
-
-The file should auto-save.
-
-You should be good to go now! Click the *Check* button to verify the `secrets.json` file.
+You should be good to go now! Click the *Check* button to verify the sandbox environment.
 
 ---
 
-You now know that Dapr Workflow provides durable execution and makes agents reliable. 
+You now know that Dapr Workflow provides durable execution and makes agents reliable.
 In the next challenge you'll explore the PrDigest application in detail.

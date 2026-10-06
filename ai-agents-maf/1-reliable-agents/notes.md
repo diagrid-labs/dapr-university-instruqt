@@ -9,6 +9,6 @@ In this first challenge, you'll:
 
 - Learn why Dapr Workflow makes Microsoft Agent Framework (MAF) agents reliable.
 - Get introduced to the PrDigest application you'll run.
-- Verify the sandbox environment is ready and add your OpenAI API key.
+- Verify the sandbox environment is ready.
 
 If you have any questions or feedback about this track, you can let us know in the *#general* channel of the [Dapr Discord server](https://diagrid.ws/dapr-discord).
