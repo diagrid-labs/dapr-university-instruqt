@@ -77,6 +77,8 @@ Inspect the ledger in the *Editor* tab, it's located at `digest-out/agent-calls.
 > [!NOTE]
 > The exact PRs will differ in your case — the PRs are analyzed concurrently, so it depends which ones the Dapr workflow engine completed first. The crash trips once two calls have been recorded, so you'll see about two lines; the PR whose recording was interrupted is written only on the resumed run.
 
+Now open the *Dapr Dev Dashboard* tab, which started together with `aspire run`, and go to the **Workflows** tab. Select the `PrDigest` workflow with instance ID `run-crash`. Its status is **Running**: the process crashed, but the workflow didn't fail or finish. Its state is still in the state store, waiting for the app to come back.
+
 ## 4. Disarm and restart
 
 Stop Aspire in the **Aspire Terminal** with `Ctrl+C`.
@@ -97,7 +99,13 @@ aspire run
 
 Aspire reconnects to the same Valkey container (its data volume persists), the workflow engine rehydrates workflow instance `run-crash`, and it **resumes automatically** — you do not call a start or resume endpoint again.
 
-## 5. Check the ledger
+Open the *Aspire* tab and wait until the resources show **Running** in the Resources view. If a resource fails try to restart it in the dashboard using the start/stop actions.
+
+## 5. Check the workflow status
+
+Open the *Dapr Dev Dashboard* tab again and go to the **Workflows** tab. Select the `PrDigest` workflow with instance ID `run-crash`. It resumed from where it crashed and its status is now **Completed**.
+
+## 6. Check the ledger
 
 > [!IMPORTANT]
 > Refresh the *Editor* tab, so it detects the updated file. You'll find the circular arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
@@ -119,7 +127,7 @@ Confirm:
 1. **Exactly 7 lines — one per PR, no duplicate PR numbers.** The calls that completed before the crash were not re-run; their results came from durable history.
 2. **A clear timestamp gap** between the pre-crash lines and the rest.
 
-## 6. Read the PR digest
+## 7. Read the PR digest
 
 Now let's take a look at the result of the workflow. It's a ranked Markdown digest to an output directory (`/digest-out`) in the root of `PrDigest`.
 
@@ -134,7 +142,7 @@ The digest ranks the pull requests by a computed **risk score** and includes, fo
 
 At the top is the headline written by the `Summarize` agent. The exact pull requests and scores depend on the bundled data snapshot.
 
-## 7. Inspect the logs
+## 8. Inspect the logs
 
 Switch to the *Aspire* tab and open the **Console** view.
 
@@ -147,7 +155,7 @@ Calling LLM for agent 'PrAnalyzerAgent'  ...
 📒 Recorded agent call for PR #...
 ```
 
-## 8. Recap
+## 9. Recap
 
 You saw how Dapr Workflow makes a Microsoft Agent Framework application reliable:
 

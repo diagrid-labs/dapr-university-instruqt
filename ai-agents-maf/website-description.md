@@ -21,4 +21,4 @@ You'll run **PrDigest** — a .NET Aspire application that triages open pull req
 
 ## Prerequisites
 
-Familiarity with C# and basic .NET tooling is recommended. The sandbox comes preconfigured with Docker, the .NET 10 SDK, the Aspire CLI, and Dapr. You'll need your own OpenAI API key (with access to `gpt-4o-mini`) to run the agents.
+Familiarity with C# and basic .NET tooling is recommended. The sandbox comes preconfigured with Docker, the .NET 10 SDK, the Aspire CLI, and Dapr. An OpenAI API key is provided in the sandbox, so you don't need your own.

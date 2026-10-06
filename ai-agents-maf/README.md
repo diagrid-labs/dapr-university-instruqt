@@ -10,7 +10,7 @@ ai-agents-maf
 
 Run a Microsoft Agent Framework (MAF) application orchestrated by Dapr Workflow, then crash it mid-run and watch it resume from durable state — without re-running the expensive LLM calls that already completed.
 
-Languages: .NET. Duration: 30 min. Requires an OpenAI API key.
+Languages: .NET. Duration: 30 min.
 
 ## Time limit (minutes)
 

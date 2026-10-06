@@ -7,6 +7,3 @@ docker login -u ${DockerUSER} -p ${DockerPAT}
 
 # Initialize Dapr in self-hosted mode (Redis, placement, scheduler, zipkin containers).
 dapr init
-
-# Pre-pull the Diagrid Dev Dashboard image so it starts quickly if used.
-docker pull ghcr.io/diagridio/diagrid-dashboard:latest
