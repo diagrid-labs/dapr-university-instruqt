@@ -5,7 +5,7 @@ This challenge takes the same durable agent behavior from the previous challenge
 
 ## 1.  Explore the DurableAgent
 
-Use the **Editor** window to examine the durable agent implementation in the `03_durable_agent_pubsub.py` file.
+Use the **Editor** window to examine the durable agent implementation in the `04_durable_agent_pubsub.py` file.
 
 The agent code remains largely unchanged; only the `AgentRunner` configuration switches from REST to pub/sub, and an `AgentPubSubConfig` is added.
 
@@ -38,7 +38,7 @@ source .venv/bin/activate
 Run the durable agent with Dapr by running this command in the **Terminal Subscriber** window:
 
 ```bash,run
-dapr run --app-id durable-agent-subscriber --resources-path resources --dapr-http-port 3500 -- python 03_durable_agent_pubsub.py
+dapr run --app-id durable-agent-subscriber --resources-path resources --dapr-http-port 3500 -- python 04_durable_agent_pubsub.py
 ```
 
 ## 4. Publish a message to trigger the agent

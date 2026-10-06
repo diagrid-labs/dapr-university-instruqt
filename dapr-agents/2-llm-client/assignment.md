@@ -7,106 +7,54 @@ In this challenge, you'll use the simplest way to call an LLM using the Dapr Cha
 
 It's important to understand that the `DaprChatClient` is a client-side wrapper that internally uses the Dapr Conversation API to communicate with the Dapr sidecar, which in turn interacts with LLM providers through Dapr conversation components.
 
-## 1. Get your LLM API key
+## 1. Inspect the Conversation component
 
-To work with LLMs, you first need to sign up with an LLM provider and obtain an API key. Dapr Agents supports multiple providers, and the next section shows how to configure either OpenAI, Anthropic, GoogleAI, or HuggingFace. More providers are supported though, see the note at the end of step 2.
+The Dapr sidecar talks to the LLM provider through a Dapr Conversation component. An OpenAI API key has already been provisioned for this sandbox, so you don't need to bring your own.
 
-## 2. Configure the Conversation Component
+Open the `resources/llm-provider.yaml` file in the **Editor** window:
 
-Now you need to configure Dapr Conversation component with the API key of the LLM provider you want to use.
-
-Open the `resources/llm-provider.yaml` file in **Editor** window.
-
-This file is currently configured to use Ollama, but let's update to component file to use the LLM provider of your liking.
-
-Expand the instructions below for the LLM provider you want to use and ensure you have an API key for that provider.
-
-<details>
-   <summary><b>OpenAI</b></summary>
-
-Ensure that the `metadata` section matches to the example shown below and you replace <API_KEY> with your OpenAI API key.
-
-```yaml
+```yaml,nocopy
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
   name: llm-provider
 spec:
   type: conversation.openai
+  version: v1
   metadata:
   - name: key
-    value: <API_KEY>
+    secretKeyRef:
+      name: openai-api-key
+      key: openai-api-key
   - name: model
-    value: gpt-4o-mini
+    value: gpt-4.1-mini
+auth:
+  secretStore: local-secret-store
 ```
 
-</details>
+The component uses the `conversation.openai` type with the `gpt-4.1-mini` model. The API key isn't written in the component file. Instead, `secretKeyRef` tells Dapr to look up the `openai-api-key` secret in the `local-secret-store` secret store.
 
-<details>
-   <summary><b>Anthropic</b></summary>
+## 2. Inspect the secret store component
 
-Ensure that the `metadata` section matches to the example shown below and you replace <API_KEY> with your Anthropic API key.
+Open the `resources/local-secret-store.yaml` file in the **Editor** window:
 
-```yaml
+```yaml,nocopy
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: llm-provider
+  name: local-secret-store
 spec:
-  type: conversation.anthropic
+  type: secretstores.local.file
+  version: v1
   metadata:
-  - name: key
-    value: <API_KEY>
-  - name: model
-    value: claude-sonnet-4-6
+  - name: secretsFile
+    value: secrets.json
 ```
 
-</details>
-
-<details>
-   <summary><b>GoogleAI</b></summary>
-
-Ensure that the `metadata` section matches to the example shown below and you replace <API_KEY> with your Gemini API key.
-
-```yaml
-apiVersion: dapr.io/v1alpha1
-kind: Component
-metadata:
-  name: llm-provider
-spec:
-  type: conversation.googleai
-  metadata:
-  - name: key
-    value: <API_KEY>
-  - name: model
-    value: gemini-3-flash-preview
-```
-
-</details>
-
-<details>
-   <summary><b>HuggingFace</b></summary>
-
-Ensure that the `metadata` section matches to the example shown below and you replace <API_KEY> with your HuggingFace API key.
-
-```yaml
-apiVersion: dapr.io/v1alpha1
-kind: Component
-metadata:
-  name: llm-provider
-spec:
-  type: conversation.huggingface
-  metadata:
-  - name: key
-    value: <API_KEY>
-  - name: model
-    value: meta-llama/Meta-Llama-3-8B
-```
-
-</details>
+This is a local file secret store that reads secrets from the `secrets.json` file in the quickstarts folder (the path is relative to the folder you run `dapr run` from). It's convenient for local development; in production you'd use a secret store such as HashiCorp Vault, Azure Key Vault, or AWS Secrets Manager, without changing the conversation component.
 
 > [!NOTE]
-> The component configuration tells Dapr how to connect to the LLM provider, which model to use, and other provider-specific settings. If you want to use a different LLM provider, you can change the component configuration file and update the `type` and `metadata` accordingly. See the [Dapr Conversation Components documentation](https://docs.dapr.io/reference/components-reference/supported-conversation/) for more details.
+> The component configuration tells Dapr how to connect to the LLM provider, which model to use, and other provider-specific settings. Dapr supports many other LLM providers, such as Anthropic, Google AI, Mistral, and Hugging Face. To use one of these, you change the `type` and `metadata` of the component while keeping the component name `llm-provider`; your application code stays the same. In this sandbox only an OpenAI API key is provisioned. See the [Dapr Conversation Components documentation](https://docs.dapr.io/reference/components-reference/supported-conversation/) for more details.
 
 ## 3. Inspect the DaprChatClient Code
 

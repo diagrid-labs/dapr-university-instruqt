@@ -1,1 +1,1 @@
-cd dapr-agents/quickstarts/01-dapr-agents-fundamentals
+cd dapr-agents/quickstarts

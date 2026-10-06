@@ -7,7 +7,7 @@ Click the *Start* button to setup the sandbox environment for this training, thi
 - If you complete all 5 challenges in this track you can claim the Dapr 101 badge.
 ![Dapr University Dapr 101 badge](https://raw.githubusercontent.com/diagrid-labs/dapr-university-instruqt/refs/heads/main/dapr-101/5-pubsub-api/Diagrid-Dapr-Uni-101_x500.png)
 
-If you need more information about Dapr during (or after) the challenge, visit the [Dapr Docs](https://docs.dapr.io/concepts/overview/). If you have any questions or feedback about this track, you can let us know in the *#university* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+If you need more information about Dapr during (or after) the challenge, visit the [Dapr Docs](https://docs.dapr.io/concepts/overview/). If you have any questions or feedback about this track, you can let us know in the *#university* channel of the [Dapr Discord server](https://diagrid.ws/dapr-discord).
 
 ---
 

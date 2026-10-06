@@ -17,7 +17,7 @@ This makes the DurableAgent ideal for mission-critical applications that need to
 
 ## 2. Explore the DurableAgent
 
-Use the **Editor** window to examine the durable agent implementation in the `02_durable_agent_http.py` file.
+Use the **Editor** window to examine the durable agent implementation in the `03_durable_agent_http.py` file.
 
 The agent exposes a REST endpoint, accepts a prompt, and returns a workflow ID that represents a durable execution. You can query this workflow at any time—even after stopping and restarting the agent—and it will resume exactly where it left off. The agent performs an LLM call and a tool call as part of completing the workflow and produces a final result.
 
@@ -91,7 +91,7 @@ source .venv/bin/activate
 Run the durable agent with Dapr by running this command in the **Terminal** window:
 
 ```bash,run
-dapr run --app-id durable-agent --resources-path resources -- python 02_durable_agent_http.py
+dapr run --app-id durable-agent --resources-path resources -- python 03_durable_agent_http.py
 ```
 
 ## 6. Interact with the Durable Agent
