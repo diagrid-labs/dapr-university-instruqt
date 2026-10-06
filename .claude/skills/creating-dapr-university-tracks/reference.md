@@ -55,7 +55,7 @@ In this challenge, you'll:
 - <bullet>
 - <bullet>
 
-If you have any questions or feedback about this track, let us know in the *#university* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+If you have any questions or feedback about this track, let us know in the *#university* channel of the [Dapr Discord server](https://diagrid.ws/dapr-discord).
 ```
 
 ### Challenges 2 and onwards

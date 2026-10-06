@@ -9,4 +9,4 @@ In this final challenge, you'll learn how to create multi-agent systems with spe
 At the end of this challenge you can claim the Dapr Agents badge.
 ![Dapr University Dapr Agents badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-agents/6-workflow-agents/Diagrid-Dapr-Uni-Agents_x500.png?raw=true)
 
-If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://docs.dapr.io/developing-ai/dapr-agents/). If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://docs.dapr.io/developing-ai/dapr-agents/). If you have any questions or feedback about this track, you can let us know in the *#general* channel of the [Dapr Discord server](https://diagrid.ws/dapr-discord).

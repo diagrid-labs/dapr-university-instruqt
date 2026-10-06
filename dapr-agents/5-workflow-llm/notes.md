@@ -9,4 +9,4 @@ In this challenge, you'll learn:
 - What agentic workflows are and how do they provide structure and predictability compared to autonomous agents
 - How to define workflows and activities using Dapr Agents' workflow framework
 
-If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://docs.dapr.io/developing-ai/dapr-agents/). If you have any questions or feedback about this track, you can let us know in the *#dapr-agents* channel of the [Dapr Discord server](https://bit.ly/dapr-discord).
+If you need more information about Dapr Agents during (or after) the challenge, visit the [Dapr Agents Docs](https://docs.dapr.io/developing-ai/dapr-agents/). If you have any questions or feedback about this track, you can let us know in the *#general* channel of the [Dapr Discord server](https://diagrid.ws/dapr-discord).

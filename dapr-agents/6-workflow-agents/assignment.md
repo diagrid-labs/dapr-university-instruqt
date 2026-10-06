@@ -14,7 +14,7 @@ This approach enables powerful collaborative problem-solving, parallel processin
 
 ## 2. Examine the Code
 
-Use the **Editor** window to examine `05_workflow_agents.py` file.
+Use the **Editor** window to examine `06_workflow_agents.py` file.
 
 When the workflow runs, it first delegates the request to a triage agent, which gathers customer information using tools and produces a summary. It then passes that summary to an expert agent, which generates a final recommendation. Both steps run under a durable workflow, so if the process is interrupted, it resumes from the last completed activity even though the agents themselves are not durable.
 
@@ -30,13 +30,13 @@ source .venv/bin/activate
 Run the agent workflow with Dapr by using the **Terminal** window:
 
 ```bash,run
-dapr run -f 05_workflow_agents.yaml
+dapr run -f 06_workflow_agents.yaml
 ```
 
 This starts three python apps:
-- triage-agent (05_triage_agent.py)
-- expert-agent (05_expert_agent.py)
-- workflow (05_workflow_agents.py)
+- triage-agent (06_triage_agent.py)
+- expert-agent (06_expert_agent.py)
+- workflow (06_workflow_agents.py)
 
 ## 4. Monitor the Workflow Execution
 
@@ -50,7 +50,7 @@ issue: Unable to access dashboard after recent update
 
 --------------------------------------------------------------------------------
 
-Triage Agent(assistant):
+triage_agent(assistant):
 Function name: GetCustomerInfo (Call Id: call_B4ro54xYfMps7RUH02T5xXCX)
 Arguments: {"customer_name":"alice"}
 
@@ -61,7 +61,7 @@ Customer: Alice, Premium Plan, 5 active services
 
 --------------------------------------------------------------------------------
 
-Triage Agent(assistant):
+triage_agent(assistant):
 Triage Summary:
 
 - Customer Name: Alice
@@ -90,7 +90,7 @@ Is there any additional detail regarding the error message, browser, or device A
 
 --------------------------------------------------------------------------------
 
-Expert Agent(assistant):
+expert_agent(assistant):
 Thank you for compiling the triage summary.
 
 **Recommendation:**  
@@ -154,7 +154,7 @@ Let me know once you have this information or if you need a template to request 
 
 ## 5. How This Works
 
-1. The workflow invokes each agent by calling agent-backed activities as child workflows using `ctx.call_child_workflow`, which handles calling the agent and returning structured output.
+1. The workflow invokes each agent as a child workflow using `call_agent`, which routes the call to the agent's own Dapr app (via `ctx.call_child_workflow`) and returns its structured output.
 2. The triage activity runs first, producing a summary based on customer data and the issue description.
 3. The output of the triage agent is passed into the expert agent activity to generate the final recommendation.
 4. Although agents can use tools and maintain their own memory, the workflow execution is what provides durability: if interrupted, it restarts from the last completed step.
@@ -177,9 +177,9 @@ We have more opportunities for you to learn and share knowledge:
 - [Dapr Agents Advanced: add automatic web context with hooks](https://www.diagrid.io/university/dapr-agents-advanced)
 - [Make MAF agents reliable with Dapr Workflow](https://www.diagrid.io/university/ai-agents-maf)
 
-**Read more**
-- Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
-- Read [Dapr Agents 1.0: Durable, Cloud-Native, Production-Ready](https://www.diagrid.io/blog/dapr-agents-1-0-durable-cloud-native-production-ready).
+**Try these Dapr tools**
+- [Dapr Dev Dashbord](https://docs.diagrid.io/dapr-open-source/dapr-dev-dashboard/), a free & OSS companion tool for local Dapr development.
+- [Dapr Ops Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-ops-dashboard/), a free SaaS solution that automates the operational management of Dapr on Kubernetes.
 
 **Join the community**
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#agents* and language channels.

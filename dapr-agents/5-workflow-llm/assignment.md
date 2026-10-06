@@ -12,7 +12,7 @@ This approach is particularly suitable for business-critical applications where 
 
 ## 2. Examine the Workflow Code
 
-Open the `04_workflow_llm.py` file in the **Editor** window to examine the code.
+Open the `05_workflow_llm.py` file in the **Editor** window to examine the code.
 
 The workflow generates a short outline for the given topic using an LLM, then uses that outline to produce a short blog post. Both steps run as durable activities, so the workflow can restart without repeating completed LLM calls.
 
@@ -28,7 +28,7 @@ source .venv/bin/activate
 Run the workflow with Dapr by using the **Terminal** window:
 
 ```bash,run
-dapr run --app-id workflow-llms --resources-path resources -- python 04_workflow_llm.py
+dapr run --app-id workflow-llms --resources-path resources -- python 05_workflow_llm.py
 ```
 
 ## 4. Observe the Workflow Execution
