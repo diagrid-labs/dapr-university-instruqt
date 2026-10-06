@@ -1,19 +1,10 @@
 In this challenge you'll run the expert agent **without** the Tavily hook — the baseline behavior. The setup script has already commented out the `hooks=...` line in `agent.py`, so the agent talks to the LLM directly with no prompt enrichment. This hands-on challenge takes about 10 minutes to complete.
 
-## 1. Add your API keys
-
-Open the `.env` file in `dapr-agents/examples/11-expert-agent-tavily/.env` and replace the placeholder values:
-
-```env,nocopy
-OPENAI_API_KEY=your_openai_api_key_here
-TAVILY_API_KEY=your_tavily_api_key_here
-```
-
-## 2. Inspect the agent
+## 1. Inspect the agent
 
 Open `dapr-agents/examples/11-expert-agent-tavily/agent.py` in the **Editor** window. You'll see a `DurableAgent` configured with:
 
-- An OpenAI chat client
+- An OpenAI chat client using the `gpt-4.1-mini` model
 - Conversation memory backed by Redis
 - A workflow state store (actor-enabled, as required by Dapr Workflow)
 - An agent registry
@@ -24,9 +15,9 @@ The last argument — the one the setup script commented out — is the hooks re
 # hooks=Hooks(before_llm_call=[enrich_with_tavily]),  # disabled for challenge 2
 ```
 
-Leave it as-is. We'll uncomment it in challenge 3.
+Leave it as-is. The setup script for challenge 3 re-enables it.
 
-## 3. Run the agent
+## 2. Run the agent
 
 Use the **Terminal** window to start Dapr and Chainlit in a single command:
 
@@ -36,7 +27,7 @@ uv run dapr run --app-id expert-agent --resources-path ./resources -- chainlit r
 
 Open the Chainlit chat interface via the **Chainlit** tab.
 
-## 4. Ask a "current events" question
+## 3. Ask a "current events" question
 
 In the Chainlit chat, type something the model can't possibly know from its training cutoff:
 
@@ -51,7 +42,7 @@ After a few seconds you'll get a response. You'll get one of two answers, both w
 
 This is the problem we're solving in challenge 3 — give the model fresh context **automatically**, without it needing to choose to call a `web_search` tool.
 
-## 5. Stop the agent
+## 4. Stop the agent
 
 In the Terminal, press `Ctrl+C` to stop Dapr.
 

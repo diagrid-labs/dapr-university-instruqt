@@ -30,6 +30,7 @@ This first challenge is sandbox verification only. The sandbox has the follow al
 1. Cloned `https://github.com/dapr/dapr-agents`
 2. Installed the Dapr CLI and run `dapr init`
 3. Installed the `uv` Python package manager
+4. Provisioned the OpenAI and Tavily API keys
 
 ### Verification
 
