@@ -65,7 +65,7 @@ Simulated crash — demonstrating durable resume.
 ```
 
 > [!IMPORTANT]
-> Refresh the *Editor* tab, so it detects the newly created file. You'll find the arrow on the right side of the tree view labelled AI-AGENTS-WORKFLOW.
+> Refresh the *Editor* tab, so it detects the newly created file. You'll find the arrow on the right side of the tree view labelled EDITOR.
 
 Inspect the ledger in the *Editor* tab, it's located at `digest-out/agent-calls.log`. It contains only the calls recorded before the crash, two lines:
 
@@ -176,7 +176,7 @@ We have more ways for you to learn and share knowledge:
 - [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
 
 **Try these Dapr tools**
-- [Dapr Dev Dashbord](https://docs.diagrid.io/dapr-open-source/dapr-dev-dashboard/), a free & OSS companion tool for local Dapr development.
+- [Dapr Dev Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-dev-dashboard/), a free & OSS companion tool for local Dapr development.
 - [Dapr Ops Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-ops-dashboard/), a free SaaS solution that automates the operational management of Dapr on Kubernetes.
 
 **Join the community**

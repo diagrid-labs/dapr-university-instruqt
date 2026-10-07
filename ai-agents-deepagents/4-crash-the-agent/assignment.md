@@ -28,13 +28,16 @@ Watch the terminal. The script logs `No existing workflow for investigation-7326
 ❌  The App process exited with error code: 1
 ```
 
-Verify Dapr persisted the workflow progress to Redis — even though the process died mid-way:
+Verify that Dapr persisted the workflow progress, even though the process died mid-way. Start the Dapr Dev Dashboard again in the **Dapr Dev Dashboard Terminal**:
 
 ```bash,run
-docker exec dapr_redis redis-cli keys "*investigation-7326*"
+diagrid-dev-dashboard --port 9090 --bind 0.0.0.0 --no-open
 ```
 
-You'll see many keys for all of the checkpointed step related to the `investigation-7326` workflow instance.
+> [!IMPORTANT]
+> When you use the *Run* button, select the **Dapr Dev Dashboard Terminal** from the dropdown that appears.
+
+Open the **Dapr Dev Dashboard** tab and navigate to the *Workflows* page. Click on the `investigation-7326` instance ID to drill down to the workflow details page. The workflow is still *Running*, even though the app process has stopped, and the execution history shows the activities that were checkpointed before the crash.
 
 ## 3. Remove the crash
 
@@ -55,11 +58,13 @@ uv run dapr run --app-id deepagent --resources-path ./resources -- python invest
 Watch the terminal closely. This time the script logs `Found existing workflow investigation-7326: WorkflowStatus.RUNNING`, skips `run_async()`, and calls `poll_for_completion()` — which waits on the **same** workflow instance using Dapr's built-in waits (`Workflow is running — waiting for it to finish...`). The Dapr Workflow engine replays history up to the last checkpoint and continues the execution from where it crashed, and the investigation completes.
 
 > [!IMPORTANT]
-> The key proof is in the logs: the workflow will continue with Step 7. Since Steps 1-6 have been executed already.
+> The key proof is in the logs: the workflow continues with Step 7, since Steps 1-6 have been executed already.
+
+Switch to the **Dapr Dev Dashboard** tab again and navigate to the *Workflows* page. Click on the `investigation-7326` instance ID to drill down to the workflow details page. It should now run to completion.
 
 ## 5. Read the report
 
-Refresh the *Editor* tab, then navigate to `investigation-7326.md` to open it.
+Go back to the *Editor* tab and refresh it then navigate to `investigation-7326-crash.md` to open it.
 
 It shows a complete report, even though the process that produced it died and restarted halfway through.
 
@@ -69,7 +74,7 @@ It shows a complete report, even though the process that produced it died and re
 2. `os._exit(1)` kills the process hard — the activity result for `get_comments` is not written, but `get_issue`'s result is already in Redis.
 3. On the second run, the script derives the same ID, queries Dapr, and finds the instance still `RUNNING`. Instead of starting a new workflow, it calls `poll_for_completion()`, which waits on that instance with `wait_for_workflow_start()` and `wait_for_workflow_completion()`.
 4. Dapr reconnects to the existing workflow instance, replays checkpointed activities (returning their saved results without re-executing them), and resumes at `get_comments`.
-5. The investigation completes and `investigation-7326.md` is written to disk.
+5. The investigation completes and `investigation-7326-crash.md` is written to disk.
 
 That's the entire point of backing a long-running agent with Dapr: a crash costs you a restart, not the work. And because the workflow ID is derived from the issue number, no bookkeeping file is needed — Dapr's state store holds everything.
 
@@ -100,9 +105,9 @@ We have more ways for you to learn and share knowledge:
 **Try another university track**
 - [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
 
-**Read more**
-- Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
-- Read [Announcing Durable Workflow for Agents](https://www.diagrid.io/blog/durable-workflows-ai-agents).
+**Try these Dapr tools**
+- [Dapr Dev Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-dev-dashboard/), a free & OSS companion tool for local Dapr development.
+- [Dapr Ops Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-ops-dashboard/), a free SaaS solution that automates the operational management of Dapr on Kubernetes.
 
 **Join the community**
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#ai* and language channels.
