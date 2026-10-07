@@ -5,6 +5,6 @@ The sandbox for this challenge is being prepared, it should be ready within a fe
 ### What you'll learn in this challenge
 
 - How to run the auditor as a durable Dapr Workflow
-- Which pipeline node calls Claude, and why that call is the expensive one
+- Which pipeline node calls the LLM, and why that call is the expensive one
 - What it looks like when the process crashes mid-pipeline
-- How to see the checkpointed workflow state that survived the crash in Redis
+- How to see the checkpointed workflow state that survived the crash in the Dapr Dev Dashboard
