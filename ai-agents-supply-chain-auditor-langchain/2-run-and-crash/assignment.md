@@ -8,14 +8,14 @@ The durability demo ships with a deliberate crash, armed by default. Open `graph
 if ledger.count() >= 2: os._exit(1)     # ← comment out for the resume run
 ```
 
-By the time `render_report` runs, `gather_evidence` and `analyze` have each recorded one line in a stage *ledger* (`audit-out/audit-ledger.log`) — so `ledger.count()` is 2 and the process dies **right after** the expensive Claude call has completed and been checkpointed. `os._exit(1)` kills the process immediately — no cleanup, like a pod eviction or an OOM kill. The ledger exists just for demonstration purposes, it is not used by Dapr Worfklow since the workflow state is captured in a local Redis instance.
+By the time `render_report` runs, `gather_evidence` and `analyze` have each recorded one line in a stage *ledger* (`audit-out/audit-ledger.log`) — so `ledger.count()` is 2 and the process dies **right after** the expensive LLM call has completed and been checkpointed. `os._exit(1)` kills the process immediately — no cleanup, like a pod eviction or an OOM kill. The ledger exists just for demonstration purposes, it is not used by Dapr Workflow since the workflow state is captured in a local Redis instance.
 
 > [!IMPORTANT]
 > Leave the crash line as-is for now. You'll comment it out in the next challenge to watch the workflow resume.
 
 ## 2. Run the audit
 
-Use the **Terminal** to run the auditor. `dapr run` starts a Dapr sidecar and runs `python app.py` against it. All inputs (the PR to audit, your Anthropic key) come from `.env`:
+Use the **Terminal** to run the auditor. `dapr run` starts a Dapr sidecar and runs `python app.py` against it. All inputs (the PR to audit, the OpenAI key) come from `.env`. When you use the *Run* button, select **Terminal** from the dropdown:
 
 ```bash,run
 uv run dapr run --app-id supply-chain-auditor-langgraph --resources-path ./resources -- python app.py
@@ -24,17 +24,17 @@ uv run dapr run --app-id supply-chain-auditor-langgraph --resources-path ./resou
 Watch the terminal:
 
 1. `gather_evidence` resolves the package, fetches the release notes and diff from GitHub, and runs the heuristics.
-2. `analyze` calls **Claude** to judge the notes against the diff.
+2. `analyze` calls the **LLM** to judge the notes against the diff.
 3. `render_report` starts — and the process **dies by itself**:
 
 > [!NOTE]
-> It might take a minute or two before the application crashes, since several calls to GitHub are made (which can result in 429) and a call to Claude.
+> It might take a minute or two before the application crashes, since several calls to GitHub are made (which can result in 429) and a call to the LLM.
 
 ```text,nocopy
 ❌  The App process exited with error code: 1
 ```
 
-That crash landed *after* the Claude call completed. Look at the ledger, it holds the two stages that ran before the crash:
+That crash landed *after* the LLM call completed. Look at the ledger, it holds the two stages that ran before the crash:
 
 ```bash,run
 cat audit-out/audit-ledger.log
@@ -47,13 +47,16 @@ You'll see a `gather_evidence` line and an `analyze` line, each with a timestamp
 
 ## 3. See the state that survived
 
-Even though the process died, Dapr checkpointed each completed node to Redis. Confirm the workflow instance is still there by running this in the **Terminal**:
+Even though the process died, Dapr checkpointed each completed node to Redis. Use the Dapr Dev Dashboard to confirm the workflow instance is still there. Start the dashboard in the **Dapr Dev Dashboard Terminal**:
 
 ```bash,run
-docker exec dapr_redis redis-cli keys "*audit-dapr-dapr-agents-635*"
+diagrid-dev-dashboard --port 9090 --bind 0.0.0.0 --no-open
 ```
 
-You'll see keys for the workflow instance and its checkpointed activity results. This is exactly the state the next challenge resumes from — the completed `gather_evidence` and `analyze` results are saved, so they never have to run again.
+> [!IMPORTANT]
+> When you use the *Run* button, select the **Dapr Dev Dashboard Terminal** from the dropdown that appears. Keep the dashboard running, you'll use it again in the next challenge.
+
+Open the **Dapr Dev Dashboard** tab and navigate to the *Workflows* page. Click on the `audit-dapr-dapr-agents-635-...` instance ID to drill down to the workflow details page. The workflow is still *Running*, even though the app process has stopped, and the execution history shows the `gather_evidence` and `analyze` activities that were checkpointed before the crash. This is exactly the state the next challenge resumes from — the completed `gather_evidence` and `analyze` results are saved, so they never have to run again.
 
 ## 4. How this works
 
@@ -64,4 +67,4 @@ You'll see keys for the workflow instance and its checkpointed activity results.
 
 ---
 
-The audit crashed before it could produce a report — but nothing that already ran was lost. In the final challenge you'll comment out the crash, re-run the same command, and watch Dapr resume the workflow without re-fetching from GitHub or calling Claude again.
+The audit crashed before it could produce a report — but nothing that already ran was lost. In the final challenge you'll comment out the crash, re-run the same command, and watch Dapr resume the workflow without re-fetching from GitHub or calling the LLM again.

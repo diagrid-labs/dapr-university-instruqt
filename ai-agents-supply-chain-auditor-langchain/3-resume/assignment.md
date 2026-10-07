@@ -12,7 +12,7 @@ The file will autosave.
 
 ## 2. Re-run the exact same command
 
-Use the **Terminal** to run the same command as before:
+Use the **Terminal** to run the same command as before (select **Terminal** from the dropdown when you use the *Run* button):
 
 ```bash,run
 uv run dapr run --app-id supply-chain-auditor-langgraph --resources-path ./resources -- python app.py
@@ -26,6 +26,12 @@ Workflow audit-dapr-dapr-agents-635-... in flight (WorkflowStatus.RUNNING) — r
 
 Dapr replays `gather_evidence` and `analyze` from durable history — returning their saved results **without re-executing them** — and runs only `render_report`. The workflow reaches **Completed** and the Markdown report is printed (a dry-run, since no `GITHUB_TOKEN` is set).
 
+Switch to the **Dapr Dev Dashboard** tab and open the `audit-dapr-dapr-agents-635-...` workflow again. Its status is now *Completed*, and the execution history now also contains the `render_report` activity that ran after the restart. If the dashboard isn't running anymore from the previous challenge, start it again in the **Dapr Dev Dashboard Terminal** (select that terminal from the dropdown when you use the *Run* button):
+
+```bash,run
+diagrid-dev-dashboard --port 9090 --bind 0.0.0.0 --no-open
+```
+
 ## 3. Prove the analyze call ran exactly once
 
 Look at the ledger again:
@@ -36,17 +42,17 @@ cat audit-out/audit-ledger.log
 
 You should see **exactly three lines** — `gather_evidence`, `analyze`, `render_report`, each once:
 
-- The `analyze` line has the timestamp from the **first** run (before the crash). It was **not** written again on resume — proof the Claude call ran exactly once.
+- The `analyze` line has the timestamp from the **first** run (before the crash). It was **not** written again on resume — proof the LLM call ran exactly once.
 - There's a visible **time gap** before the `render_report` line: the wall-clock cost of the crash and restart, inside one logical workflow run.
 
-That's the whole point: a crash cost a restart, not the work — and not a second Claude call.
+That's the whole point: a crash cost a restart, not the work — and not a second LLM call.
 
 ## 4. How this works
 
 1. On the first run, `app.py` found no instance under `audit-dapr-dapr-agents-635-<pkg>` and scheduled a fresh workflow.
 2. `os._exit(1)` killed the process after `analyze` was checkpointed, leaving the instance in-flight.
 3. On this run, `app.py` derived the same ID, found the instance still `RUNNING`, and polled it to completion (`resume_or_invoke` in `runtime.py`) instead of starting over.
-4. Dapr rehydrated the instance, replayed the checkpointed `gather_evidence` and `analyze` results from history, and resumed at `render_report`. Neither the GitHub fetch nor the Claude call was repeated.
+4. Dapr rehydrated the instance, replayed the checkpointed `gather_evidence` and `analyze` results from history, and resumed at `render_report`. Neither the GitHub fetch nor the LLM call was repeated.
 
 ## 5. Reset for a fresh run (optional)
 
@@ -65,8 +71,8 @@ rm -f audit-out/audit-ledger.log
 You crashed a running audit on purpose and watched it recover without losing work:
 
 - Each pipeline node is a **checkpointed Dapr Workflow activity**; its result is written to durable Redis state the moment it completes.
-- `os._exit(1)` killed the process hard after the expensive `analyze` (Claude) call had been checkpointed.
-- On restart, `app.py` reconnected to the **same workflow instance by its deterministic ID**, and Dapr **replayed history from the checkpoint store** — returning saved results without re-executing them — and resumed at `render_report`. Claude was never called twice.
+- `os._exit(1)` killed the process hard after the expensive `analyze` (LLM) call had been checkpointed.
+- On restart, `app.py` reconnected to the **same workflow instance by its deterministic ID**, and Dapr **replayed history from the checkpoint store** — returning saved results without re-executing them — and resumed at `render_report`. The LLM was never called twice.
 - The audit completed and produced a full report, even though the process that started it had died.
 
 ## Feedback and further learning
@@ -79,8 +85,9 @@ We have more ways for you to learn and share knowledge:
 - [Make DeepAgents reliable with Dapr Workflow](https://www.diagrid.io/university/ai-agents-deepagents)
 - [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
 
-**Read more**
-- Read [Announcing Durable Workflow for Agents](https://www.diagrid.io/blog/durable-workflows-ai-agents).
+**Try these Dapr tools**
+- [Dapr Dev Dashbord](https://docs.diagrid.io/dapr-open-source/dapr-dev-dashboard/), a free & OSS companion tool for local Dapr development.
+- [Dapr Ops Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-ops-dashboard/), a free SaaS solution that automates the operational management of Dapr on Kubernetes.
 
 **Join the community**
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#ai* and language channels.
