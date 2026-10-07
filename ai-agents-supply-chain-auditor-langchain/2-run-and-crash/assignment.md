@@ -54,7 +54,7 @@ diagrid-dev-dashboard --port 9090 --bind 0.0.0.0 --no-open
 ```
 
 > [!IMPORTANT]
-> When you use the *Run* button, select the **Dapr Dev Dashboard Terminal** from the dropdown that appears. Keep the dashboard running, you'll use it again in the next challenge.
+> When you use the *Run* button, select the **Dapr Dev Dashboard Terminal** from the dropdown that appears.
 
 Open the **Dapr Dev Dashboard** tab and navigate to the *Workflows* page. Click on the `audit-dapr-dapr-agents-635-...` instance ID to drill down to the workflow details page. The workflow is still *Running*, even though the app process has stopped, and the execution history shows the `gather_evidence` and `analyze` activities that were checkpointed before the crash. This is exactly the state the next challenge resumes from — the completed `gather_evidence` and `analyze` results are saved, so they never have to run again.
 
