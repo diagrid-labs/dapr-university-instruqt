@@ -10,7 +10,7 @@ ai-agents-deepagents
 
 Run a DeepAgents application that investigates a real GitHub issue, then crash it mid-run and watch Dapr Workflow resume the investigation from durable state — without re-running the expensive LLM calls that already completed.
 
-Languages: Python. Duration: 30 min. Requires an OpenAI API key.
+Languages: Python. Duration: 30 min.
 
 ## Time limit (minutes)
 

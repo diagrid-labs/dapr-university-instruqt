@@ -1,4 +1,4 @@
-The baseline agent worked, but everything it did lived in process memory. In this final challenge you'll wrap the exact same agent in a **Dapr Workflow**, so its state and progress are persisted as it runs. This challenge takes about 5 minutes to complete.
+The baseline agent worked, but everything it did lived in process memory. In this challenge you'll wrap the exact same agent in a **Dapr Workflow**, so its state and progress are persisted as it runs. This challenge takes about 5 minutes to complete.
 
 ## 1. Inspect the durable version
 
@@ -14,7 +14,7 @@ runner = DaprWorkflowDeepAgentRunner(
 )
 ```
 
-Instead of `agent.invoke(...)`, the script now calls `runner.start()` and streams events from `runner.run_async(...)`. Under the hood, every tool call the agent makes becomes a **Dapr Workflow activity** — and Dapr checkpoints each activity's result before moving to the next one.
+Instead of `agent.stream(...)`, the script now calls `runner.start()` and streams events from `runner.run_async(...)`. Under the hood, every tool call the agent makes becomes a **Dapr Workflow activity** — and Dapr checkpoints each activity's result before moving to the next one.
 
 ## 2. Inspect the state store
 
@@ -41,7 +41,7 @@ This is a Redis-backed Dapr state store named `agent-memory` — the name the De
 
 ## 3. Run the durable investigation
 
-Use the **Terminal** window to run the agent with Dapr:
+Use the **Terminal** window to run the agent with Dapr (select **Terminal** from the dropdown when you use the *Run* button):
 
 ```bash,run
 uv run dapr run --app-id deepagent --resources-path ./resources -- python investigate-durable.py --issue 7326
@@ -49,26 +49,31 @@ uv run dapr run --app-id deepagent --resources-path ./resources -- python invest
 
 Watch the terminal — you'll see more output that comes from Dapr, then you will see output that either comes from the Dapr workflow or the activities in that workflow. You will also see `Event: workflow_started`, `Event: workflow_status_changed`, and `Event: workflow_completed` as Dapr tracks the run.
 
-## 4. Read the report
+## 4. Inspect the workflow in the Dapr Dev Dashboard
 
-Refresh the *Editor* tab, then navigate to `investigation-7326.md` to open it.
+While the investigation is running, start the Dapr Dev Dashboard in the **Dapr Dev Dashboard Terminal**:
+
+```bash,run
+diagrid-dev-dashboard --port 9090 --bind 0.0.0.0 --no-open
+```
+
+> [!IMPORTANT]
+> When you use the *Run* button, select the **Dapr Dev Dashboard Terminal** from the dropdown that appears.
+
+Open the **Dapr Dev Dashboard** tab and navigate to the *Workflows* page. You'll see the workflow of the `deepagent` app. Click on its instance ID to drill down to the workflow details page, where you can follow the progress of the investigation: the input of the workflow and the execution history with every checkpointed activity. The page auto refreshes so you'll see new events being added to the list. When you'll see the `ExecutionCompleted` event it means the workflow is completed.
+
+## 5. Read the report
+
+Refresh the *Editor* tab, then navigate to `investigation-7326-durable.md` to open it.
 
 This is the same type of report as challenge 2 — but this time, if the process had died halfway through, the work up to that point wouldn't be lost. That's exactly what you'll prove in the next and final challenge.
 
-## 5. How this works
+## 6. How this works
 
 1. `DaprWorkflowDeepAgentRunner.start()` registers the agent graph as a Dapr Workflow and starts the actor runtime.
 2. Each node in the LangGraph state machine (tool call, model call, middleware) is wrapped as a Dapr Workflow activity.
 3. Before and after each workflow activity call, Dapr checkpoints the input and output of the activity to the Redis state store.
-4. If the process dies, the workflow engine replays history up to the last checkpoint and resume from there on restart.
-
-## 6. Remove the investigation report
-
-In the final challenge you'll generate the report again, so remove the current one using the **Terminal**:
-
-```bash,copy,run
-rm investigation-7326.md
-```
+4. If the process dies, the workflow engine replays history up to the last checkpoint and resumes from there on restart.
 
 ---
 

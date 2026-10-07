@@ -11,3 +11,17 @@ path: ai-agent-tracks-instruqt/deepagents/deep-investigation
 type: terminal
 host: {{...}}
 path: ai-agent-tracks-instruqt/deepagents/deep-investigation
+
+## Dapr Dev Dashboard Terminal
+
+type: terminal
+host: {{...}}
+path: ai-agent-tracks-instruqt/deepagents/deep-investigation
+
+## Dapr Dev Dashboard
+
+type: service/webapp
+host: {{...}}
+path: (empty)
+port: 9090
+protocol: http

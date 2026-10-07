@@ -18,7 +18,7 @@ In challenges 3 and 4 you'll back that scratchpad with a **Dapr state store** an
 
 ## The target issue
 
-We've picked one issue for this whole track: [dapr/dapr#7326](https://github.com/dapr/dapr/issues/7326) — "Dapr Sidecar still Ready when "failed to load components". This issues has several related PRs, issues, and comment threads.
+We've picked one issue for this whole track: [dapr/dapr#7326](https://github.com/dapr/dapr/issues/7326) — "Dapr Sidecar still Ready when "failed to load components". This issue has several related PRs, issues, and comment threads.
 
 ## 1. Verify the sandbox
 
@@ -29,7 +29,7 @@ dapr -v
 ```
 
 > [!NOTE]
-> You should see both a **CLI version** and a **Runtime version** listed. If the Runtime version is blank, run `dapr init` below to initialize it. If you run into any other blocking issue during this course, send me [an email](mailto:marc@diagrid.io), and we'll figure it out together.
+> You should see both a **CLI version** and a **Runtime version** listed. If the Runtime version is blank, run `dapr init` to initialize it. If you run into any other blocking issue during this course, send me [an email](mailto:marc@diagrid.io), and we'll figure it out together.
 
 **GitHub issue & PR data**
 
@@ -38,16 +38,9 @@ dapr -v
 
 If you want, use the *Editor* tab, and navigate to `data/dapr/dapr` to browse through the GitHub data.
 
-## 2. Add your OpenAI API key
+## 2. OpenAI API key
 
-Find the `.env` file in the **Editor** and add your key:
-
-```text,nocopy
-OPENAI_API_KEY=your_key_here
-```
-
-> [!NOTE]
-> You'll need a real key from https://platform.openai.com/signup as the agent calls `gpt-4o-mini` in every challenge from here on.
+The agent calls OpenAI's `gpt-4.1-mini` model in every challenge from here on. An OpenAI API key has already been provisioned for this sandbox, so you don't need to bring your own.
 
 ---
 
