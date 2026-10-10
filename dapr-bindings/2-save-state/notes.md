@@ -1,0 +1,6 @@
+The sandbox for this challenge is being prepared, it should be ready within a few seconds. Once it's ready, click the *Start* button.
+
+---
+In this challenge you'll inspect the Postgres binding component and its `exec` operation, then run the app and save a booking to Postgres. It will take about 7 minutes to complete.
+
+If you have any questions or feedback about this track, you can let us know in the *#general* channel of the [Dapr Discord server](https://diagrid.ws/dapr-discord).
