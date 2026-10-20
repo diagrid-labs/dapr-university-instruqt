@@ -7,6 +7,11 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 SETUP_DIR="$REPO_ROOT/dapr-secrets/_setup"
 TRACKS_SRC_DIR="${TRACKS_SRC_DIR:-$HOME/ai-agent-tracks-instruqt}"
 
+# 0. Syntax-check the real sandbox script. CI cannot run it (Instruqt-only commands) and only
+# runs its own copy of the secrets/Vault logic below, so this is the one CI signal that a bad
+# edit to _setup/sandbox-setup.sh would otherwise kill the track at launch.
+bash -n "$SETUP_DIR/sandbox-setup.sh"
+
 # 1. Parse the pinned Dapr versions (single source of truth) and export them for the suites.
 # awk is used (not grep -oP) so this runs on both macOS/BSD and GNU/Linux. The lines look like
 # `agent variable set DAPR_CLI_VERSION 1.18.2`, so the version is the last field ($NF).
@@ -54,15 +59,28 @@ fi
 # 5. Write secrets.json from the committed template (the single owner of the secret values) and
 # start + seed Vault. Duplicated from dapr-secrets/_setup/sandbox-setup.sh, which cannot be run
 # in CI (Instruqt-only commands); keep the two in sync.
+if [ ! -f "$TRACKS_SRC_DIR/secrets/secrets.example.json" ]; then
+  echo "ERROR: $TRACKS_SRC_DIR/secrets/secrets.example.json not found. Is $TRACKS_SRC_DIR a current clone of diagrid-labs/ai-agent-tracks-instruqt?" >&2
+  exit 1
+fi
 cp "$TRACKS_SRC_DIR/secrets/secrets.example.json" "$TRACKS_SRC_DIR/secrets/secrets.json"
 docker rm -f vault >/dev/null 2>&1 || true
 docker run -d --name vault -p 8200:8200 --cap-add=IPC_LOCK \
   -e VAULT_DEV_ROOT_TOKEN_ID=root -e VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200 \
   hashicorp/vault:1.20 >/dev/null
+vault_ready=false
 for _ in $(seq 1 30); do
-  docker exec -e VAULT_ADDR=http://127.0.0.1:8200 vault vault status >/dev/null 2>&1 && break
+  if docker exec -e VAULT_ADDR=http://127.0.0.1:8200 vault vault status >/dev/null 2>&1; then
+    vault_ready=true
+    break
+  fi
   sleep 1
 done
+if [ "$vault_ready" != "true" ]; then
+  echo "ERROR: Vault did not become ready within 30 seconds." >&2
+  exit 1
+fi
+# Note: `read -r name value` trims leading/trailing whitespace in a value; fine for these values.
 python3 -c 'import json, sys; [print(k, v) for k, v in json.load(open(sys.argv[1])).items()]' \
   "$TRACKS_SRC_DIR/secrets/secrets.json" | tr -d '\r' | while read -r name value; do
   docker exec -e VAULT_ADDR=http://127.0.0.1:8200 -e VAULT_TOKEN=root vault \
