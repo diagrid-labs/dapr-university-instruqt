@@ -51,9 +51,34 @@ if [ -z "$(docker ps -f "name=dapr_placement" -f "status=running" -q)" ] || \
   dapr init
 fi
 
-# 5. Write secrets.json and start + seed Vault by running the exact block sandbox-setup.sh uses
-# (between its BEGIN/END ci-shared markers), so the secret values live in one place.
-eval "$(sed -n '/^# BEGIN ci-shared/,/^# END ci-shared/p' "$SETUP_DIR/sandbox-setup.sh")"
+# 5. Write secrets.json from the committed template (the single owner of the secret values) and
+# start + seed Vault. Duplicated from dapr-secrets/_setup/sandbox-setup.sh, which cannot be run
+# in CI (Instruqt-only commands); keep the two in sync.
+cp "$TRACKS_SRC_DIR/secrets/secrets.example.json" "$TRACKS_SRC_DIR/secrets/secrets.json"
+docker rm -f vault >/dev/null 2>&1 || true
+docker run -d --name vault -p 8200:8200 --cap-add=IPC_LOCK \
+  -e VAULT_DEV_ROOT_TOKEN_ID=root -e VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200 \
+  hashicorp/vault:1.20 >/dev/null
+for _ in $(seq 1 30); do
+  docker exec -e VAULT_ADDR=http://127.0.0.1:8200 vault vault status >/dev/null 2>&1 && break
+  sleep 1
+done
+python3 -c 'import json, sys; [print(k, v) for k, v in json.load(open(sys.argv[1])).items()]' \
+  "$TRACKS_SRC_DIR/secrets/secrets.json" | tr -d '\r' | while read -r name value; do
+  docker exec -e VAULT_ADDR=http://127.0.0.1:8200 -e VAULT_TOKEN=root vault \
+    vault kv put "secret/dapr/$name" "$name=$value" >/dev/null </dev/null
+done
+
+# 6. Fail loudly if the Dapr runtime that is actually running is not the pinned MAJOR.MINOR.
+# Step 4 deliberately reuses an existing install (never uninstalls it), so an older runtime on a
+# developer machine would otherwise pass silently and challenge 3's 403/500 assertions would run
+# against the wrong runtime. Only MAJOR.MINOR is compared, as in setup-dapr-101.sh.
+RUNNING_RUNTIME="$(dapr --version | awk '/Runtime version/ {print $NF}')"
+if [ "${RUNNING_RUNTIME%.*}" != "${DAPR_RUNTIME_VERSION%.*}" ]; then
+  echo "ERROR: running Dapr runtime is $RUNNING_RUNTIME but this track pins $DAPR_RUNTIME_VERSION." >&2
+  echo "The secret-denial wording (403 ERR_PERMISSION_DENIED / 500 ERR_SECRET_GET) is version-sensitive, so the suites would assert against the wrong runtime. Run 'dapr uninstall --all && dapr init' (this removes your Dapr containers) and re-run." >&2
+  exit 1
+fi
 
 echo "Setup complete. TRACKS_SRC_DIR=$TRACKS_SRC_DIR, expecting Dapr ${DAPR_CLI_VERSION%.*}.x"
 dapr --version
