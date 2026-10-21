@@ -21,3 +21,6 @@ dist/
 .venv/
 venv/
 env/
+
+# Generated secret store files (the real ones are written into the cloned demo repo, never here)
+secrets.json

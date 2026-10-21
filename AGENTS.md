@@ -38,6 +38,7 @@ tools/
 | Folder | What it teaches |
 | --- | --- |
 | `dapr-101/` | Dapr fundamentals (CLI, state, service invocation, pub/sub). |
+| `dapr-secrets/` | The Secrets API: reading secrets, the secret store component and its parameters, secret scoping, and swapping the local file store for HashiCorp Vault (.NET/Python/Java; demo apps live in `diagrid-labs/ai-agent-tracks-instruqt` under `secrets/`). |
 | `dapr-workflow/` | Dapr Workflow patterns: durable execution, task chaining, fan-out/fan-in, monitor, external events, child workflows, resiliency/compensation, combined patterns, workflow management. |
 | `dapr-workflow-aspire/` | Dapr Workflow built live with .NET Aspire (no upstream repo — the app is pasted from the assignment). |
 | `dapr-dotnet-aspire/` | Dapr + .NET Aspire integration. |
@@ -47,8 +48,8 @@ tools/
 | `ai-agents-maf/` | Making Microsoft Agent Framework (MAF) agents reliable with Dapr Workflow (.NET Aspire). |
 | `catalyst-101/` | Introductory Diagrid Catalyst track. |
 
-Only `dapr-101`, `dapr-workflow`, and `dapr-workflow-aspire` currently have `track-tester`
-suites and CI workflows.
+Only `dapr-101`, `dapr-workflow`, `dapr-workflow-aspire`, and `dapr-secrets` currently have
+`track-tester` suites and CI workflows.
 
 ## Track & challenge anatomy
 
@@ -81,7 +82,8 @@ the matching `tests/challenge.robot` suite too (or the doc-sync CI job will fail
 
 `tools/track-tester/` is an end-to-end **drift** test harness built on
 [Robot Framework](https://robotframework.org/). The runnable tracks depend on upstream code
-(mostly [`dapr/quickstarts`](https://github.com/dapr/quickstarts)); when that upstream code
+(mostly [`dapr/quickstarts`](https://github.com/dapr/quickstarts); `dapr-secrets` uses
+`diagrid-labs/ai-agent-tracks-instruqt`); when that upstream code
 or the tooling around it changes, a track's `assignment.md` can silently fall out of sync
 with the commands and output a learner actually sees. The harness catches this by running
 the *actual* commands from each assignment and asserting on their real output.
@@ -105,6 +107,8 @@ tools/track-tester/
     dapr_101.py          QUICKSTARTS_DIR + base dirs for dapr-101
     dapr_workflow.py     QUICKSTARTS_DIR + WF_BASE (tutorials/workflow) for dapr-workflow
     dapr_workflow_aspire.py
+    dapr_secrets.py      TRACKS_SRC_DIR + SECRETS_BASE, demo folder names and the
+                         denied/missing error constants for dapr-secrets
   libraries/             Python keyword libraries
     assignment_blocks.py parses ,copy/,run fenced blocks (used by the aspire track,
                          which has no upstream repo and builds the app from the assignment)
@@ -116,6 +120,7 @@ tools/track-tester/
     setup-dapr-101.sh
     setup-dapr-workflow.sh
     setup-dapr-workflow-aspire.sh
+    setup-dapr-secrets.sh
   results/               (gitignored) output dirs from local/CI runs
 ```
 
@@ -176,15 +181,16 @@ Notes that trip people up:
 | `Assert Command Output Contains` | Run (rc 0) and assert stdout contains a substring. |
 | `Run Multi-App And Assert Markers` | Start a multi-app `dapr run -f .` and wait for each expected log marker, then stop. |
 | `Assert Redis Keys Contain` | Assert a key exists in the Dapr Redis container via `redis-cli KEYS`. |
+| `Assert Version Line Matches Minor` | Assert a `dapr -v` style `<label>: X.Y.Z` line matches the major.minor of a pinned version, with any patch or pre-release suffix — so a patch bump doesn't fail a suite but a minor/major bump does. |
+| `Wait Until App Responds` | Language-agnostic readiness probe: curl the app port until the connection succeeds (any HTTP response ⇒ rc 0; refused ⇒ rc 7). Avoids depending on framework log lines. |
+| `Capture Command Output` | Run (rc 0) and return stripped stdout — for example an ID extracted by an assignment's curl/grep/sed pipeline. |
+| `Wait Until Command Output Contains` | Poll a command until its output contains a substring. |
 
 ### `resources/workflow.resource` — workflow-specific (imports `dapr.resource`)
 
 | Keyword | Purpose |
 | --- | --- |
-| `Wait Until App Responds` | Language-agnostic readiness probe: curl the app port until the connection succeeds (any HTTP response ⇒ rc 0; refused ⇒ rc 7). Avoids depending on framework log lines. |
 | `Start Workflow App` | Start the app in the background, then wait until it responds. |
-| `Capture Command Output` | Run (rc 0) and return stripped stdout — used to capture workflow instance IDs from the assignment's curl/grep/sed pipelines. |
-| `Wait Until Command Output Contains` | Poll a command until its output contains a substring. |
 | `Enable Testcontainers Reuse` | Idempotently set `testcontainers.reuse.enable=true` so the two Java apps in the combined-patterns challenge can share one container. |
 | `Wait Until Workflow Completed` | Poll the Dapr workflow status endpoint until `"runtimeStatus":"COMPLETED"`, then optionally assert the output contains an expected substring. |
 
@@ -209,6 +215,10 @@ WF_BASE = os.path.join(QUICKSTARTS_DIR, "tutorials", "workflow")
   at an existing clone). Otherwise they fall back to `~/quickstarts`, where the `ci/` setup
   scripts clone the repo.
 - No `--variable` flag is needed — the suites read the env var directly via these files.
+- `dapr-secrets` resolves a different checkout the same way: `variables/dapr_secrets.py` reads
+  `TRACKS_SRC_DIR` (falling back to `~/ai-agent-tracks-instruqt`) and derives `SECRETS_BASE`
+  from it. That file also owns the expected denied/missing error constants, so a Dapr upgrade
+  that changes the wording fails the suite instead of silently drifting from the assignment.
 
 ## doc-sync
 
@@ -241,9 +251,13 @@ Everything runs from **`tools/track-tester/`** via `uv` (so paths to suites are
 # Dapr CLI, runs `dapr init` — this re-inits your local Dapr). Needs Docker running.
 bash tools/track-tester/ci/setup-dapr-101.sh        # dapr-101 (pins the Dapr CLI version)
 bash tools/track-tester/ci/setup-dapr-workflow.sh   # dapr-workflow (Dapr CLI from master)
+bash tools/track-tester/ci/setup-dapr-secrets.sh    # dapr-secrets (clones the demo repo,
+                                                    # pins the Dapr CLI, starts+seeds Vault)
 
 # Optional: point suites at an existing checkout instead of ~/quickstarts.
 export QUICKSTARTS_DIR="$HOME/dev/dapr/quickstarts"
+# The dapr-secrets suites use their own checkout, with the same pattern.
+export TRACKS_SRC_DIR="$HOME/dev/diagrid-labs/ai-agent-tracks-instruqt"
 
 # Sync harness deps.
 (cd tools/track-tester && uv sync)
@@ -275,7 +289,7 @@ Homebrew-vs-`/usr/local/bin` Dapr shadowing, per-language runtime notes), and li
 
 ## CI workflows
 
-Three workflows in `.github/workflows/` run the suites automatically. Each triggers on a
+Four workflows in `.github/workflows/` run the suites automatically. Each triggers on a
 **daily schedule**, on **`workflow_dispatch`**, and on **pull requests** touching the track,
 the harness (`tools/track-tester/**`), or the workflow file. On failure, a `report` job
 opens or updates a single **`drift-report`** GitHub issue that names the failing legs and
@@ -286,6 +300,7 @@ gives `gh run download` commands for the Robot reports.
 | `test-dapr-101.yml` | `dapr-101` | 06:00 daily | doc-sync; agnostic (ch2–3); per-language matrix: dotnet, python, java, javascript |
 | `test-dapr-workflow.yml` | `dapr-workflow` | 06:15 daily | doc-sync (all challenges); per-language matrix: dotnet, java, python |
 | `test-dapr-workflow-aspire.yml` | `dapr-workflow-aspire` | 06:30 daily | harness unit tests (pytest); build-and-run (.NET 10 + Aspire CLI) |
+| `test-dapr-secrets.yml` | `dapr-secrets` | 06:45 daily | doc-sync (all challenges); matrix: dotnet, java, python, shared |
 
 Details worth knowing when editing CI:
 
@@ -295,6 +310,12 @@ Details worth knowing when editing CI:
 - The dapr-workflow **Java** leg caches `~/.m2` and **pre-warms Maven deps outside the timed
   run** — the Java challenges start via `mvn spring-boot:test-run` under a 300s readiness
   timeout, and a cold `~/.m2` download would otherwise eat into compile+startup time.
+- The dapr-secrets workflow runs a fourth matrix leg, `shared`, for the language-agnostic
+  tests (it inverts the language tags with `--exclude`), starts and seeds a **HashiCorp Vault**
+  container for challenge 4, and guards the pinned Dapr runtime version: both pinned versions
+  are parsed out of `dapr-secrets/_setup/sandbox-setup.sh` by `ci/setup-dapr-secrets.sh`, so
+  the pin lives in exactly one place. A pre-test failure is recorded in `failed-<leg>.txt`
+  so the drift-report issue names the step that broke rather than reporting a test failure.
 - The aspire workflow does **not** install the Aspire project templates itself: the suite's
   first checkpoint runs the pinned `dotnet new install Aspire.ProjectTemplates@<ver>` command
   extracted from the assignment, keeping the pinned version a single source of truth (and

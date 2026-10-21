@@ -2,13 +2,13 @@
 
 End-to-end drift tests for Dapr University tracks, built on [Robot Framework](https://robotframework.org/).
 The tests run the *actual* commands a learner runs and assert on their output, so that drift between a
-track's `assignment.md` files and the upstream code they depend on (e.g. `dapr/quickstarts`) is caught
-automatically.
+track's `assignment.md` files and the upstream code they depend on (e.g. `dapr/quickstarts`, and
+`diagrid-labs/ai-agent-tracks-instruqt` for `dapr-secrets`) is caught automatically.
 
 ## Layout
 
 - `resources/` — shared, track-agnostic Robot keywords (Dapr process lifecycle, assertions).
-- `variables/` — shared values (quickstarts base dir, expected output markers).
+- `variables/` — shared values per track (source checkout base dir, expected output markers).
 - `docsync/` — a Python checker asserting each assignment's commands are covered by a suite.
 - `ci/` — scripts that reproduce a track's sandbox environment in CI.
 
@@ -28,15 +28,21 @@ that in a subshell: `(cd tools/track-tester && …)`, so you can paste them from
 # installs the Dapr CLI if you don't have one, and runs `dapr init` (re-inits your local Dapr).
 bash tools/track-tester/ci/setup-dapr-101.sh     # dapr-101 (installs Dapr CLI from master)
 bash tools/track-tester/ci/setup-dapr-workflow.sh # dapr-workflow (installs Dapr CLI from master)
+# dapr-secrets clones diagrid-labs/ai-agent-tracks-instruqt to ~/ai-agent-tracks-instruqt,
+# pins the Dapr CLI/runtime, and starts and seeds a HashiCorp Vault container.
+bash tools/track-tester/ci/setup-dapr-secrets.sh  # dapr-secrets
 
 # Optional: point the suites at an existing quickstarts checkout instead of ~/quickstarts.
 # The suites read this env var directly (via variables/*.py); no --variable needed.
 export QUICKSTARTS_DIR="$HOME/dev/dapr/quickstarts"
+
+# Same idea for dapr-secrets, which uses its own demo checkout.
+export TRACKS_SRC_DIR="$HOME/dev/diagrid-labs/ai-agent-tracks-instruqt"
 ```
 
 ### Specifying which track / challenges to run
 
-A "track" is a top-level folder (`dapr-101`, `dapr-workflow`); each challenge's suite is
+A "track" is a top-level folder (`dapr-101`, `dapr-workflow`, `dapr-secrets`); each challenge's suite is
 `<track>/<n>-<name>/tests/challenge.robot`. Point `robot` at one suite, several, or a whole
 track via a glob. Passing multiple suites to a **single** `robot` invocation produces one
 combined `report.html`/`log.html` that indexes every suite (the local equivalent of what CI
@@ -179,6 +185,21 @@ and run exactly like the examples above. Two per-language quirks to know:
   daemon but **not** `dapr run`, and talks to app-owned endpoints on port 8080. So you can run
   the .NET/Python legs with just `dapr init`, but the `java` leg additionally needs Docker able
   to pull the Testcontainers images.
+
+### dapr-secrets: what the suites need
+
+The dapr-secrets suites share `resources/dapr.resource` + `variables/dapr_secrets.py`, and read the
+demo apps from `TRACKS_SRC_DIR` (default `~/ai-agent-tracks-instruqt`) instead of a quickstarts
+checkout. Beyond `dapr init` they need:
+
+- **A HashiCorp Vault container** on port 8200 (dev mode, root token `root`), seeded with the
+  values from `secrets/secrets.example.json`. `ci/setup-dapr-secrets.sh` starts and seeds it;
+  without it the challenge 4 suite fails.
+- **All three runtimes** (.NET, Python + `uv`, JDK + Maven) unless you filter with
+  `--include <lang>`. The language-agnostic tests carry no language tag, so CI selects them
+  with `--exclude dotnet --exclude python --exclude java`.
+- **Free ports 5001–5003 and 3500–3502.** The suites fail fast when a leaked app still holds
+  one, rather than asserting against the previous run's app.
 
 ## Limitations
 
