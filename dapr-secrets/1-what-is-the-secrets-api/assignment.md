@@ -47,6 +47,9 @@ The secret store itself is defined in the `secretstore-local.yaml` file in the `
 
 The `dapr.yaml` file in the demo folder is a Multi-App Run file. It starts the `order-api` application together with its Dapr sidecar and tells Dapr where to find the components.
 
+> [!IMPORTANT]
+> Run `dapr run -f .` from inside the demo folder (`Demo1-ReadSecret` of your language). The `secretsFile` path in the component is relative to that folder, so running the command from anywhere else means the secret store cannot find `secrets.json`.
+
 > [!NOTE]
 > Expand the language-specific instructions to start the application.
 
