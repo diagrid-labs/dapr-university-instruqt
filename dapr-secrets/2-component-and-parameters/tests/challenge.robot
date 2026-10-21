@@ -36,6 +36,12 @@ ${STATESTORE_LOADED}    Component loaded: statestore (state.redis/v1)
 ${SECRET_NOT_FOUND}     Error getting secret: secret not-in-the-store not found
 ${STORE_NOT_LOADED}     references a secret store that isn't loaded
 ${MISSING_NAME}         not-in-the-store
+# What daprd 1.18.x logs, fatally, when `secretsFile` names a file that does not exist. The
+# file name in the message is whatever was configured; only the operating system's wording is
+# pinned, plus the line that says the sidecar process ended.
+${FILE_NOT_FOUND}       no such file or directory
+${SIDECAR_EXITED}       The daprd process exited with error code: exit status 1
+${INIT_FAILURE}         initialization error occurred for secretstore (secretstores.local.file/v1)
 
 # A throwaway sidecar's dapr.yaml. YAML is a superset of JSON, so this one-line flow form
 # avoids indentation inside a Robot cell. The appID matches the real demos so that the control
@@ -121,6 +127,22 @@ A Missing Auth Block Is Logged
     # Drop everything from `auth:` on, leaving a secretKeyRef with no store to resolve against.
     Control Variant Starts    no-auth    ${EMPTY}    ${EMPTY}    drop_auth=${TRUE}
     Wait For Sidecar Log To Contain    no-auth    ${STORE_NOT_LOADED}:
+    [Teardown]    Stop Process With SIGINT    control
+
+A Missing SecretsFile Stops The Sidecar With A Fatal Log Line
+    [Documentation]    The assignment says a `secretsFile` that does not exist stops the sidecar from
+    ...    starting. The `dapr run` command itself keeps running (it keeps the app), so the
+    ...    sidecar's own log is where the exit is seen.
+    [Tags]    component    control
+    ${secrets}=    Get File    ${SECRETS_BASE}/secrets.example.json
+    ${state}=    Get File    ${SECRETS_BASE}/python/resources/statestore-with-secretref.yaml
+    Prepare Sidecar Folder    missing-file    ${secrets}    ${state}    secrets_file=./nofile.json
+    Wait For Sidecar Log To Contain    missing-file    ${SIDECAR_EXITED}
+    ${log}=    Read Newest Sidecar Log    ${CONTROL_ROOT}/missing-file
+    Should Contain    ${log}    level=fatal
+    Should Contain    ${log}    ${INIT_FAILURE}
+    Should Contain    ${log}    open ./nofile.json: ${FILE_NOT_FOUND}
+    Should Not Contain    ${log}    ${STATESTORE_LOADED}
     [Teardown]    Stop Process With SIGINT    control
 
 A Wrong SecretKeyRef Key Is Silent With The Local File Store
@@ -247,13 +269,13 @@ Prepare Sidecar Folder
     # A throwaway folder for `dapr run -f .`: the real secret store component (secretsFile
     # pointed at the folder's own secrets.json), the given secrets and state store component,
     # and a dapr.yaml with a do-nothing app.
-    [Arguments]    ${name}    ${secrets}    ${statestore}
+    [Arguments]    ${name}    ${secrets}    ${statestore}    ${secrets_file}=./secrets.json
     ${dir}=    Set Variable    ${CONTROL_ROOT}/${name}
     Remove Directory    ${dir}    recursive=True
     Create Directory    ${dir}/resources
     Create File    ${dir}/secrets.json    ${secrets}
     ${store}=    Get File    ${SECRETS_BASE}/python/resources/secretstore-local.yaml
-    ${store}=    Replace String    ${store}    ../../secrets.json    ./secrets.json
+    ${store}=    Replace String    ${store}    ../../secrets.json    ${secrets_file}
     Create File    ${dir}/resources/secretstore-local.yaml    ${store}
     Create File    ${dir}/resources/statestore-with-secretref.yaml    ${statestore}
     Create File    ${dir}/dapr.yaml    ${CONTROL_APPS}

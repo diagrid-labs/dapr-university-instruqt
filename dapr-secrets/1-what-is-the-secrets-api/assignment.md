@@ -174,7 +174,7 @@ Use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
 
 Right now there is one application and it can read every secret in the store. That is convenient, but it is also the problem: any application with a sidecar could read the payments key too.
 
-Later in this track a second application joins `order-api`. Both applications read their secrets without trouble at first, and by the end of the track you'll make the second one fail on purpose.
+In challenge 3 you'll run two applications with the same code against one secret store. Both read their secrets without trouble at first, and then you'll make one of them fail on purpose.
 
 ---
 

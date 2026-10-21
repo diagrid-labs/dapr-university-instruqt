@@ -7,7 +7,7 @@ In this challenge, you'll run two apps that have the same code and read from the
 
 Use the **Editor** tab and open the `Demo2-Scoping` folder of your language (for example `dotnet/Demo2-Scoping`). It holds:
 
-- `AppA` and `AppB`: two apps with exactly the same code. Each has one endpoint, `GET /secret/{name}`, that asks the `secretstore` component for a secret. App A listens on 5002 and App B on 5003, and even that is set outside the application code.
+- `AppA` and `AppB`: two apps with exactly the same code. Each has one endpoint, `GET /secret/{name}`, that asks the `secretstore` component for a secret. App A listens on 5002 and App B on 5003, and those ports are set in `dapr.yaml`, outside the application code.
 - `resources`: the `secretstore` component you know from the previous challenges, and a file named `config-app-b.yaml` that you'll meet in step 4.
 - `dapr.yaml`: starts both apps, each with its own Dapr sidecar. Open it. App A's sidecar listens on port 3501 and App B's on 3502.
 
@@ -194,7 +194,7 @@ Expected output:
 {"errorCode":"ERR_PERMISSION_DENIED","message":"access denied by policy to get \"orderdb-password\" from \"secretstore\""} 403
 ```
 
-The sidecar refused before the secret store was even asked. Notice the two spellings. Dapr says `ERR_PERMISSION_DENIED`. The app shows `PERMISSION_DENIED` because it reports the failure in its own words: it passes the refusal on instead of hiding it.
+The sidecar refused the request. Notice the two spellings. Dapr says `ERR_PERMISSION_DENIED`. The app shows `PERMISSION_DENIED` because it reports the failure in its own words: it passes the refusal on instead of hiding it.
 
 ## 6. Denied is not the same as missing
 
@@ -236,7 +236,7 @@ Expected output:
 {"name":"does-not-exist","error":"PERMISSION_DENIED"} 403
 ```
 
-It gets the same refusal as the real `orderdb-password`. Dapr checks the scoping rules before it looks in the store, so a refusal says nothing about whether the secret exists. An app that is scoped out cannot use the refusals to find out which secrets are there.
+It gets the same refusal as the real `orderdb-password`. Dapr answers a scoped-out request the same way whether or not the secret exists, so a refusal says nothing about whether it does. An app that is scoped out cannot use the refusals to find out which secrets are there.
 
 ## 7. The other direction
 
