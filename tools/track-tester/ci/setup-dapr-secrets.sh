@@ -94,7 +94,7 @@ done
 # against the wrong runtime. Only MAJOR.MINOR is compared, as in setup-dapr-101.sh.
 RUNNING_RUNTIME="$(dapr --version | awk '/Runtime version/ {print $NF}')"
 if [ "${RUNNING_RUNTIME%.*}" != "${DAPR_RUNTIME_VERSION%.*}" ]; then
-  echo "ERROR: running Dapr runtime is $RUNNING_RUNTIME but this track pins $DAPR_RUNTIME_VERSION." >&2
+  echo "ERROR: running Dapr runtime is $RUNNING_RUNTIME but this track pins $DAPR_RUNTIME_VERSION (the runtime has moved past the pin, or an older one is running)." >&2
   echo "The secret-denial wording (403 ERR_PERMISSION_DENIED / 500 ERR_SECRET_GET) is version-sensitive, so the suites would assert against the wrong runtime. Run 'dapr uninstall --all && dapr init' (this removes your Dapr containers) and re-run." >&2
   exit 1
 fi
