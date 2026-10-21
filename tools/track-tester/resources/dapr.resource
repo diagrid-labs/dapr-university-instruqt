@@ -9,6 +9,8 @@
 Library    Process
 Library    OperatingSystem
 Library    Collections
+# String is used by Capture Command Output (Strip String).
+Library    String
 
 *** Keywords ***
 # Each unindented name below defines a keyword. `[Arguments]` declares its
@@ -132,3 +134,27 @@ Assert Version Line Matches Minor
     # lines of `dapr --version` output don't need to be part of the pattern.
     Should Match Regexp    ${output}    ${pattern}
     ...    msg=No "${label}: <MAJOR.MINOR of ${pinned}>.x" line in output:\n${output}
+
+Wait Until App Responds
+    # Readiness probe: curl the app's port until the connection succeeds. A running
+    # HTTP server returns *some* response (even 404) => curl exits 0; a refused
+    # connection => curl exits 7. This is language-agnostic (works for the .NET,
+    # Python and Java apps) and avoids depending on exact framework log lines.
+    [Arguments]    ${probe_url}    ${timeout}=120s
+    Wait Until Keyword Succeeds    ${timeout}    2s
+    ...    Run And Expect RC Zero    curl -s -o /dev/null ${probe_url}
+
+Capture Command Output
+    # Run a command to completion (rc 0 required) and return its stdout, stripped
+    # of surrounding whitespace/newlines. Used to capture workflow instance IDs
+    # from the assignment's curl+grep+sed pipelines.
+    [Arguments]    ${command}    ${cwd}=${EMPTY}
+    ${r}=    Run And Expect RC Zero    ${command}    ${cwd}
+    ${out}=    Strip String    ${r.stdout}
+    RETURN    ${out}
+
+Wait Until Command Output Contains
+    # Poll: retry running ${command} until its output contains ${text}.
+    [Arguments]    ${command}    ${text}    ${timeout}=90s
+    Wait Until Keyword Succeeds    ${timeout}    3s
+    ...    Assert Command Output Contains    ${command}    ${text}

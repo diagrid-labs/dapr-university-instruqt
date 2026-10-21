@@ -22,7 +22,8 @@ echo "DAPR_RUNTIME_VERSION=$DAPR_RUNTIME_VERSION" >> "${GITHUB_ENV:-/dev/stdout}
 echo "TRACKS_SRC_DIR=$TRACKS_SRC_DIR" >> "${GITHUB_ENV:-/dev/stdout}"
 
 # 2. Clone the demo repo (source of truth for the demo apps and resources).
-if [ ! -d "$TRACKS_SRC_DIR/.git" ]; then
+# -e, not -d: in a git worktree the .git entry is a file, not a directory.
+if [ ! -e "$TRACKS_SRC_DIR/.git" ]; then
   git clone --depth 1 https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git "$TRACKS_SRC_DIR"
 fi
 
