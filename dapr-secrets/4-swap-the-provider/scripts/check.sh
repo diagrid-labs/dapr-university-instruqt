@@ -7,7 +7,7 @@ if [ "${orderdb##* }" = "000" ]; then
     fail-message "The app does not answer on port 5001. Is 'dapr run -f .' running in your Demo3-SwapProvider folder?"
     exit 1
 elif [ "$store" != '"name":"secretstore","type":"secretstores.hashicorp.vault"' ]; then
-    fail-message "The app isn't reading from Vault yet — is secretstore-vault.yaml the component Dapr loaded?"
+    fail-message "The app isn't reading from Vault yet — is secretstore-vault.yaml the component Dapr loaded? Stop the running app with Ctrl+C and start it with 'dapr run -f .' from the Demo3-SwapProvider folder, not from Demo1-ReadSecret."
     exit 1
 elif [ "${orderdb##* }" != "200" ]; then
     fail-message "Dapr loaded the Vault component, but the app cannot read orderdb-password (HTTP ${orderdb##* }): ${orderdb}. Is Vault running ('docker ps') and does it hold the secrets? Check the Dapr CLI window for errors."

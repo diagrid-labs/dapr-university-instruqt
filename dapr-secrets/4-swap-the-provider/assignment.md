@@ -45,7 +45,7 @@ The sandbox already stored your secrets in Vault, under the names Dapr expects (
 > Run `dapr run -f .` from inside the `Demo3-SwapProvider` folder. If an application from an earlier challenge is still running, stop it first with `Ctrl+C` in the **Dapr CLI** window.
 
 > [!NOTE]
-> Expand the language-specific instructions to start the application. Nothing is built: the application is already built.
+> Expand the language-specific instructions to start the application. The application is already built, so there is nothing you need to rebuild.
 
 <details>
    <summary><b>.NET</b></summary>
@@ -202,13 +202,13 @@ Click the *Check* button while the application is still running: the check asks 
 
 ---
 
-You swapped the secret provider and did not touch the application. Nothing was rebuilt, and no line of code in `Demo1-ReadSecret` changed. That is what the Secrets API gives you: your code asks for a secret by name, and where it lives is a decision for the platform.
+You ran the same application against a different `secretstore` YAML, and it read its secrets from Vault instead of a file. The application was already built, and no source file in `Demo1-ReadSecret` changed. That is what the Secrets API gives you: your code asks for a secret by name, and where it lives is a decision for the platform.
 
 Here is what you did in this track:
 
 1. **What is the Secrets API:** you read a secret through your application instead of keeping it in code or config.
 2. **The component and its parameters:** you configured the local file store, read secrets one by one and in bulk, and let a state store get its password with `secretKeyRef`.
 3. **Secret scoping:** you ran two identical apps and saw Dapr refuse one of them, with a 403 for a secret it may not read and a 500 for one that is not there.
-4. **Swap the provider:** you moved the secrets to HashiCorp Vault by changing one YAML file.
+4. **Swap the provider:** you ran the same application with a `secretstore` that points at HashiCorp Vault, and saw that only one YAML file is different.
 
 Questions, or something to share? Join the [Dapr Discord](https://diagrid.ws/dapr-discord) and find the *#university* channel.

@@ -154,6 +154,20 @@ The Vault Component Is The Same In Every Language
         Should Contain    ${run}    ${command}
     END
 
+The Swap Folder Holds No Application Code
+    [Documentation]    The claim "the application did not change" rests on Demo3-SwapProvider being
+    ...    configuration only: its dapr.yaml starts the app that is already in Demo1-ReadSecret. If
+    ...    anyone adds code there, the swap is no longer the same app and this test fails.
+    [Tags]    component
+    FOR    ${lang}    IN    dotnet    python    java
+        @{entries}=    List Directory    ${SECRETS_BASE}/${lang}/${DEMO3}
+        # Run output (.dapr) is ignored by git and is not part of the folder.
+        ${entries}=    Evaluate    sorted(e for e in $entries if e != ".dapr")
+        Should Be Equal    ${{",".join($entries)}}    dapr.yaml,resources
+        @{resources}=    List Directory    ${SECRETS_BASE}/${lang}/${DEMO3}/resources
+        Should Be Equal    ${{",".join(sorted($resources))}}    secretstore-vault.yaml,statestore-with-secretref.yaml
+    END
+
 DotNet The Same App Reads From Vault
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
