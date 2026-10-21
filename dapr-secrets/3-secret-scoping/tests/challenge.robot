@@ -300,7 +300,10 @@ Solve Teardown
         # Create File would also create a missing folder, so only touch a file that exists.
         IF    os.path.isfile($file)
             ${yaml}=    Get File    ${file}
-            ${restored}=    Replace String    ${yaml}    ${SPACE}configFilePath:    ${SPACE}\# configFilePath:
+            # Only an ACTIVE line is re-commented, so an already commented one is never doubled.
+            ${restored}=    Evaluate
+            ...    re.sub('(?m)^( +)configFilePath:', lambda m: m.group(1) + '# configFilePath:', $yaml)
+            ...    modules=re
             Create File    ${file}    ${restored}
         END
     END

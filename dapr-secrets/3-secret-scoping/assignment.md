@@ -7,7 +7,7 @@ In this challenge, you'll run two apps that have the same code and read from the
 
 Use the **Editor** tab and open the `Demo2-Scoping` folder of your language (for example `dotnet/Demo2-Scoping`). It holds:
 
-- `AppA` and `AppB`: two apps with exactly the same code. Each has one endpoint, `GET /secret/{name}`, that asks the `secretstore` component for a secret. They differ only in their port: App A listens on 5002 and App B on 5003.
+- `AppA` and `AppB`: two apps with exactly the same code. Each has one endpoint, `GET /secret/{name}`, that asks the `secretstore` component for a secret. App A listens on 5002 and App B on 5003, and even that comes from `dapr.yaml`, not from the code.
 - `resources`: the `secretstore` component you know from the previous challenges, and a file named `config-app-b.yaml` that you'll meet in step 4.
 - `dapr.yaml`: starts both apps, each with its own Dapr sidecar. Open it. App A's sidecar listens on port 3501 and App B's on 3502.
 
@@ -152,7 +152,7 @@ A sidecar reads its configuration when it starts, so restart the applications. U
 dapr run -f .
 ```
 
-Wait until both applications are running again.
+Wait until the two `Started Dapr` lines appear again. If you ask too early, you get an error with status 500 (`UNAVAILABLE`) because the sidecar is not ready yet. That is not the refusal. Wait a few seconds and ask again.
 
 ## 5. The refusal
 
@@ -222,23 +222,9 @@ Expected output:
 {"name":"legacy-api-key","error":"INTERNAL"} 500
 ```
 
-This is a different failure: status 500, not 403. Dapr let the request through and the store had nothing to give. Look at what Dapr itself says:
+This is a different failure: status 500, not 403. Dapr let the request through and the store had nothing to give. There are two kinds of no: `403` means you may not read this, and `500` means you may, and there is nothing there.
 
-```bash,run
-curl -s -w ' %{http_code}\n' http://localhost:3502/v1.0/secrets/secretstore/legacy-api-key
-```
-
-Expected output:
-
-```text,nocopy
-{"errorCode":"ERR_SECRET_GET","message":"failed getting secret with key legacy-api-key from secret store secretstore: secret legacy-api-key not found"} 500
-```
-
-There are two kinds of no. `403 ERR_PERMISSION_DENIED` means you may not read this. `500 ERR_SECRET_GET` means you may, and there is nothing there.
-
-## 7. A 403 does not mean the secret exists
-
-Ask App B for a secret that is not in the store and is not on the allowed list either:
+A 403 does not mean the secret exists, though. Ask App B for a secret that is not in the store and is not on the allowed list either:
 
 ```bash,run
 curl -s -w ' %{http_code}\n' http://localhost:5003/secret/does-not-exist
@@ -252,7 +238,7 @@ Expected output:
 
 It gets the same refusal as the real `orderdb-password`. Dapr checks the scoping rules before it looks in the store, so a refusal says nothing about whether the secret exists. An app that is scoped out cannot use the refusals to find out which secrets are there.
 
-## 8. The other direction
+## 7. The other direction
 
 You can also write the rule the other way around: allow everything, and name what is forbidden. Open `config-app-b.yaml` again and make two changes. Change `defaultAccess: deny` to `defaultAccess: allow`, and replace the whole `allowedSecrets` line with this line:
 
@@ -266,7 +252,7 @@ Save the file. Use the **Dapr CLI** window: press `Ctrl+C`, wait for the applica
 dapr run -f .
 ```
 
-When both applications are running again, ask App B for the two secrets in the **curl** window:
+When the two `Started Dapr` lines appear again (and a `curl` that returns 500 `UNAVAILABLE` only means the sidecar is not ready yet), ask App B for the two secrets in the **curl** window:
 
 ```bash,run
 curl -s -w ' %{http_code}\n' http://localhost:5003/secret/orderdb-password
@@ -290,9 +276,9 @@ Expected output:
 
 The result is the same, but the thinking is reversed. With an allow list, a secret that someone adds to the store later is off limits until you list it. With a deny list, it is open until you list it. For secrets, the allow list is usually the safer choice.
 
-## 9. Stop the applications
+## 8. Check your work and stop
 
-Use the **Dapr CLI** window to stop the applications by pressing `Ctrl+C`.
+Click the *Check* button while both applications are still running: the check asks them. When it passes, use the **Dapr CLI** window to stop the applications by pressing `Ctrl+C`.
 
 ---
 

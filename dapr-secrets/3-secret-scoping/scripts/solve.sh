@@ -27,7 +27,7 @@ nohup dapr run -f . >/tmp/dapr-secrets-demo2.log 2>&1 &
 # 4. Wait until app-b answers a request that its sidecar allows.
 for _ in $(seq 1 120); do
     if curl -s http://localhost:5003/secret/payments-api-key | grep -q pk-test-7f3a9; then
-        echo "App B is up and its Configuration is applied."
+        echo "Restarted both apps in .NET with the Configuration applied to app-b (whichever language you used before)."
         exit 0
     fi
     sleep 2
