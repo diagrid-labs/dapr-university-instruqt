@@ -7,7 +7,7 @@ In this challenge, you'll run two apps that have the same code and read from the
 
 Use the **Editor** tab and open the `Demo2-Scoping` folder of your language (for example `dotnet/Demo2-Scoping`). It holds:
 
-- `AppA` and `AppB`: two apps with exactly the same code. Each has one endpoint, `GET /secret/{name}`, that asks the `secretstore` component for a secret. App A listens on 5002 and App B on 5003, and even that comes from `dapr.yaml`, not from the code.
+- `AppA` and `AppB`: two apps with exactly the same code. Each has one endpoint, `GET /secret/{name}`, that asks the `secretstore` component for a secret. App A listens on 5002 and App B on 5003, and even that is set outside the application code.
 - `resources`: the `secretstore` component you know from the previous challenges, and a file named `config-app-b.yaml` that you'll meet in step 4.
 - `dapr.yaml`: starts both apps, each with its own Dapr sidecar. Open it. App A's sidecar listens on port 3501 and App B's on 3502.
 
