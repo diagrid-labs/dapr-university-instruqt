@@ -9,7 +9,7 @@ Use the **Editor** tab and open the `secretstore-local.yaml` file in the `resour
 
 - `metadata.name: secretstore` is the name callers use. The application passes `secretstore` to the Secrets API, and it is the part of the URL in `/v1.0/secrets/secretstore/...`. Rename the component and every caller, in code and in URLs, has to change with it.
 - `type: secretstores.local.file` selects the implementation. Everything the application does stays the same when you change this to a different type, such as HashiCorp Vault. Only where the secrets come from changes. You'll do exactly that later in this track.
-- `secretsFile` is the one setting this store cannot work without: the JSON file to read. Point it at another file and the application sees other secrets. Point it at a file that does not exist and the sidecar refuses to start: it logs `open ./nofile.json: no such file or directory` and exits, because a component that cannot initialize is treated as a failure, not as an empty store.
+- `secretsFile` is the one setting this store cannot work without: the JSON file to read. Point it at another file and the application sees other secrets. Point it at a file that does not exist and the sidecar refuses to start: it logs a fatal error for the `secretstore` component that ends in the operating system's `open <your file>: no such file or directory`, and exits, because a component that cannot initialize is treated as a failure, not as an empty store.
 
 Two more optional fields of this component are not in the file, so they have their defaults. Both are about secrets that are nested inside the JSON file instead of flat:
 
