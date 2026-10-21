@@ -211,4 +211,20 @@ Here is what you did in this track:
 3. **Secret scoping:** you ran two identical apps and saw Dapr refuse one of them, with a 403 for a secret it may not read and a 500 for one that is not there.
 4. **Swap the provider:** you ran the same application with a `secretstore` that points at HashiCorp Vault, and saw that the only thing that differs in what the application reads its secrets through is the `secretstore` component file.
 
-Questions, or something to share? Join the [Dapr Discord](https://diagrid.ws/dapr-discord) and find the *#university* channel.
+## Feedback and further learning
+
+Congratulations! 🎉 You've completed the Dapr University secrets learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training 🚀.
+
+We have more opportunities for you to learn and share knowledge:
+
+**Try another university track**
+- [Dapr 101: State Management, Service Invocation, and Pub/Sub](https://www.diagrid.io/university/dapr-101)
+- [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
+
+**Read more**
+- Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
+- Read the [Secrets management overview](https://docs.dapr.io/developing-applications/building-blocks/secrets/secrets-overview/) and [How to: use secret scoping](https://docs.dapr.io/operations/configuration/secret-scope/) in the Dapr Docs.
+
+**Join the community**
+- Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#agents* and language channels.
+- Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.
