@@ -22,3 +22,14 @@ DENIED_STATUS = "403"
 DENIED_BODY = "ERR_PERMISSION_DENIED"
 MISSING_STATUS = "500"
 MISSING_BODY = "ERR_SECRET_GET"
+
+# The demo apps do not pass the sidecar's error through. They answer 403 / 500 with the gRPC status
+# name in an "error" field. Those strings differ from DENIED_BODY / MISSING_BODY above, and
+# ERR_PERMISSION_DENIED contains PERMISSION_DENIED, so each response surface must be asserted
+# with its own constant (and compared for equality, not as a substring):
+#   raw sidecar : DENIED_STATUS / DENIED_BODY (ERR_PERMISSION_DENIED),
+#                 MISSING_STATUS / MISSING_BODY (ERR_SECRET_GET)
+#   demo app    : DENIED_STATUS / APP_DENIED_ERROR (PERMISSION_DENIED),
+#                 MISSING_STATUS / APP_MISSING_ERROR (INTERNAL)
+APP_DENIED_ERROR = "PERMISSION_DENIED"
+APP_MISSING_ERROR = "INTERNAL"
