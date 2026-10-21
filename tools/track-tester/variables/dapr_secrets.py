@@ -18,6 +18,7 @@ TRACKS_SRC_DIR = os.environ.get("TRACKS_SRC_DIR") or os.path.expanduser("~/ai-ag
 SECRETS_BASE = os.path.join(TRACKS_SRC_DIR, "secrets")
 DEMO1 = "Demo1-ReadSecret"
 DEMO2 = "Demo2-Scoping"
+DEMO3 = "Demo3-SwapProvider"
 DENIED_STATUS = "403"
 DENIED_BODY = "ERR_PERMISSION_DENIED"
 MISSING_STATUS = "500"
