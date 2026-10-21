@@ -118,10 +118,10 @@ dapr run -f .
 > [!NOTE]
 > The application can start accepting requests a moment before its Dapr sidecar is ready. If the first `curl` in the next step returns an error, that is not a problem with your setup: wait a few seconds and run it again.
 
-The **Dapr CLI** window should show this message when everything is up:
+The **Dapr CLI** window should show a line like this when the sidecar is started. The port number can differ, and your own application's logs follow:
 
 ```text,nocopy
-✅  You're up and running! Both Dapr and your app logs will appear here.
+ℹ️  Started Dapr with app id "order-api". HTTP Port: 3500. gRPC Port: 39945
 ```
 
 ## 4. Read a secret through the application
