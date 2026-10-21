@@ -115,6 +115,9 @@ dapr run -f .
 > [!IMPORTANT]
 > Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing. The Java application can take a little longer to start.
 
+> [!NOTE]
+> The application can start accepting requests a moment before its Dapr sidecar is ready. If the first `curl` in the next step returns an error, that is not a problem with your setup: wait a few seconds and run it again.
+
 The **Dapr CLI** window should show this message when everything is up:
 
 ```text,nocopy

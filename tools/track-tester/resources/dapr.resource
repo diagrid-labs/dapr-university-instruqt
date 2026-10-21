@@ -146,8 +146,8 @@ Wait Until App Responds
 
 Capture Command Output
     # Run a command to completion (rc 0 required) and return its stdout, stripped
-    # of surrounding whitespace/newlines. Used to capture workflow instance IDs
-    # from the assignment's curl+grep+sed pipelines.
+    # of surrounding whitespace/newlines. Generic: used wherever a suite needs a command's
+    # output as a value (for example an ID extracted by a curl+grep+sed pipeline).
     [Arguments]    ${command}    ${cwd}=${EMPTY}
     ${r}=    Run And Expect RC Zero    ${command}    ${cwd}
     ${out}=    Strip String    ${r.stdout}
