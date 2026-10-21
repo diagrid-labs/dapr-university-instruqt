@@ -20,8 +20,9 @@ ${BULK_JSON}        {"orderdb-password":"s3cr3t-pa55w0rd","payments-api-key":"pk
 # The raw Dapr bulk API wraps every secret in a map of its own (Go sorts the keys).
 ${RAW_BULK_JSON}    {"orderdb-password":{"orderdb-password":"s3cr3t-pa55w0rd"},"payments-api-key":{"payments-api-key":"pk-test-7f3a9"}}
 # The nested-demo folder: one nested secrets file read by three components that differ only
-# in nestedSeparator / multiValued. Its values are demo data, deliberately not the real demo
-# values, so secrets.example.json stays the single owner of those.
+# in nestedSeparator / multiValued. The orderdb password in it is demo data, deliberately not
+# the real demo password, so secrets.example.json stays the owner of that one. The
+# payments-api-key is the real demo value, repeated here on purpose.
 ${NESTED_DIR}       ${SECRETS_BASE}/nested-demo
 ${NESTED_DEFAULT}   {"orderdb:password":{"orderdb:password":"demo-nested-password"},"orderdb:user":{"orderdb:user":"orders"},"payments-api-key":{"payments-api-key":"pk-test-7f3a9"}}
 ${NESTED_FLAT}      {"orderdb.password":{"orderdb.password":"demo-nested-password"},"orderdb.user":{"orderdb.user":"orders"},"payments-api-key":{"payments-api-key":"pk-test-7f3a9"}}
@@ -43,6 +44,7 @@ ${CONTROL_APPS}     {"version": 1, "common": {"resourcesPath": "./resources"}, "
 # Value-level proof fixtures (test-only, never shipped): a secrets file holding a state key
 # prefix, and a Redis state store whose keyPrefix comes from it through secretKeyRef.
 ${PREFIX_SECRETS}   {"state-prefix": "prefix-from-store"}
+${WRONG_KEY}        not-in-the-store
 ${PROOF_KEYS}       "prefix-from-store||ref-proof" "order-api||ref-proof" "||ref-proof"
 
 *** Test Cases ***
@@ -159,6 +161,20 @@ A Missing Secret Leaves The Component Value Empty
     Should Not Contain    ${keys}    prefix-from-store||ref-proof
     [Teardown]    Finish Value Proof
 
+A Wrong SecretKeyRef Key Leaves The Component Value Empty
+    [Documentation]    Closes the blind spot documented above at the value level. The sidecar logs
+    ...    nothing for a right `name` with a wrong `key`, but the value does not arrive: Redis
+    ...    stores the key under the empty prefix. Override WRONG_KEY with the correct key
+    ...    (`--variable WRONG_KEY:state-prefix`) and this test must fail.
+    [Tags]    component    value
+    [Setup]    Delete Proof Keys
+    Value Proof Starts    value-proof-wrong-key    state-prefix    ${WRONG_KEY}
+    Save A Proof Value Through The Sidecar
+    ${keys}=    Capture Command Output    docker exec dapr_redis redis-cli KEYS '*ref-proof*'
+    Should Contain    ${keys}    ||ref-proof
+    Should Not Contain    ${keys}    prefix-from-store||ref-proof
+    [Teardown]    Finish Value Proof
+
 *** Keywords ***
 Port 5001 Should Be Free
     # curl exits 7 (connection refused) when nothing is listening. rc 0 means something answered.
@@ -259,11 +275,12 @@ Control Variant Starts
     Prepare Sidecar Folder    ${name}    ${secrets}    ${state}
 
 Value Proof Starts
-    [Arguments]    ${name}    ${secret_name}
+    # secretKeyRef name defaults to the same text for key, as in the real component.
+    [Arguments]    ${name}    ${secret_name}    ${secret_key}=${secret_name}
     ${state}=    Catenate    {"apiVersion": "dapr.io/v1alpha1", "kind": "Component",
     ...    "metadata": {"name": "statestore"}, "spec": {"type": "state.redis", "version": "v1",
     ...    "metadata": [{"name": "redisHost", "value": "localhost:6379"},
-    ...    {"name": "keyPrefix", "secretKeyRef": {"name": "${secret_name}", "key": "${secret_name}"}}]},
+    ...    {"name": "keyPrefix", "secretKeyRef": {"name": "${secret_name}", "key": "${secret_key}"}}]},
     ...    "auth": {"secretStore": "secretstore"}}
     Prepare Sidecar Folder    ${name}    ${PREFIX_SECRETS}    ${state}
 
