@@ -31,7 +31,7 @@ docker run -d --name dapr_postgres \
   -e POSTGRES_PASSWORD=dapr123 \
   -e POSTGRES_DB=venuedb \
   -p 5432:5432 \
-  -v "$AI_AGENT_TRACKS_DIR/bindings/venue-bookings/python/init.sql:/docker-entrypoint-initdb.d/init.sql:ro" \
+  -v "$AI_AGENT_TRACKS_DIR/bindings/venue-bookings/init.sql:/docker-entrypoint-initdb.d/init.sql:ro" \
   postgres:16
 
 # Wait for Postgres to actually accept connections before handing control back.

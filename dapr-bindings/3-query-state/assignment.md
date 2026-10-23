@@ -1,33 +1,30 @@
-Now let's read that data back, through the exact same binding you just used to save it. This challenge takes about 6 minutes.
+Now read the data back through the same binding. This challenge takes about 6 minutes.
 
-> [!NOTE]
-> Each step below has a section per language. Expand the one for the language you want to use. All three apps do the same thing, and they all share the same Postgres database, so it doesn't matter if you pick a different language than in the last challenge.
+The apps share one database. You can use any of the three languages to read the booking you saved.
 
 ## 1. Inspect the query operation
 
 <details>
    <summary><b>Python</b></summary>
 
-Open `python/app.py` and look at lines 51-67:
+Open `python/app.py` and find the query method:
 
 ```python,nocopy
-@app.get("/bookings")
-def list_bookings():
-    """Read every booking back with the same binding's "query" operation (a SELECT)."""
-    with DaprClient() as client:
-        response = client.invoke_binding(
-            binding_name=BINDING_NAME,
-            operation="query",
-            data=b"",
-            binding_metadata={
-                "sql": "SELECT id, venue, event_date FROM bookings ORDER BY id",
-                "params": "[]",
-            },
-        )
+@app.get("/bookings", response_model=BookingsResponse)
+def list_bookings(client: DaprDependency):
+    response = client.invoke_binding(
+        binding_name=BINDING_NAME,
+        operation="query",
+        data=b"",
+        binding_metadata={
+            "sql": "SELECT id, venue, event_date::text FROM bookings ORDER BY id",
+            "params": "[]",
+        },
+    )
     rows = json.loads(response.data) if response.data else []
-    bookings = [{"id": row[0], "venue": row[1], "event_date": row[2]} for row in rows]
-    logging.info("Queried %d booking(s)", len(bookings))
-    return {"bookings": bookings}
+    bookings = [Booking(id=row[0], venue=row[1], event_date=row[2]) for row in rows]
+    logger.info("Queried %d booking(s)", len(bookings))
+    return BookingsResponse(bookings=bookings)
 ```
 
 </details>
@@ -35,26 +32,23 @@ def list_bookings():
 <details>
    <summary><b>.NET</b></summary>
 
-Open `dotnet/BookingsService.cs` and look at lines 37-53:
+Open `dotnet/src/VenueBookings/BookingsService.cs` and find the query method:
 
 ```csharp,nocopy
-/// <summary>Read every booking back with the same binding's "query" operation (a SELECT).</summary>
-public async Task<List<Booking>> ListBookingsAsync()
-{
-    var request = new BindingRequest(BindingName, "query");
-    request.Metadata["sql"] = "SELECT id, venue, event_date FROM bookings ORDER BY id";
-    request.Metadata["params"] = "[]";
+    public async Task<List<Booking>> ListBookingsAsync()
+    {
+        var request = new BindingRequest(BindingName, "query");
+        request.Metadata["sql"] = "SELECT id, venue, event_date::text FROM bookings ORDER BY id";
+        request.Metadata["params"] = "[]";
 
-    var response = await _daprClient.InvokeBindingAsync(request);
-    var json = Encoding.UTF8.GetString(response.Data.Span);
-    var rows = string.IsNullOrEmpty(json)
-        ? new List<List<JsonElement>>()
-        : JsonSerializer.Deserialize<List<List<JsonElement>>>(json) ?? new List<List<JsonElement>>();
+        var response = await daprClient.InvokeBindingAsync(request);
+        var rows = response.Data.IsEmpty
+            ? []
+            : JsonSerializer.Deserialize<List<List<JsonElement>>>(response.Data.Span) ?? [];
 
-    return rows
-        .Select(row => new Booking(row[1].GetString()!, row[2].GetString()!) { Id = row[0].GetInt32() })
-        .ToList();
-}
+        return rows.Select(row => new Booking(
+            row[0].GetInt32(), row[1].GetString()!, row[2].GetString()!)).ToList();
+    }
 ```
 
 </details>
@@ -62,35 +56,35 @@ public async Task<List<Booking>> ListBookingsAsync()
 <details>
    <summary><b>Java</b></summary>
 
-Open `java/src/main/java/io/diagrid/quickstart/bindings/venuebookings/BookingsService.java` and look at lines 45-59:
+Open `java/src/main/java/io/diagrid/quickstart/bindings/venuebookings/BookingsService.java` and find the query method:
 
 ```java,nocopy
-/** Read every booking back with the same binding's "query" operation (a SELECT). */
-public List<Booking> listBookings() throws Exception {
-    Map<String, String> metadata = new HashMap<>();
-    metadata.put("sql", "SELECT id, venue, event_date FROM bookings ORDER BY id");
-    metadata.put("params", "[]");
-    byte[] response = daprClient.invokeBinding(BINDING_NAME, "query", new byte[0], metadata).block();
-    if (response == null || response.length == 0) {
-        return List.of();
+    public List<Booking> listBookings() {
+        Map<String, String> metadata = Map.of(
+                "sql", "SELECT id, venue, event_date::text FROM bookings ORDER BY id",
+                "params", "[]");
+        byte[] response = daprClient.invokeBinding(BINDING_NAME, "query", new byte[0], metadata).block();
+        if (response == null || response.length == 0) {
+            return List.of();
+        }
+        List<List<Object>> rows = objectMapper.readValue(response, new TypeReference<List<List<Object>>>() {});
+        return rows.stream()
+                .map(row -> new Booking(((Number) row.get(0)).intValue(), (String) row.get(1), (String) row.get(2)))
+                .toList();
     }
-    List<List<Object>> rows = objectMapper.readValue(response, new TypeReference<List<List<Object>>>() {
-    });
-    return rows.stream()
-            .map(row -> new Booking(((Number) row.get(0)).intValue(), (String) row.get(1), (String) row.get(2)))
-            .collect(Collectors.toList());
-}
 ```
 
 </details>
 
-Compare this to the exec operation from the last challenge. Same binding name, same component, same YAML file. The only things that changed are the operation (`query` instead of `exec`) and the SQL statement.
+The operation is now `query`, and the SQL is a SELECT. The binding name and component file are unchanged.
 
-The response is different too. `query` doesn't give you a count of affected rows, it gives you the rows themselves, as a JSON array. Each row is a plain array of values in column order, `[id, venue, event_date]`, not an object with column names. So the app has to know the column order itself to turn each row back into something readable.
+The response contains arrays of values in column order: `[id, venue, event_date]`. Each app turns those arrays into named fields. An empty table produces `[]`.
+
+The SELECT uses `event_date::text` to return a plain date such as `2026-03-15`. Without the cast, the database driver serializes the date as a timestamp.
 
 ## 2. Run the app
 
-Use the **Terminal** window.
+Use **Terminal**. Each terminal starts in `bindings/venue-bookings`. If yours is still inside a language folder from the last challenge, run `cd ..` first.
 
 <details>
    <summary><b>Python</b></summary>
@@ -100,10 +94,10 @@ cd python
 ```
 
 ```bash,run
-uv run dapr run --app-id venue-bookings --resources-path ./resources -- python app.py
+uv run dapr run --app-id venue-bookings --resources-path ../resources -- python app.py
 ```
 
-Wait until you see `Uvicorn running on http://0.0.0.0:8006` before continuing.
+Wait for `Uvicorn running on http://0.0.0.0:8006` before continuing.
 
 </details>
 
@@ -115,10 +109,10 @@ cd dotnet
 ```
 
 ```bash,run
-dapr run --app-id venue-bookings --resources-path ./resources -- dotnet run
+dapr run --app-id venue-bookings --resources-path ../resources -- dotnet run --project src/VenueBookings
 ```
 
-Wait until you see `Now listening on: http://0.0.0.0:8006` before continuing.
+Wait for `Now listening on: http://0.0.0.0:8006` before continuing.
 
 </details>
 
@@ -130,28 +124,28 @@ cd java
 ```
 
 ```bash,run
-dapr run --app-id venue-bookings --resources-path ./resources -- mvn spring-boot:run
+dapr run --app-id venue-bookings --resources-path ../resources -- bash ./mvnw spring-boot:run
 ```
 
-Wait until you see `Tomcat started on port 8006` before continuing.
+Wait for `Tomcat started on port 8006` before continuing.
 
 </details>
 
 ## 3. Query your bookings
 
-Use the **Terminal 2** window:
+Use **Terminal 2**:
 
 ```bash,run
 curl http://localhost:8006/bookings
 ```
 
-You should see the booking you saved in challenge 2:
+You should see the booking from challenge 2. The ID can differ if you've saved extra rows.
 
 <details>
    <summary><b>Python</b></summary>
 
-```text,nocopy
-{"bookings":[{"id":1,"venue":"Grand Ballroom","event_date":"2026-03-15T00:00:00Z"}]}
+```json,nocopy
+{"bookings":[{"id":1,"venue":"Grand Ballroom","event_date":"2026-03-15"}]}
 ```
 
 </details>
@@ -159,8 +153,8 @@ You should see the booking you saved in challenge 2:
 <details>
    <summary><b>.NET</b></summary>
 
-```text,nocopy
-{"bookings":[{"venue":"Grand Ballroom","eventDate":"2026-03-15T00:00:00Z","id":1}]}
+```json,nocopy
+{"bookings":[{"id":1,"venue":"Grand Ballroom","event_date":"2026-03-15"}]}
 ```
 
 </details>
@@ -168,17 +162,15 @@ You should see the booking you saved in challenge 2:
 <details>
    <summary><b>Java</b></summary>
 
-```text,nocopy
-{"bookings":[{"id":1,"venue":"Grand Ballroom","eventDate":"2026-03-15T00:00:00Z"}]}
+```json,nocopy
+{"bookings":[{"id":1,"venue":"Grand Ballroom","eventDate":"2026-03-15"}]}
 ```
 
 </details>
 
-Notice the date. In Postgres it's a plain `DATE`, and psql showed `2026-03-15` in the last challenge. The binding hands it back as a timestamp string instead, `2026-03-15T00:00:00Z`. The binding returns raw values from the database driver, and the app decides what to do with them.
-
 ## 4. Save one more and query again
 
-Save a second booking using the **Terminal 2** window.
+Use **Terminal 2**.
 
 <details>
    <summary><b>Python</b></summary>
@@ -193,7 +185,7 @@ curl -X POST http://localhost:8006/bookings -H "Content-Type: application/json" 
    <summary><b>.NET</b></summary>
 
 ```bash,run
-curl -X POST http://localhost:8006/bookings -H "Content-Type: application/json" -d '{"venue": "Rooftop Terrace", "eventDate": "2026-04-02"}'
+curl -X POST http://localhost:8006/bookings -H "Content-Type: application/json" -d '{"venue": "Rooftop Terrace", "event_date": "2026-04-02"}'
 ```
 
 </details>
@@ -213,18 +205,17 @@ Then query again:
 curl http://localhost:8006/bookings
 ```
 
-Now both bookings come back, in the order they were inserted.
+Both bookings should come back in the order they were inserted.
 
 ## 5. Stop the app
 
-Use `Ctrl+C` in the **Terminal** window to stop the app.
+Press `Ctrl+C` in **Terminal**.
 
 ## 6. Recap
 
-- The Bindings API lets your app call an external system through a generic binding call, with no client library for that system in your code. The call looks slightly different in each language SDK, but it's the same idea.
-- Postgres only has an output binding. There's no separate input binding to "trigger" a query, your app calls it, the same way it calls the write operation.
-- One component, two operations: `exec` for INSERT/UPDATE/DELETE, `query` for SELECT. The SQL and its parameters travel in the request metadata, not the data payload.
-- Compare that to the State Store API: a fixed get/set/delete-by-key contract, the same shape no matter which state store backs it. Bindings trade that fixed shape for whatever operations the target system actually supports.
+- Dapr connects to Postgres through one output binding.
+- `exec` writes data and `query` reads it. Both pass SQL and parameters in metadata.
+- Your app chooses the SQL and owns the schema. The State Store API instead offers a common contract for storing values by key.
 
 ---
 

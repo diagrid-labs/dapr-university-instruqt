@@ -19,4 +19,4 @@ Python, .NET, Java
 
 ## Prerequisites
 
-Familiarity with Python, .NET or Java is recommended, you pick one. The sandbox comes preconfigured with Docker, Python, uv, the .NET SDK, Java, Maven, Dapr, and a local PostgreSQL container. No API key is needed.
+Choose Python, .NET or Java. The sandbox includes Docker, Python, uv, the .NET 10 SDK, Java 21, Dapr and a local PostgreSQL container. The Java app includes a Maven Wrapper. No API key is needed.

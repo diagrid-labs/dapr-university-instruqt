@@ -1,6 +1,6 @@
 cd ai-agent-tracks-instruqt/bindings/venue-bookings/python
 
-uv run dapr run --app-id venue-bookings --resources-path ./resources -- python app.py &
+uv run dapr run --app-id venue-bookings --resources-path ../resources -- python app.py &
 APP_PID=$!
 
 until curl -s http://localhost:8006/bookings >/dev/null 2>&1; do

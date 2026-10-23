@@ -1,11 +1,10 @@
-Time to save your first row to Postgres without writing any database connection code. This challenge takes about 7 minutes.
+Time to save your first row to Postgres. This challenge takes about 7 minutes.
 
-> [!NOTE]
-> Each step below has a section per language. Expand the one for the language you want to use, and stick with it for the whole challenge. All three apps do the same thing.
+Expand the section for your language at each step.
 
 ## 1. Inspect the binding component
 
-Open `resources/postgres-binding.yaml` in the **Editor**. It sits inside the folder of your language (`python`, `dotnet` or `java`), and the file is identical in all three:
+Open `resources/postgres-binding.yaml` in the **Editor**. This shared folder sits beside `python`, `dotnet` and `java`.
 
 ```yaml,nocopy
 apiVersion: dapr.io/v1alpha1
@@ -20,87 +19,83 @@ spec:
     value: "host=localhost port=5432 user=postgres password=dapr123 dbname=venuedb sslmode=disable"
 ```
 
-This is the only Dapr component this app uses. `type: bindings.postgresql` tells Dapr which binding implementation to load, and `connectionString` is the only thing it needs to know to reach the `dapr_postgres` container from challenge 1.
+`bindings.postgresql` selects the component implementation. The connection string points at the `dapr_postgres` container from challenge 1. All three apps use this one file.
 
 ## 2. Inspect the exec operation
 
 <details>
    <summary><b>Python</b></summary>
 
-Open `python/app.py` and look at lines 33-48:
+Open `python/app.py` and find the save method:
 
 ```python,nocopy
-@app.post("/bookings")
-def create_booking(booking: Booking):
-    """Save a booking with the binding's "exec" operation (an INSERT)."""
-    with DaprClient() as client:
-        response = client.invoke_binding(
-            binding_name=BINDING_NAME,
-            operation="exec",
-            data=b"",
-            binding_metadata={
-                "sql": "INSERT INTO bookings (venue, event_date) VALUES ($1, $2)",
-                "params": json.dumps([booking.venue, booking.event_date]),
-            },
-        )
+@app.post("/bookings", response_model=SaveBookingResponse)
+def create_booking(booking: BookingRequest, client: DaprDependency):
+    response = client.invoke_binding(
+        binding_name=BINDING_NAME,
+        operation="exec",
+        data=b"",
+        binding_metadata={
+            "sql": "INSERT INTO bookings (venue, event_date) VALUES ($1, $2)",
+            "params": json.dumps([booking.venue, booking.event_date]),
+        },
+    )
     rows_affected = response.binding_metadata.get("rows-affected")
-    logging.info("Inserted booking for %s on %s (rows-affected=%s)", booking.venue, booking.event_date, rows_affected)
-    return {"status": "saved", "rows_affected": rows_affected}
+    logger.info(
+        "Inserted booking for %s on %s (rows-affected=%s)",
+        booking.venue,
+        booking.event_date,
+        rows_affected,
+    )
+    return SaveBookingResponse(status="saved", rows_affected=rows_affected)
 ```
 
-`invoke_binding` is the one call the Bindings API revolves around. `binding_name` picks the component from the YAML you just read, and `operation="exec"` tells the Postgres binding to run a write statement. The response metadata comes back in `response.binding_metadata`, and `rows-affected` tells you how many rows the INSERT touched.
+The SQL and its parameters are passed in request metadata. `$1` and `$2` are filled from the JSON array in `params`. FastAPI supplies the Dapr client created at startup. The same client serves every request and closes at shutdown. The `rows-affected` response metadata tells you how many rows the INSERT changed.
 
 </details>
 
 <details>
    <summary><b>.NET</b></summary>
 
-Open `dotnet/BookingsService.cs` and look at lines 26-35:
+Open `dotnet/src/VenueBookings/BookingsService.cs` and find the save method:
 
 ```csharp,nocopy
-/// <summary>Save a booking with the binding's "exec" operation (an INSERT).</summary>
-public async Task<string?> SaveBookingAsync(string venue, string eventDate)
-{
-    var request = new BindingRequest(BindingName, "exec");
-    request.Metadata["sql"] = "INSERT INTO bookings (venue, event_date) VALUES ($1, $2)";
-    request.Metadata["params"] = JsonSerializer.Serialize(new[] { venue, eventDate });
+    public async Task<string?> SaveBookingAsync(string venue, string eventDate)
+    {
+        var request = new BindingRequest(BindingName, "exec");
+        request.Metadata["sql"] = "INSERT INTO bookings (venue, event_date) VALUES ($1, $2)";
+        request.Metadata["params"] = JsonSerializer.Serialize(new[] { venue, eventDate });
 
-    var response = await _daprClient.InvokeBindingAsync(request);
-    return response.Metadata.TryGetValue("rows-affected", out var rowsAffected) ? rowsAffected : null;
-}
+        var response = await daprClient.InvokeBindingAsync(request);
+        return response.Metadata.TryGetValue("rows-affected", out var rowsAffected) ? rowsAffected : null;
+    }
 ```
 
-`InvokeBindingAsync` is the one call the Bindings API revolves around. The `BindingRequest` names the component from the YAML you just read, and `"exec"` tells the Postgres binding to run a write statement. The response metadata comes back in `response.Metadata`, and `rows-affected` tells you how many rows the INSERT touched.
+The SQL and its parameters are passed in request metadata. `$1` and `$2` are filled from the JSON array in `params`. The `rows-affected` response metadata tells you how many rows the INSERT changed.
 
 </details>
 
 <details>
    <summary><b>Java</b></summary>
 
-Open `java/src/main/java/io/diagrid/quickstart/bindings/venuebookings/BookingsService.java` and look at lines 37-43:
+Open `java/src/main/java/io/diagrid/quickstart/bindings/venuebookings/BookingsService.java` and find the save method:
 
 ```java,nocopy
-/** Save a booking with the binding's "exec" operation (an INSERT). */
-public void saveBooking(String venue, String eventDate) throws Exception {
-    Map<String, String> metadata = new HashMap<>();
-    metadata.put("sql", "INSERT INTO bookings (venue, event_date) VALUES ($1, $2)");
-    metadata.put("params", objectMapper.writeValueAsString(new String[] { venue, eventDate }));
-    daprClient.invokeBinding(BINDING_NAME, "exec", new byte[0], metadata).block();
-}
+    public void saveBooking(String venue, String eventDate) {
+        Map<String, String> metadata = Map.of(
+                "sql", "INSERT INTO bookings (venue, event_date) VALUES ($1, $2)",
+                "params", objectMapper.writeValueAsString(new String[] { venue, eventDate }));
+        daprClient.invokeBinding(BINDING_NAME, "exec", new byte[0], metadata).block();
+    }
 ```
 
-`invokeBinding` is the one call the Bindings API revolves around. `BINDING_NAME` picks the component from the YAML you just read, and `"exec"` tells the Postgres binding to run a write statement.
-
-> [!NOTE]
-> The Java SDK only returns the response payload from `invokeBinding`. It doesn't expose the response metadata, so unlike the Python and .NET versions, this app can't report how many rows the INSERT affected.
+The SQL and its parameters are passed in request metadata. `$1` and `$2` are filled from the JSON array in `params`. The Java SDK returns the payload only, so this save response cannot include the affected-row metadata.
 
 </details>
 
-In all three languages the SQL and its parameters travel in the request **metadata**, not in the data payload. That's specific to how the Postgres binding reads its request. `$1` and `$2` are positional placeholders, filled in order by the `params` array.
-
 ## 3. Run the app
 
-Use the **Terminal** window.
+Use **Terminal**. Each terminal starts in `bindings/venue-bookings`. If yours is still inside a language folder from the last challenge, run `cd ..` first.
 
 <details>
    <summary><b>Python</b></summary>
@@ -110,10 +105,10 @@ cd python
 ```
 
 ```bash,run
-uv run dapr run --app-id venue-bookings --resources-path ./resources -- python app.py
+uv run dapr run --app-id venue-bookings --resources-path ../resources -- python app.py
 ```
 
-Wait until you see `Uvicorn running on http://0.0.0.0:8006` before continuing.
+Wait for `Uvicorn running on http://0.0.0.0:8006` before continuing.
 
 </details>
 
@@ -125,10 +120,10 @@ cd dotnet
 ```
 
 ```bash,run
-dapr run --app-id venue-bookings --resources-path ./resources -- dotnet run
+dapr run --app-id venue-bookings --resources-path ../resources -- dotnet run --project src/VenueBookings
 ```
 
-Wait until you see `Now listening on: http://0.0.0.0:8006` before continuing.
+Wait for `Now listening on: http://0.0.0.0:8006` before continuing.
 
 </details>
 
@@ -140,16 +135,16 @@ cd java
 ```
 
 ```bash,run
-dapr run --app-id venue-bookings --resources-path ./resources -- mvn spring-boot:run
+dapr run --app-id venue-bookings --resources-path ../resources -- bash ./mvnw spring-boot:run
 ```
 
-Wait until you see `Tomcat started on port 8006` before continuing.
+Wait for `Tomcat started on port 8006` before continuing.
 
 </details>
 
 ## 4. Save a booking
 
-Use the **Terminal 2** window.
+Use **Terminal 2**.
 
 <details>
    <summary><b>Python</b></summary>
@@ -158,9 +153,9 @@ Use the **Terminal 2** window.
 curl -X POST http://localhost:8006/bookings -H "Content-Type: application/json" -d '{"venue": "Grand Ballroom", "event_date": "2026-03-15"}'
 ```
 
-You should get back:
+Expected response:
 
-```text,nocopy
+```json,nocopy
 {"status":"saved","rows_affected":"1"}
 ```
 
@@ -170,12 +165,12 @@ You should get back:
    <summary><b>.NET</b></summary>
 
 ```bash,run
-curl -X POST http://localhost:8006/bookings -H "Content-Type: application/json" -d '{"venue": "Grand Ballroom", "eventDate": "2026-03-15"}'
+curl -X POST http://localhost:8006/bookings -H "Content-Type: application/json" -d '{"venue": "Grand Ballroom", "event_date": "2026-03-15"}'
 ```
 
-You should get back:
+Expected response:
 
-```text,nocopy
+```json,nocopy
 {"status":"saved","rows_affected":"1"}
 ```
 
@@ -188,26 +183,28 @@ You should get back:
 curl -X POST http://localhost:8006/bookings -H "Content-Type: application/json" -d '{"venue": "Grand Ballroom", "eventDate": "2026-03-15"}'
 ```
 
-You should get back:
+Expected response:
 
-```text,nocopy
+```json,nocopy
 {"status":"saved"}
 ```
 
 </details>
 
-## 5. Verify it landed in Postgres
+Python and .NET use snake_case JSON, including `event_date` and `rows_affected`. Java uses camelCase, including `eventDate`.
+
+## 5. Verify the row in Postgres
 
 ```bash,run
 docker exec dapr_postgres psql -U postgres -d venuedb -c "SELECT * FROM bookings;"
 ```
 
-You should see the row you just inserted, even though the app never opened a Postgres connection itself.
+You should see the row you just inserted. The application sent SQL to Dapr, and Dapr ran it against Postgres.
 
 ## 6. Stop the app
 
-Use `Ctrl+C` in the **Terminal** window to stop the app before moving on.
+Press `Ctrl+C` in **Terminal** before continuing.
 
 ---
 
-You've saved data to Postgres through a Dapr binding. Let's move on to challenge 3 where you'll read it back with the same binding.
+You've saved data through the binding. In challenge 3 you'll query it through the same component.

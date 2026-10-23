@@ -12,7 +12,7 @@ ${LOG}        ${TEMPDIR}/dapr-bindings-ch2.log
 Python Save A Booking With Exec Operation
     [Tags]    python
     Save A Booking
-    ...    uv run dapr run --app-id venue-bookings --resources-path ./resources -- python app.py
+    ...    uv run dapr run --app-id venue-bookings --resources-path ../resources -- python app.py
     ...    ${APP_DIR}/python
     ...    Uvicorn running on http://0.0.0.0:8006
     ...    curl -X POST http://localhost:8006/bookings -H "Content-Type: application/json" -d '{"venue": "Grand Ballroom", "event_date": "2026-03-15"}'
@@ -21,16 +21,16 @@ Python Save A Booking With Exec Operation
 DotNet Save A Booking With Exec Operation
     [Tags]    dotnet
     Save A Booking
-    ...    dapr run --app-id venue-bookings --resources-path ./resources -- dotnet run
+    ...    dapr run --app-id venue-bookings --resources-path ../resources -- dotnet run --project src/VenueBookings
     ...    ${APP_DIR}/dotnet
     ...    Now listening on: http://0.0.0.0:8006
-    ...    curl -X POST http://localhost:8006/bookings -H "Content-Type: application/json" -d '{"venue": "Grand Ballroom", "eventDate": "2026-03-15"}'
+    ...    curl -X POST http://localhost:8006/bookings -H "Content-Type: application/json" -d '{"venue": "Grand Ballroom", "event_date": "2026-03-15"}'
     ...    "status":"saved","rows_affected":"1"
 
 Java Save A Booking With Exec Operation
     [Tags]    java
     Save A Booking
-    ...    dapr run --app-id venue-bookings --resources-path ./resources -- mvn spring-boot:run
+    ...    dapr run --app-id venue-bookings --resources-path ../resources -- bash ./mvnw spring-boot:run
     ...    ${APP_DIR}/java
     ...    Tomcat started on port 8006
     ...    curl -X POST http://localhost:8006/bookings -H "Content-Type: application/json" -d '{"venue": "Grand Ballroom", "eventDate": "2026-03-15"}'
@@ -39,13 +39,13 @@ Java Save A Booking With Exec Operation
 *** Keywords ***
 Save A Booking
     [Arguments]    ${run_command}    ${cwd}    ${ready_marker}    ${curl_command}    ${expected_response}
+    [Teardown]    Stop Process With SIGINT    app
     Start Background Process    ${run_command}    ${LOG}    app    cwd=${cwd}
     Wait Until Log Contains    ${LOG}    ${ready_marker}    timeout=240s
     Assert Command Output Contains    ${curl_command}    ${expected_response}
     Assert Command Output Contains
     ...    docker exec dapr_postgres psql -U postgres -d venuedb -c "SELECT * FROM bookings;"
     ...    Grand Ballroom
-    Stop Process With SIGINT    app
 
 # doc-sync coverage (expressed via the cwd argument above):
 #   cd python
