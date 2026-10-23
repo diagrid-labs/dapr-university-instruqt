@@ -57,6 +57,17 @@ if [ -z "$(docker ps -f "name=dapr_placement" -f "status=running" -q)" ] || \
   dapr init
 fi
 
+# 4b. Alias the lab's service names onto loopback.
+#
+# The demo components name the services the way the Instruqt v2 lab reaches them - the state
+# store points at redis:6379 and the Vault secret store at http://vault:8200, because there each
+# one is its own container on a shared network. On this runner they are both on localhost, so
+# without these aliases the sidecar fails component init and daprd exits:
+#   INIT_COMPONENT_FAILURE ... error connecting to redis at redis:6379
+# One line keeps ONE set of component files working in both places, which is the point: a
+# CI-only copy of the components could drift from the ones learners actually use.
+echo "127.0.0.1 vault redis" | sudo tee -a /etc/hosts >/dev/null
+
 # 5. Write secrets.json from the committed template (the single owner of the secret values) and
 # start + seed Vault. Duplicated from dapr-secrets/_setup/sandbox-setup.sh, which cannot be run
 # in CI (Instruqt-only commands); keep the two in sync.
