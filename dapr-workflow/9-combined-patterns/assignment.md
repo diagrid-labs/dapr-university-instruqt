@@ -472,6 +472,22 @@ Expected output:
 
 Use the **Dapr CLI** window to stop the workflow application by pressing `Ctrl+C`.
 
+## 6. Inspect the workflow state with the Dapr Dev Dashboard
+
+The [Dapr Dev Dashboard](https://docs.diagrid.io/develop/local-development/dev-dashboard) reads the workflow state directly from the Dapr state store, so you can inspect this workflow instance even though the application has stopped.
+
+1. In the **Dapr CLI** window, start the dashboard:
+
+```shell,run
+diagrid-dev-dashboard --port 9090 --bind 0.0.0.0 --no-open
+```
+
+2. Open the *Dapr Dev Dashboard* tab, navigate to the *Workflows* page, and click the instance ID of the workflow you just started.
+
+3. In the *Event History* table you can follow the whole flow in one place: the inventory and destination checks scheduled in parallel, the activities that ran after them, and the event from the Shipping App that the workflow waited for before completing.
+
+4. Stop the dashboard in the **Dapr CLI** window by pressing `Ctrl+C`.
+
 ---
 
 You've now seen and run a more realistic workflow that uses multiple patterns and Dapr APIs. Now, let's continue with the workflow management APIs, because you can do more than starting a workflow and getting the state of a workflow instance.

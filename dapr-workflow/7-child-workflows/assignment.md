@@ -394,6 +394,22 @@ Expected output:
 
 Use the **Dapr CLI** window to stop the workflow application by pressing `Ctrl+C`.
 
+## 6. Inspect the workflow state with the Dapr Dev Dashboard
+
+The [Dapr Dev Dashboard](https://docs.diagrid.io/develop/local-development/dev-dashboard) reads the workflow state directly from the Dapr state store, so you can inspect this workflow instance even though the application has stopped.
+
+1. In the **Dapr CLI** window, start the dashboard:
+
+```shell,run
+diagrid-dev-dashboard --port 9090 --bind 0.0.0.0 --no-open
+```
+
+2. Open the *Dapr Dev Dashboard* tab, navigate to the *Workflows* page, and click the instance ID of the workflow you just started.
+
+3. The *Workflow Executions* list holds the parent workflow and a separate entry for each child workflow instance. Open the parent to see where the child workflows were created and aggregated, then go back and open one of the children to see the two chained activities it ran.
+
+4. Stop the dashboard in the **Dapr CLI** window by pressing `Ctrl+C`.
+
 ---
 
 You now know how to compose a parent workflow from smaller child workflows. Now, let's have a look at resiliency and compensation in workflows.
