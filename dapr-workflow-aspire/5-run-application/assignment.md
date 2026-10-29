@@ -51,9 +51,9 @@ The response returns the `instanceId`:
 { "instanceId": "mission-001" }
 ```
 
-## 4. Inspect workflow state using the Diagrid Dev Dashboard
+## 4. Inspect workflow state using the Dapr Dev Dashboard
 
-In the *Workflow Executions* page on the Diagrid Dev Dashboard you'll see a new workflow entry. On this page, all workflow executions are presented with their status, instance ID, workflow name, app ID, start/end time, and duration (the clock icon).
+In the *Workflow Executions* page on the Dapr Dev Dashboard you'll see a new workflow entry. On this page, all workflow executions are presented with their status, instance ID, workflow name, app ID, start/end time, and duration (the clock icon).
 
 1. Click on the instance ID of the workflow you just started to drill down to the *Workflow Execution Details* page.
 

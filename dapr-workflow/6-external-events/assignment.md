@@ -544,6 +544,22 @@ If you want, you can run some additional tests to explore the alternative paths 
 
 Use the **Dapr CLI** window to stop the workflow application by pressing `Ctrl+C`.
 
+## 8. Inspect the workflow state with the Dapr Dev Dashboard
+
+The [Dapr Dev Dashboard](https://docs.diagrid.io/develop/local-development/dev-dashboard) reads the workflow state directly from the Dapr state store, so you can inspect this workflow instance even though the application has stopped.
+
+1. In the **Dapr CLI** window, start the dashboard:
+
+```shell,run
+diagrid-dev-dashboard --port 9090 --bind 0.0.0.0 --no-open
+```
+
+2. Open the *Dapr Dev Dashboard* tab, navigate to the *Workflows* page, and click the instance ID of the workflow you just started.
+
+3. In the *Event History* table you'll see the activities that were only scheduled after the `approval-event` arrived. Alongside the wait for that event there's a `TimerCreated` event too: that timer backs the 120 second approval timeout.
+
+4. Stop the dashboard in the **Dapr CLI** window by pressing `Ctrl+C`.
+
 ---
 
 You've now seen how to use the external system interaction pattern in a workflow application. Now let's have a look how to call a child workflow from a parent workflow.

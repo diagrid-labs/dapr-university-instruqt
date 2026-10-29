@@ -414,6 +414,22 @@ Expected output:
 
 Use the **Dapr CLI** window to stop the workflow application by pressing `Ctrl+C`.
 
+## 6. Inspect the workflow state with the Dapr Dev Dashboard
+
+The [Dapr Dev Dashboard](https://docs.diagrid.io/develop/local-development/dev-dashboard) reads the workflow state directly from the Dapr state store, so you can inspect this workflow instance even though the application has stopped.
+
+1. In the **Dapr CLI** window, start the dashboard:
+
+```shell,run
+diagrid-dev-dashboard --port 9090 --bind 0.0.0.0 --no-open
+```
+
+2. Open the *Dapr Dev Dashboard* tab, navigate to the *Workflows* page, and click the instance ID of the workflow you just started.
+
+3. In the *Event History* table you'll see a `TaskScheduled` event for every word in the input array, all of them scheduled before any `TaskCompleted` event arrived. That's the fan-out. The fan-in has no event of its own: the workflow aggregates the results itself once the last activity completed.
+
+4. Stop the dashboard in the **Dapr CLI** window by pressing `Ctrl+C`.
+
 ---
 
 You've now seen how to use the fan-out/fan-in pattern in a workflow application. Let's move on another pattern: *monitor*.

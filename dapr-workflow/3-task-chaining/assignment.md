@@ -355,6 +355,31 @@ Expected output:
 
 Use the **Dapr CLI** window to stop the workflow application by pressing `Ctrl+C`.
 
+## 6. Inspect the workflow state with the Dapr Dev Dashboard
+
+The curl request in the previous step is one way to get the workflow status. The [Dapr Dev Dashboard](https://docs.diagrid.io/develop/local-development/dev-dashboard) is another. It reads the workflow state directly from the Dapr state store, so it can show you what happened even though the application has stopped.
+
+1. In the **Dapr CLI** window, start the dashboard:
+
+```shell,run
+diagrid-dev-dashboard --port 9090 --bind 0.0.0.0 --no-open
+```
+
+2. Open the *Dapr Dev Dashboard* tab and navigate to the *Workflows* page.
+
+All workflow executions are listed here with their status, instance ID, workflow name, app ID, start and end time, and duration.
+
+3. Click the instance ID of the workflow you just started to open the *Workflow Execution Details* page.
+
+This page shows the input and output of the workflow, and an *Event History* table with all the events of this workflow instance. The most recent events are at the top.
+
+4. Expand a few of the events in the *Event History* table. A `TaskScheduled` event shows the input of an activity, a `TaskCompleted` event shows both the input and the output. Because this workflow uses task chaining, every activity is scheduled only after the previous one completed, and the output of one activity is the input of the next.
+
+> [!NOTE]
+> Use the filters in the *Event History* table to quickly find the events or activities you want to inspect.
+
+5. Stop the dashboard in the **Dapr CLI** window by pressing `Ctrl+C`.
+
 ---
 
 You've now seen how to use the task chaining pattern in a workflow application. Let's move on another pattern: *fan-out/fan-in*.
