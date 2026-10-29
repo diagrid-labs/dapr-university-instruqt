@@ -60,7 +60,7 @@ Now let's install some dependencies the solution requires. You're building a Dap
 1. Use the *Terminal* (ensure you're in `EnterpriseDiagnostics/`) to install all the required packages to the correct projects:
 
 ```shell,run,copy
-dotnet add EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj package Dapr.Workflow --version 1.18.4
+dotnet add EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj package Dapr.Workflow --version 1.19.0
 dotnet add EnterpriseDiagnostics.AppHost/EnterpriseDiagnostics.AppHost.csproj package CommunityToolkit.Aspire.Hosting.Dapr --version 13.0.0
 ```
 
@@ -70,11 +70,10 @@ The AppHost project  should have these packages:
 <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="13.0.0" />
 ```
 
-The ApiService project  should have these packages:
+The ApiService project should have this package, next to the `Microsoft.AspNetCore.OpenApi` package that the template already added:
 
 ```text,nocopy
-<PackageReference Include="Dapr.Workflow" Version="1.18.4" />
-<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7" />
+<PackageReference Include="Dapr.Workflow" Version="..." />
 ```
 
 ## 4. Build and Run

@@ -308,12 +308,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-builder.Services.AddDaprWorkflow(options =>
-{
-    options.RegisterActivity<DiagnoseSubsystemActivity>();
-    options.RegisterActivity<PrioritizeDiagnosticsActivity>();
-    options.RegisterActivity<NotifyBridgeActivity>();
-});
+builder.Services.AddDaprWorkflow();
 builder.Services.AddDaprWorkflowVersioning();
 
 var app = builder.Build();
