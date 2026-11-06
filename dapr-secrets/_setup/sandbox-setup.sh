@@ -11,8 +11,8 @@ docker login -u ${DockerUSER} -p ${DockerPAT}
 
 # Keep these two lines plain `agent variable set NAME VALUE`: ci/setup-dapr-secrets.sh parses the
 # version out of them with awk, so the version lives in exactly one place.
-agent variable set DAPR_CLI_VERSION 1.18.2
-agent variable set DAPR_RUNTIME_VERSION 1.18.7
+agent variable set DAPR_CLI_VERSION 1.19.1
+agent variable set DAPR_RUNTIME_VERSION 1.19.1
 
 if ! command -v dapr >/dev/null 2>&1; then
     wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash

@@ -14,7 +14,7 @@ bash -n "$SETUP_DIR/sandbox-setup.sh"
 
 # 1. Parse the pinned Dapr versions (single source of truth) and export them for the suites.
 # awk is used (not grep -oP) so this runs on both macOS/BSD and GNU/Linux. The lines look like
-# `agent variable set DAPR_CLI_VERSION 1.18.2`, so the version is the last field ($NF).
+# `agent variable set DAPR_CLI_VERSION 1.19.1`, so the version is the last field ($NF).
 DAPR_CLI_VERSION="$(awk '/DAPR_CLI_VERSION/ {print $NF}' "$SETUP_DIR/sandbox-setup.sh")"
 DAPR_RUNTIME_VERSION="$(awk '/DAPR_RUNTIME_VERSION/ {print $NF}' "$SETUP_DIR/sandbox-setup.sh")"
 echo "DAPR_CLI_VERSION=$DAPR_CLI_VERSION"     >> "${GITHUB_ENV:-/dev/stdout}"
