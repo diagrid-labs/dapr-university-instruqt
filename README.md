@@ -1,6 +1,6 @@
 # Dapr University Tracks
 
-This repo contains content and configuration for the Dapr University tracks hosted with Instruqt. Each track is a self-paced, browser-based learning experience that teaches a specific area of Dapr (workflow, agents, .NET Aspire integration, Catalyst, and Dapr fundamentals) through hands-on challenges. The repository is the source of truth for the track definitions, challenge instructions, setup scripts, and assignment code that Instruqt renders for learners.
+This repo contains content and configuration for the Dapr University tracks hosted with Instruqt. Each track is a self-paced, browser-based learning experience that teaches a specific area of Dapr (workflow, agents, .NET Aspire integration, Diagrid, and Dapr fundamentals) through hands-on challenges. The repository is the source of truth for the track definitions, challenge instructions, setup scripts, and assignment code that Instruqt renders for learners.
 
 You can access the Dapr University lessons here: https://www.diagrid.io/dapr-university
 
@@ -23,7 +23,7 @@ The tracks are not intended to be run locally — they are hosted on Instruqt an
 - `dapr-agents-web-context/` — Dapr Agents Advanced track: build a Chainlit-powered expert agent that uses a `before_llm_call` hook to inject fresh Tavily web-search results into every prompt.
 - `ai-agents-deepagents/` — Make a [DeepAgents](https://docs.langchain.com/oss/python/deepagents) app durable with Dapr Workflow (Python): crash it mid-investigation and watch it resume from durable state without re-running completed LLM calls.
 - `ai-agents-maf/` — Make Microsoft Agent Framework (MAF) agents reliable with Dapr Workflow (.NET Aspire): crash a multi-agent app mid-run and watch it resume from durable state.
-- `catalyst-101/` — Introductory Diagrid Catalyst track.
+- `catalyst-101/` — Introductory Diagrid track.
 - `tools/track-tester/` — Robot Framework harness that drift-tests the tracks (see below).
 
 ## Testing

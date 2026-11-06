@@ -1,4 +1,4 @@
-Catalyst comes with a built-in pub/sub service that you can use in your Dapr applications. In this challenge, you'll run two Dapr applications that communicate via this built-in message broker. This hands-on challenge takes about 5 minutes to complete.
+Diagrid comes with a built-in pub/sub service that you can use in your Dapr applications. In this challenge, you'll run two Dapr applications that communicate via this built-in message broker. This hands-on challenge takes about 5 minutes to complete.
 
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching tab (*Terminal* or *curl*) from the dropdown that appears.
@@ -15,9 +15,9 @@ Choose one of the language tabs to explore the code. For each language, there ar
 Both applications use a *pubsub.yaml* component file that specifies that Redis is used as the message broker. The *subscriber* application uses a declarative subscription, this means the definition of the subscription is configured in a *yaml* file.
 
 > [!IMPORTANT]
-> When you use Catalyst and the Diagrid CLI to run the Dapr applications, you don't need to have Dapr running locally, nor do you need to have a Redis instance running since Catalyst provides the message broker.
+> When you use Diagrid and the Diagrid CLI to run the Dapr applications, you don't need to have Dapr running locally, nor do you need to have a Redis instance running since Diagrid provides the message broker.
 
-Each demo in this challenge has a Dapr Multi-App run file (*dev-language-pubsub.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Catalyst resources in case they don't exist yet. In this case, the CLI will create a Catalyst project, inspect the component *pubsub.yaml* and *subscription.yaml* files, and create a pub/sub component, a topic, and a subscription in Catalyst. The CLI will also create a Catalyst *App ID* for each application. *App IDs* are representations of the applications that you're running locally in this sandbox environment.
+Each demo in this challenge has a Dapr Multi-App run file (*dev-language-pubsub.yaml*) that contains the configuration of which applications to run and which Dapr component files to use. This yaml file will be used by the Diagrid CLI in the next step to run the applications and to provision the Diagrid resources in case they don't exist yet. In this case, the CLI will create a Diagrid project, inspect the component *pubsub.yaml* and *subscription.yaml* files, and create a pub/sub component, a topic, and a subscription in Diagrid. The CLI will also create a Diagrid *App ID* for each application. *App IDs* are representations of the applications that you're running locally in this sandbox environment.
 
 ## 2. Run the Dapr Pub/Sub applications
 
@@ -47,15 +47,15 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
    Now the CLI will:
 
-   - Create a Catalyst project named `catalyst-demo`.
+   - Create a Diagrid project named `catalyst-demo`.
    - Create two AppIDs (*publisher* and *subscriber*).
    - Configure the pub/sub component and create the topic and subscription.
 
-4. You can switch to the **Catalyst** tab and use the left menu to navigate to the App IDs to see the application IDs being created.
-5. Wait until the the two applications are connected to Catalyst.
+4. You can switch to the **Diagrid** tab and use the left menu to navigate to the App IDs to see the application IDs being created.
+5. Wait until the the two applications are connected to Diagrid.
 
 > [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Diagrid. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
 
 6. Use the **curl** tab, and run the following command three times to make several `POST` requests to the `order` endpoint of the `publisher` application:
 
@@ -91,15 +91,15 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
    Now the CLI will:
 
-   - Create a Catalyst project named `catalyst-demo`.
+   - Create a Diagrid project named `catalyst-demo`.
    - Create two AppIDs (*publisher* and *subscriber*).
    - Configure the pub/sub component and create the topic and subscription.
 
-4. You can switch to the **Catalyst** tab and use the left menu to navigate to the App IDs to see the application IDs being created.
-5. Wait until the the two applications are connected to Catalyst.
+4. You can switch to the **Diagrid** tab and use the left menu to navigate to the App IDs to see the application IDs being created.
+5. Wait until the the two applications are connected to Diagrid.
 
 > [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Diagrid. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
 
 6. Use the **curl** tab, and run the following command three times to make several `POST` requests to the `order` endpoint of the `publisher` application:
 
@@ -142,15 +142,15 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
    Now the CLI will:
 
-   - Create a Catalyst project named `catalyst-demo`.
+   - Create a Diagrid project named `catalyst-demo`.
    - Create two AppIDs (*publisher* and *subscriber*).
    - Configure the pub/sub component and create the topic and subscription.
 
-5. You can switch to the **Catalyst** tab and use the left menu to navigate to the App IDs to see the application IDs being created.
-6. Wait until the the two applications are connected to Catalyst.
+5. You can switch to the **Diagrid** tab and use the left menu to navigate to the App IDs to see the application IDs being created.
+6. Wait until the the two applications are connected to Diagrid.
 
 > [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Diagrid. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
 
 7. Use the **curl** tab, and run the following command three times to make several `POST` requests to the `order` endpoint of the `publisher` application:
 
@@ -186,15 +186,15 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
    Now the CLI will:
 
-   - Create a Catalyst project named `catalyst-demo`.
+   - Create a Diagrid project named `catalyst-demo`.
    - Create two AppIDs (*publisher* and *subscriber*).
    - Configure the pub/sub component and create the topic and subscription.
 
-3. You can switch to the **Catalyst** tab and use the left menu to navigate to the App IDs to see the application IDs being created.
-4. Wait until the the two applications are connected to Catalyst.
+3. You can switch to the **Diagrid** tab and use the left menu to navigate to the App IDs to see the application IDs being created.
+4. Wait until the the two applications are connected to Diagrid.
 
 > [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Diagrid. You should see `Connected App ID "publisher" to ...` and `Connected App ID "subscriber" to ...` in the **Terminal** tab logs before you continue.
 
 5. Use the **curl** tab, and run the following command three times to make several `POST` requests to the `order` endpoint of the `publisher` application:
 
@@ -208,7 +208,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
 ## 3. View the Diagrid Pub/Sub service
 
-1. Go to the **Catalyst** tab and use the left sidebar menu to go back out of the *Getting Started* page.
+1. Go to the **Diagrid** tab and use the left sidebar menu to go back out of the *Getting Started* page.
 2. Navigate to *Diagrid Services*. Select the *Diagrid Pub/Sub* menu item.
 3. On the *Diagrid Pub/Sub Services* page locate the *pubsub* service and drill down into the details.
 4. Now, you'll see that there is a `pubsub` component configured and the *Topic Explorer* contains details about the topic the applications are using to publish and subscribe to.
@@ -218,9 +218,9 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
 ## 5. Inspect the Call Graph
 
-Catalyst provides a call graph that shows how the applications interact with each other and with other services such as message brokers and state stores.
+Diagrid provides a call graph that shows how the applications interact with each other and with other services such as message brokers and state stores.
 
-1. Use the **Catalyst** tab and navigate to *Call Graph* in the left sidebar menu.
+1. Use the **Diagrid** tab and navigate to *Call Graph* in the left sidebar menu.
 2. You should the a graph that contains two nodes, one for the *publisher* application and one for the *subscriber* application. The arrow between the two applications indicates the direction of communication.
 3. Click on the *publisher* node and select *Isolate*. The graph changes and will now also show the Pub/Sub service. In addition the arrow to and from the Pub/Sub service contain an icon where metrics can be viewed.
 
@@ -231,4 +231,4 @@ Use the **Terminal** tab and stop the running applications by pressing `Ctrl+C`.
 
 ---
 
-Now that you have used the built-in Pub/Sub service in Catalyst let's continue with the next challenge where you'll learn how to use the built-in Key-Value store in Catalyst.
+Now that you have used the built-in Pub/Sub service in Diagrid let's continue with the next challenge where you'll learn how to use the built-in Key-Value store in Diagrid.

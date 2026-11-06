@@ -1,20 +1,20 @@
-## 1. Create a Diagrid Catalyst Account
+## 1. Create a Diagrid Account
 
-Let's start by creating a free Diagrid Catalyst account by using the **Catalyst** tab on the left in this sandbox and signing up with your email address or Google/GitHub account. This hands-on challenge takes about 10 minutes to complete.
+Let's start by creating a free Diagrid account by using the **Diagrid** tab on the left in this sandbox and signing up with your email address or Google/GitHub account. This hands-on challenge takes about 10 minutes to complete.
 
 > [!NOTE]
-> Alternatively you can use another browser tab and visit [https://catalyst.diagrid.io/signup](https://catalyst.diagrid.io/signup) to sign up for Diagrid Catalyst.
+> Alternatively you can use another browser tab and visit [https://catalyst.diagrid.io/signup](https://catalyst.diagrid.io/signup) to sign up for Diagrid.
 
 > [!IMPORTANT]
-> You'll work with the *Catalyst* browser tab and a *Terminal* where you run commands (and a *curl* tab in later challenges) inside this sandbox environment. If a tab or terminal isn't available — or you hit any blocking issue during this course — send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
+> You'll work with the *Diagrid* browser tab and a *Terminal* where you run commands (and a *curl* tab in later challenges) inside this sandbox environment. If a tab or terminal isn't available — or you hit any blocking issue during this course — send me [an email](mailto:marc@diagrid.io) and we'll figure it out together.
 
 If you already have an account, you can skip this step and proceed with downloading the Diagrid CLI.
 
-Once you've signed up, you should see the *Welcome to Catalyst* page in the **Catalyst** tab. You'll be using the Diagrid CLI to create resources and run Dapr applications in the next steps, so come back the instructions and continue with the next step to download and install the Diagrid CLI.
+Once you've signed up, you should see the *Welcome to Diagrid* page in the **Diagrid** tab. You'll be using the Diagrid CLI to create resources and run Dapr applications in the next steps, so come back the instructions and continue with the next step to download and install the Diagrid CLI.
 
 ## 2. Download & install the Diagrid CLI
 
-The Diagrid CLI is a command line tool that allows you to create and manage Catalyst resources and run local Dapr applications with Catalyst.
+The Diagrid CLI is a command line tool that allows you to create and manage Diagrid resources and run local Dapr applications with Diagrid.
 
 Run the following command in the **Terminal** tab to download the Diagrid CLI:
 
@@ -36,9 +36,9 @@ diagrid -h
 
 This should list the available CLI commands.
 
-## 3. Login to Catalyst
+## 3. Login to Diagrid
 
-Before you can use the Diagrid CLI to create resources or run applications the CLI needs to be connected to your Catalyst account.
+Before you can use the Diagrid CLI to create resources or run applications the CLI needs to be connected to your Diagrid account.
 
 In the **Terminal** tab, run the following command:
 
@@ -58,11 +58,11 @@ Code confirmed? (Y/N)
 ```
 
 1. Click on the login link provided in the output (the one that contains the user code) to open a new browser tab.
-2. You'll need to login to your Catalyst account in this browser tab if you haven't already.
+2. You'll need to login to your Diagrid account in this browser tab if you haven't already.
 3. Verify that the code in the browser matches the code in the terminal, click the *Confirm* button and come back to this sandbox environment.
 4. Press `Y` followed by the `Enter` key in the **Terminal** tab to confirm.
 
-The CLI is now logged in to your Catalyst account and should show a message like this:
+The CLI is now logged in to your Diagrid account and should show a message like this:
 
 ```text,nocopy
 Using organization <ORG_NAME> (<ORG_ID>)
@@ -85,4 +85,4 @@ API: https://api.r1.diagrid.io
 
 ---
 
-Now that you have a Catalyst account and the Diagrid CLI installed and configured, you're ready to proceed to the next challenge, where you'll use the Diagrid CLI to run two Dapr applications that communicate via a Pub/Sub service that is built into Catalyst.
+Now that you have a Diagrid account and the Diagrid CLI installed and configured, you're ready to proceed to the next challenge, where you'll use the Diagrid CLI to run two Dapr applications that communicate via a Pub/Sub service that is built into Diagrid.

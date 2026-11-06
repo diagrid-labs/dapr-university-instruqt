@@ -216,7 +216,7 @@ We have more opportunities for you to learn and share knowledge:
 
 **Try another university track**
 - [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
-- [Running Dapr applications with Diagrid Catalyst](https://www.diagrid.io/university/catalyst-101)
+- [Running Dapr applications with Diagrid](https://www.diagrid.io/university/catalyst-101)
 
 **Read more**
 - Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).

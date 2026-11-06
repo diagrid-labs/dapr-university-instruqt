@@ -46,7 +46,7 @@ tools/
 | `dapr-agents-web-context/` | Dapr Agents Advanced: a Chainlit-powered agent using a `before_llm_call` hook to inject Tavily web-search results. |
 | `ai-agents-deepagents/` | Making a [DeepAgents](https://docs.langchain.com/oss/python/deepagents) app durable with Dapr Workflow (Python). |
 | `ai-agents-maf/` | Making Microsoft Agent Framework (MAF) agents reliable with Dapr Workflow (.NET Aspire). |
-| `catalyst-101/` | Introductory Diagrid Catalyst track. |
+| `catalyst-101/` | Introductory Diagrid track. |
 
 Only `dapr-101`, `dapr-workflow`, `dapr-workflow-aspire`, and `dapr-secrets` currently have
 `track-tester` suites and CI workflows.
