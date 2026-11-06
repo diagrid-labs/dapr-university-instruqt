@@ -4,11 +4,11 @@ Click the *Start* button to setup the sandbox environment for this training, thi
 
 - Tracks can be started up to 5 times, and you can select which challenge you want to run via the *Progress* button in the top right, if you don't want to run them all in order.
 
-- If you complete all 5 challenges in this track you can claim the Catalyst 101 badge.
-![Dapr University Catalyst 101 badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/Diagrid-Dapr-Uni-Catalyst-101_x500.png?raw=true)
+- If you complete all 5 challenges in this track you can claim the Diagrid 101 badge.
+![Dapr University Diagrid 101 badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/Diagrid-Dapr-Uni-Catalyst-101_x500.png?raw=true)
 
-If you need more information about Catalyst during (or after) the challenge, visit the [Catalyst Docs](https://docs.diagrid.io/catalyst/). If you have any questions or feedback about this track, you can let us know in the [Diagrid Discord server](https://diagrid.ws/diagrid-discord).
+If you need more information about Diagrid during (or after) the challenge, visit the [Diagrid docs](https://docs.diagrid.io/concepts/what-is-diagrid/). If you have any questions or feedback about this track, you can let us know in the [Diagrid Discord server](https://diagrid.ws/diagrid-discord).
 
 ---
 
-In this challenge, you'll learn what Diagrid Catalyst is, why organizations use Catalyst, and get an introduction to the most important features of Catalyst.
+In this challenge, you'll learn what Diagrid is, why organizations use Diagrid, and get an introduction to the most important features of Diagrid.

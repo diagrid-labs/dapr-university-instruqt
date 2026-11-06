@@ -1,4 +1,4 @@
-Catalyst has a managed Dapr workflow engine that is used to reliably run durable workflows. In this challenge, you'll run a Dapr workflow application using Catalyst and visualize the workflow with Catalyst. This hands-on challenge takes about 7 minutes to complete.
+Diagrid has a managed Dapr workflow engine that is used to reliably run durable workflows. In this challenge, you'll run a Dapr workflow application using Diagrid and visualize the workflow with Diagrid. This hands-on challenge takes about 7 minutes to complete.
 
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching tab (*Terminal* or *curl*) from the dropdown that appears.
@@ -36,11 +36,11 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
   diagrid dev run -f dev-csharp-workflow.yaml --project catalyst-demo --approve
   ```
 
-4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-5. Wait until the application is connected to Catalyst.
+4. You can switch to the **Diagrid** tab to see the application IDs and resources being deployed.
+5. Wait until the application is connected to Diagrid.
 
 > [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Diagrid. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
 
 6. Use the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
 
@@ -53,7 +53,7 @@ Now run the applications using the Diagrid CLI. Choose one of the instructions b
 
 7. Switch to the **Terminal** tab to see the logs of the workflow application. The application log should contain output of the notification activities.
 
-Now, let's check the execution of the workflow in Catalyst.
+Now, let's check the execution of the workflow in Diagrid.
 
 </details>
 
@@ -78,11 +78,11 @@ Now, let's check the execution of the workflow in Catalyst.
   diagrid dev run -f dev-java-workflow.yaml --project catalyst-demo --approve
   ```
 
-4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-5. Wait until the application is connected to Catalyst.
+4. You can switch to the **Diagrid** tab to see the application IDs and resources being deployed.
+5. Wait until the application is connected to Diagrid.
 
 > [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Diagrid. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
 
 6. Use the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
 
@@ -95,7 +95,7 @@ Now, let's check the execution of the workflow in Catalyst.
 
 7. Switch to the **Terminal** tab to see the logs of the workflow application. The application log should contain output of the notification activities.
 
-Now, let's check the execution of the workflow in Catalyst.
+Now, let's check the execution of the workflow in Diagrid.
 
 </details>
 
@@ -127,11 +127,11 @@ Now, let's check the execution of the workflow in Catalyst.
   diagrid dev run -f dev-python-workflow.yaml --project catalyst-demo --approve
   ```
 
-5. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-6. Wait until the application is connected to Catalyst.
+5. You can switch to the **Diagrid** tab to see the application IDs and resources being deployed.
+6. Wait until the application is connected to Diagrid.
 
 > [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Diagrid. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
 
 7. Use the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
 
@@ -144,7 +144,7 @@ Now, let's check the execution of the workflow in Catalyst.
 
 8. Switch to the **Terminal** tab to see the logs of the workflow application. The application log should contain output of the notification activities.
 
-Now, let's check the execution of the workflow in Catalyst.
+Now, let's check the execution of the workflow in Diagrid.
 
 </details>
 
@@ -169,11 +169,11 @@ Now, let's check the execution of the workflow in Catalyst.
   diagrid dev run -f dev-js-workflow.yaml --project catalyst-demo --approve
   ```
 
-4. You can switch to the **Catalyst** tab to see the application IDs and resources being deployed.
-5. Wait until the application is connected to Catalyst.
+4. You can switch to the **Diagrid** tab to see the application IDs and resources being deployed.
+5. Wait until the application is connected to Diagrid.
 
 > [!IMPORTANT]
-> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Catalyst. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
+> You need to wait until the Diagrid CLI has set up a connection with the newly created resources in Diagrid. You should see `Connected App ID "order-workflow" to ...` in the **Terminal** tab logs before you continue.
 
 6. Use the **curl** tab, and run the following command to make a `POST` request to the `start` endpoint of the workflow application:
 
@@ -186,13 +186,13 @@ Now, let's check the execution of the workflow in Catalyst.
 
 7. Switch to the **Terminal** tab to see the logs of the workflow application. The application log should contain output of the notification activities.
 
-Now, let's check the execution of the workflow in Catalyst.
+Now, let's check the execution of the workflow in Diagrid.
 
 </details>
 
-## 4. View the Catalyst Workflows page
+## 4. View the Diagrid Workflows page
 
-1. Go to the **Catalyst** tab and use the left sidebar menu to navigate to the *Workflows* page.
+1. Go to the **Diagrid** tab and use the left sidebar menu to navigate to the *Workflows* page.
 2. You should now see an entry for the *OrderProcessingWorkflow* with as successful status.
 3. Select the workflow instance to drill down into the details of the workflow. This leads to a page with some statistics about the workflow executions and a visual representation of the workflow.
 4. Select the workflow execution entry on the right or bottom side of the visual representation to drill down into the details of this workflow instance.
@@ -202,17 +202,17 @@ Use the **Terminal** tab and stop the running applications by pressing `Ctrl+C`.
 
 ---
 
-You now know how to use Catalyst to run Dapr workflow applications, and how to use the visualization of the workflow to inspect the workflow execution.
+You now know how to use Diagrid to run Dapr workflow applications, and how to use the visualization of the workflow to inspect the workflow execution.
 
 ## Collect your badge & provide feedback
 
-Congratulations! 🎉 You've completed the Dapr University 'Running Dapr Applications with Catalyst' learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training 🚀.
+Congratulations! 🎉 You've completed the Dapr University 'Running Dapr Applications with Diagrid' learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training 🚀.
 
-All code samples shown in this Dapr University track are available in the [Catalyst Quickstarts](https://github.com/diagridio/catalyst-quickstarts/) GitHub repository.
+All code samples shown in this Dapr University track are available in the [Diagrid Quickstarts](https://github.com/diagridio/catalyst-quickstarts/) GitHub repository.
 
 Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmggddbde003vlg04ubjknxvm). You'll need a GitHub account to claim the badge.
 
-[![Dapr University Catalyst 101 badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/Diagrid-Dapr-Uni-Catalyst-101_x500.png?raw=true)](https://holopin.io/collect/cmggddbde003vlg04ubjknxvm)
+[![Dapr University Diagrid 101 badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/catalyst-101/Diagrid-Dapr-Uni-Catalyst-101_x500.png?raw=true)](https://holopin.io/collect/cmggddbde003vlg04ubjknxvm)
 
 ## Next steps
 
@@ -224,7 +224,7 @@ We have more opportunities for you to learn and share knowledge:
 
 **Read more**
 - Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
-- Read [Announcing Catalyst Public Beta](https://www.diagrid.io/blog/announcing-catalyst-public-beta).
+- Read [Announcing Diagrid Public Beta](https://www.diagrid.io/blog/announcing-catalyst-public-beta).
 
 **Join the community**
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#ai* and language channels.

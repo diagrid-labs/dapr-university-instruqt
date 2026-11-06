@@ -54,7 +54,7 @@ Number challenge folders `1-`, `2-`, … to fix ordering. Use kebab-case slugs.
 2. **Study a close reference track first.** Default to **`dapr-secrets`** — newest, on-spec (4 challenges / 30 min), and the only track carrying the complete file set in every challenge. Use `dapr-workflow-aspire` for a build-it-live track, `dapr-101` when you need four languages from `dapr/quickstarts`, and `ai-agents-maf` only as the reference for a learner-supplied API key. `dapr-workflow` is legacy — borrow its `<details>` and diagram conventions, never its sizing. Copy the closest challenge folder and adapt it.
 3. **Create the track `README.md`** (template below).
 4. **Create `_setup/`** scripts for the sandbox and image (see reference.md).
-5. **Create each challenge folder** with `README.md`, `notes.md`, `assignment.md`. Add `scripts/check.sh` (+ `scripts/solve.sh`) when the challenge has a verifiable end state, and `tabs.md` when the track needs a code editor or webapp tab. If the track needs a secret (see **Secrets** below — all AI-based and Catalyst-based tracks do), have the learner configure it in the **first** challenge.
+5. **Create each challenge folder** with `README.md`, `notes.md`, `assignment.md`. Add `scripts/check.sh` (+ `scripts/solve.sh`) when the challenge has a verifiable end state, and `tabs.md` when the track needs a code editor or webapp tab. If the track needs a secret (see **Secrets** below — all AI-based and Diagrid-based tracks do), have the learner configure it in the **first** challenge.
 6. **Add drift tests** for every runnable challenge: a `tests/challenge.robot` suite wired into `tools/track-tester/` plus a `.github/workflows/test-<track>.yml` entry. See reference.md → **Drift testing**. Without this, the track silently drops out of the CI safety net.
 7. **Verify** durations sum to < 30 min (unless the user approved more), every runnable command has `,run`, every expected-output block has `,nocopy`, each `check.sh` has a matching `solve.sh`, and each runnable command is covered by the robot suite (doc-sync).
 
@@ -174,9 +174,9 @@ fi
 
 `solve.sh` is **not** how the track is tested end-to-end. That job belongs to the Robot Framework harness in `tools/track-tester/`: a `tests/challenge.robot` suite runs the *actual* `,run` commands from each `assignment.md` and asserts on their output, catching drift against upstream code. All four runnable tracks have suites (`dapr-101`, `dapr-workflow`, `dapr-workflow-aspire`, `dapr-secrets`), and each has a CI workflow on a daily cron. Only fences starting with `bash` and carrying `run` are doc-sync-checked (`shell,run` and `curl,run` are not — cover them anyway, nothing will warn you); commands the suite performs indirectly are declared in a trailing `# doc-sync coverage (<why>):` comment block. See reference.md → **Drift testing** for the full pattern, the suite conventions, and the CI workflow.
 
-## Secrets (AI / Catalyst tracks)
+## Secrets (AI / Diagrid tracks)
 
-Any track that calls an LLM or Catalyst needs a secret (e.g. an OpenAI API key). **The learner supplies it themselves in the first challenge** — never bake a key into the image or scripts. Two accepted patterns:
+Any track that calls an LLM or Diagrid needs a secret (e.g. an OpenAI API key). **The learner supplies it themselves in the first challenge** — never bake a key into the image or scripts. Two accepted patterns:
 
 - **`.env` file** — the learner copies an example (`cp .env.example .env`) and pastes their key.
 - **Shell environment variable** — the learner `export`s the key in the terminal tab.

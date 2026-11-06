@@ -306,9 +306,9 @@ No app code is committed or cloned. The learner runs scaffolding commands (`dotn
 
 Either way, **do not commit a full application into this tracks repo** — it holds track definitions, instructions, setup scripts, and small assets (images), not application source. If new source code is genuinely needed, create/extend a separate examples repo and clone it.
 
-## Secrets (AI / Catalyst tracks) in depth
+## Secrets (AI / Diagrid tracks) in depth
 
-Any track that calls an LLM (all AI-based tracks) or Catalyst needs a secret such as an OpenAI API key. **Never** bake a key into the VM image, `sandbox-setup.sh`, or any committed file. The learner supplies it themselves during the **first** challenge, via one of:
+Any track that calls an LLM (all AI-based tracks) or Diagrid needs a secret such as an OpenAI API key. **Never** bake a key into the VM image, `sandbox-setup.sh`, or any committed file. The learner supplies it themselves during the **first** challenge, via one of:
 
 - **`.env` file** — commit a `.env.example` with empty/placeholder values; the assignment has the learner `cp .env.example .env` and paste their key. Keep the real `.env` git-ignored.
 - **Shell environment variable** — the assignment has the learner `export OPENAI_API_KEY=...` in the terminal tab.
