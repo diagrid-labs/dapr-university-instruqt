@@ -19,10 +19,10 @@ Suite Teardown    Terminate All Processes    kill=True
 # Scalar variables, referenced elsewhere as ${DAPR_VERSION}. Defined once here so
 # the pinned version is easy to bump in a single place. CI overrides both with
 # `robot --variable DAPR_VERSION:<x>` from the values in _setup/sandbox-setup.sh.
-# Only the MAJOR.MINOR part (1.18) is asserted - see the version test below - so a
+# Only the MAJOR.MINOR part (1.19) is asserted - see the version test below - so a
 # patch release does not need a bump here.
-${DAPR_VERSION}    1.18.0
-${DAPR_RUNTIME_VERSION}    1.18.0
+${DAPR_VERSION}    1.19.0
+${DAPR_RUNTIME_VERSION}    1.19.0
 
 *** Test Cases ***
 # Each unindented line names a test case; indented lines are the steps it runs.
@@ -36,7 +36,7 @@ Dapr Version Matches Pinned Minor Version
     ${r}=    Run And Expect RC Zero    dapr --version
     # Custom keyword from dapr.resource. It asserts only the MAJOR.MINOR of the pinned
     # version against the labelled line in `${r.stdout}`, so a Dapr patch release
-    # (1.18.0 -> 1.18.4) doesn't fail this suite. A minor/major bump still does, because
+    # (1.19.0 -> 1.19.4) doesn't fail this suite. A minor/major bump still does, because
     # that IS the drift to act on: it means the assignment's expected output and the
     # pinned versions in _setup/sandbox-setup.sh need updating.
     Assert Version Line Matches Minor    ${r.stdout}    CLI version    ${DAPR_VERSION}
