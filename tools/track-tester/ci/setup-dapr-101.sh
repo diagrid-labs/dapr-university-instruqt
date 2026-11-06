@@ -9,7 +9,7 @@ QUICKSTARTS_DIR="${QUICKSTARTS_DIR:-$HOME/quickstarts}"
 
 # 1. Parse the pinned Dapr version (single source of truth) and export it for the suites.
 # awk is used (not grep -oP) so this runs on both macOS/BSD and GNU/Linux. The lines look like
-# `agent variable set DAPR_CLI_VERSION 1.18.0`, so the version is the last field ($NF).
+# `agent variable set DAPR_CLI_VERSION 1.19.0`, so the version is the last field ($NF).
 # These are the EXPECTED MINOR floor for challenge 2's assertion, not an install pin (see
 # step 4); only their MAJOR.MINOR is asserted, so the patch digit here needn't track releases.
 DAPR_CLI_VERSION="$(awk '/DAPR_CLI_VERSION/ {print $NF}' "$SETUP_DIR/sandbox-setup.sh")"
