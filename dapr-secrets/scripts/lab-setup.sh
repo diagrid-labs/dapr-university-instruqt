@@ -179,6 +179,16 @@ if [ "$(git -C "$TRACKS_SRC_DIR" rev-parse HEAD)" != "$TRACKS_SRC_REF" ]; then
     echo "WARNING: $TRACKS_SRC_DIR is not at the pinned ref $TRACKS_SRC_REF." >&2
 fi
 
+# The Editor tab showed an empty workspace for $TRACKS_SRC_DIR/secrets while the terminals (root)
+# saw the files. /root is 0700 on Ubuntu, and the docs do not say which user the editor uses on a
+# VM. Let other users traverse /root (not list it) and read and edit the demo clone, so the editor
+# works whichever user it runs as. Single-learner, throwaway sandbox, so this is acceptable.
+if [ "$(id -u)" -eq 0 ]; then
+    chmod o+x "$HOME"
+    chmod -R a+rwX "$TRACKS_SRC_DIR"
+    log "made $TRACKS_SRC_DIR readable and writable for the Editor tab"
+fi
+
 # `dapr init` is skipped when the containers are already running, so a re-run does not tear down
 # and re-create them.
 dapr_containers_running() {
