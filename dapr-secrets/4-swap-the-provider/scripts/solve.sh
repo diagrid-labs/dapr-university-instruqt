@@ -1,5 +1,5 @@
 set -e
-export PATH="${HOME:-/root}/.local/bin:/usr/local/bin:$PATH"
+export PATH="${HOME:-/root}/.local/bin:$PATH:/usr/local/bin"
 TRACKS_SRC_DIR="${TRACKS_SRC_DIR:-${HOME:-/root}/ai-agent-tracks-instruqt}"
 DEMO="Demo3-SwapProvider"
 

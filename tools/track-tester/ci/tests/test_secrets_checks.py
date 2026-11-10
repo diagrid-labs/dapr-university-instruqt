@@ -80,9 +80,12 @@ def test_ch3_all_pass_in_scoped_state(stubs):
         assert rc(CH3 / f"check-{name}.sh") == 0, name
 
 
-def test_ch3_nothing_running_fails(stubs):
-    for name in ("app-a-reads", "app-b-answers", "app-b-refused", "app-b-allowed"):
-        assert rc(CH3 / f"check-{name}.sh") == 1, name
+def test_ch3_nothing_running_fails_only_answers_checks(stubs):
+    # Dependent checks are gated, so a down app yields only the "does not answer" hint.
+    assert rc(CH3 / "check-app-b-answers.sh") == 1
+    assert rc(CH3 / "check-app-a-reads.sh") == 1
+    assert rc(CH3 / "check-app-b-refused.sh") == 0
+    assert rc(CH3 / "check-app-b-allowed.sh") == 0
 
 
 def test_ch3_app_a_not_reading_fails(stubs):
@@ -132,9 +135,15 @@ def test_ch4_all_pass_with_vault(stubs):
         assert rc(CH4 / f"check-{name}.sh") == 0, name
 
 
-def test_ch4_nothing_running_fails(stubs):
-    for name in ("app-answers", "vault-loaded", "app-reads"):
-        assert rc(CH4 / f"check-{name}.sh") == 1, name
+def test_ch4_nothing_running_fails_only_answers_check(stubs):
+    assert rc(CH4 / "check-app-answers.sh") == 1
+    assert rc(CH4 / "check-vault-loaded.sh") == 0
+    assert rc(CH4 / "check-app-reads.sh") == 0
+
+
+def test_ch4_sidecar_metadata_unreachable_is_gated(stubs):
+    stubs.up(5001, {"/secret/orderdb-password": (200, "x")})
+    assert rc(CH4 / "check-vault-loaded.sh") == 0
 
 
 def test_ch4_demo1_file_store_fails_vault_loaded_only(stubs):
