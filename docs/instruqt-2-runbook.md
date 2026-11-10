@@ -372,8 +372,11 @@ Play the lab three times (see Timing). In each play go through all four pages in
 (.NET, Python or Java), so that all three languages are covered by the end. Copy this checklist
 into your notes per run.
 
-Layout reminder: instructions column, tabs **Editor**, **Dapr CLI** (terminal), **curl**
-(terminal).
+Layout reminder: instructions on the left; on the right the **Editor** on top, with the **Dapr CLI**
+and **curl** terminals side by side underneath it. The Editor shows the demo clone
+(`/root/ai-agent-tracks-instruqt/secrets`); if it is empty, check `ls -ld /root` (needs the `x`
+bit for others) and `cat /var/log/lab-setup.log` (should log "made … readable and writable for
+the Editor tab").
 
 | Page | .NET | Python | Java |
 | --- | --- | --- | --- |
