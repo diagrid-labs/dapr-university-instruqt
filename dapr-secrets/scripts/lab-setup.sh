@@ -39,10 +39,31 @@ fi
 # The demo repo holds the three-language apps and the scoping/Vault resources. It lives at a
 # fixed path because the track-tester suites and the assignments both refer to it.
 TRACKS_SRC_DIR="$HOME/ai-agent-tracks-instruqt"
+TRACKS_SRC_URL="https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git"
+# The startup script runs early in boot and as root: allow git to use the clone regardless of
+# which user owns it, so a later git call cannot fail with "dubious ownership" (exit 128).
+git config --global --add safe.directory "$TRACKS_SRC_DIR"
 # -e, not -d: in a git worktree the .git entry is a file.
 if [ ! -e "$TRACKS_SRC_DIR/.git" ]; then
-    git clone https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git "$TRACKS_SRC_DIR"
-    git -C "$TRACKS_SRC_DIR" checkout "$TRACKS_SRC_REF"
+    # The network (DNS) may not be up yet at boot, and a failed clone leaves a partial directory
+    # that makes the next `git clone` fail. Retry with a clean target and log each attempt, so the
+    # lab's Logs show why setup stopped instead of a bare "exited with code 128".
+    cloned=0
+    for attempt in $(seq 1 12); do
+        rm -rf "$TRACKS_SRC_DIR"
+        echo "lab-setup: cloning $TRACKS_SRC_URL (attempt $attempt)"
+        if git clone --quiet "$TRACKS_SRC_URL" "$TRACKS_SRC_DIR"; then
+            cloned=1
+            break
+        fi
+        sleep 5
+    done
+    if [ "$cloned" -ne 1 ]; then
+        echo "ERROR: could not clone $TRACKS_SRC_URL after 12 attempts (is the network up?)." >&2
+        exit 1
+    fi
+    echo "lab-setup: checking out $TRACKS_SRC_REF"
+    git -C "$TRACKS_SRC_DIR" checkout --quiet "$TRACKS_SRC_REF"
 fi
 # Warn (never fail) when the checkout is not at the pinned ref: a pre-existing directory may hold
 # a learner's edits.
