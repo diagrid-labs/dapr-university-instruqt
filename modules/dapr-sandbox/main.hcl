@@ -33,17 +33,11 @@ resource "vm" "sandbox" {
   startup_script = "#!/usr/bin/env bash\nset -euo pipefail\n(\n:\n${variable.lab_startup_script}\n)\nmkdir -p /var/lib/lab-setup\ntouch /var/lib/lab-setup/ready\n"
   environment    = variable.lab_environment
 
-  # The module's startup script writes /var/lib/lab-setup/ready after the lab script succeeds,
-  # so the sandbox only counts as ready once the lab setup has finished.
-  # The timeout is the failure ceiling (slow boots, Docker start, Demo1 pre-build), not the
-  # target: the learner-facing goal is still a sandbox ready in about 1 minute 30 seconds.
-  health_check {
-    timeout = "300s"
-
-    exec {
-      script = "scripts/check-ready.sh"
-    }
-  }
+  # No health_check: Instruqt keeps the sandbox in "Creating sandbox" until startup_script has
+  # finished (and fails creation when it exits non-zero), which is exactly what a readiness check
+  # was meant to enforce. An exec health check that only tested that marker kept timing out
+  # on a VM even after the script had written it, so it is gone. The marker stays as a manual
+  # check: `ls /var/lib/lab-setup/ready` in a lab terminal.
 }
 
 output "vm" {

@@ -21,7 +21,7 @@ in `docs/instruqt-2-spike-checklist.md`, Part 1.
 | Pre-pulled Dapr runtime | the value of `prewarm_dapr_runtime_version` | `modules/dapr-sandbox/versions.hcl` (`prewarm_dapr_runtime_version`) |
 | Lab Dapr runtime | the value of `dapr_runtime_version` | `dapr-secrets/versions.hcl` (`dapr_runtime_version`) |
 | Demo repo commit | full SHA | `dapr-secrets/versions.hcl` (`tracks_src_ref`) |
-| Module version used by the lab | `1.0.0` | `dapr-secrets/versions.hcl` (`module "sandbox"`, `version`) |
+| Module version used by the lab | the value of `version` | `dapr-secrets/versions.hcl` (`module "sandbox"`, `version`) |
 | Image the VM boots from | `diagrid/<image-name>:<tag>` | `modules/dapr-sandbox/versions.hcl` (`image_ref`) |
 
 ---
