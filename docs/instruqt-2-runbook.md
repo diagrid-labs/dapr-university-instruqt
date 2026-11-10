@@ -54,7 +54,8 @@ If the repository is missing from those screens, the GitHub App has no access to
 ## 2. Build the `dapr-sandbox` image
 
 The image holds Docker Engine, .NET SDK 10.0, JDK 17 + Maven, Python 3.12 + uv, Node.js 24 +
-npm and the Dapr CLI (`dapr_cli_version`), with NuGet/Maven/uv caches warm and the container images pulled. It
+npm, the Dapr CLI (`dapr_cli_version`), code-server (`code_server_version`, the labs' Editor tab)
+and the Dapr Dev Dashboard (`dev_dashboard_version`, the Dev Dashboard tab), with NuGet/Maven/uv caches warm and the container images pulled. It
 must be built by hand: there is no CLI or API to build or publish images.
 
 1. In a terminal on the feature branch (`feat/dapr-secrets-instruqt-2-lab`), from the repo root:
@@ -114,10 +115,12 @@ must be built by hand: there is no CLI or API to build or publish images.
    ```bash
    dotnet --version; java -version; mvn -version; python3 --version; uv --version
    node --version; npm --version; dapr --version; docker --version
+   code-server --version; diagrid-dev-dashboard --version
    ```
 
    **Expected:** .NET `10.0.x`, Java 17, Python 3.12, Node `v24.x`, the Dapr CLI at the value of `dapr_cli_version` in `modules/dapr-sandbox/versions.hcl`, a working
-   Docker. (`dapr --version` prints the CLI version and `Runtime version: n/a` because `dapr init`
+   Docker, and code-server and the Dev Dashboard at the values of `code_server_version` and
+   `dev_dashboard_version`. (`dapr --version` prints the CLI version and `Runtime version: n/a` because `dapr init`
    has not run, which is correct.)
 6. Verify that the pre-pull happened:
 
@@ -497,10 +500,11 @@ Do this only after Item 10 (timing) and the play-through are done.
 
 ### Toolchain bump
 
-For a new .NET, JDK, Node, Dapr CLI or prewarmed runtime version.
+For a new .NET, JDK, Node, Dapr CLI, code-server, Dev Dashboard or prewarmed runtime version.
 
 1. Edit the pin in `modules/dapr-sandbox/versions.hcl` (`dotnet_sdk_channel`, `java_version`,
-   `node_major`, `dapr_cli_version` or `prewarm_dapr_runtime_version`).
+   `node_major`, `dapr_cli_version`, `code_server_version`, `dev_dashboard_version` or
+   `prewarm_dapr_runtime_version`).
 2. Render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh > image.sh`.
 3. Rebuild the image as in section 2 (steps 2 to 9). When publishing, choose the existing image
    `dapr-sandbox` and a new **Version** tag (for example `v2`).

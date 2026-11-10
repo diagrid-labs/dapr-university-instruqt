@@ -12,6 +12,9 @@
 #                     uses python3 for small scripting jobs
 #   Node.js + npm     tooling some labs need
 #   git               lab setup scripts clone the demo repo
+#   code-server       VS Code in the browser, the labs' Editor tab (started by lab setup)
+#   Dev Dashboard     Diagrid's Dapr Dev Dashboard, the labs' Dev Dashboard tab (started by lab
+#                     setup)
 #
 # Container images are pulled by prewarm.sh, but never initialised or started here: the Image
 # Builder saves the state of a running Docker daemon into the image.
@@ -19,7 +22,7 @@
 set -euo pipefail
 
 missing=0
-for var in DOTNET_SDK_CHANNEL JAVA_VERSION NODE_MAJOR DAPR_CLI_VERSION; do
+for var in DOTNET_SDK_CHANNEL JAVA_VERSION NODE_MAJOR DAPR_CLI_VERSION CODE_SERVER_VERSION DEV_DASHBOARD_VERSION; do
     if [ -z "${!var:-}" ]; then
         echo "ERROR: required environment variable $var is not set" >&2
         missing=1
@@ -69,10 +72,28 @@ sudo apt-get install -y nodejs
 # Dapr CLI, pinned
 wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash -s "$DAPR_CLI_VERSION"
 
+# code-server (VS Code in the browser), pinned. The standalone release unpacks into /opt; the
+# binary is linked onto the default PATH. Lab setup starts it, the image only installs it.
+cs_archive="code-server-${CODE_SERVER_VERSION}-linux-amd64"
+curl -fsSL -o "/tmp/${cs_archive}.tar.gz" \
+    "https://github.com/coder/code-server/releases/download/v${CODE_SERVER_VERSION}/${cs_archive}.tar.gz"
+sudo tar -xzf "/tmp/${cs_archive}.tar.gz" -C /opt
+sudo ln -sf "/opt/${cs_archive}/bin/code-server" /usr/local/bin/code-server
+rm -f "/tmp/${cs_archive}.tar.gz"
+
+# Diagrid Dapr Dev Dashboard, pinned. A single binary in the release archive.
+dd_archive="diagrid-dev-dashboard_${DEV_DASHBOARD_VERSION}_linux_amd64"
+curl -fsSL -o "/tmp/${dd_archive}.tar.gz" \
+    "https://github.com/diagridio/dev-dashboard/releases/download/v${DEV_DASHBOARD_VERSION}/${dd_archive}.tar.gz"
+sudo mkdir -p "/opt/${dd_archive}"
+sudo tar -xzf "/tmp/${dd_archive}.tar.gz" -C "/opt/${dd_archive}"
+sudo ln -sf "/opt/${dd_archive}/diagrid-dev-dashboard" /usr/local/bin/diagrid-dev-dashboard
+rm -f "/tmp/${dd_archive}.tar.gz"
+
 # Fail the image build loudly if anything above did not land, instead of at a learner's first
 # `dapr run`.
 echo "--- versions ---"
-for cmd in docker dapr dotnet java mvn python3 uv node npm git; do
+for cmd in docker dapr dotnet java mvn python3 uv node npm git code-server diagrid-dev-dashboard; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
         echo "ERROR: $cmd is not installed" >&2
         exit 1
@@ -88,3 +109,5 @@ uv --version
 node --version
 npm --version
 git --version
+code-server --version | grep -m1 -E '^[0-9]+\.'
+diagrid-dev-dashboard --version

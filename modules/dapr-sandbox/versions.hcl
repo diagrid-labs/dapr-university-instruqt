@@ -27,6 +27,16 @@ variable "dapr_cli_version" {
   default     = "1.19.1"
 }
 
+variable "code_server_version" {
+  description = "code-server (VS Code in the browser) release, the labs' Editor tab. 4.145.2 is the version tested in the live dapr-secrets lab."
+  default     = "4.145.2"
+}
+
+variable "dev_dashboard_version" {
+  description = "Diagrid Dapr Dev Dashboard release (github.com/diagridio/dev-dashboard), the labs' Dev Dashboard tab. 0.0.27 is the version tested in the live dapr-secrets lab."
+  default     = "0.0.27"
+}
+
 variable "prewarm_dapr_runtime_version" {
   description = "Dapr runtime version whose container images are pre-pulled into the image. Must match the lab's dapr_runtime_version for the pre-pull to help."
   default     = "1.19.1"
