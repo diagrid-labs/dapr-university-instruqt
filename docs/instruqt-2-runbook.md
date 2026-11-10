@@ -16,9 +16,9 @@ in `docs/instruqt-2-spike-checklist.md`, Part 1.
 
 | Pin | Value | File |
 | --- | --- | --- |
-| Dapr CLI | `1.18.2` | `modules/dapr-sandbox/versions.hcl` (`dapr_cli_version`) |
-| Pre-pulled Dapr runtime | `1.18.7` | `modules/dapr-sandbox/versions.hcl` (`prewarm_dapr_runtime_version`) |
-| Lab Dapr runtime | `1.18.7` | `dapr-secrets/versions.hcl` (`dapr_runtime_version`) |
+| Dapr CLI | the value of `dapr_cli_version` | `modules/dapr-sandbox/versions.hcl` (`dapr_cli_version`) |
+| Pre-pulled Dapr runtime | the value of `prewarm_dapr_runtime_version` | `modules/dapr-sandbox/versions.hcl` (`prewarm_dapr_runtime_version`) |
+| Lab Dapr runtime | the value of `dapr_runtime_version` | `dapr-secrets/versions.hcl` (`dapr_runtime_version`) |
 | Demo repo commit | full SHA | `dapr-secrets/versions.hcl` (`tracks_src_ref`) |
 | Module version used by the lab | `1.0.0` | `dapr-secrets/versions.hcl` (`module "sandbox"`, `version`) |
 | Image the VM boots from | `diagrid/<image-name>:<tag>` | `modules/dapr-sandbox/versions.hcl` (`image_ref`) |
@@ -47,7 +47,7 @@ Instruqt -> Configure and add the repository.
 ## 2. Build the `dapr-sandbox` image
 
 The image holds Docker Engine, .NET SDK 10.0, JDK 17 + Maven, Python 3.12 + uv, Node.js 24 +
-npm and Dapr CLI 1.18.2, with NuGet/Maven/uv caches warm and the container images pulled. It
+npm and the Dapr CLI (`dapr_cli_version`), with NuGet/Maven/uv caches warm and the container images pulled. It
 must be built by hand: there is no CLI or API to build or publish images.
 
 1. In a terminal on the feature branch (`feat/dapr-secrets-instruqt-2-lab`), from the repo root:
@@ -59,8 +59,8 @@ must be built by hand: there is no CLI or API to build or publish images.
 
    **Expected:** `image.sh` starts with `#!/usr/bin/env bash`, `set -euo pipefail` and the
    `export DOTNET_SDK_CHANNEL=10.0`, `JAVA_VERSION=17`, `NODE_MAJOR=24`,
-   `DAPR_CLI_VERSION=1.18.2`, `PREWARM_DAPR_RUNTIME_VERSION=1.18.7` lines (values come from
-   `modules/dapr-sandbox/versions.hcl`). If it fails, the message names the missing pin.
+   `DAPR_CLI_VERSION=<dapr_cli_version>`, `PREWARM_DAPR_RUNTIME_VERSION=<prewarm_dapr_runtime_version>`
+   lines (values come from `modules/dapr-sandbox/versions.hcl`, for example `DAPR_CLI_VERSION=1.19.1`). If it fails, the message names the missing pin.
 2. Instruqt: **Building blocks** -> **Images** -> **Create image** *(docs, not verified)*.
    - Name: `dapr-sandbox`
    - Base image: `ubuntu:24.04` (System images), Version: Latest
@@ -93,7 +93,7 @@ must be built by hand: there is no CLI or API to build or publish images.
    node --version; npm --version; dapr --version; docker --version
    ```
 
-   **Expected:** .NET `10.0.x`, Java 17, Python 3.12, Node `v24.x`, Dapr CLI `1.18.2`, a working
+   **Expected:** .NET `10.0.x`, Java 17, Python 3.12, Node `v24.x`, the Dapr CLI at the value of `dapr_cli_version` in `modules/dapr-sandbox/versions.hcl`, a working
    Docker. (`dapr --version` prints the CLI version and `Runtime version: n/a` because `dapr init`
    has not run, which is correct.)
 6. Verify that the pre-pull happened:
@@ -102,7 +102,7 @@ must be built by hand: there is no CLI or API to build or publish images.
    docker images
    ```
 
-   **Expected:** the list contains `daprio/dapr` with tag `1.18.7`, `redis`, `openzipkin/zipkin`
+   **Expected:** the list contains `daprio/dapr` with the tag from `prewarm_dapr_runtime_version` in `modules/dapr-sandbox/versions.hcl`, `redis`, `openzipkin/zipkin`
    and `hashicorp/vault` with tag `1.20`.
    If the images are missing: the script prints `WARNING: Docker daemon is not reachable` when the
    daemon was not up. Check `whoami` and `id` (is the session user root or in the `docker`

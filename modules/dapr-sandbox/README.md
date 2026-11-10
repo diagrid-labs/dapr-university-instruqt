@@ -34,6 +34,12 @@ that file exists. Consequences for lab scripts:
   the job keeps the startup script's pipe open and the startup waits on it until the job ends.
 - With the default empty script the module still becomes ready.
 
+The toolchain pins in `versions.hcl` (`image_ref`, `dotnet_sdk_channel`, `java_version`,
+`node_major`, `dapr_cli_version`, `prewarm_dapr_runtime_version`) are declared as `variable`
+blocks only so `read_pin.py` can read them. Labs must not override them: the image is prebuilt,
+so overriding a toolchain pin changes nothing (`image_ref` is the one exception, it picks the
+image). Only `cpu`, `memory`, `lab_startup_script` and `lab_environment` are inputs.
+
 ## Output
 
 `vm`: use `module.<name>.output.vm` as the target of terminals, editors and tasks.

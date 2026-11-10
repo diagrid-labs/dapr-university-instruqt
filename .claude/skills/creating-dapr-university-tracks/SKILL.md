@@ -1,6 +1,6 @@
 ---
 name: creating-university-tracks
-description: Use when creating, scaffolding, or adding a new Dapr University learning track/course (or a new challenge) for Instruqt in this repo — covers the track folder layout, the README.md config format, notes.md and assignment.md authoring with Instruqt annotations, tabs.md and terminal naming, how the final challenge closes, setup scripts, secrets handling, check/solve validation, and Robot Framework drift tests.
+description: Use when creating, scaffolding, or adding a new Dapr University learning track/course (or a new challenge) for Instruqt in this repo. New tracks are Instruqt 2.0 labs (HCL config on the shared diagrid/dapr-sandbox module) — covers the track folder layout, the README.md config format, notes.md and assignment.md authoring with Instruqt annotations, tabs.md and terminal naming, how the final challenge closes, setup scripts, secrets handling, check/solve validation, and Robot Framework drift tests.
 ---
 
 # Creating University Tracks
@@ -23,6 +23,8 @@ Authoring conventions that are format-independent (sizing, `assignment.md` annot
 - **~5 minutes** per challenge.
 - **Total < 30 minutes.** Set `## Time limit (minutes)` to ~30 and offer `### Extra time` of 5–10.
 - The first challenge is often a light intro (read + verify environment); the last can be a light recap. Keep hands-on challenges focused on one concept each.
+
+In a 2.0 lab the same limits live in `main.hcl`: `settings { timelimit { duration = "30m" extend = "10m" } idle { enabled = true timeout = "10m" } }` (use the `dapr-secrets` values as the model).
 
 If the topic needs more, ask the user before exceeding 5 challenges or 30 minutes.
 

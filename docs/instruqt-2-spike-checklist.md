@@ -40,7 +40,7 @@ Phase 0 item 1 (install the CLI, scaffold, confirm `validate`/`fmt` work without
 
 ```hcl
 variable "dapr_runtime_version" {
-  default     = "1.18.7"
+  default     = "1.19.1"
   description = "Dapr runtime version"
 }
 ```
@@ -318,8 +318,8 @@ Where a step needs a throwaway lab, create it in the Instruqt UI (Labs, Create l
      id
      curl -fsSL https://get.docker.com | sh
      docker run --rm hello-world
-     curl -fsSL https://raw.githubusercontent.com/dapr/cli/master/install/install.sh | bash -s 1.18.2
-     dapr init --runtime-version 1.18.7
+     curl -fsSL https://raw.githubusercontent.com/dapr/cli/master/install/install.sh | bash -s 1.19.1
+     dapr init --runtime-version 1.19.1
      docker ps
      docker run -d --name vault -p 8200:8200 -e VAULT_DEV_ROOT_TOKEN_ID=root hashicorp/vault:1.20
      curl -s http://localhost:8200/v1/sys/health
@@ -356,6 +356,8 @@ Where a step needs a throwaway lab, create it in the Instruqt UI (Labs, Create l
   3. Repeat with the VM `health_check { timeout = "120s" exec { script = "scripts/ready.sh" } }` where `ready.sh` exits 0 only if `/tmp/setup-done` exists. Check whether the sandbox now waits for it.
   4. Repeat with a task whose `condition` has a `setup` script and `config { target = <vm> }` placed on the first page; check whether the page waits for the task.
   5. Try passing the lab pins in with `environment = { DAPR_RUNTIME_VERSION = variable.dapr_runtime_version }` and confirm the script sees them.
+  6. From inside the startup script, log `echo $HOME; id` and `systemctl is-active docker` at the very start, and `docker info` right after. Expect `/root`, uid 0 and `active`; if Docker is not yet active at script start, note how long it takes (lab-setup.sh waits up to 60 seconds).
+  7. Start a detached background job from the startup script (`nohup ... &`, as the Demo2 pre-build does) that appends to `/var/log/lab-prebuild.log`, then check after the script has exited and the sandbox is ready whether the log keeps growing and the builds complete, or whether the job is killed when the startup script exits.
 - **Expected result:** at least one of `startup_script`, VM `health_check`, or a task `setup` script blocks readiness until it finishes. Record which blocks, which times out and how (the exec docs give a 300s default for exec; VM scripts are undocumented), and whether the learner terminal can read the script's environment variables (they can, so no credentials).
 - **Finding:**
 
