@@ -33,57 +33,57 @@ die() { # die <message>: log an error to stderr and the log file, then stop
     log "ERROR: $*" >&2
     exit 1
 }
+# bounded <seconds> <command...>: run a command that may block (network, Docker) with a hard time
+# limit. Without one, a probe that hangs (an unanswered DNS server, a stuck Docker socket) keeps
+# the sandbox in "Creating sandbox" with no output at all. `timeout` is coreutils on the VM; a
+# local run without it (macOS) runs the command unbounded.
+bounded() {
+    local secs="$1"; shift
+    if command -v timeout >/dev/null 2>&1; then
+        timeout "$secs" "$@"
+    else
+        "$@"
+    fi
+}
 log "start (pinned ref $TRACKS_SRC_REF, Dapr runtime $DAPR_RUNTIME_VERSION)"
 
 # Docker may still be starting when the startup script runs at boot. Wait for the daemon before
 # the first docker use, and fail clearly if it never comes up.
-docker_ready=0
-for _ in $(seq 1 60); do
-    if docker info >/dev/null 2>&1; then
-        docker_ready=1
-        break
-    fi
+deadline=$((SECONDS + 60))
+until bounded 5 docker info >/dev/null 2>&1; do
+    [ "$SECONDS" -lt "$deadline" ] || die "Docker daemon not ready after 60 seconds."
     sleep 1
 done
-if [ "$docker_ready" -ne 1 ]; then
-    die "Docker daemon not ready after 60 seconds."
-fi
-log "Docker ready"
+log "Docker ready (${SECONDS}s since start)"
 
 # DNS may not be up yet either: a first sandbox start failed with "Could not resolve host:
 # github.com" on the clone below. Wait until public names resolve before anything that needs the
 # internet (the clone, and `dapr init` if an image is missing), and fail clearly if they never do.
-dns_ready=0
-for attempt in $(seq 1 120); do
-    if getent hosts github.com >/dev/null 2>&1; then
-        dns_ready=1
-        log "DNS ready after ${attempt}s"
-        break
+# Each lookup is capped at 3 seconds and the whole wait at 90 seconds of wall-clock time: a DNS
+# server that never answers makes every lookup block, so counting attempts is not enough.
+deadline=$((SECONDS + 90))
+next_note=$((SECONDS + 10))
+until bounded 3 getent hosts github.com >/dev/null 2>&1; do
+    [ "$SECONDS" -lt "$deadline" ] || die "github.com does not resolve after 90 seconds; the VM has no working DNS."
+    if [ "$SECONDS" -ge "$next_note" ]; then
+        log "waiting for DNS"
+        next_note=$((SECONDS + 10))
     fi
-    [ $((attempt % 10)) -eq 0 ] && log "waiting for DNS (${attempt}s)"
     sleep 1
 done
-if [ "$dns_ready" -ne 1 ]; then
-    die "github.com does not resolve after 120 seconds; the VM has no working DNS."
-fi
+log "DNS ready (${SECONDS}s since start)"
 
 # A name that resolves does not mean the VM can reach the internet. Without outbound access the
 # clone below would block on TCP connects for minutes per attempt, and because the lab Logs only
 # show this script's output once it ends, the sandbox would sit in "Creating sandbox" with no
 # clue. Probe HTTPS with a short timeout first and fail fast with a clear message instead.
-https_ready=0
-for attempt in $(seq 1 6); do
-    if curl -sS -o /dev/null -m 10 https://github.com 2>/dev/null; then
-        https_ready=1
-        log "outbound HTTPS to github.com works"
-        break
-    fi
-    log "github.com not reachable over HTTPS yet (attempt $attempt)"
+deadline=$((SECONDS + 60))
+until curl -sS -o /dev/null -m 10 https://github.com 2>/dev/null; do
+    [ "$SECONDS" -lt "$deadline" ] || die "github.com resolves but is not reachable over HTTPS after 60 seconds; the VM has no outbound internet access."
+    log "github.com not reachable over HTTPS yet"
     sleep 2
 done
-if [ "$https_ready" -ne 1 ]; then
-    die "github.com resolves but is not reachable over HTTPS; the VM has no outbound internet access."
-fi
+log "outbound HTTPS to github.com works (${SECONDS}s since start)"
 
 # The demo repo holds the three-language apps and the scoping/Vault resources. It lives at a
 # fixed path because the track-tester suites and the assignments both refer to it.
@@ -97,13 +97,13 @@ if [ ! -e "$TRACKS_SRC_DIR/.git" ]; then
     # The network (DNS) may not be up yet at boot, and a failed clone leaves a partial directory
     # that makes the next `git clone` fail. Retry with a clean target and log each attempt, so the
     # lab's Logs show why setup stopped instead of a bare "exited with code 128".
-    # Each attempt is bounded (`timeout`, and git aborts a transfer slower than 1 KB/s for 20s),
+    # Each attempt is bounded (`bounded 60`, and git aborts a transfer slower than 1 KB/s for 20s),
     # so a stalled network fails the setup within minutes instead of hanging it.
     cloned=0
     for attempt in $(seq 1 3); do
         rm -rf "$TRACKS_SRC_DIR"
         log "cloning $TRACKS_SRC_URL (attempt $attempt)"
-        if timeout 60 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=20 \
+        if bounded 60 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=20 \
             clone --quiet "$TRACKS_SRC_URL" "$TRACKS_SRC_DIR"; then
             cloned=1
             break
@@ -125,16 +125,17 @@ fi
 # `dapr init` is skipped when the containers are already running, so a re-run does not tear down
 # and re-create them.
 dapr_containers_running() {
-    [ -n "$(docker ps -f "name=dapr_placement" -f "status=running" -q)" ] &&
-        [ -n "$(docker ps -f "name=dapr_scheduler" -f "status=running" -q)" ] &&
-        [ -n "$(docker ps -f "name=dapr_redis" -f "status=running" -q)" ]
+    [ -n "$(bounded 10 docker ps -f "name=dapr_placement" -f "status=running" -q)" ] &&
+        [ -n "$(bounded 10 docker ps -f "name=dapr_scheduler" -f "status=running" -q)" ] &&
+        [ -n "$(bounded 10 docker ps -f "name=dapr_redis" -f "status=running" -q)" ]
 }
 if dapr_containers_running; then
     log "Dapr containers already running"
 else
     log "dapr init --runtime-version $DAPR_RUNTIME_VERSION"
-    dapr init --runtime-version "$DAPR_RUNTIME_VERSION"
-    log "dapr init done"
+    bounded 240 dapr init --runtime-version "$DAPR_RUNTIME_VERSION" ||
+        die "dapr init failed or did not finish within 240 seconds."
+    log "dapr init done (${SECONDS}s since start)"
 fi
 
 # secrets.json is generated by copying the committed template, the single owner of the secret
@@ -152,7 +153,7 @@ if ! declare -F seed_vault >/dev/null; then
 fi
 log "starting and seeding Vault"
 seed_vault "$TRACKS_SRC_DIR/secrets/secrets.json"
-log "Vault seeded"
+log "Vault seeded (${SECONDS}s since start)"
 
 # Pre-build all demo apps in a fully detached background job (own stdin, stdout and stderr), so
 # the sandbox reports ready without waiting for the builds: Demo1-ReadSecret first (challenges 1,
