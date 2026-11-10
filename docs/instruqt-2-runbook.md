@@ -362,7 +362,11 @@ Start a play with **Play** next to the lab on the **Labs** page (or **Play** in 
 bar). While playing, **Go to creator dashboard** leaves the session running (the dashboard then
 shows **Resume** and **Stop**); **Finish & Exit** ends the session and stops the sandbox. When the
 lab setup or a check misbehaves, the **Logs** button in the lab's top bar shows the scripts'
-output, which learners never see.
+output, which learners never see. The start-up script's output only appears there once the script
+has ended, so while a start is slow or stuck, follow it on the VM instead (as soon as a terminal
+opens): `tail -f /var/log/lab-setup.log` (timestamped setup steps, ending with `done after Ns`)
+and `tail -f /var/log/lab-prebuild.log` (the demo builds, which run in the background after the
+sandbox is ready).
 
 Play the lab three times (see Timing). In each play go through all four pages in one language
 (.NET, Python or Java), so that all three languages are covered by the end. Copy this checklist
@@ -410,9 +414,13 @@ only a generic failure for conditions.
 4. In each run, also check the lab setup finished: in the terminal `ls /var/lib/lab-setup/ready`
    (exists once setup succeeded), `docker ps` (dapr_placement, dapr_scheduler, dapr_redis,
    dapr_zipkin and `vault` running) and `curl -s http://localhost:8200/v1/sys/health`
-   (`"initialized":true`).
-5. If a run is over 1:30, list what was slow (image pull, `dapr init`, Vault seeding) and look
-   for what can move into the image or be dropped. Hot starts are out of scope.
+   (`"initialized":true`). `cat /var/log/lab-setup.log` shows how long each setup step took.
+   The demo builds continue in the background: `tail /var/log/lab-prebuild.log` ends with
+   `prebuild done` once they finish.
+5. If a run is over 1:30, list what was slow (VM boot, image pull, `dapr init`, Vault seeding;
+   the Logs show the VM boot as the gap between "Create" and "QEMU VM running") and look for what
+   can move into the image or be dropped. Hot starts are the remaining option if the VM boot
+   alone uses most of the budget.
 
 ### Record the results
 

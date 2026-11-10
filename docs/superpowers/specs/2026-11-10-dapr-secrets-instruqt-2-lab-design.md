@@ -172,11 +172,16 @@ under `dapr-secrets/scripts/`:
 2. `dapr init` with the pinned runtime version, guarded so a re-run does not recreate containers.
 3. Write `secrets.json` from `secrets.example.json`.
 4. Start Vault dev mode (`hashicorp/vault:1.20`) and seed it from `secrets.json`.
-5. Pre-build Demo1 in all three languages.
+5. Pre-build the demo apps (Demo1, then Demo2) in all three languages in a detached background
+   job, so the sandbox reports ready without waiting for the builds. (Changed 2026-11-10 by the
+   track owner: start-up time comes first; a learner who runs `dapr run` before a build has
+   finished only waits for that build.)
 
 How it runs on a VM is for the builder to settle in the spike: `exec` only targets containers, so
 the candidates are a module variable that appends a lab script to the VM's startup, or a setup
-script on the first task/page. Sandbox creation must not report ready before this finishes.
+script on the first task/page. Sandbox creation must not report ready before steps 1 to 4 finish.
+The script logs each step with a timestamp to `/var/log/lab-setup.log` on the VM, because the
+lab Logs only show its output once it has ended.
 
 Docker Hub login: today `docker login` uses `DockerUSER`/`DockerPAT`. In 2.0, a secret passed via
 a VM's `environment` is readable by learners. The builder must either avoid the login (pre-pull
