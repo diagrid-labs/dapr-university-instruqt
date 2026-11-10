@@ -36,6 +36,24 @@ if [ "$docker_ready" -ne 1 ]; then
     exit 1
 fi
 
+# DNS may not be up yet either: a first sandbox start failed with "Could not resolve host:
+# github.com" on the clone below. Wait until public names resolve before anything that needs the
+# internet (the clone, and `dapr init` if an image is missing), and fail clearly if they never do.
+dns_ready=0
+for attempt in $(seq 1 120); do
+    if getent hosts github.com >/dev/null 2>&1; then
+        dns_ready=1
+        echo "lab-setup: DNS ready after ${attempt}s"
+        break
+    fi
+    [ $((attempt % 10)) -eq 0 ] && echo "lab-setup: waiting for DNS (${attempt}s)"
+    sleep 1
+done
+if [ "$dns_ready" -ne 1 ]; then
+    echo "ERROR: github.com does not resolve after 120 seconds; the VM has no working DNS." >&2
+    exit 1
+fi
+
 # The demo repo holds the three-language apps and the scoping/Vault resources. It lives at a
 # fixed path because the track-tester suites and the assignments both refer to it.
 TRACKS_SRC_DIR="$HOME/ai-agent-tracks-instruqt"
