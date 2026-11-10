@@ -5,19 +5,30 @@ resource "layout" "main" {
     instructions {}
   }
 
-  # Right side: the Editor on top, and the two terminals side by side underneath it, so both
-  # terminals stay visible (the assignments' Run buttons only send commands to a terminal that is
-  # shown on the current page).
+  # Right side: the Editor and the Dev Dashboard side by side on top, and the two terminals side
+  # by side underneath them, so both terminals stay visible (the assignments' Run buttons only send
+  # commands to a terminal that is shown on the current page). Nested columns have no width so
+  # they share their row equally.
   column {
     width = "60"
 
     row {
       height = "60"
 
-      tab "editor" {
-        target = resource.service.editor
-        title  = "Editor"
-        active = true
+      column {
+        tab "editor" {
+          target = resource.service.editor
+          title  = "Editor"
+          active = true
+        }
+      }
+
+      column {
+        tab "dev_dashboard" {
+          target = resource.service.dev_dashboard
+          title  = "Dev Dashboard"
+          active = true
+        }
       }
     }
 
@@ -25,8 +36,6 @@ resource "layout" "main" {
       height = "40"
 
       column {
-        width = "50"
-
         tab "dapr_cli" {
           target = resource.terminal.dapr_cli
           title  = "Dapr CLI"
@@ -35,8 +44,6 @@ resource "layout" "main" {
       }
 
       column {
-        width = "50"
-
         tab "curl" {
           target = resource.terminal.curl
           title  = "curl"
