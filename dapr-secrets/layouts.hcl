@@ -5,30 +5,25 @@ resource "layout" "main" {
     instructions {}
   }
 
-  # Right side: the Editor and the Dev Dashboard side by side on top, and the two terminals side
-  # by side underneath them, so both terminals stay visible (the assignments' Run buttons only send
-  # commands to a terminal that is shown on the current page). Nested columns have no width so
-  # they share their row equally.
+  # Right side: one panel on top with two tabs, the Editor (open by default) and the Dev
+  # Dashboard, which replaces the Editor view when selected; underneath, the two terminals side by
+  # side, so both stay visible (the assignments' Run buttons only send commands to a terminal that
+  # is shown on the current page). The terminal columns have no width so they share the row equally.
   column {
     width = "60"
 
     row {
       height = "60"
 
-      column {
-        tab "editor" {
-          target = resource.service.editor
-          title  = "Editor"
-          active = true
-        }
+      tab "editor" {
+        target = resource.service.editor
+        title  = "Editor"
+        active = true
       }
 
-      column {
-        tab "dev_dashboard" {
-          target = resource.service.dev_dashboard
-          title  = "Dev Dashboard"
-          active = true
-        }
+      tab "dev_dashboard" {
+        target = resource.service.dev_dashboard
+        title  = "Dev Dashboard"
       }
     }
 

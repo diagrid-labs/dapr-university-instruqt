@@ -372,8 +372,9 @@ Play the lab three times (see Timing). In each play go through all four pages in
 (.NET, Python or Java), so that all three languages are covered by the end. Copy this checklist
 into your notes per run.
 
-Layout reminder: instructions on the left; on the right the **Editor** and the **Dev Dashboard**
-side by side on top, with the **Dapr CLI** and **curl** terminals side by side underneath. The Dev
+Layout reminder: instructions on the left; on the right one panel on top with the **Editor** and
+**Dev Dashboard** tabs (Editor open by default), with the **Dapr CLI** and **curl** terminals side by
+side underneath. The Dev
 Dashboard is Diagrid's Dapr Dev Dashboard on the VM, port 9090 (`systemctl status
 dev-dashboard-lab`); it only accepts a `localhost` Host header, which its service tab sends. The Editor is code-server (VS Code in the
 browser) on the VM, port 8888, opened on `/root/ai-agent-tracks-instruqt/secrets`: a `service`
