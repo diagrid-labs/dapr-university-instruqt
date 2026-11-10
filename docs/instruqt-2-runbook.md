@@ -502,7 +502,11 @@ For a new .NET, JDK, Node, Dapr CLI or prewarmed runtime version.
 6. Import/refresh the module and **Publish version** as the next number (for example `1.1.0`;
    section 7). The published `1.0.0` keeps the old image.
 7. In `dapr-secrets/versions.hcl`, bump `version` in the `module "sandbox"` block to that number
-   and merge by PR.
+   and merge by PR. Only after step 6: the merge syncs the lab, and a sync that pins a
+   version that is not published yet fails with `failed to read hcl files: module "sandbox":
+   version X of diagrid/dapr-sandbox is not published: not found`. Publishing afterwards does not
+   clear that error; the lab only re-reads its HCL on the next push to `main` that changes a file
+   under `dapr-secrets/`.
 8. If you bumped `prewarm_dapr_runtime_version`, `dapr_runtime_version` in
    `dapr-secrets/versions.hcl` must equal it in the same change. The harness unit test
    `test_prewarm_runtime_pin_matches_lab_runtime_pin` (`tools/track-tester/ci/tests/test_read_pin.py`,
