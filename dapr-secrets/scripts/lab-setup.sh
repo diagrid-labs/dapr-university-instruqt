@@ -67,6 +67,24 @@ if [ "$dns_ready" -ne 1 ]; then
     die "github.com does not resolve after 120 seconds; the VM has no working DNS."
 fi
 
+# A name that resolves does not mean the VM can reach the internet. Without outbound access the
+# clone below would block on TCP connects for minutes per attempt, and because the lab Logs only
+# show this script's output once it ends, the sandbox would sit in "Creating sandbox" with no
+# clue. Probe HTTPS with a short timeout first and fail fast with a clear message instead.
+https_ready=0
+for attempt in $(seq 1 6); do
+    if curl -sS -o /dev/null -m 10 https://github.com 2>/dev/null; then
+        https_ready=1
+        log "outbound HTTPS to github.com works"
+        break
+    fi
+    log "github.com not reachable over HTTPS yet (attempt $attempt)"
+    sleep 2
+done
+if [ "$https_ready" -ne 1 ]; then
+    die "github.com resolves but is not reachable over HTTPS; the VM has no outbound internet access."
+fi
+
 # The demo repo holds the three-language apps and the scoping/Vault resources. It lives at a
 # fixed path because the track-tester suites and the assignments both refer to it.
 TRACKS_SRC_DIR="$HOME/ai-agent-tracks-instruqt"
@@ -79,18 +97,21 @@ if [ ! -e "$TRACKS_SRC_DIR/.git" ]; then
     # The network (DNS) may not be up yet at boot, and a failed clone leaves a partial directory
     # that makes the next `git clone` fail. Retry with a clean target and log each attempt, so the
     # lab's Logs show why setup stopped instead of a bare "exited with code 128".
+    # Each attempt is bounded (`timeout`, and git aborts a transfer slower than 1 KB/s for 20s),
+    # so a stalled network fails the setup within minutes instead of hanging it.
     cloned=0
-    for attempt in $(seq 1 12); do
+    for attempt in $(seq 1 3); do
         rm -rf "$TRACKS_SRC_DIR"
         log "cloning $TRACKS_SRC_URL (attempt $attempt)"
-        if git clone --quiet "$TRACKS_SRC_URL" "$TRACKS_SRC_DIR"; then
+        if timeout 60 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=20 \
+            clone --quiet "$TRACKS_SRC_URL" "$TRACKS_SRC_DIR"; then
             cloned=1
             break
         fi
         sleep 5
     done
     if [ "$cloned" -ne 1 ]; then
-        die "could not clone $TRACKS_SRC_URL after 12 attempts (is the network up?)."
+        die "could not clone $TRACKS_SRC_URL after 3 attempts."
     fi
     log "checking out $TRACKS_SRC_REF"
     git -C "$TRACKS_SRC_DIR" checkout --quiet "$TRACKS_SRC_REF"
