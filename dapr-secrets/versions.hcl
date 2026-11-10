@@ -4,7 +4,7 @@
 
 variable "dapr_runtime_version" {
   description = "Dapr runtime the lab initialises (dapr init --runtime-version). Must equal prewarm_dapr_runtime_version in modules/dapr-sandbox/versions.hcl."
-  default     = "1.18.7"
+  default     = "1.19.1"
 }
 
 variable "tracks_src_ref" {

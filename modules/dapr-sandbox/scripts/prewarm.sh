@@ -5,13 +5,14 @@
 # the state of running services into the image.
 #
 # Needs PREWARM_DAPR_RUNTIME_VERSION (rendered from versions.hcl). Failures to clone or pull are
-# non-fatal: the sandbox still works, it is just slower on first use.
+# warnings: the sandbox still works, it is just slower on first use. A failing package build is
+# fatal (set -e) on purpose, so a broken image is noticed while it is being built.
 
 set -euo pipefail
 
 : "${PREWARM_DAPR_RUNTIME_VERSION:?PREWARM_DAPR_RUNTIME_VERSION is not set}"
 
-# Images that `dapr init` (Dapr 1.18) pulls: the runtime image also serves placement and
+# Images that `dapr init` (Dapr 1.19) pulls: the runtime image also serves placement and
 # scheduler, plus Redis and Zipkin. Vault is started by the secrets lab.
 DAPR_IMAGES=(
     "daprio/dapr:$PREWARM_DAPR_RUNTIME_VERSION"

@@ -135,7 +135,7 @@ def test_render_image_script_inlines_pins():
     assert r.returncode == 0, r.stderr
     out = r.stdout
     assert out.startswith("#!/usr/bin/env bash\n")
-    assert "export DAPR_CLI_VERSION=1.18.2" in out
+    assert f"export DAPR_CLI_VERSION={read_pin(str(REPO / "modules" / "dapr-sandbox" / "versions.hcl"), "dapr_cli_version")}" in out
     assert "export NODE_MAJOR=24" in out
     assert str(REPO) not in out, "output must be self-contained (no repo paths)"
     syntax = subprocess.run(["bash", "-n"], input=out, capture_output=True, text=True)

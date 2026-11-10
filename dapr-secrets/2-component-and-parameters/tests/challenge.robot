@@ -29,14 +29,14 @@ ${NESTED_FLAT}      {"orderdb.password":{"orderdb.password":"demo-nested-passwor
 ${NESTED_MULTI}     {"orderdb":{"password":"demo-nested-password","user":"orders"},"payments-api-key":{"payments-api-key":"pk-test-7f3a9"}}
 ${MULTI_ORDERDB}    {"password":"demo-nested-password","user":"orders"}
 
-# The sidecar log wording below is what daprd 1.18.x writes (confirmed on 1.18.7). It is
+# The sidecar log wording below is what daprd 1.19.x writes (confirmed on 1.18.7 and 1.19.0). It is
 # undocumented, so a runtime bump that rewords it should fail here as drift, not as a mystery:
 # update these strings and the matching sentences in assignment.md together.
 ${STATESTORE_LOADED}    Component loaded: statestore (state.redis/v1)
 ${SECRET_NOT_FOUND}     Error getting secret: secret not-in-the-store not found
 ${STORE_NOT_LOADED}     references a secret store that isn't loaded
 ${MISSING_NAME}         not-in-the-store
-# What daprd 1.18.x logs, fatally, when `secretsFile` names a file that does not exist. The
+# What daprd 1.19.x logs, fatally, when `secretsFile` names a file that does not exist. The
 # file name in the message is whatever was configured; only the operating system's wording is
 # pinned, plus the line that says the sidecar process ended.
 ${FILE_NOT_FOUND}       no such file or directory

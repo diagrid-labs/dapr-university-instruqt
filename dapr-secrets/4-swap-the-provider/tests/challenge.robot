@@ -45,7 +45,7 @@ ${APP_DENIED}         {"name":"orderdb-password","error":"${APP_DENIED_ERROR}"}
 ${LOCAL_TYPE}         "name":"secretstore","type":"secretstores.local.file"
 ${VAULT_TYPE}         "name":"secretstore","type":"secretstores.hashicorp.vault"
 ${STATESTORE_TYPE}    "name":"statestore","type":"state.redis"
-# Daprd 1.18.x log wording, pinned as in challenges 2 and 3 so a runtime change fails the suite.
+# Daprd 1.19.x log wording, pinned as in challenges 2 and 3 so a runtime change fails the suite.
 ${STATESTORE_LOADED}    Component loaded: statestore (state.redis/v1)
 ${SECRET_ERROR_LOG}     Error getting secret
 ${STORE_NOT_LOADED}     references a secret store that isn't loaded

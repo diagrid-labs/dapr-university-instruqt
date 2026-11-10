@@ -24,10 +24,10 @@ variable "node_major" {
 
 variable "dapr_cli_version" {
   description = "Dapr CLI version"
-  default     = "1.18.2"
+  default     = "1.19.1"
 }
 
 variable "prewarm_dapr_runtime_version" {
   description = "Dapr runtime version whose container images are pre-pulled into the image. Must match the lab's dapr_runtime_version for the pre-pull to help."
-  default     = "1.18.7"
+  default     = "1.19.1"
 }
