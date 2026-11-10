@@ -196,6 +196,22 @@ if ! command -v code-server >/dev/null 2>&1; then
     rm -f "/tmp/${archive}.tar.gz"
     log "code-server installed (${SECONDS}s since start)"
 fi
+# VS Code user settings for a distraction-free lab editor:
+# - no "A git repository was found in the parent folders" prompt (the editor opens a subfolder
+#   of the demo clone),
+# - no AI chat/agent panel, and the secondary side bar it opens in stays hidden,
+# - no Welcome page, no telemetry.
+CODE_SERVER_SETTINGS="$HOME/.local/share/code-server/User/settings.json"
+mkdir -p "$(dirname "$CODE_SERVER_SETTINGS")"
+cat >"$CODE_SERVER_SETTINGS" <<'JSON'
+{
+  "git.openRepositoryInParentFolders": "never",
+  "chat.disableAIFeatures": true,
+  "workbench.secondarySideBar.defaultVisibility": "hidden",
+  "workbench.startupEditor": "none",
+  "telemetry.telemetryLevel": "off"
+}
+JSON
 code_server_args=(
     --bind-addr "0.0.0.0:${CODE_SERVER_PORT}" --auth none
     --disable-telemetry --disable-update-check --disable-workspace-trust
