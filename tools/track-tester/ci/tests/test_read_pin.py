@@ -125,3 +125,18 @@ def test_reads_real_repo_files(rel):
         pytest.skip(f"{rel} not created yet")
     for name in REAL_PINS[rel]:
         assert read_pin(str(path), name)
+
+
+RENDER = REPO / "modules" / "dapr-sandbox" / "scripts" / "render-image-script.sh"
+
+
+def test_render_image_script_inlines_pins():
+    r = subprocess.run(["bash", str(RENDER)], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    out = r.stdout
+    assert out.startswith("#!/usr/bin/env bash\n")
+    assert "export DAPR_CLI_VERSION=1.18.2" in out
+    assert "export NODE_MAJOR=24" in out
+    assert str(REPO) not in out, "output must be self-contained (no repo paths)"
+    syntax = subprocess.run(["bash", "-n"], input=out, capture_output=True, text=True)
+    assert syntax.returncode == 0, syntax.stderr
