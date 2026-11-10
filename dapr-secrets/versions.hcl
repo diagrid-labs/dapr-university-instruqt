@@ -7,6 +7,11 @@ variable "dapr_runtime_version" {
   default     = "1.19.1"
 }
 
+variable "code_server_version" {
+  description = "code-server (VS Code in the browser) release that lab-setup.sh installs when the image doesn't have it; shown in the Editor tab."
+  default     = "4.145.2"
+}
+
 variable "tracks_src_ref" {
   description = "Commit of diagrid-labs/ai-agent-tracks-instruqt that the lab checks out after cloning."
   default     = "b1da54839b14ee1bb124914b915f78200a8f5f4e"
@@ -30,6 +35,7 @@ module "sandbox" {
     lab_environment = {
       DAPR_RUNTIME_VERSION = variable.dapr_runtime_version
       TRACKS_SRC_REF       = variable.tracks_src_ref
+      CODE_SERVER_VERSION  = variable.code_server_version
     }
   }
 }

@@ -15,7 +15,7 @@ resource "layout" "main" {
       height = "60"
 
       tab "editor" {
-        target = resource.editor.code
+        target = resource.service.editor
         title  = "Editor"
         active = true
       }

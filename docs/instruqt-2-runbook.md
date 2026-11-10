@@ -373,10 +373,11 @@ Play the lab three times (see Timing). In each play go through all four pages in
 into your notes per run.
 
 Layout reminder: instructions on the left; on the right the **Editor** on top, with the **Dapr CLI**
-and **curl** terminals side by side underneath it. The Editor shows the demo clone
-(`/root/ai-agent-tracks-instruqt/secrets`); if it is empty, check `ls -ld /root` (needs the `x`
-bit for others) and `cat /var/log/lab-setup.log` (should log "made … readable and writable for
-the Editor tab").
+and **curl** terminals side by side underneath it. The Editor is code-server (VS Code in the
+browser) on the VM, port 8888, opened on `/root/ai-agent-tracks-instruqt/secrets`: a `service`
+tab, because the built-in `editor` resource showed no files for a VM target. If it doesn't load,
+check `cat /var/log/lab-setup.log` ("code-server listening on port 8888"), `systemctl status
+code-server-lab` and `curl -sI http://127.0.0.1:8888/` in a terminal.
 
 | Page | .NET | Python | Java |
 | --- | --- | --- | --- |

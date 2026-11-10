@@ -179,20 +179,44 @@ if [ "$(git -C "$TRACKS_SRC_DIR" rev-parse HEAD)" != "$TRACKS_SRC_REF" ]; then
     echo "WARNING: $TRACKS_SRC_DIR is not at the pinned ref $TRACKS_SRC_REF." >&2
 fi
 
-# The Editor tab showed an empty workspace for $TRACKS_SRC_DIR/secrets while the terminals (root)
-# saw the files. /root is 0700 on Ubuntu, and the docs do not say which user the editor uses on a
-# VM. Let other users traverse /root (not list it) and read and edit the demo clone, so the editor
-# works whichever user it runs as. Single-learner, throwaway sandbox, so this is acceptable.
-if [ "$(id -u)" -eq 0 ]; then
-    chmod o+x "$HOME"
-    chmod -R a+rwX "$TRACKS_SRC_DIR"
-    log "made $TRACKS_SRC_DIR readable and writable for the Editor tab"
-    # TEMPORARY diagnostic for the empty Editor tab (see the "probe" workspace in tabs.hcl).
-    mkdir -p /opt/editor-probe
-    echo "If you can read this in the Editor tab, the editor can show files on the VM." >/opt/editor-probe/README.txt
-    chmod -R a+rwX /opt/editor-probe
-    log "created /opt/editor-probe/README.txt for the Editor probe workspace"
+# The Editor tab is code-server (VS Code in the browser) on the VM, shown through a `service` tab:
+# the built-in `editor` resource showed no files for a VM target. Install it when the image does
+# not have it yet, then run it as a transient systemd service so it outlives this startup script
+# and restarts if it stops. It runs as root, like the terminals, on the folder they open.
+: "${CODE_SERVER_VERSION:?CODE_SERVER_VERSION must be set}"
+CODE_SERVER_PORT=8888
+if ! command -v code-server >/dev/null 2>&1; then
+    log "installing code-server $CODE_SERVER_VERSION"
+    archive="code-server-${CODE_SERVER_VERSION}-linux-amd64"
+    bounded 120 curl -fsSL -o "/tmp/${archive}.tar.gz" \
+        "https://github.com/coder/code-server/releases/download/v${CODE_SERVER_VERSION}/${archive}.tar.gz" ||
+        die "downloading code-server $CODE_SERVER_VERSION failed."
+    tar -xzf "/tmp/${archive}.tar.gz" -C /opt
+    ln -sf "/opt/${archive}/bin/code-server" /usr/local/bin/code-server
+    rm -f "/tmp/${archive}.tar.gz"
+    log "code-server installed (${SECONDS}s since start)"
 fi
+code_server_args=(
+    --bind-addr "0.0.0.0:${CODE_SERVER_PORT}" --auth none
+    --disable-telemetry --disable-update-check --disable-workspace-trust
+    "$TRACKS_SRC_DIR/secrets"
+)
+if command -v systemd-run >/dev/null 2>&1 && [ "$(id -u)" -eq 0 ]; then
+    systemctl stop code-server-lab >/dev/null 2>&1 || true
+    systemd-run --unit=code-server-lab --property=Restart=always \
+        --setenv=HOME="$HOME" "$(command -v code-server)" "${code_server_args[@]}" >/dev/null
+else
+    nohup code-server "${code_server_args[@]}" >/var/log/code-server.log 2>&1 </dev/null &
+fi
+deadline=$((SECONDS + 30))
+until bounded 3 curl -s -o /dev/null "http://127.0.0.1:${CODE_SERVER_PORT}/"; do
+    if [ "$SECONDS" -ge "$deadline" ]; then
+        log "WARNING: code-server does not answer on port ${CODE_SERVER_PORT} yet (journalctl -u code-server-lab)"
+        break
+    fi
+    sleep 1
+done
+log "code-server listening on port ${CODE_SERVER_PORT} (${SECONDS}s since start)"
 
 # `dapr init` is skipped when the containers are already running, so a re-run does not tear down
 # and re-create them.
