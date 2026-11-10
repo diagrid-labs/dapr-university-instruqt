@@ -49,11 +49,14 @@ log "start (pinned ref $TRACKS_SRC_REF, Dapr runtime $DAPR_RUNTIME_VERSION)"
 
 # Docker may still be starting when the startup script runs at boot. Wait for the daemon before
 # the first docker use, and fail clearly if it never comes up.
-deadline=$((SECONDS + 60))
-until bounded 5 docker info >/dev/null 2>&1; do
-    [ "$SECONDS" -lt "$deadline" ] || die "Docker daemon not ready after 60 seconds."
-    sleep 1
-done
+wait_for_docker() { # wait_for_docker <seconds>
+    local deadline=$((SECONDS + $1))
+    until bounded 5 docker info >/dev/null 2>&1; do
+        [ "$SECONDS" -lt "$deadline" ] || die "Docker daemon not ready after $1 seconds."
+        sleep 1
+    done
+}
+wait_for_docker 60
 log "Docker ready (${SECONDS}s since start)"
 
 # DNS may not be up yet either: a first sandbox start failed with "Could not resolve host:
@@ -99,6 +102,31 @@ if ! wait_for_dns 20; then
     } >"$RESOLV_CONF"
     wait_for_dns 30 ||
         die "github.com still does not resolve after adding public DNS servers ($PUBLIC_DNS); DNS traffic from the VM may be blocked."
+
+    # The Docker daemon does not re-read /etc/resolv.conf: it keeps the resolver it found at its
+    # own start (before this script), so image pulls by `dapr init` or the Vault start would still
+    # fail to resolve the registry. Give the daemon the same public servers and restart it, as
+    # Instruqt's own docker-on-vm guidance does. Existing daemon.json settings are kept.
+    DOCKER_DAEMON_JSON="${LAB_DOCKER_DAEMON_JSON:-/etc/docker/daemon.json}"
+    mkdir -p "$(dirname "$DOCKER_DAEMON_JSON")"
+    # $PUBLIC_DNS is split on purpose: one argument per server.
+    # shellcheck disable=SC2086
+    python3 - "$DOCKER_DAEMON_JSON" $PUBLIC_DNS <<'PY'
+import json, os, sys
+path, servers = sys.argv[1], sys.argv[2:]
+config = {}
+if os.path.exists(path) and os.path.getsize(path) > 0:
+    with open(path) as f:
+        config = json.load(f)
+config["dns"] = servers
+with open(path, "w") as f:
+    json.dump(config, f, indent=2)
+    f.write("\n")
+PY
+    log "set Docker daemon DNS to $PUBLIC_DNS in $DOCKER_DAEMON_JSON; restarting Docker"
+    bounded 60 systemctl restart docker || die "restarting Docker after setting its DNS servers failed."
+    wait_for_docker 60
+    log "Docker ready again with public DNS (${SECONDS}s since start)"
 fi
 log "DNS ready (${SECONDS}s since start)"
 
