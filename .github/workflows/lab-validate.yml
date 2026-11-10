@@ -1,0 +1,60 @@
+name: Validate Instruqt labs
+
+# Runs on EVERY pull request (no `paths` filter) so `lab-validate` can be a required check:
+# a required check that never starts because of a path filter blocks the merge forever.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Instruqt CLI release tag, matching the CLI the lab authors use locally (`instruqt version`).
+  # Bump together with the local CLI; release assets: https://github.com/instruqt/cli/releases
+  INSTRUQT_CLI_VERSION: 2442-5df184f
+
+jobs:
+  lab-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      # The CLI is installed BEFORE pytest: tools/track-tester/ci/tests/test_validate_lab.py skips
+      # itself when `instruqt` is not on PATH, which would silently drop that coverage.
+      - name: Install Instruqt CLI
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/instruqt.zip" \
+            "https://github.com/instruqt/cli/releases/download/${INSTRUQT_CLI_VERSION}/instruqt-linux.zip"
+          mkdir -p "$HOME/.local/bin"
+          unzip -o "$RUNNER_TEMP/instruqt.zip" -d "$HOME/.local/bin"
+          chmod +x "$HOME/.local/bin/instruqt"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Show CLI version
+        run: instruqt version
+      - name: Check formatting
+        run: |
+          for dir in modules/dapr-sandbox dapr-secrets; do
+            instruqt lab format "$dir"
+          done
+          # `instruqt lab format` always exits 0 and rewrites in place, so a diff means unformatted HCL.
+          git diff --exit-code
+      - name: Check referenced files exist
+        run: |
+          for dir in modules/dapr-sandbox dapr-secrets; do
+            python3 tools/track-tester/ci/check_lab_paths.py "$dir"
+          done
+      - name: Validate module
+        run: instruqt lab validate modules/dapr-sandbox
+      - name: Validate lab
+        # The lab consumes the registry module diagrid/dapr-sandbox, which `lab validate` cannot
+        # resolve; the script validates a temp copy with the module swapped for the local one.
+        run: tools/track-tester/ci/validate-lab.sh dapr-secrets modules/dapr-sandbox
+      - name: Shellcheck lab and module scripts
+        run: |
+          # --shell=bash: the legacy per-challenge setup/check/solve scripts have no shebang.
+          find modules dapr-secrets -path '*/scripts/*.sh' -print0 | sort -z \
+            | xargs -0 shellcheck --shell=bash
+      - name: Harness unit tests
+        run: (cd tools/track-tester && uv sync && uv run pytest -v)

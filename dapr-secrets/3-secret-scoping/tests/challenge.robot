@@ -32,7 +32,7 @@ ${APP_DENIED}         {"name":"orderdb-password","error":"${APP_DENIED_ERROR}"}
 ${APP_MISSING}        {"name":"legacy-api-key","error":"${APP_MISSING_ERROR}"}
 # An unlisted name that is not in the store either. Scoping answers it with the same denial.
 ${APP_UNKNOWN}        {"name":"does-not-exist","error":"${APP_DENIED_ERROR}"}
-# Daprd 1.18.x log wording, as in challenge 2: pinned here so a runtime change fails the suite.
+# Daprd 1.19.x log wording, as in challenge 2: pinned here so a runtime change fails the suite.
 ${SECRET_ERROR_LOG}      Error getting secret
 ${STORE_LOADED_LOG}      Component loaded: secretstore
 
@@ -97,7 +97,7 @@ DotNet The Deny List Direction Refuses The Same Secret
 # Characterization, not a guard. The shared per-language resources folder holds
 # statestore-with-secretref.yaml, which reads orderdb-password through secretKeyRef, the very
 # secret config-app-b.yaml denies. It was expected that a sidecar loading both would log
-# "Error getting secret" at startup. Measured on daprd 1.18.7 it does not: scoping applies to the
+# "Error getting secret" at startup. Measured on daprd 1.18.7 and 1.19.0 it does not: scoping applies to the
 # Secrets API calls an app makes, not to the lookups the sidecar does itself for a component.
 # Demo2-Scoping still has a resources folder of its own (no Redis dependency, no unrelated
 # component next to the lesson), but not because of a startup error. If a runtime starts

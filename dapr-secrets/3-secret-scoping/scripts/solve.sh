@@ -1,6 +1,7 @@
+#!/usr/bin/env bash
 set -e
-export PATH="$HOME/.local/bin:$PATH"
-TRACKS_SRC_DIR="${TRACKS_SRC_DIR:-$HOME/ai-agent-tracks-instruqt}"
+export PATH="${HOME:-/root}/.local/bin:$PATH:/usr/local/bin"
+TRACKS_SRC_DIR="${TRACKS_SRC_DIR:-${HOME:-/root}/ai-agent-tracks-instruqt}"
 DEMO="Demo2-Scoping"
 
 # 1. Switch scoping on for app-b: remove the "# " in front of configFilePath. This is the same
@@ -22,7 +23,7 @@ done
 # 3. Start both apps again, in .NET, in the background. The check only needs the apps to answer
 # on ports 5002 and 5003, so it does not matter which language the learner used.
 cd "$TRACKS_SRC_DIR/secrets/dotnet/$DEMO"
-nohup dapr run -f . >/tmp/dapr-secrets-demo2.log 2>&1 &
+setsid nohup dapr run -f . </dev/null >/tmp/dapr-secrets-demo2.log 2>&1 &
 
 # 4. Wait until app-b answers a request that its sidecar allows.
 for _ in $(seq 1 120); do

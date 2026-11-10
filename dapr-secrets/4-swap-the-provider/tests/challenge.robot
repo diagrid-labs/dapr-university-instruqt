@@ -27,7 +27,7 @@ ${LOG}                ${TEMPDIR}/dapr-secrets-ch4.log
 ${LOG_SOLVE}          ${TEMPDIR}/dapr-secrets-ch4-solve.log
 ${CONTROL_ROOT}       ${TEMPDIR}/dapr-secrets-ch4-control
 ${CH_DIR}             ${CURDIR}/..
-${SANDBOX_SETUP}      ${CURDIR}/../../_setup/sandbox-setup.sh
+${SEED_VAULT}         ${CURDIR}/../../scripts/seed-vault.sh
 ${APP_URL}            http://localhost:5001
 # The values secrets.example.json (the single owner of the demo values) holds.
 ${ORDERDB_JSON}       {"name":"orderdb-password","value":"s3cr3t-pa55w0rd"}
@@ -45,7 +45,7 @@ ${APP_DENIED}         {"name":"orderdb-password","error":"${APP_DENIED_ERROR}"}
 ${LOCAL_TYPE}         "name":"secretstore","type":"secretstores.local.file"
 ${VAULT_TYPE}         "name":"secretstore","type":"secretstores.hashicorp.vault"
 ${STATESTORE_TYPE}    "name":"statestore","type":"state.redis"
-# Daprd 1.18.x log wording, pinned as in challenges 2 and 3 so a runtime change fails the suite.
+# Daprd 1.19.x log wording, pinned as in challenges 2 and 3 so a runtime change fails the suite.
 ${STATESTORE_LOADED}    Component loaded: statestore (state.redis/v1)
 ${SECRET_ERROR_LOG}     Error getting secret
 ${STORE_NOT_LOADED}     references a secret store that isn't loaded
@@ -85,30 +85,27 @@ Vault Answers Its Health Endpoint Before Any App Starts
     Should Be Equal    ${legacy.stdout}    404
 
 The Vault Wait Loop Fails When Vault Never Becomes Ready
-    [Documentation]    Review focus 3: the readiness wait in sandbox-setup.sh must return non-zero
+    [Documentation]    Review focus 3: the readiness wait in seed-vault.sh must return non-zero
     ...    with a clear message when Vault never answers, instead of leaving the learner with an
-    ...    opaque sidecar error. The real loop is cut out of the real script and run with a
-    ...    `docker` that always fails (and a `sleep` that does not sleep); a second run with a
-    ...    `docker` that succeeds proves the loop also lets a ready Vault through.
+    ...    opaque sidecar error. The real library is sourced and seed_vault runs with a `docker`
+    ...    that always fails (and a `sleep` that does not sleep); a second run with a `docker`
+    ...    that succeeds proves the loop also lets a ready Vault through.
     [Tags]    vault
-    ${script}=    Get File    ${SANDBOX_SETUP}
-    ${start}=    Evaluate    $script.index("vault_ready=false")
-    ${end}=    Evaluate    $script.index("exit 1", $start) + len("exit 1")
-    ${loop}=    Evaluate    $script[$start:$end] + chr(10) + "fi" + chr(10)
-    Should Contain    ${loop}    seq 1 30
     ${shim_dir}=    Set Variable    ${TEMPDIR}/dapr-secrets-ch4-shim
     Remove Directory    ${shim_dir}    recursive=True
     Create Directory    ${shim_dir}
     Create File    ${shim_dir}/sleep    \#!/bin/bash\nexit 0\n
-    Create File    ${shim_dir}/docker    \#!/bin/bash\nexit 1\n
+    Create File    ${shim_dir}/docker    \#!/bin/bash\n[ "$1" = exec ] \&\& exit 1\nexit 0\n
     Run Process    chmod    +x    ${shim_dir}/sleep    ${shim_dir}/docker
-    Create File    ${shim_dir}/loop.sh    set -euo pipefail\n${loop}
-    ${down}=    Run Process    bash    ${shim_dir}/loop.sh    stderr=STDOUT
+    Create File    ${shim_dir}/secrets.json    {}
+    Create File    ${shim_dir}/run.sh
+    ...    set -euo pipefail\nsource "${SEED_VAULT}"\nseed_vault "${shim_dir}/secrets.json"\n
+    ${down}=    Run Process    bash    ${shim_dir}/run.sh    stderr=STDOUT
     ...    env:PATH=${shim_dir}:%{PATH}    timeout=60s
     Should Not Be Equal As Integers    ${down.rc}    0
     Should Contain    ${down.stdout}    Vault did not become ready within 30 seconds
     Create File    ${shim_dir}/docker    \#!/bin/bash\nexit 0\n
-    ${up}=    Run Process    bash    ${shim_dir}/loop.sh    stderr=STDOUT
+    ${up}=    Run Process    bash    ${shim_dir}/run.sh    stderr=STDOUT
     ...    env:PATH=${shim_dir}:%{PATH}    timeout=60s
     Should Be Equal As Integers    ${up.rc}    0    msg=${up.stdout}
 

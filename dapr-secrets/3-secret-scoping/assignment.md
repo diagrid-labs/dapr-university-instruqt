@@ -278,7 +278,9 @@ The result is the same, but the thinking is reversed. With an allow list, a secr
 
 ## 8. Check your work and stop
 
-Click the *Check* button while both applications are still running: the check asks them. When it passes, use the **Dapr CLI** window to stop the applications by pressing `Ctrl+C`.
+Run the check below while both applications are still running: it asks them. When it passes, use the **Dapr CLI** window to stop the applications by pressing `Ctrl+C`.
+
+<instruqt-task id="scoping"></instruqt-task>
 
 ---
 

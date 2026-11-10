@@ -2,6 +2,8 @@
 
 Full templates and details for `creating-dapr-university-tracks`. Load this when actually writing track files.
 
+**New tracks are Instruqt 2.0 labs** on the `diagrid/dapr-sandbox` module, with `dapr-secrets` as the reference lab (see `modules/dapr-sandbox/README.md`, `docs/instruqt-2-runbook.md` and `AGENTS.md` -> "Instruqt 2.0 labs"). The sections below on track/challenge `README.md` config, `notes.md`, `tabs.md`, `_setup/sandbox-setup.sh`, per-challenge `setup.sh`/`check.sh`, and image install scripts describe the **legacy 1.0 format** used by the other tracks. `assignment.md` authoring, drift testing and the secrets guidance apply to both formats. In a 2.0 lab, `check`/`solve` scripts are referenced from `tasks.hcl` and the sandbox setup is `scripts/lab-setup.sh`, which runs inside the module's `set -euo pipefail` startup script (background jobs must redirect output: `nohup cmd >log 2>&1 &`).
+
 ## Reference tracks to copy from
 
 **Start from `dapr-secrets`** unless the new track is build-it-live (then `dapr-workflow-aspire`) or needs four languages from `dapr/quickstarts` (then `dapr-101`). `dapr-workflow` is legacy: good for `<details>` and diagram conventions, wrong for sizing.
@@ -237,7 +239,7 @@ Three conventions exist. **Use the first for a new track.**
 
 `dapr-secrets` has no images at all; a text-only track is fine.
 
-## _setup/sandbox-setup.sh
+## _setup/sandbox-setup.sh (legacy 1.0)
 
 Runs at **every** sandbox launch — including a relaunch, and a learner may relaunch mid-track. **Write it so running it twice is safe.** Responsibilities: clone source code, log in to registries, install and initialize Dapr, set Instruqt variables, and pre-build anything slow.
 
@@ -255,7 +257,7 @@ agent variable set DAPR_RUNTIME_VERSION <pinned-runtime-version>
 
 (`dapr-101/_setup/sandbox-setup.sh` is the same thing written before this convention: a bare `git clone` that fails on a relaunch. Don't copy it.)
 
-The real one — `dapr-secrets/_setup/sandbox-setup.sh`, worth reading in full — adds five guards. Copy the ones your track needs:
+The more complete legacy one (`dapr-secrets/_setup/sandbox-setup.sh`, until it is removed; its 2.0 successor is `dapr-secrets/scripts/lab-setup.sh`) adds five guards. Copy the ones your track needs:
 
 1. `set -euo pipefail` at the top, so a failed clone doesn't leave a half-prepared sandbox that looks fine.
 2. Clone only when the target has no `.git`.
@@ -263,9 +265,9 @@ The real one — `dapr-secrets/_setup/sandbox-setup.sh`, worth reading in full �
 4. Install a tool only when `command -v` fails (and remember `uv` lands in `$HOME/.local/bin`, which isn't on `PATH` in that shell).
 5. A dev-mode container (Vault, in that track) is removed and re-created rather than reused, so its state is the same on every run.
 
-**Version pins live here and nowhere else.** When CI must use the same version, it parses it back out of this file — `tools/track-tester/ci/setup-dapr-secrets.sh` awks it out of the `agent variable set` lines. So keep those lines in plain `agent variable set NAME VALUE` form, and leave a comment saying why, or someone will "tidy" them into a shell variable and break CI silently.
+**Version pins live here and nowhere else (legacy tracks).** When CI must use the same version, it parses it back out of this file with awk over the `agent variable set` lines, so keep those lines in plain `agent variable set NAME VALUE` form and leave a comment saying why. In a 2.0 lab, pins are `variable` blocks in the two `versions.hcl` files, read with `tools/track-tester/ci/read_pin.py`.
 
-## Per-challenge scripts
+## Per-challenge scripts (legacy 1.0; in a 2.0 lab see `tasks.hcl`)
 
 They live in `<challenge>/scripts/`. (`dapr-workflow-aspire/2-project-creation/setup.sh` sits at the challenge root and is empty — not a pattern.)
 
@@ -275,7 +277,7 @@ They live in `<challenge>/scripts/`. (`dapr-workflow-aspire/2-project-creation/s
 
 **`scripts/solve.sh` — actually solve it.** It applies the same edit the assignment asks for (a `sed` that's a no-op when already applied), stops whatever the learner left running so the ports are free, restarts in one language in the background with `nohup`, and polls until the app answers before exiting 0. Model: `dapr-secrets/3-secret-scoping/scripts/solve.sh`.
 
-## _setup image install
+## _setup image install (legacy 1.0)
 
 Builds the **base VM image** the sandbox runs on. It is always a shell script that installs SDKs and CLIs, run by Instruqt when the image is built — **not** by GitHub Actions, and there is no Dockerfile anywhere in this repo. Four names are in use for the same thing: `image-<slug>-install.sh` (`dapr-101`, `dapr-workflow`, `dapr-secrets`), `image-install.sh` (`dapr-agents`), `image-definition.sh` (the AI tracks) and `vm-setup.sh` (`dapr-workflow-aspire`, `ai-agents-maf`). Prefer `image-<slug>-install.sh` for a new track.
 

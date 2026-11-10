@@ -1,6 +1,6 @@
 ---
 name: creating-university-tracks
-description: Use when creating, scaffolding, or adding a new Dapr University learning track/course (or a new challenge) for Instruqt in this repo — covers the track folder layout, the README.md config format, notes.md and assignment.md authoring with Instruqt annotations, tabs.md and terminal naming, how the final challenge closes, setup scripts, secrets handling, check/solve validation, and Robot Framework drift tests.
+description: Use when creating, scaffolding, or adding a new Dapr University learning track/course (or a new challenge) for Instruqt in this repo. New tracks are Instruqt 2.0 labs (HCL config on the shared diagrid/dapr-sandbox module) — covers the track folder layout, the README.md config format, notes.md and assignment.md authoring with Instruqt annotations, tabs.md and terminal naming, how the final challenge closes, setup scripts, secrets handling, check/solve validation, and Robot Framework drift tests.
 ---
 
 # Creating University Tracks
@@ -9,7 +9,13 @@ description: Use when creating, scaffolding, or adding a new Dapr University lea
 
 A **track** is a self-paced, browser-based Dapr course hosted on [Instruqt](https://instruqt.com/) and launched from [Dapr University](https://www.diagrid.io/university). A track is a top-level folder in this repo containing an ordered set of **challenges** (one numbered subfolder each). This repo is the source of truth; Instruqt syncs the Markdown and scripts.
 
-**Critical:** In this repo, Instruqt track and challenge **configuration lives in `README.md` files** — NOT in `track.yml` / `config.yml`. Do not create `track.yml`, `config.yml`, or extensionless lifecycle files (`setup`/`check`/`solve`). Follow the layout below exactly.
+## New tracks are Instruqt 2.0 labs
+
+**Create every new track as a 2.0 lab on the shared `diagrid/dapr-sandbox` module.** `dapr-secrets` is the reference lab: copy its root files (`main.hcl`, `versions.hcl`, `layouts.hcl`, `tabs.hcl`, `pages.hcl`, `tasks.hcl`, `scripts/lab-setup.sh`) and challenge layout (`assignment.md`, `scripts/check-*.sh`, `solve.sh`, `tests/challenge.robot`). Lab config is HCL, not README.md. The module (`modules/dapr-sandbox/`) provides the VM, toolchain and ready marker; the lab only adds `lab_startup_script` and its own pins in `versions.hcl`. Validate with `tools/track-tester/ci/validate-lab.sh <lab-dir> modules/dapr-sandbox`. Deploy is a merge to `main` plus the one-time owner steps in `docs/instruqt-2-runbook.md`; the rules for pins, required checks and `lab-validate` are in `AGENTS.md` under "Instruqt 2.0 labs". Do not duplicate that here.
+
+Authoring conventions that are format-independent (sizing, `assignment.md` annotations, tab/terminal naming, closing the final challenge, secrets, drift tests) still apply. **Everything below about `README.md` config, `_setup/`, `tabs.md`, `sandbox-setup.sh` and image install scripts describes the legacy 1.0 tracks** (`dapr-101`, `dapr-workflow`, `dapr-workflow-aspire`, `dapr-agents*`, the AI tracks, `catalyst-101`); use it only when editing one of those.
+
+**Critical (legacy 1.0 tracks):** In this repo, legacy Instruqt track and challenge **configuration lives in `README.md` files** — NOT in `track.yml` / `config.yml`. Do not create `track.yml`, `config.yml`, or extensionless lifecycle files (`setup`/`check`/`solve`). Follow the layout below exactly.
 
 ## Sizing constraints (default)
 
@@ -18,11 +24,13 @@ A **track** is a self-paced, browser-based Dapr course hosted on [Instruqt](http
 - **Total < 30 minutes.** Set `## Time limit (minutes)` to ~30 and offer `### Extra time` of 5–10.
 - The first challenge is often a light intro (read + verify environment); the last can be a light recap. Keep hands-on challenges focused on one concept each.
 
+In a 2.0 lab the same limits live in `main.hcl`: `settings { timelimit { duration = "30m" extend = "10m" } idle { enabled = true timeout = "10m" } }` (use the `dapr-secrets` values as the model).
+
 If the topic needs more, ask the user before exceeding 5 challenges or 30 minutes.
 
 **Which tracks are sizing models:** `dapr-secrets` (4 challenges / 30 min) and `dapr-workflow-aspire` (5 / 30) are on-spec. `dapr-101` (5 / 45) and `dapr-workflow` (11 / 50) predate the rule — copy their conventions, never their size.
 
-## Directory structure
+## Directory structure (legacy 1.0 track)
 
 ```
 <track-slug>/
@@ -50,10 +58,12 @@ Number challenge folders `1-`, `2-`, … to fix ordering. Use kebab-case slugs.
 
 ## Workflow to scaffold a new track
 
+For a 2.0 lab, follow the section above and `dapr-secrets`; steps 3 to 5 below (README config, `_setup/`) are the legacy form. Steps 1, 2, 6 and 7 apply to both.
+
 1. **Clarify scope** with the user if not given: track title, slug, target language(s), the concept each of the 4–5 challenges teaches, and where the learner's source code comes from (see Source-code models below). Use the `superpowers:brainstorming` skill if the outline is open-ended.
 2. **Study a close reference track first.** Default to **`dapr-secrets`** — newest, on-spec (4 challenges / 30 min), and the only track carrying the complete file set in every challenge. Use `dapr-workflow-aspire` for a build-it-live track, `dapr-101` when you need four languages from `dapr/quickstarts`, and `ai-agents-maf` only as the reference for a learner-supplied API key. `dapr-workflow` is legacy — borrow its `<details>` and diagram conventions, never its sizing. Copy the closest challenge folder and adapt it.
 3. **Create the track `README.md`** (template below).
-4. **Create `_setup/`** scripts for the sandbox and image (see reference.md).
+4. **Sandbox:** for a 2.0 lab write `scripts/lab-setup.sh` (and use the module); for a legacy track create `_setup/` scripts (see reference.md).
 5. **Create each challenge folder** with `README.md`, `notes.md`, `assignment.md`. Add `scripts/check.sh` (+ `scripts/solve.sh`) when the challenge has a verifiable end state, and `tabs.md` when the track needs a code editor or webapp tab. If the track needs a secret (see **Secrets** below — all AI-based and Diagrid-based tracks do), have the learner configure it in the **first** challenge.
 6. **Add drift tests** for every runnable challenge: a `tests/challenge.robot` suite wired into `tools/track-tester/` plus a `.github/workflows/test-<track>.yml` entry. See reference.md → **Drift testing**. Without this, the track silently drops out of the CI safety net.
 7. **Verify** durations sum to < 30 min (unless the user approved more), every runnable command has `,run`, every expected-output block has `,nocopy`, each `check.sh` has a matching `solve.sh`, and each runnable command is covered by the robot suite (doc-sync).
@@ -219,7 +229,7 @@ Things that go wrong by default. (What must *exist* is the Checklist; what must 
 
 ## Checklist
 
-What must exist before the track is done. Every line is checkable against `dapr-secrets`.
+What must exist before the track is done. Lines mentioning `README.md` config, `tabs.md`, `_setup/` or `sandbox-setup.sh` are the legacy 1.0 form; in a 2.0 lab the equivalents are `main.hcl`, `tabs.hcl`/`pages.hcl`/`tasks.hcl`, `scripts/lab-setup.sh` and `versions.hcl`. Every other line is checkable against `dapr-secrets`.
 
 - [ ] Track `README.md`: `# Name`, `## Url`, `## Teaser` (+ Languages/Duration line), `## Time limit (minutes)`, `## Description`, `### Time out idle users (minutes)`, `### Extra time (minutes)`
 - [ ] 4–5 numbered challenge folders, total < 30 min
