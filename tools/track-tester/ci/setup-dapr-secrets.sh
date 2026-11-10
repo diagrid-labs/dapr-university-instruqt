@@ -1,30 +1,34 @@
 #!/usr/bin/env bash
-# Reproduce the dapr-secrets sandbox environment in CI by reusing the real _setup script.
-# Instruqt-only bits (agent variable set, docker login) are adapted/omitted here.
+# Reproduce the dapr-secrets lab environment in CI: same pins, same demo checkout, same Vault
+# seeding library as dapr-secrets/scripts/lab-setup.sh.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-SETUP_DIR="$REPO_ROOT/dapr-secrets/_setup"
+LAB_DIR="$REPO_ROOT/dapr-secrets"
+READ_PIN="$REPO_ROOT/tools/track-tester/ci/read_pin.py"
 TRACKS_SRC_DIR="${TRACKS_SRC_DIR:-$HOME/ai-agent-tracks-instruqt}"
 
-# 0. Syntax-check the real sandbox script. CI cannot run it (Instruqt-only commands) and only
-# runs its own copy of the secrets/Vault logic below, so this is the one CI signal that a bad
-# edit to _setup/sandbox-setup.sh would otherwise kill the track at launch.
-bash -n "$SETUP_DIR/sandbox-setup.sh"
+# 0. Syntax-check the lab scripts. CI cannot run lab-setup.sh (it inits Dapr on the VM) and runs
+# only its own sequence below, so this is the one CI signal that a bad edit to either script
+# would otherwise kill the lab at launch.
+bash -n "$LAB_DIR/scripts/seed-vault.sh"
+bash -n "$LAB_DIR/scripts/lab-setup.sh"
 
-# 1. Parse the pinned Dapr versions (single source of truth) and export them for the suites.
-# awk is used (not grep -oP) so this runs on both macOS/BSD and GNU/Linux. The lines look like
-# `agent variable set DAPR_CLI_VERSION 1.18.2`, so the version is the last field ($NF).
-DAPR_CLI_VERSION="$(awk '/DAPR_CLI_VERSION/ {print $NF}' "$SETUP_DIR/sandbox-setup.sh")"
-DAPR_RUNTIME_VERSION="$(awk '/DAPR_RUNTIME_VERSION/ {print $NF}' "$SETUP_DIR/sandbox-setup.sh")"
+# 1. Read the pins (single source of truth, see read_pin.py) and export them for the suites.
+DAPR_CLI_VERSION="$(python3 "$READ_PIN" "$REPO_ROOT/modules/dapr-sandbox/versions.hcl" dapr_cli_version)"
+DAPR_RUNTIME_VERSION="$(python3 "$READ_PIN" "$LAB_DIR/versions.hcl" dapr_runtime_version)"
+TRACKS_SRC_REF="$(python3 "$READ_PIN" "$LAB_DIR/versions.hcl" tracks_src_ref)"
 echo "DAPR_CLI_VERSION=$DAPR_CLI_VERSION"     >> "${GITHUB_ENV:-/dev/stdout}"
 echo "DAPR_RUNTIME_VERSION=$DAPR_RUNTIME_VERSION" >> "${GITHUB_ENV:-/dev/stdout}"
+echo "TRACKS_SRC_REF=$TRACKS_SRC_REF" >> "${GITHUB_ENV:-/dev/stdout}"
 echo "TRACKS_SRC_DIR=$TRACKS_SRC_DIR" >> "${GITHUB_ENV:-/dev/stdout}"
 
-# 2. Clone the demo repo (source of truth for the demo apps and resources).
-# -e, not -d: in a git worktree the .git entry is a file, not a directory.
+# 2. Clone the demo repo (source of truth for the demo apps and resources) at the pinned commit.
+# -e, not -d: in a git worktree the .git entry is a file, not a directory. Full clone: a commit
+# SHA cannot be checked out of a shallow one.
 if [ ! -e "$TRACKS_SRC_DIR/.git" ]; then
-  git clone --depth 1 https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git "$TRACKS_SRC_DIR"
+  git clone https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git "$TRACKS_SRC_DIR"
+  git -C "$TRACKS_SRC_DIR" checkout "$TRACKS_SRC_REF"
 fi
 
 # 3. Install uv (used by the Python demos and to run robot).
@@ -58,35 +62,15 @@ if [ -z "$(docker ps -f "name=dapr_placement" -f "status=running" -q)" ] || \
 fi
 
 # 5. Write secrets.json from the committed template (the single owner of the secret values) and
-# start + seed Vault. Duplicated from dapr-secrets/_setup/sandbox-setup.sh, which cannot be run
-# in CI (Instruqt-only commands); keep the two in sync.
+# start + seed Vault with the same library the lab setup uses.
 if [ ! -f "$TRACKS_SRC_DIR/secrets/secrets.example.json" ]; then
   echo "ERROR: $TRACKS_SRC_DIR/secrets/secrets.example.json not found. Is $TRACKS_SRC_DIR a current clone of diagrid-labs/ai-agent-tracks-instruqt?" >&2
   exit 1
 fi
 cp "$TRACKS_SRC_DIR/secrets/secrets.example.json" "$TRACKS_SRC_DIR/secrets/secrets.json"
-docker rm -f vault >/dev/null 2>&1 || true
-docker run -d --name vault -p 8200:8200 --cap-add=IPC_LOCK \
-  -e VAULT_DEV_ROOT_TOKEN_ID=root -e VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200 \
-  hashicorp/vault:1.20 >/dev/null
-vault_ready=false
-for _ in $(seq 1 30); do
-  if docker exec -e VAULT_ADDR=http://127.0.0.1:8200 vault vault status >/dev/null 2>&1; then
-    vault_ready=true
-    break
-  fi
-  sleep 1
-done
-if [ "$vault_ready" != "true" ]; then
-  echo "ERROR: Vault did not become ready within 30 seconds." >&2
-  exit 1
-fi
-# Note: `read -r name value` trims leading/trailing whitespace in a value; fine for these values.
-python3 -c 'import json, sys; [print(k, v) for k, v in json.load(open(sys.argv[1])).items()]' \
-  "$TRACKS_SRC_DIR/secrets/secrets.json" | tr -d '\r' | while read -r name value; do
-  docker exec -e VAULT_ADDR=http://127.0.0.1:8200 -e VAULT_TOKEN=root vault \
-    vault kv put "secret/dapr/$name" "$name=$value" >/dev/null </dev/null
-done
+# shellcheck source=/dev/null
+source "$LAB_DIR/scripts/seed-vault.sh"
+seed_vault "$TRACKS_SRC_DIR/secrets/secrets.json"
 
 # 6. Fail loudly if the Dapr runtime that is actually running is not the pinned MAJOR.MINOR.
 # Step 4 deliberately reuses an existing install (never uninstalls it), so an older runtime on a

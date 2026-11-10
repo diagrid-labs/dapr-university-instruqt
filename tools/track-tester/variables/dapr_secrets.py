@@ -3,7 +3,7 @@
 TRACKS_SRC_DIR resolves (in order): the TRACKS_SRC_DIR environment variable if set
 (used by CI and by local runs pointing at an existing checkout), otherwise
 ~/ai-agent-tracks-instruqt expanded to an absolute path (where ci/setup-dapr-secrets.sh
-and _setup/sandbox-setup.sh clone the demo repo).
+and scripts/lab-setup.sh clone the demo repo).
 
 The DENIED_* / MISSING_* values are what the Secrets API returns over HTTP when scoping
 refuses a secret (403) versus when a permitted secret is absent from the store (500). They

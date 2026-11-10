@@ -140,3 +140,12 @@ def test_render_image_script_inlines_pins():
     assert str(REPO) not in out, "output must be self-contained (no repo paths)"
     syntax = subprocess.run(["bash", "-n"], input=out, capture_output=True, text=True)
     assert syntax.returncode == 0, syntax.stderr
+
+
+def test_prewarm_runtime_pin_matches_lab_runtime_pin():
+    module_pin = read_pin(
+        str(REPO / "modules" / "dapr-sandbox" / "versions.hcl"),
+        "prewarm_dapr_runtime_version",
+    )
+    lab_pin = read_pin(str(REPO / "dapr-secrets" / "versions.hcl"), "dapr_runtime_version")
+    assert module_pin == lab_pin
