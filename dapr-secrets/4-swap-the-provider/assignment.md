@@ -213,7 +213,7 @@ Here is what you did in this track:
 
 ## Feedback and further learning
 
-Congratulations! 🎉 You've completed the Dapr University secrets learning track! Please take a moment to rate this training and provide feedback in the next step so we can keep improving this training 🚀.
+Congratulations! 🎉 You've completed the Dapr University secrets learning track! Click **Complete** below to finish the lab 🚀.
 
 We have more opportunities for you to learn and share knowledge:
 
@@ -228,3 +228,5 @@ We have more opportunities for you to learn and share knowledge:
 **Join the community**
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#agents* and language channels.
 - Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.
+
+<instruqt-completion text="You've completed Dapr Secrets!"></instruqt-completion>
