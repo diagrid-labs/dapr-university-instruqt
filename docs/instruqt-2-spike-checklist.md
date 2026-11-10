@@ -40,7 +40,7 @@ Phase 0 item 1 (install the CLI, scaffold, confirm `validate`/`fmt` work without
 
 ```hcl
 variable "dapr_runtime_version" {
-  default     = "1.16.0"
+  default     = "1.18.7"
   description = "Dapr runtime version"
 }
 ```
@@ -303,7 +303,7 @@ resource "page" "intro" {
 
 ## Part 2: Spike checklist (Phase 0 items 2-11)
 
-Item 1 is done (see CLI facts above). Do the rest in order; items 2, 3 and 4 gate the rest. Replace the empty `Finding:` line with a one-line result (and a date) as you go.
+Item 1 is done (see CLI facts above). Do the rest in order; items 2, 3, 4, 5 and 10 gate the rest. Replace the empty `Finding:` line with a one-line result (and a date) as you go.
 
 Where a step needs a throwaway lab, create it in the Instruqt UI (Labs, Create lab) or push a scratch branch; delete it afterwards. Test sandbox VMs by launching the lab and using its terminal tab.
 
@@ -314,15 +314,17 @@ Where a step needs a throwaway lab, create it in the Instruqt UI (Labs, Create l
   2. Play it. In the terminal run:
 
      ```bash
+     whoami
+     id
      curl -fsSL https://get.docker.com | sh
      docker run --rm hello-world
-     curl -fsSL https://raw.githubusercontent.com/dapr/cli/master/install/install.sh | bash -s 1.16.0
-     dapr init --runtime-version 1.16.0
+     curl -fsSL https://raw.githubusercontent.com/dapr/cli/master/install/install.sh | bash -s 1.18.2
+     dapr init --runtime-version 1.18.7
      docker ps
      docker run -d --name vault -p 8200:8200 -e VAULT_DEV_ROOT_TOKEN_ID=root hashicorp/vault:1.20
      curl -s http://localhost:8200/v1/sys/health
      ```
-- **Expected result:** Docker installs and `hello-world` runs; `dapr init` finishes with daprd, Redis, Zipkin and placement containers listed by `docker ps`; the Vault container answers on 8200 with `"initialized":true`. Note the wall-clock time of each step and any need for `sudo` (the terminal user).
+- **Expected result:** Docker installs and `hello-world` runs; `dapr init` finishes with placement, scheduler, Redis and Zipkin containers listed by `docker ps`; the Vault container answers on 8200 with `"initialized":true`. Note the wall-clock time of each step, what `whoami` and `id` print (is the terminal user root, or in the `docker` group?) and any need for `sudo`.
 - **Finding:**
 
 ### Item 3: Image Builder can build the image, and Docker runs during the build
@@ -332,7 +334,7 @@ Where a step needs a throwaway lab, create it in the Instruqt UI (Labs, Create l
   2. In the builder Terminal, get the scripts onto the VM (type them in the Editor panel, or `curl` them from a raw GitHub URL of this repo's branch), then run `install-tools.sh` and `prewarm.sh` (draft versions are fine for the spike; a stub that installs Docker, .NET 10 SDK, JDK 17 + Maven, Python 3.12 + uv, Node LTS, Dapr CLI is enough).
   3. Run `docker info` and `docker pull hashicorp/vault:1.20` in the same session to check the daemon runs.
   4. Take a Checkpoint, then Publish as a new image named `dapr-sandbox-spike`, tag `v1`. Note the image size.
-  5. Create a lab VM with `image { name = "<team-slug>/dapr-sandbox-spike:v1" }`, play it, and run `docker images` and `dotnet --version`.
+  5. Create a lab VM with `image { name = "diagrid/dapr-sandbox-spike:v1" }`, play it, and run `docker images` and `dotnet --version`.
 - **Expected result:** the build finishes inside the 2 hour session; `docker info` works; pulled images (`hashicorp/vault:1.20`, `daprio/daprd`, `redis`, `openzipkin/zipkin`) are still listed by `docker images` in a lab VM booted from the published image. If the daemon cannot run in the build, record the exact error. Per the docs, do not run `dapr init` or leave a Vault container running in the build; only pull images.
 - **Finding:**
 
@@ -341,9 +343,9 @@ Where a step needs a throwaway lab, create it in the Instruqt UI (Labs, Create l
 - **How to test:**
   1. Local module outside the root: already answered by `validate` (rejected, see Schema facts question 3). Optionally re-confirm in the UI by importing a lab whose `module` source is `../modules/dapr-sandbox` and noting the editor error.
   2. Registry publish from git: in Instruqt, Building blocks, Modules, Import module. Pick this repo (the GitHub App must have access, see Item 9 and the runbook), Module name `dapr-sandbox`, Module directory `modules/dapr-sandbox`, leave "Publish to the community registry" off. Then open the module, leave edit mode, click Publish version and enter `1.0.0`.
-  3. In a scratch lab (UI editor), add `module "sandbox" { source = "<team-slug>/dapr-sandbox" version = "1.0.0" }` and confirm it resolves and a VM from the module starts.
+  3. In a scratch lab (UI editor), add `module "sandbox" { source = "diagrid/dapr-sandbox" version = "1.0.0" }` and confirm it resolves and a VM from the module starts.
   4. Check whether any CLI or API command publishes a module version (`instruqt --help`, `instruqt lab --help`, and the web docs). From the CLI help in `2442-5df184f`, there is none.
-- **Expected result:** import from the `modules/dapr-sandbox` directory works; a version is published only through the UI; the lab resolves `<team-slug>/dapr-sandbox` at `1.0.0`. Record what happens when `modules/dapr-sandbox/main.hcl` changes on the default branch: the published version must not change; a new version must be cut by hand.
+- **Expected result:** import from the `modules/dapr-sandbox` directory works; a version is published only through the UI; the lab resolves `diagrid/dapr-sandbox` at `1.0.0`. Record what happens when `modules/dapr-sandbox/main.hcl` changes on the default branch: the published version must not change; a new version must be cut by hand.
 - **Finding:**
 
 ### Item 5: A lab-level setup script runs on a VM before the sandbox reports ready
