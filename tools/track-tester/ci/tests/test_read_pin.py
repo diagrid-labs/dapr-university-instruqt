@@ -33,8 +33,8 @@ def test_tolerates_fmt_alignment_and_description(tmp_path):
 def test_does_not_match_name_prefix(tmp_path):
     f = tmp_path / "v.hcl"
     f.write_text(
-        'variable "dapr_cli_version_old" {\n  default = "1.0.0"\n}\n'
         'variable "dapr_cli_version" {\n  default = "1.18.2"\n}\n'
+        'variable "dapr_cli_version_old" {\n  default = "1.0.0"\n}\n'
     )
     assert read_pin(str(f), "dapr_cli_version") == "1.18.2"
 
@@ -47,6 +47,35 @@ def test_ignores_commented_out_block(tmp_path):
         'variable "x" {\n  default = "new"\n}\n'
     )
     assert read_pin(str(f), "x") == "new"
+
+
+def test_brace_in_string_before_default(tmp_path):
+    f = tmp_path / "v.hcl"
+    f.write_text('variable "x" {\n  description = "uses ${var.x} here"\n  default = "ok"\n}\n')
+    assert read_pin(str(f), "x") == "ok"
+
+
+def test_nested_block_before_default(tmp_path):
+    f = tmp_path / "v.hcl"
+    f.write_text(
+        'variable "x" {\n  validation {\n    condition = true\n    default = "inner"\n  }\n'
+        '  default = "outer"\n}\n'
+    )
+    assert read_pin(str(f), "x") == "outer"
+
+
+def test_ignores_block_commented_out(tmp_path):
+    f = tmp_path / "v.hcl"
+    f.write_text('/* variable "d" {\n  default = "old"\n} */\nvariable "d" {\n  default = "new"\n}\n')
+    assert read_pin(str(f), "d") == "new"
+
+
+def test_block_without_default_exits_1(tmp_path):
+    f = tmp_path / "v.hcl"
+    f.write_text('variable "x" {\n  description = "d"\n}\n')
+    r = run_cli(f, "x")
+    assert r.returncode == 1
+    assert f"ERROR: pin 'x' has no default in {f}" in r.stderr
 
 
 def test_missing_pin_exits_1_with_error(tmp_path):
