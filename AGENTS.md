@@ -72,7 +72,8 @@ New tracks are 2.0 labs; `dapr-secrets` is the reference. The legacy sections th
 - **`modules/dapr-sandbox/`** is the shared Instruqt module (published as `diagrid/dapr-sandbox`):
   one VM from a pre-built image with the toolchain installed. It inlines the lab's
   `lab_startup_script` into the VM startup (the lab's own files are not on the VM) and owns the
-  ready marker `/var/lib/lab-setup/ready`. See `modules/dapr-sandbox/README.md`.
+  ready marker `/var/lib/lab-setup/ready`. Instruqt waits for the startup script to finish before
+  the sandbox is ready; the module has no VM health check. See `modules/dapr-sandbox/README.md`.
 - **Two `versions.hcl` files, one pin each.** Toolchain, `image_ref` and
   `prewarm_dapr_runtime_version` live in `modules/dapr-sandbox/versions.hcl`. The lab pins
   (`dapr_runtime_version`, `tracks_src_ref`) and the exact module version live in

@@ -19,7 +19,7 @@ variable "tracks_src_ref" {
 # module inlines it into the VM startup script because the lab's files are not on the VM.
 module "sandbox" {
   source  = "diagrid/dapr-sandbox"
-  version = "1.0.0"
+  version = "1.0.1"
 
   variables = {
     lab_startup_script = "${file("scripts/seed-vault.sh")}\n${file("scripts/lab-setup.sh")}"

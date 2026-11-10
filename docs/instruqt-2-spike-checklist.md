@@ -336,7 +336,7 @@ Where a step needs a throwaway lab, create it in the Instruqt UI (Labs, Create l
   4. Take a Checkpoint, then Publish as a new image named `dapr-sandbox-spike`, tag `v1`. Note the image size.
   5. Create a lab VM with `image { name = "diagrid/dapr-sandbox-spike:v1" }`, play it, and run `docker images` and `dotnet --version`.
 - **Expected result:** the build finishes inside the 2 hour session; `docker info` works; pulled images (`hashicorp/vault:1.20`, `daprio/daprd`, `redis`, `openzipkin/zipkin`) are still listed by `docker images` in a lab VM booted from the published image. If the daemon cannot run in the build, record the exact error. Per the docs, do not run `dapr init` or leave a Vault container running in the build; only pull images.
-- **Finding:**
+- **Finding:** (2026-11-10) The published image `diagrid/dapr-sandbox:v1` boots and its toolchain works (Docker ready ~7-9 s into the startup script, `dapr init` and Vault started from the pre-pulled images). But the image keeps the build session's resolver: in a lab VM `/etc/resolv.conf` is `search build.internal` / `nameserver 10.96.0.1`, which does not answer there (the lab VM's gateway is 10.100.0.1). Public names never resolve. `lab-setup.sh` now works around it by adding public DNS servers to `/etc/resolv.conf` and the Docker daemon (#147). A cleaner fix is to restore the resolver before publishing the next image (ask Instruqt support what lab VMs should use).
 
 ### Item 4: Modules can be published from git/CLI; a lab can use a local module outside its root
 
@@ -359,7 +359,7 @@ Where a step needs a throwaway lab, create it in the Instruqt UI (Labs, Create l
   6. From inside the startup script, log `echo $HOME; id` and `systemctl is-active docker` at the very start, and `docker info` right after. Expect `/root`, uid 0 and `active`; if Docker is not yet active at script start, note how long it takes (lab-setup.sh waits up to 60 seconds).
   7. Start a detached background job from the startup script (`nohup ... &`, as the Demo2 pre-build does) that appends to `/var/log/lab-prebuild.log`, then check after the script has exited and the sandbox is ready whether the log keeps growing and the builds complete, or whether the job is killed when the startup script exits.
 - **Expected result:** at least one of `startup_script`, VM `health_check`, or a task `setup` script blocks readiness until it finishes. Record which blocks, which times out and how (the exec docs give a 300s default for exec; VM scripts are undocumented), and whether the learner terminal can read the script's environment variables (they can, so no credentials).
-- **Finding:**
+- **Finding:** (2026-11-10) `startup_script` blocks readiness: the sandbox stays in "Creating sandbox" until it ends, its output only reaches the lab Logs when it ends, and a non-zero exit fails creation with "startup_script exited with code N". It has no timeout of its own (one start ran ~80 minutes). The `lab_environment` values reach the script. The VM exec `health_check` (`test -f` on a marker the startup script had just written) timed out after its full 300 s, so module 1.0.1 drops it. A full successful setup took 49 s after the VM booted; the VM boot itself took ~75 s.
 
 ### Item 6: `> [!NOTE]` alerts and `<details>` sections render
 

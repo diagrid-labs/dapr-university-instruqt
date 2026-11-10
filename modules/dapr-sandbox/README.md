@@ -20,8 +20,11 @@ pre-pulled. Versions are pinned in `versions.hcl`. The lab brings its own setup 
 | `lab_environment` | `{}` | env vars for that script (readable by learners, never credentials) |
 
 The module owns the readiness marker. Its startup script runs the lab script in a subshell
-(`set -euo pipefail`), then creates `/var/lib/lab-setup/ready`; the VM health check passes once
-that file exists. Consequences for lab scripts:
+(`set -euo pipefail`), then creates `/var/lib/lab-setup/ready`. Instruqt keeps the sandbox in
+"Creating sandbox" until that startup script has finished, so the lab is only playable once the
+lab script succeeded; the marker is there for a manual check (`ls /var/lib/lab-setup/ready`).
+There is no VM health check: an exec health check on the marker timed out on a VM even after the
+script had written it (module 1.0.0), so 1.0.1 removed it. Consequences for lab scripts:
 
 - Do not create the marker yourself.
 - A failing command (with `set -e`) fails the whole startup, so the sandbox never becomes ready.
