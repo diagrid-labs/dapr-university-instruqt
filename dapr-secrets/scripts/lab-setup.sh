@@ -187,6 +187,11 @@ if [ "$(id -u)" -eq 0 ]; then
     chmod o+x "$HOME"
     chmod -R a+rwX "$TRACKS_SRC_DIR"
     log "made $TRACKS_SRC_DIR readable and writable for the Editor tab"
+    # TEMPORARY diagnostic for the empty Editor tab (see the "probe" workspace in tabs.hcl).
+    mkdir -p /opt/editor-probe
+    echo "If you can read this in the Editor tab, the editor can show files on the VM." >/opt/editor-probe/README.txt
+    chmod -R a+rwX /opt/editor-probe
+    log "created /opt/editor-probe/README.txt for the Editor probe workspace"
 fi
 
 # `dapr init` is skipped when the containers are already running, so a re-run does not tear down
