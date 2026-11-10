@@ -49,28 +49,85 @@ log "start (pinned ref $TRACKS_SRC_REF, Dapr runtime $DAPR_RUNTIME_VERSION)"
 
 # Docker may still be starting when the startup script runs at boot. Wait for the daemon before
 # the first docker use, and fail clearly if it never comes up.
-deadline=$((SECONDS + 60))
-until bounded 5 docker info >/dev/null 2>&1; do
-    [ "$SECONDS" -lt "$deadline" ] || die "Docker daemon not ready after 60 seconds."
-    sleep 1
-done
+wait_for_docker() { # wait_for_docker <seconds>
+    local deadline=$((SECONDS + $1))
+    until bounded 5 docker info >/dev/null 2>&1; do
+        [ "$SECONDS" -lt "$deadline" ] || die "Docker daemon not ready after $1 seconds."
+        sleep 1
+    done
+}
+wait_for_docker 60
 log "Docker ready (${SECONDS}s since start)"
 
 # DNS may not be up yet either: a first sandbox start failed with "Could not resolve host:
 # github.com" on the clone below. Wait until public names resolve before anything that needs the
 # internet (the clone, and `dapr init` if an image is missing), and fail clearly if they never do.
-# Each lookup is capped at 3 seconds and the whole wait at 90 seconds of wall-clock time: a DNS
-# server that never answers makes every lookup block, so counting attempts is not enough.
-deadline=$((SECONDS + 90))
-next_note=$((SECONDS + 10))
-until bounded 3 getent hosts github.com >/dev/null 2>&1; do
-    [ "$SECONDS" -lt "$deadline" ] || die "github.com does not resolve after 90 seconds; the VM has no working DNS."
-    if [ "$SECONDS" -ge "$next_note" ]; then
-        log "waiting for DNS"
-        next_note=$((SECONDS + 10))
+# Each lookup is capped at 3 seconds and each wait by wall-clock time: a DNS server that never
+# answers makes every lookup block, so counting attempts is not enough.
+#
+# On Instruqt 2.0 the VM's resolver turned out to never answer public names (Instruqt's local DNS
+# listener serves sandbox.internal; github.com timed out for 90+ seconds). So: wait briefly for
+# the default resolver, then log what the VM has, and if the internet is reachable by IP address,
+# put public resolvers in front of the existing ones and wait again.
+RESOLV_CONF="${LAB_RESOLV_CONF:-/etc/resolv.conf}"
+PUBLIC_DNS="1.1.1.1 8.8.8.8"
+wait_for_dns() { # wait_for_dns <seconds>: 0 once github.com resolves, 1 when the time is up
+    local deadline=$((SECONDS + $1)) next_note=$((SECONDS + 10))
+    until bounded 3 getent hosts github.com >/dev/null 2>&1; do
+        [ "$SECONDS" -lt "$deadline" ] || return 1
+        if [ "$SECONDS" -ge "$next_note" ]; then
+            log "waiting for DNS"
+            next_note=$((SECONDS + 10))
+        fi
+        sleep 1
+    done
+}
+if ! wait_for_dns 20; then
+    log "github.com does not resolve with the default resolver"
+    log "resolv.conf: $(grep -v '^#' "$RESOLV_CONF" 2>/dev/null | tr '\n' ' ')"
+    log "default route: $(ip route show default 2>/dev/null | head -1)"
+    if ! curl -sSk -o /dev/null -m 5 https://1.1.1.1 2>/dev/null; then
+        die "github.com does not resolve and https://1.1.1.1 is not reachable either; the VM has no outbound internet access (not even by IP address)."
     fi
-    sleep 1
-done
+    log "the internet is reachable by IP address; adding public DNS servers ($PUBLIC_DNS) in front of the existing resolver"
+    # Write a plain file (it may be a symlink to a resolver stub) with the public servers first and
+    # the existing lines after them, so sandbox-internal names keep resolving where they did.
+    existing="$(cat "$RESOLV_CONF" 2>/dev/null || true)"
+    rm -f "$RESOLV_CONF"
+    {
+        echo "# Public resolvers added by lab-setup.sh: the default resolver does not answer public names."
+        for server in $PUBLIC_DNS; do echo "nameserver $server"; done
+        echo "options timeout:2 attempts:2"
+        printf '%s\n' "$existing"
+    } >"$RESOLV_CONF"
+    wait_for_dns 30 ||
+        die "github.com still does not resolve after adding public DNS servers ($PUBLIC_DNS); DNS traffic from the VM may be blocked."
+
+    # The Docker daemon does not re-read /etc/resolv.conf: it keeps the resolver it found at its
+    # own start (before this script), so image pulls by `dapr init` or the Vault start would still
+    # fail to resolve the registry. Give the daemon the same public servers and restart it, as
+    # Instruqt's own docker-on-vm guidance does. Existing daemon.json settings are kept.
+    DOCKER_DAEMON_JSON="${LAB_DOCKER_DAEMON_JSON:-/etc/docker/daemon.json}"
+    mkdir -p "$(dirname "$DOCKER_DAEMON_JSON")"
+    # $PUBLIC_DNS is split on purpose: one argument per server.
+    # shellcheck disable=SC2086
+    python3 - "$DOCKER_DAEMON_JSON" $PUBLIC_DNS <<'PY'
+import json, os, sys
+path, servers = sys.argv[1], sys.argv[2:]
+config = {}
+if os.path.exists(path) and os.path.getsize(path) > 0:
+    with open(path) as f:
+        config = json.load(f)
+config["dns"] = servers
+with open(path, "w") as f:
+    json.dump(config, f, indent=2)
+    f.write("\n")
+PY
+    log "set Docker daemon DNS to $PUBLIC_DNS in $DOCKER_DAEMON_JSON; restarting Docker"
+    bounded 60 systemctl restart docker || die "restarting Docker after setting its DNS servers failed."
+    wait_for_docker 60
+    log "Docker ready again with public DNS (${SECONDS}s since start)"
+fi
 log "DNS ready (${SECONDS}s since start)"
 
 # A name that resolves does not mean the VM can reach the internet. Without outbound access the
