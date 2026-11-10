@@ -8,13 +8,33 @@
 # and the Dapr containers are left alone when they already exist, Vault is re-seeded.
 set -euo pipefail
 
-# The startup script runs as root at boot, where HOME may be unset.
-HOME="${HOME:-/root}"
+# The startup script runs as root at boot, where HOME may be unset or point elsewhere. The lab's
+# tabs and tasks hardcode /root, so root always uses /root.
+if [ "$(id -u)" -eq 0 ]; then
+    HOME=/root
+else
+    HOME="${HOME:-/root}"
+fi
 export HOME
 export PATH="$PATH:/usr/local/bin:$HOME/.local/bin"
 
 : "${DAPR_RUNTIME_VERSION:?DAPR_RUNTIME_VERSION must be set}"
 : "${TRACKS_SRC_REF:?TRACKS_SRC_REF must be set}"
+
+# Docker may still be starting when the startup script runs at boot. Wait for the daemon before
+# the first docker use, and fail clearly if it never comes up.
+docker_ready=0
+for _ in $(seq 1 60); do
+    if docker info >/dev/null 2>&1; then
+        docker_ready=1
+        break
+    fi
+    sleep 1
+done
+if [ "$docker_ready" -ne 1 ]; then
+    echo "ERROR: Docker daemon not ready after 60 seconds." >&2
+    exit 1
+fi
 
 # The demo repo holds the three-language apps and the scoping/Vault resources. It lives at a
 # fixed path because the track-tester suites and the assignments both refer to it.
@@ -23,6 +43,11 @@ TRACKS_SRC_DIR="$HOME/ai-agent-tracks-instruqt"
 if [ ! -e "$TRACKS_SRC_DIR/.git" ]; then
     git clone https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git "$TRACKS_SRC_DIR"
     git -C "$TRACKS_SRC_DIR" checkout "$TRACKS_SRC_REF"
+fi
+# Warn (never fail) when the checkout is not at the pinned ref: a pre-existing directory may hold
+# a learner's edits.
+if [ "$(git -C "$TRACKS_SRC_DIR" rev-parse HEAD)" != "$TRACKS_SRC_REF" ]; then
+    echo "WARNING: $TRACKS_SRC_DIR is not at the pinned ref $TRACKS_SRC_REF." >&2
 fi
 
 # `dapr init` is skipped when the containers are already running, so a re-run does not tear down
@@ -54,10 +79,29 @@ if ! declare -F seed_vault >/dev/null; then
 fi
 seed_vault "$TRACKS_SRC_DIR/secrets/secrets.json"
 
-# Pre-build the demo apps so the first `dapr run` in each challenge is not slow. Fully detached
-# (own stdin/stdout/stderr) so the startup script does not wait for it; a failed build is logged
-# and never fails the lab.
-nohup bash -s -- "$TRACKS_SRC_DIR/secrets" >"${LAB_PREBUILD_LOG:-/var/log/lab-prebuild.log}" 2>&1 <<'PREBUILD' &
+# Pre-build Demo1-ReadSecret (used by challenges 1, 2 and 4) synchronously, so the sandbox does
+# not report ready before the first `dapr run` is fast. A failed build is logged and never fails
+# the lab. Builds read no stdin.
+prebuild_dir() { # prebuild_dir <dir> <command...>
+    local dir="$1"; shift
+    if [ -d "$dir" ]; then
+        echo "== $dir: $*"
+        (cd "$dir" && "$@" </dev/null) || echo "WARN: build failed in $dir"
+    fi
+}
+SECRETS_BASE="$TRACKS_SRC_DIR/secrets"
+PREBUILD_LOG="${LAB_PREBUILD_LOG:-/var/log/lab-prebuild.log}"
+{
+    prebuild_dir "$SECRETS_BASE/dotnet/Demo1-ReadSecret" dotnet build
+    prebuild_dir "$SECRETS_BASE/python/Demo1-ReadSecret" uv sync
+    prebuild_dir "$SECRETS_BASE/java/Demo1-ReadSecret" mvn -q -DskipTests package
+    echo "== demo1 prebuild done"
+} >"$PREBUILD_LOG" 2>&1
+
+# Demo2-Scoping (challenge 3) is built in a fully detached background job (own stdin, stdout
+# and stderr) so the startup script does not wait for it; a failed build is logged and never
+# fails the lab.
+nohup bash -s -- "$SECRETS_BASE" >>"$PREBUILD_LOG" 2>&1 <<'PREBUILD' &
 base="$1"
 build() { # build <dir> <command...>
     local dir="$1"; shift
@@ -66,10 +110,10 @@ build() { # build <dir> <command...>
         (cd "$dir" && "$@" </dev/null) || echo "WARN: build failed in $dir"
     fi
 }
-for demo in Demo1-ReadSecret Demo2-Scoping/AppA Demo2-Scoping/AppB; do
+for demo in Demo2-Scoping/AppA Demo2-Scoping/AppB; do
     build "$base/dotnet/$demo" dotnet build
     build "$base/python/$demo" uv sync
     build "$base/java/$demo" mvn -q -DskipTests package
 done
-echo "== prebuild done"
+echo "== demo2 prebuild done"
 PREBUILD

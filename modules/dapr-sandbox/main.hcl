@@ -35,8 +35,10 @@ resource "vm" "sandbox" {
 
   # The module's startup script writes /var/lib/lab-setup/ready after the lab script succeeds,
   # so the sandbox only counts as ready once the lab setup has finished.
+  # The timeout is the failure ceiling (slow boots, Docker start, Demo1 pre-build), not the
+  # target: the learner-facing goal is still a sandbox ready in about 1 minute 30 seconds.
   health_check {
-    timeout = "120s"
+    timeout = "300s"
 
     exec {
       script = "scripts/check-ready.sh"

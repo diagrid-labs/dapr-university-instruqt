@@ -29,6 +29,10 @@ echo "TRACKS_SRC_DIR=$TRACKS_SRC_DIR" >> "${GITHUB_ENV:-/dev/stdout}"
 if [ ! -e "$TRACKS_SRC_DIR/.git" ]; then
   git clone https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git "$TRACKS_SRC_DIR"
   git -C "$TRACKS_SRC_DIR" checkout "$TRACKS_SRC_REF"
+  # Only checked after our own clone: a pre-existing checkout (actions/checkout) is already pinned.
+  if [ "$(git -C "$TRACKS_SRC_DIR" rev-parse HEAD)" != "$TRACKS_SRC_REF" ]; then
+    echo "WARNING: $TRACKS_SRC_DIR is at $(git -C "$TRACKS_SRC_DIR" rev-parse HEAD), not the pinned ref $TRACKS_SRC_REF." >&2
+  fi
 fi
 
 # 3. Install uv (used by the Python demos and to run robot).
