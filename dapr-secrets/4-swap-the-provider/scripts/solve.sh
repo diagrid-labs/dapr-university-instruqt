@@ -1,6 +1,6 @@
 set -e
-export PATH="$HOME/.local/bin:$PATH"
-TRACKS_SRC_DIR="${TRACKS_SRC_DIR:-$HOME/ai-agent-tracks-instruqt}"
+export PATH="${HOME:-/root}/.local/bin:/usr/local/bin:$PATH"
+TRACKS_SRC_DIR="${TRACKS_SRC_DIR:-${HOME:-/root}/ai-agent-tracks-instruqt}"
 DEMO="Demo3-SwapProvider"
 
 # 1. Stop whatever the learner has running (any language, either folder) so the ports are free.
@@ -19,7 +19,7 @@ done
 # check only needs port 5001 and the metadata endpoint of port 3500, so the language is not
 # important.
 cd "$TRACKS_SRC_DIR/secrets/dotnet/$DEMO"
-nohup dapr run -f . >/tmp/dapr-secrets-demo3.log 2>&1 &
+setsid nohup dapr run -f . </dev/null >/tmp/dapr-secrets-demo3.log 2>&1 &
 
 # 3. Wait until the app answers a request that only works once the sidecar is ready.
 for _ in $(seq 1 120); do

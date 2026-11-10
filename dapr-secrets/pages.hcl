@@ -11,9 +11,17 @@ resource "page" "component_and_parameters" {
 resource "page" "secret_scoping" {
   title = "Secret scoping"
   file  = "3-secret-scoping/assignment.md"
+
+  activities = {
+    scoping = resource.task.scoping
+  }
 }
 
 resource "page" "swap_the_provider" {
   title = "Swap the provider"
   file  = "4-swap-the-provider/assignment.md"
+
+  activities = {
+    swap_provider = resource.task.swap_provider
+  }
 }

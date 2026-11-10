@@ -198,7 +198,9 @@ Components that use `secretKeyRef` don't know which secret store provider is beh
 
 ## 6. Check your work and stop
 
-Click the *Check* button while the application is still running: the check asks it. When it passes, use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
+Run the check below while the application is still running: it asks it. When it passes, use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
+
+<instruqt-task id="swap_provider"></instruqt-task>
 
 ---
 
