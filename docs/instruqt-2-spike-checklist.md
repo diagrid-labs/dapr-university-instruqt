@@ -441,10 +441,10 @@ Where a step needs a throwaway lab, create it in the Instruqt UI (Labs, Create l
 ### Item 10: A launch with the custom image plus lab setup finishes within 1:30
 
 - **How to test:**
-  1. Use the image from Item 3 and the lab setup script (clone the demo repo, `dapr init --runtime-version <pin>`, write `secrets.json`, start and seed Vault, pre-build Demo1 in all three languages), wired as decided in Item 5.
+  1. Use the image from Item 3 and the lab setup script (clone the demo repo, `dapr init --runtime-version <pin>`, write `secrets.json`, start and seed Vault, start the demo pre-build in the background), wired as decided in Item 5.
   2. Use a stopwatch. Start it when you click Start on the lab's start screen. Stop it when the first page is usable (instructions shown and the first terminal accepts a command). Do **three runs**, each as a fresh session, and note each time. Do at least one run after waiting 10 minutes since the last (a cold start).
-  3. For each run, also record the sandbox-ready time and the lab-setup time separately if the player shows them (the session log, `instruqt lab logs`, or the timestamps your script writes to `/tmp/setup.log`).
-- **Expected result:** all three runs are at or under 1 minute 30 seconds. If not, list what is slow (image pull, `dapr init`, Vault seeding, Demo1 pre-build) and what can move into the image (cache pre-warm, pre-pulled container images) or be dropped. Hot starts are out of scope.
+  3. For each run, also record the sandbox-ready time and the lab-setup time separately if the player shows them (the session log, `instruqt lab logs`, or the timestamped steps `lab-setup.sh` writes to `/var/log/lab-setup.log`, which ends with `done after Ns`).
+- **Expected result:** all three runs are at or under 1 minute 30 seconds. If not, list what is slow (VM boot, image pull, `dapr init`, Vault seeding) and what can move into the image (cache pre-warm, pre-pulled container images) or be dropped. Hot starts are out of scope.
 - **Finding:**
 
 ### Item 11: How a 2.0 lab is embedded on an external site
