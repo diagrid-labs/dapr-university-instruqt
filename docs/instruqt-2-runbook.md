@@ -135,7 +135,15 @@ spike Item 3 in `docs/instruqt-2-spike-checklist.md`).
    ```
 
    **Expected:** only `versions.hcl` changed; both validations print `[SUCCESS] Lab is valid`.
-3. Commit and push to the feature branch in section 4.
+3. Commit only that file (explicit `git add`, so nothing unrelated is swept in), pushing happens in
+   section 4 step 1:
+
+   ```bash
+   git add modules/dapr-sandbox/versions.hcl
+   git commit -m "feat(modules): set dapr-sandbox image_ref"
+   ```
+
+   **Expected:** `git show --stat HEAD` lists only `modules/dapr-sandbox/versions.hcl`.
 
 ---
 
@@ -143,7 +151,8 @@ spike Item 3 in `docs/instruqt-2-spike-checklist.md`).
 
 CI has not run on this branch yet (nothing was pushed before this point).
 
-1. Push the branch and open a pull request to `main`:
+1. Make sure the `image_ref` commit from section 3 step 3 exists (`git log -1 --stat`), then push
+   the branch and open a pull request to `main`:
 
    ```bash
    git push -u origin feat/dapr-secrets-instruqt-2-lab
@@ -158,18 +167,24 @@ CI has not run on this branch yet (nothing was pushed before this point).
      PR touches `dapr-secrets/**`; the Java leg is the slowest (up to 60 minutes).
    - If `languages` fails, open the failed leg's `robot-<lang>` artifact (`report.html`). A failure
      is often a real signal (see the repo `AGENTS.md`); fix before continuing.
-3. Check that an unrelated PR does not run (or block on) the secrets tests:
+3. Check that an unrelated PR does not run (or block on) the secrets tests. The throwaway PR must
+   branch from the feature branch and target it (`--base`), not `main`: `main` does not have
+   `lab-validate.yml` or the new `test-dapr-secrets.yml` yet, so a PR against `main` would run
+   none of the new workflows and show nothing.
 
    ```bash
-   git switch main && git pull
+   git switch feat/dapr-secrets-instruqt-2-lab
    git switch -c throwaway/ci-skip-check
    echo "" >> dapr-101/README.md
-   git commit -am "throwaway: ci skip check" && git push -u origin throwaway/ci-skip-check
-   gh pr create --base main --title "throwaway: ci skip check" --body "Delete me"
+   git add dapr-101/README.md
+   git commit -m "throwaway: ci skip check"
+   git push -u origin throwaway/ci-skip-check
+   gh pr create --base feat/dapr-secrets-instruqt-2-lab --title "throwaway: ci skip check" --body "Delete me"
    ```
 
    **Expected:** `lab-validate` runs and passes. `dapr-secrets-result` passes while `docsync` and
-   `languages (…)` show **Skipped** (the `changes` job found nothing relevant).
+   `languages (...)` show **Skipped** (the `changes` job found only `dapr-101/README.md` changed
+   against the feature branch, nothing relevant).
 4. Close the throwaway PR without merging and delete its branch:
 
    ```bash
@@ -195,7 +210,11 @@ You already created a ruleset on `main`. Edit it so it requires exactly two chec
 3. A check name can only be added after it has run once in the repo, which section 4 did. If it
    is not offered in the picker, wait for the PR run to finish, or type the name and pick it from
    the search results.
-4. Save the ruleset (Enforcement status **Active**).
+4. Before saving, confirm both `lab-validate` and `dapr-secrets-result` actually appear in the
+   check picker and are listed in the ruleset. They only appear after each has run once in the
+   repo (section 4); if either is missing, stop, do not save a ruleset without it, and re-run
+   section 4.
+5. Save the ruleset (Enforcement status **Active**).
 
 **Expected:** the PR from section 4 lists the two checks as **Required**. (Settings -> Branches
 -> branch protection rules is the older equivalent: **Require status checks to pass before
