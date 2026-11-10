@@ -55,19 +55,21 @@ Replace the entire contents of the file with this json:
 
 ## 3. Add the NuGet packages
 
-Now let's install some dependencies the solution requires. You're building a Dapr Workflow solution and this needs: `Dapr.Workflow` and `CommunityToolkit.Aspire.Hosting.Dapr`. As of version 1.18, the workflow-versioning APIs are included in the `Dapr.Workflow` package itself, so there's no separate package to add for that.
+Now let's install some dependencies the solution requires. You're building a Dapr Workflow solution and this needs: `Dapr.Workflow`, `CommunityToolkit.Aspire.Hosting.Dapr`, and `Aspire.Hosting.Valkey` (Aspire runs a Valkey container as the workflow state store). As of version 1.18, the workflow-versioning APIs are included in the `Dapr.Workflow` package itself, so there's no separate package to add for that.
 
 1. Use the *Terminal* (ensure you're in `EnterpriseDiagnostics/`) to install all the required packages to the correct projects:
 
 ```shell,run,copy
 dotnet add EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj package Dapr.Workflow --version 1.19.0
 dotnet add EnterpriseDiagnostics.AppHost/EnterpriseDiagnostics.AppHost.csproj package CommunityToolkit.Aspire.Hosting.Dapr --version 13.0.0
+dotnet add EnterpriseDiagnostics.AppHost/EnterpriseDiagnostics.AppHost.csproj package Aspire.Hosting.Valkey --version 13.3.5
 ```
 
-The AppHost project  should have these packages:
+The AppHost project should have these packages:
 
 ```text,nocopy
 <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="13.0.0" />
+<PackageReference Include="Aspire.Hosting.Valkey" Version="13.3.5" />
 ```
 
 The ApiService project should have this package, next to the `Microsoft.AspNetCore.OpenApi` package that the template already added:
