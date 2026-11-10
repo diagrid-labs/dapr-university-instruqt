@@ -20,10 +20,20 @@ DAPR_IMAGES=(
     "hashicorp/vault:1.20"
 )
 
+# Container images, only if a Docker daemon is up.
+if docker info >/dev/null 2>&1; then
+    for image in "${DAPR_IMAGES[@]}"; do
+        docker pull "$image" || echo "WARNING: could not pull $image" >&2
+    done
+else
+    echo "WARNING: Docker daemon is not reachable, skipping container image pre-pull." >&2
+fi
+
 # Package caches. Without this, the first `dapr run` of each language in the sandbox pays a full
 # cold restore, which is minutes of a 30-minute lab. Only the caches are kept; the checkout
 # itself is thrown away because lab setup clones the repo fresh at launch.
 PREWARM_DIR="$(mktemp -d)"
+trap 'rm -rf "$PREWARM_DIR"' EXIT
 if git clone --depth 1 https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git "$PREWARM_DIR/repo"; then
     SECRETS_BASE="$PREWARM_DIR/repo/secrets"
     # Demo3-SwapProvider holds no application code (it runs Demo1-ReadSecret against another
@@ -37,13 +47,4 @@ else
     echo "WARNING: could not clone the demo repo, so the package caches are cold. The sandbox" >&2
     echo "will still work, but the first build of each language will be slow." >&2
 fi
-rm -rf "$PREWARM_DIR"
 
-# Container images, only if a Docker daemon is up.
-if docker info >/dev/null 2>&1; then
-    for image in "${DAPR_IMAGES[@]}"; do
-        docker pull "$image" || echo "WARNING: could not pull $image" >&2
-    done
-else
-    echo "WARNING: Docker daemon is not reachable, skipping container image pre-pull." >&2
-fi

@@ -28,16 +28,18 @@ resource "vm" "sandbox" {
     memory = variable.memory
   }
 
-  startup_script = variable.lab_startup_script
+  # The lab script runs in a subshell so an early `exit` in it cannot skip or fake the marker;
+  # a failing lab script fails this script (set -e) before the marker is written.
+  startup_script = "#!/usr/bin/env bash\nset -euo pipefail\n(\n:\n${variable.lab_startup_script}\n)\nmkdir -p /var/lib/lab-setup\ntouch /var/lib/lab-setup/ready\n"
   environment    = variable.lab_environment
 
-  # The lab startup script ends by creating /var/lib/lab-setup/ready, so the sandbox only
-  # counts as ready once the lab setup has finished.
+  # The module's startup script writes /var/lib/lab-setup/ready after the lab script succeeds,
+  # so the sandbox only counts as ready once the lab setup has finished.
   health_check {
     timeout = "120s"
 
     exec {
-      script = file("scripts/check-ready.sh")
+      script = "scripts/check-ready.sh"
     }
   }
 }

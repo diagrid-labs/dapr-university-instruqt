@@ -19,8 +19,16 @@ pre-pulled. Versions are pinned in `versions.hcl`. The lab brings its own setup 
 | `lab_startup_script` | `""` | script content run on VM boot, usually `file("scripts/setup.sh")` from the lab |
 | `lab_environment` | `{}` | env vars for that script (readable by learners, never credentials) |
 
-The VM health check passes once `/var/lib/lab-setup/ready` exists, so the lab startup script must
-create that file as its last step. Otherwise the sandbox never becomes ready.
+The module owns the readiness marker. Its startup script runs the lab script in a subshell
+(`set -euo pipefail`), then creates `/var/lib/lab-setup/ready`; the VM health check passes once
+that file exists. Consequences for lab scripts:
+
+- Do not create the marker yourself.
+- A failing command (with `set -e`) fails the whole startup, so the sandbox never becomes ready.
+- An early `exit 0` only leaves the subshell, so the marker is still written.
+- The lab script runs inline, so it must background any long work itself if the learner should
+  not wait for it.
+- With the default empty script the module still becomes ready.
 
 ## Output
 
