@@ -41,10 +41,13 @@ previews.
    repositories it can access")*.
 4. Back in Instruqt, reload the Version control page.
 
+If `diagrid-labs` was already added earlier, don't add it again: click **Configure on GitHub**
+next to the account and add `dapr-university-instruqt` to the repositories the app can access.
+
 **Expected:** `diagrid-labs` is listed with a connected state and `dapr-university-instruqt`
 appears as an available repository when you reach the import screens in sections 7 and 9.
-If the repository is missing, go to GitHub -> `diagrid-labs` -> Settings -> GitHub Apps ->
-Instruqt -> Configure and add the repository.
+If the repository is missing from those screens, the GitHub App has no access to it: use
+**Configure on GitHub** next to the account (step 4 above).
 
 ---
 
@@ -289,20 +292,37 @@ finds nothing. (Only the legacy `dapr-secrets/_setup/sandbox-setup.sh` still men
 
 ## 9. Import the lab
 
-1. Instruqt: on the **Labs** page click **Import lab** (top right).
-2. Pick the `diagrid-labs` Git account, then **Select** the repository
-   `diagrid-labs/dapr-university-instruqt`.
-3. **Lab name:** `dapr-secrets`. **Branch:** `main` (the default). **Root directory:**
-   `dapr-secrets` (the directory that contains the lab's HCL files).
-4. Confirm the import.
+Use **Import lab**, never **Connect repository**. Connect is for an empty repository or a lab
+that already exists on the platform. Connecting a lab to this repository, which already has
+content, makes Instruqt ask "Keep the lab's content" or "Keep the repository's content" and then
+**Connect and overwrite** one side.
+
+1. Instruqt: on the **Labs** page click **Import lab** (top right). The dialog is titled "Import
+   lab from a Git repository".
+2. Pick the `diagrid-labs` account from the dropdown, find `dapr-university-instruqt` and click
+   **Select**. If the repository is not listed, the GitHub App has no access: see section 1.
+3. Review the settings:
+   - **Lab name:** prefilled from the repository name (`dapr-university-instruqt`). Change it to
+     `dapr-secrets`.
+   - **Branch:** `main` (defaults to the repository's default branch).
+   - **Root directory:** change it from `/ (root)` to `dapr-secrets` (the directory that holds
+     the lab's HCL files).
+4. Click **Import lab**.
+5. Importing drops you into edit mode. Leave it without publishing: open the **⋮** next to
+   **Publish** and click **Exit edit mode**. Publishing from the UI would commit to `main`.
 
 **Warning:** only a lab connected at the repository root (`/`) can be disconnected, so this one
 never can. Check the root directory spelling before you confirm.
 
-From now on, pushes to `main` sync to the lab. Don't edit content in the Instruqt UI: publishing
-there commits back to the repository and creates a second place where content is authored.
+From now on, every push to `main` syncs to the lab and is validated on the platform (the docs:
+"Every push deploys"). After a push, check the sync status on the lab's overview page; if it isn't
+"Success", confirm you pushed to `main` and read the validation error. Don't edit content in the
+Instruqt UI: **Publish** there commits back to the repository and creates a second place where
+content is authored.
 
-**Expected:** a lab titled "Dapr Secrets - Read, Scope, and Swap Secret Stores" with chapter
+**Expected:** on the **Labs** page the lab shows sync status "Success" with a green checkmark
+(the lab's overview page shows whether the latest push was picked up and whether validation
+passed). The lab is titled "Dapr Secrets - Read, Scope, and Swap Secret Stores" with chapter
 "Dapr Secrets" and four pages (What is the Secrets API; The component and its parameters; Secret
 scoping; Swap the provider). The module `diagrid/dapr-sandbox` 1.0.0 resolves with no error in
 the lab editor. If it does not, the module was not published (section 7) or the version differs
@@ -326,6 +346,12 @@ sub-directory lab is not listed, record that in `docs/instruqt-2-spike-checklist
 finding) and play the lab from `main` after merge instead.
 
 ### Acceptance play-through
+
+Start a play with **Play** next to the lab on the **Labs** page (or **Play** in the lab's top
+bar). While playing, **Go to creator dashboard** leaves the session running (the dashboard then
+shows **Resume** and **Stop**); **Finish & Exit** ends the session and stops the sandbox. When the
+lab setup or a check misbehaves, the **Logs** button in the lab's top bar shows the scripts'
+output, which learners never see.
 
 Play the lab three times (see Timing). In each play go through all four pages in one language
 (.NET, Python or Java), so that all three languages are covered by the end. Copy this checklist
