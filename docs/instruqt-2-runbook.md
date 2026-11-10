@@ -88,7 +88,18 @@ must be built by hand: there is no CLI or API to build or publish images.
      and in the session terminal run `curl -fsSL <raw-url> -o /root/image.sh`. The script
      contains no secrets. Note `image.sh` is generated, so the raw file of the repo branch does
      not contain it.
-4. In the session terminal run it and watch for errors:
+4. In the session terminal, find where the file landed first. The terminal starts in `/`, and
+   the Editor may save the file in `/` rather than `/root`, under whatever name you gave it:
+
+   ```bash
+   ls -l /*.sh /root/*.sh 2>/dev/null
+   head -12 /root/image.sh   # use the path ls showed
+   ```
+
+   **Expected:** the first lines are the shebang, `set -euo pipefail` and the `export ...` pin
+   lines from step 1. If they aren't, you pasted the wrong file. For example, `install-tools.sh`
+   on its own stops with "ERROR: required environment variable ... is not set".
+   Then run it by its full path and watch for errors:
 
    ```bash
    bash /root/image.sh 2>&1 | tee /root/image-build.log
