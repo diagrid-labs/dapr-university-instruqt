@@ -17,6 +17,10 @@ variable "tracks_src_ref" {
 # tools/track-tester/ci/validate-lab.sh, which swaps in a local copy of the module.
 # The lab script is seed-vault.sh (defines seed_vault) followed by lab-setup.sh (calls it); the
 # module inlines it into the VM startup script because the lab's files are not on the VM.
+# Publish a new module version in Instruqt (Building blocks > Modules > Publish version) BEFORE
+# merging a change to `version` here. Every push syncs the lab and resolves this exact version; a
+# push that pins a not-yet-published version leaves the lab on "failed to read hcl files: ...
+# version X of diagrid/dapr-sandbox is not published: not found" until the next push.
 module "sandbox" {
   source  = "diagrid/dapr-sandbox"
   version = "1.0.1"
