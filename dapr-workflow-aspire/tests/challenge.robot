@@ -43,6 +43,10 @@ Ch2 Scaffold And Build
     File Should Contain
     ...    ${SOLUTION_DIR}/EnterpriseDiagnostics.ApiService/EnterpriseDiagnostics.ApiService.csproj
     ...    Dapr.Workflow
+    # Ch4's AppHost.cs calls .AddValkey(...), which only exists with this package.
+    File Should Contain
+    ...    ${SOLUTION_DIR}/EnterpriseDiagnostics.AppHost/EnterpriseDiagnostics.AppHost.csproj
+    ...    Aspire.Hosting.Valkey
 
 Ch3 Workflow Build
     # Creates the Models/Workflows/Activities folders + files and rebuilds.
