@@ -234,6 +234,44 @@ until bounded 3 curl -s -o /dev/null "http://127.0.0.1:${CODE_SERVER_PORT}/"; do
 done
 log "code-server listening on port ${CODE_SERVER_PORT} (${SECONDS}s since start)"
 
+# The Dev Dashboard tab: Diagrid's Dapr Dev Dashboard (github.com/diagridio/dev-dashboard), a live
+# view of the apps, sidecars, workflows and logs learners start with `dapr run`. Installed like
+# code-server when the image doesn't have it, and run as a transient systemd unit. It binds
+# 0.0.0.0 so Instruqt's service proxy can reach it; in this (host) mode it only accepts a
+# loopback Host header, which the service tab sends (see tabs.hcl).
+: "${DEV_DASHBOARD_VERSION:?DEV_DASHBOARD_VERSION must be set}"
+DEV_DASHBOARD_PORT=9090
+if ! command -v diagrid-dev-dashboard >/dev/null 2>&1; then
+    log "installing the Dapr Dev Dashboard $DEV_DASHBOARD_VERSION"
+    archive="diagrid-dev-dashboard_${DEV_DASHBOARD_VERSION}_linux_amd64"
+    bounded 120 curl -fsSL -o "/tmp/${archive}.tar.gz" \
+        "https://github.com/diagridio/dev-dashboard/releases/download/v${DEV_DASHBOARD_VERSION}/${archive}.tar.gz" ||
+        die "downloading the Dapr Dev Dashboard $DEV_DASHBOARD_VERSION failed."
+    mkdir -p "/opt/${archive}"
+    tar -xzf "/tmp/${archive}.tar.gz" -C "/opt/${archive}"
+    ln -sf "/opt/${archive}/diagrid-dev-dashboard" /usr/local/bin/diagrid-dev-dashboard
+    rm -f "/tmp/${archive}.tar.gz"
+    log "Dapr Dev Dashboard installed (${SECONDS}s since start)"
+fi
+dev_dashboard_args=(--port "$DEV_DASHBOARD_PORT" --bind 0.0.0.0 --no-open --mode dapr-run)
+if command -v systemd-run >/dev/null 2>&1 && [ "$(id -u)" -eq 0 ]; then
+    systemctl stop dev-dashboard-lab >/dev/null 2>&1 || true
+    systemd-run --unit=dev-dashboard-lab --property=Restart=always \
+        --setenv=HOME="$HOME" --setenv=PATH="$PATH" \
+        "$(command -v diagrid-dev-dashboard)" "${dev_dashboard_args[@]}" >/dev/null
+else
+    nohup diagrid-dev-dashboard "${dev_dashboard_args[@]}" >/var/log/dev-dashboard.log 2>&1 </dev/null &
+fi
+deadline=$((SECONDS + 30))
+until bounded 3 curl -s -o /dev/null -H "Host: localhost:${DEV_DASHBOARD_PORT}" "http://127.0.0.1:${DEV_DASHBOARD_PORT}/"; do
+    if [ "$SECONDS" -ge "$deadline" ]; then
+        log "WARNING: the Dev Dashboard does not answer on port ${DEV_DASHBOARD_PORT} yet (journalctl -u dev-dashboard-lab)"
+        break
+    fi
+    sleep 1
+done
+log "Dapr Dev Dashboard listening on port ${DEV_DASHBOARD_PORT} (${SECONDS}s since start)"
+
 # `dapr init` is skipped when the containers are already running, so a re-run does not tear down
 # and re-create them.
 dapr_containers_running() {

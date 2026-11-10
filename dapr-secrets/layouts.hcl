@@ -5,9 +5,10 @@ resource "layout" "main" {
     instructions {}
   }
 
-  # Right side: the Editor on top, and the two terminals side by side underneath it, so both
-  # terminals stay visible (the assignments' Run buttons only send commands to a terminal that is
-  # shown on the current page).
+  # Right side: one panel on top with two tabs, the Editor (open by default) and the Dev
+  # Dashboard, which replaces the Editor view when selected; underneath, the two terminals side by
+  # side, so both stay visible (the assignments' Run buttons only send commands to a terminal that
+  # is shown on the current page). The terminal columns have no width so they share the row equally.
   column {
     width = "60"
 
@@ -19,14 +20,17 @@ resource "layout" "main" {
         title  = "Editor"
         active = true
       }
+
+      tab "dev_dashboard" {
+        target = resource.service.dev_dashboard
+        title  = "Dev Dashboard"
+      }
     }
 
     row {
       height = "40"
 
       column {
-        width = "50"
-
         tab "dapr_cli" {
           target = resource.terminal.dapr_cli
           title  = "Dapr CLI"
@@ -35,8 +39,6 @@ resource "layout" "main" {
       }
 
       column {
-        width = "50"
-
         tab "curl" {
           target = resource.terminal.curl
           title  = "curl"
