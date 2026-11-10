@@ -1,16 +1,10 @@
-resource "editor" "code" {
-  workspace "secrets" {
-    target    = module.sandbox.output.vm
-    directory = "/root/ai-agent-tracks-instruqt/secrets"
-  }
-
-  # TEMPORARY diagnostic: a world-readable folder outside /root, created by lab-setup.sh. If this
-  # workspace shows README.txt while "secrets" stays empty, the editor works on the VM and the
-  # problem is the /root path; if both are empty, the editor cannot show VM files at all.
-  workspace "probe" {
-    target    = module.sandbox.output.vm
-    directory = "/opt/editor-probe"
-  }
+# The Editor tab: code-server (VS Code in the browser) that lab-setup.sh runs on the VM on port 8888,
+# opened on the demo folder. The built-in `editor` resource showed no files for a VM target.
+resource "service" "editor" {
+  target = module.sandbox.output.vm
+  port   = 8888
+  scheme = "http"
+  path   = "/"
 }
 
 resource "terminal" "dapr_cli" {
