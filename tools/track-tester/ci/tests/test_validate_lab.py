@@ -81,3 +81,29 @@ def test_missing_expected_source_fails_clearly(tmp_path):
     r = run(lab, mod)
     assert r.returncode != 0
     assert 'source = "diagrid/dapr-sandbox"' in r.stderr
+
+
+def test_reordered_unspaced_attributes_pass(tmp_path):
+    lab, mod = make(tmp_path, "diagrid/dapr-sandbox")
+    (lab / "main.hcl").write_text(
+        (lab / "main.hcl").read_text().replace(
+            'source  = "diagrid/dapr-sandbox"\n  version = "1.0.0"',
+            'version="1.0.0"\n  source="diagrid/dapr-sandbox"',
+        )
+    )
+    assert 'version="1.0.0"' in (lab / "main.hcl").read_text()
+    r = run(lab, mod)
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_incomplete_rewrite_fails_clearly(tmp_path):
+    lab, mod = make(tmp_path, "diagrid/dapr-sandbox")
+    # One-line block: the rewrite's version-line removal cannot match it.
+    text = (lab / "main.hcl").read_text().replace(
+        'module "sandbox" {\n  source  = "diagrid/dapr-sandbox"\n  version = "1.0.0"\n}',
+        'module "sandbox" { source = "diagrid/dapr-sandbox"\n  version = "1.0.0" }\n',
+    )
+    (lab / "main.hcl").write_text(text)
+    r = run(lab, mod)
+    assert r.returncode != 0
+    assert "rewrite incomplete" in r.stderr

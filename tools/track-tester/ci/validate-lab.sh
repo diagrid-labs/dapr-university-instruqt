@@ -46,4 +46,29 @@ if [[ $rewritten -eq 0 ]]; then
   exit 1
 fi
 
+# Fail loudly if the rewrite missed anything (reordered/unusual formatting): a leftover registry
+# source or version would make `instruqt lab validate` fail confusingly, or worse, pass on a
+# different module than the one under test.
+leftover=$(python3 - "$tmp" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+for p in root.rglob("*.hcl"):
+    if root / "modules" in p.parents:
+        continue
+    text = p.read_text()
+    if re.search(r'source\s*=\s*"diagrid/dapr-sandbox"', text):
+        print(p.relative_to(root))
+        continue
+    for m in re.finditer(r'module\s+"[^"]+"\s*\{.*?\n\}', text, flags=re.S):
+        b = m.group(0)
+        if './modules/dapr-sandbox' in b and re.search(r'\bversion\s*=', b):
+            print(p.relative_to(root))
+PY
+)
+if [[ -n $leftover ]]; then
+  echo "validate-lab: rewrite incomplete: registry source or version still present in: $leftover" >&2
+  exit 1
+fi
+
 instruqt lab validate "$tmp"
