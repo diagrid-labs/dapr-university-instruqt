@@ -397,6 +397,9 @@ Where a step needs a throwaway lab, create it in the Instruqt UI (Labs, Create l
   ````
 
   Also use the page editor's Insert menu, Alerts, Note and copy the markdown it produces. Play the lab and open the page.
+  Also add a ```` ```yaml,copy ```` block. The docs list `run`, `wrap` and `nocopy` fence flags but no
+  `copy` flag (copying is on by default), and the assignments use `yaml,copy`: check that it still
+  renders as a YAML block with a copy button.
 - **Expected result:** the alerts render as styled callouts (or you learn the 2.0 syntax the editor inserts); the `<details>` section collapses and the `bash,run` button works inside it. If either fails, record the 2.0 equivalent and the effect on `docsync/check_doc_sync.py` (it keys off `<summary>` language markers).
 - **Finding:**
 
@@ -422,7 +425,7 @@ Where a step needs a throwaway lab, create it in the Instruqt UI (Labs, Create l
 - **How to test:**
   1. In the scratch lab define a task with two `check` blocks, each with its own `failure_message`, where the scripts print different text to stdout and stderr and exit 1. Embed it with `<instruqt-task id="...">`. Play, click Check without doing the work, and note exactly what the learner sees.
   2. Add a `setup` script to a condition that writes `/tmp/setup-ran`. Check whether it runs when the page opens, when the learner clicks into the task, or at sandbox start.
-  3. Click Skip on the task; check the `solve` script runs.
+  3. Click **Solve for me** on the task; check the `solve` script runs and the task shows "Solved for you".
 - **Expected result:** per the docs, only the static `failure_message` text of each failing check is shown (so split each cause into its own `check`); check script output is not shown; `setup` runs when the condition becomes active; skip runs `solve`. Record the real behavior, including whether a task on page 3 can run `setup` when the learner opens page 3 without having done pages 1-2.
 - **Finding:**
 

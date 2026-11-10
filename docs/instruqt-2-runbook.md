@@ -6,9 +6,10 @@ Audience: the track owner, who has Instruqt admin rights and GitHub admin rights
 Do the sections in order. Section 1 to 7 prepare things; nothing is reachable by learners until
 section 12 (embed), so merging early is safe.
 
-**About UI paths.** Menu names marked *(docs, not verified)* come from https://docs.labs.instruqt.com/
-and have not been clicked through. If your UI differs, look for the closest menu with the same
-name, do the equivalent, and write the real path next to the step. Facts about what Instruqt does
+**About UI paths.** Menu, field and button names were checked against https://docs.labs.instruqt.com/
+on 2026-11-10 but have not been clicked through; steps marked *(docs, not verified)* are the ones
+whose exact wording the docs do not spell out. If your UI differs, look for the closest menu with
+the same name, do the equivalent, and write the real path next to the step. Facts about what Instruqt does
 (module import reads the default branch, versions are cut in the UI, no CLI publish) are listed
 in `docs/instruqt-2-spike-checklist.md`, Part 1.
 
@@ -30,11 +31,14 @@ in `docs/instruqt-2-spike-checklist.md`, Part 1.
 Instruqt reads the repo through its GitHub App. Needed for module import, lab import and branch
 previews.
 
-1. Instruqt, team `diagrid`: **Integrations** (sidebar) -> **Version control** *(docs, not verified)*.
-2. Click **Add GitHub account** and pick the `diagrid-labs` organization on GitHub.
-3. On the GitHub page choose **Only select repositories** and select
-   `diagrid-labs/dapr-university-instruqt`. Click **Install** (or **Save** if the app is already
-   installed).
+1. Instruqt management interface, team `diagrid`: **Integrations** -> **Version control**
+   (`/manage/diagrid/version-control`). Not the sidebar's other "Integrations" section, which is
+   for LTI and webhooks.
+2. Click **Add GitHub account**. This installs the Instruqt GitHub App on a GitHub organization;
+   pick `diagrid-labs`.
+3. On GitHub, limit the app's repository access to `diagrid-labs/dapr-university-instruqt` and
+   confirm *(GitHub's own install screen; the Instruqt docs only say you "choose which
+   repositories it can access")*.
 4. Back in Instruqt, reload the Version control page.
 
 **Expected:** `diagrid-labs` is listed with a connected state and `dapr-university-instruqt`
@@ -61,14 +65,19 @@ must be built by hand: there is no CLI or API to build or publish images.
    `export DOTNET_SDK_CHANNEL=10.0`, `JAVA_VERSION=17`, `NODE_MAJOR=24`,
    `DAPR_CLI_VERSION=<dapr_cli_version>`, `PREWARM_DAPR_RUNTIME_VERSION=<prewarm_dapr_runtime_version>`
    lines (values come from `modules/dapr-sandbox/versions.hcl`, for example `DAPR_CLI_VERSION=1.19.1`). If it fails, the message names the missing pin.
-2. Instruqt: **Building blocks** -> **Images** -> **Create image** *(docs, not verified)*.
-   - Name: `dapr-sandbox`
-   - Base image: `ubuntu:24.04` (System images), Version: Latest
-   - Machine: Large, Disk: 60 GB
+2. Instruqt sidebar: **Building blocks** -> **Images** -> **Create image**.
+   - There is no name field here; the image is named when you publish (step 8).
+   - Base image: under **System images** pick `ubuntu`, then **Version** `24.04`. Do not leave
+     Version on the default **Latest**: `install-tools.sh` was tested on 24.04.
+     (A `docker` system image with Docker Engine preinstalled also exists. Stay on `ubuntu`
+     24.04: `install-tools.sh` installs Docker itself, and that is the combination that was tested.)
+   - **Machine:** Large (options: Small, Medium (default), Large, Extra large).
+   - **Disk:** 60 GB (range 20 to 500 GB, default 40 GB). The disk size carries into every VM
+     booted from the image.
    - Click **Start building**.
 
-   **Expected:** a build session opens with an Editor and a Terminal panel. The session lasts at
-   most 2 hours and is reclaimed after 15 minutes idle.
+   **Expected:** a build session opens with three panels: Terminal, Editor and Display. The
+   session runs for at most two hours and is reclaimed after 15 minutes with no activity.
 3. Get `image.sh` into the session. Pick one:
    - Open `image.sh` locally, copy its contents, create a file in the session's Editor panel
      (for example `/root/image.sh`) and paste.
@@ -111,10 +120,14 @@ must be built by hand: there is no CLI or API to build or publish images.
    pre-pull needs `sudo docker pull <image>` (the images are daemon-wide, so that is fine). Pull
    the four images by hand with `sudo`, then record what you needed in `docs/instruqt-2-spike-checklist.md` (Item 3 finding).
    Do not publish an image without the pre-pull: the 1:30 start budget depends on it.
-7. Take a Checkpoint if the UI offers one, then **Publish** the image *(docs, not verified)*.
-   Name `dapr-sandbox`, tag `v1`.
-8. Write down the full image reference exactly as shown after publishing, for example
-   `diagrid/dapr-sandbox:v1`. You need it in section 3.
+7. Optional: in the **Checkpoints** rail click **Create**. A checkpoint only lets you roll back
+   within this build session; it is not a published version.
+8. Click **Publish**. Enter **Image name** `dapr-sandbox`; the **Version** tag is prefilled with
+   `v1`, keep it.
+9. Write down the full image reference: `diagrid/dapr-sandbox:v1` (format
+   `team-slug/image-name:tag`). You need it in section 3. Always keep the tag in the reference: an
+   untagged reference resolves to the highest published version, so a later rebuild would change
+   the lab without a commit.
 
 **Expected:** the image shows as published under Building blocks -> Images, with a size. To
 sanity check, a lab VM that uses it can run `docker images` and `dotnet --version` (this is also
@@ -236,15 +249,25 @@ a module and when you import the lab on branch `main`.
 
 ## 7. Import and publish the module `diagrid/dapr-sandbox` 1.0.0
 
-1. Instruqt: **Building blocks** -> **Modules** -> **Import module** *(docs, not verified)*.
-2. Repository: `diagrid-labs/dapr-university-instruqt`. Module name: `dapr-sandbox`.
-   Module directory: `modules/dapr-sandbox`. Leave **Publish to the community registry** off.
-3. Open the imported module. If the editor is in edit mode, leave edit mode.
-4. Click **Publish version** and enter `1.0.0` (strict `MAJOR.MINOR.PATCH`).
+1. Instruqt sidebar: **Building blocks** -> **Modules** -> **Import module**.
+2. Choose the `diagrid-labs` account, then the repository `diagrid-labs/dapr-university-instruqt`.
+   There is no branch to pick: the import reads the repository's default branch (`main`), which
+   is why section 6 comes first.
+3. **Module name:** `dapr-sandbox`. **Description:** "Ubuntu 24.04 VM with Docker, .NET, Java,
+   Python + uv, Node and the Dapr CLI for Dapr University labs". **Module directory:**
+   `modules/dapr-sandbox`. Leave **Publish to the community registry** off (visibility "Private:
+   only this team", the default).
+4. Open the imported module. Outside edit mode, click **Publish version** in the editor header and
+   enter `1.0.0` (exactly `MAJOR.MINOR.PATCH`, all numeric).
 
-**Expected:** the module is listed as `diagrid/dapr-sandbox` with version `1.0.0`. A later
-change to `modules/dapr-sandbox/main.hcl` on `main` does **not** change published `1.0.0`; new
-content needs a new version cut by hand (see "Toolchain bump").
+**Expected:** the module is listed as `diagrid/dapr-sandbox` with version `1.0.0`. A version is
+immutable: a later change to `modules/dapr-sandbox/` on `main` does **not** change `1.0.0`, and
+Instruqt does not read versions from git tags. New content needs a new version cut by hand (see
+"Toolchain bump").
+
+The docs describe module import and lab import from subdirectories of a shared repository
+separately, but not a module and a lab in the same repository. If the import is refused, record
+the message in `docs/instruqt-2-spike-checklist.md` (Item 4 finding).
 
 If the version you publish differs from `1.0.0`, change `version` in the `module "sandbox"`
 block of `dapr-secrets/versions.hcl` to match, in a PR.
@@ -256,7 +279,7 @@ block of `dapr-secrets/versions.hcl` to match, in a PR.
 None expected. The Docker Hub PAT (`DockerUSER`/`DockerPAT`) that the old track used is
 intentionally **not** used any more: the daprio, redis, zipkin and vault images are pre-pulled
 into the image, and a secret in a VM `environment` would be readable by learners. Do not create
-team secrets for this lab (Building blocks -> Secrets *(docs, not verified)* stays untouched).
+team secrets for this lab (Building blocks -> Secrets stays untouched).
 
 **Expected:** `grep -rn "DockerPAT\|DockerUSER" dapr-secrets/scripts dapr-secrets/*.hcl modules`
 finds nothing. (Only the legacy `dapr-secrets/_setup/sandbox-setup.sh` still mentions them; the
@@ -266,13 +289,18 @@ finds nothing. (Only the legacy `dapr-secrets/_setup/sandbox-setup.sh` still men
 
 ## 9. Import the lab
 
-1. Instruqt: **Labs** -> **Import lab** *(docs, not verified)*.
-2. Repository `diagrid-labs/dapr-university-instruqt`, branch `main`, Root directory
-   `dapr-secrets`.
-3. Confirm the import.
+1. Instruqt: on the **Labs** page click **Import lab** (top right).
+2. Pick the `diagrid-labs` Git account, then **Select** the repository
+   `diagrid-labs/dapr-university-instruqt`.
+3. **Lab name:** `dapr-secrets`. **Branch:** `main` (the default). **Root directory:**
+   `dapr-secrets` (the directory that contains the lab's HCL files).
+4. Confirm the import.
 
-**Warning:** a lab imported at a sub-directory root cannot be disconnected from the repo later.
-Check the root directory spelling before you confirm.
+**Warning:** only a lab connected at the repository root (`/`) can be disconnected, so this one
+never can. Check the root directory spelling before you confirm.
+
+From now on, pushes to `main` sync to the lab. Don't edit content in the Instruqt UI: publishing
+there commits back to the repository and creates a second place where content is authored.
 
 **Expected:** a lab titled "Dapr Secrets - Read, Scope, and Swap Secret Stores" with chapter
 "Dapr Secrets" and four pages (What is the Secrets API; The component and its parameters; Secret
@@ -289,9 +317,9 @@ from `version` in `dapr-secrets/versions.hcl`.
 Use this whenever you change the lab, before merging.
 
 1. Push the branch (`git push`).
-2. In the lab editor open the branch selector in the top bar and look for the branch under
-   **Branches** *(docs, not verified)*. Pushes can take a minute to show up.
-3. Select the branch and click **Play**.
+2. In the lab editor, switch to the branch with the branch selector in the top bar.
+3. Click **Play** in the top bar *(docs, not verified: the docs say each branch "can be launched,
+   played, and previewed on its own", but don't describe Play after switching branches)*.
 
 **Expected:** the branch plays independently of the live version. If a branch of this
 sub-directory lab is not listed, record that in `docs/instruqt-2-spike-checklist.md` (Item 9
@@ -313,12 +341,14 @@ Layout reminder: instructions column, tabs **Editor**, **Dapr CLI** (terminal), 
 | 3. Secret scoping: app A reads `orderdb-password`, app B is refused (403) after enabling `configFilePath`, app B still reads `payments-api-key`; task check goes green | [ ] | [ ] | [ ] |
 | 4. Swap the provider: the app in Demo3-SwapProvider reads `orderdb-password` from Vault; task check goes green | [ ] | [ ] | [ ] |
 
-Also tick once per run: the Editor opens `/root/ai-agent-tracks-instruqt/secrets`; `Skip` on
-the task on pages 3 and 4 runs the solve script and the check then passes; no page asks for a
+Also tick once per run: the Editor opens `/root/ai-agent-tracks-instruqt/secrets`; **Solve for
+me** on the task on pages 3 and 4 runs the solve script and marks the task "Solved for you" (the
+check is not run again after a solve); the **Finish & Exit** button on page 4 completes the lab; no page asks for a
 credential; `env | grep -i -E "pat|token|password"` in the terminal shows nothing sensitive.
 
-**Deliberate failures (once per run, on pages 3 and 4).** A check failure shows only the static
-`failure_message` of the failing condition, so confirm the hint matches the mistake:
+**Deliberate failures (once per run, on pages 3 and 4).** A failed check shows only the fixed
+`failure_message` strings, one for every failing check (the script output goes to the lab logs,
+not to the learner), so confirm the hints match the mistake:
 
 - Page 3: do not remove the `# ` in front of `configFilePath` in `dapr.yaml`, then click
   **Check**. **Expected:** the failing condition "App B is refused orderdb-password" shows
@@ -360,8 +390,11 @@ paths above) on the `Finding:` lines of Items 3, 5, 9 and 10 in
 Only needed if you want `instruqt lab test diagrid/dapr-secrets` to run from CI or locally. No
 workflow in the repo uses it yet, so skip this unless you add such a job.
 
-1. Create an API token for your Instruqt account (Instruqt -> your profile -> **API tokens**
-   *(docs, not verified)*), or run `instruqt auth login` locally.
+1. Locally, `instruqt auth login` is enough. For CI you need a token: the team API key is under
+   **Settings** -> **API keys** (only team Owners can see it; the eye icon reveals it,
+   **Regenerate API Key** rotates it) *(docs, not verified: the docs describe this key for the
+   GraphQL API and don't say it is the value `INSTRUQT_TOKEN` expects; confirm with one local run of
+   `INSTRUQT_TOKEN=<key> instruqt lab test diagrid/dapr-secrets`)*.
 2. For CI: GitHub -> repo **Settings** -> **Secrets and variables** -> **Actions** -> **New
    repository secret**, Name `INSTRUQT_TOKEN`, Value the token.
 3. Run locally (needs the lab to be imported, section 9):
@@ -371,25 +404,38 @@ workflow in the repo uses it yet, so skip this unless you add such a job.
    instruqt lab test diagrid/dapr-secrets --ref feat/dapr-secrets-instruqt-2-lab
    ```
 
-**Expected:** every task is checked (untouched must fail, then the solve script runs and the
-check passes). `lab validate` and `lab format` need no token.
+**Expected:** exit code 0. For every task the check runs on the untouched task and must fail,
+then the solve script runs and marks the task done (the check is not run again after the solve).
+It tests the version on the platform for that branch, not your local files. `lab validate` and
+`lab format` need no token.
 
 ---
 
 ## 12. Embed the lab and replace the old embed
 
-1. In the lab editor click the **Share** icon in the header -> **Embeds** -> **New embed**
-   *(docs, not verified)*.
-2. Fill in: Name `diagrid-university`, Lab version: the default branch (`main`), Access window
-   24 hours, Plays per end user 1 (use Unlimited if learners need retries), Allowed sites: the
-   Diagrid University site origin including the scheme and no path.
-3. Save, then copy the iframe snippet from the Share tab.
+1. In the lab editor click the **Share** icon in the header -> **Embeds** -> **New embed**.
+2. Fill in:
+   - **Name:** `diagrid-university`
+   - **Lab version:** `main` (the default branch)
+   - **Access window:** `24 hours` (options: 1 hour, 24 hours, 7 days, 30 days)
+   - **Plays per end user:** **Limited** `1` (or **Unlimited** if learners need retries; legacy
+     tracks allowed 5 starts)
+   - **Embed expires:** `Never`
+   - **Allowed sites:** the Diagrid University site origin, scheme and host with no path (for
+     example `https://www.diagrid.io`)
+3. Click **Create embed**. On the Share tab, copy the iframe snippet shown below the
+   **Embed / Kiosk link** (**Copy link** copies only the link).
 4. On the Diagrid University site, replace the old Dapr Secrets (legacy track) embed code with
    the new snippet, preview the page and start the lab once.
 
 **Expected:** the iframe starts the lab without sign-in; a play beyond the plays limit, or from a
 site that is not in Allowed sites, is refused. Record the snippet shape and any `icp_` parameter
-you will want later in `docs/instruqt-2-spike-checklist.md` (Item 11 finding).
+you will want later in `docs/instruqt-2-spike-checklist.md` (Item 11 finding). URL parameters
+starting with `icp_` set the lab variable of the same name without the prefix.
+
+For the planned HubSpot-gated access, look at the other access options in the docs: the Embed /
+Kiosk link can be shared directly, and there are also play tokens, lab access settings and an LTI
+integration.
 
 Do this only after Item 10 (timing) and the play-through are done.
 
@@ -404,7 +450,8 @@ For a new .NET, JDK, Node, Dapr CLI or prewarmed runtime version.
 1. Edit the pin in `modules/dapr-sandbox/versions.hcl` (`dotnet_sdk_channel`, `java_version`,
    `node_major`, `dapr_cli_version` or `prewarm_dapr_runtime_version`).
 2. Render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh > image.sh`.
-3. Rebuild the image as in section 2 (steps 2 to 8), publishing a new tag (for example `v2`).
+3. Rebuild the image as in section 2 (steps 2 to 9). When publishing, choose the existing image
+   `dapr-sandbox` and a new **Version** tag (for example `v2`).
 4. Set `image_ref` in `modules/dapr-sandbox/versions.hcl` to the new reference.
 5. Open a PR. `lab-validate` and `dapr-secrets-result` must pass; merge it.
 6. Import/refresh the module and **Publish version** as the next number (for example `1.1.0`;

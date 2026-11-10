@@ -215,7 +215,7 @@ Here is what you did in this track:
 
 ## Feedback and further learning
 
-Congratulations! 🎉 You've completed the Dapr University secrets learning track! Click **Complete** below to finish the lab 🚀.
+Congratulations! 🎉 You've completed the Dapr University secrets learning track! Click **Finish & Exit** below to finish the lab 🚀.
 
 We have more opportunities for you to learn and share knowledge:
 
