@@ -21,12 +21,15 @@ Learners never run anything locally. The only things executed locally or in CI a
 ```
 <track>/                     one folder per track (see list below)
   README.md                  the track's Instruqt config (name, url, teaser, description…)
-  _setup/                    sandbox provisioning scripts run by Instruqt at track start
+  _setup/                    sandbox provisioning scripts run by Instruqt at track start (legacy tracks)
   <n>-<slug>/                one folder per challenge, in order
     assignment.md            the learner-facing instructions (Markdown + Instruqt annotations)
     notes.md                 author notes (not shown to learners), optional
     images/                  images referenced by assignment.md, optional
     tests/challenge.robot    the drift-test suite for this challenge, optional
+modules/
+  dapr-sandbox/              shared Instruqt 2.0 sandbox module (published as diagrid/dapr-sandbox)
+docs/                        Instruqt 2.0 runbook and spike checklist
 tools/
   track-tester/              the Robot Framework drift-testing harness (see below)
   github-collector/          helper tooling (data collection)
@@ -48,10 +51,51 @@ tools/
 | `ai-agents-maf/` | Making Microsoft Agent Framework (MAF) agents reliable with Dapr Workflow (.NET Aspire). |
 | `catalyst-101/` | Introductory Diagrid track. |
 
+`dapr-secrets` is the first **Instruqt 2.0 lab** (HCL config, shared sandbox module); every other
+track is a legacy 1.0 track. See "Instruqt 2.0 labs" below.
+
 Only `dapr-101`, `dapr-workflow`, `dapr-workflow-aspire`, and `dapr-secrets` currently have
 `track-tester` suites and CI workflows.
 
+## Instruqt 2.0 labs
+
+New tracks are 2.0 labs; `dapr-secrets` is the reference. The legacy sections that follow
+(README.md config, `_setup/`, `tabs.md`) describe the other, still-1.0 tracks.
+
+- **Lab layout.** A lab root (`dapr-secrets/`) holds HCL instead of README config: `main.hcl` (the
+  `lab` resource: title, description, timeouts, chapters/pages), `versions.hcl`, `layouts.hcl`,
+  `tabs.hcl`, `pages.hcl`, `tasks.hcl`, plus `scripts/` (`lab-setup.sh`, `seed-vault.sh`) and
+  `<n>-<slug>/` challenge folders with `assignment.md`, `scripts/check-*.sh`, `solve.sh` and
+  `tests/challenge.robot`. Until the legacy files are removed, `dapr-secrets/` also still contains
+  `_setup/`, `tabs.md`, challenge `README.md` files and the old `setup.sh`/`check.sh`; they no longer
+  drive the lab.
+- **`modules/dapr-sandbox/`** is the shared Instruqt module (published as `diagrid/dapr-sandbox`):
+  one VM from a pre-built image with the toolchain installed. It inlines the lab's
+  `lab_startup_script` into the VM startup (the lab's own files are not on the VM) and owns the
+  ready marker `/var/lib/lab-setup/ready`. See `modules/dapr-sandbox/README.md`.
+- **Two `versions.hcl` files, one pin each.** Toolchain, `image_ref` and
+  `prewarm_dapr_runtime_version` live in `modules/dapr-sandbox/versions.hcl`. The lab pins
+  (`dapr_runtime_version`, `tracks_src_ref`) and the exact module version live in
+  `dapr-secrets/versions.hcl`. No pin appears in a second file. CI and scripts read pins with
+  `tools/track-tester/ci/read_pin.py <file.hcl> <name>`, so keep each pin a plain
+  `variable "<name>" { default = "<value>" }` block.
+- **Deploy = merge to `main`.** The Instruqt lab is connected to branch `main`, root directory
+  `dapr-secrets`. There is no CLI publish. The module is imported and versioned in the Instruqt UI.
+  The owner steps are in `docs/instruqt-2-runbook.md`; schema facts are in
+  `docs/instruqt-2-spike-checklist.md`.
+- **`lab-validate` job** (`.github/workflows/lab-validate.yml`, every PR, no path filter): HCL format
+  check, referenced-files check (`check_lab_paths.py`), module and lab validate, shellcheck, and the
+  harness pytest suite. The Instruqt CLI version is pinned in that workflow.
+- **`tools/track-tester/ci/validate-lab.sh <lab-dir> <module-dir>`** exists because
+  `instruqt lab validate` cannot resolve registry modules. It copies the lab to a temp dir, copies the
+  module into `<tmp>/modules/dapr-sandbox`, rewrites the module block to a local source without a
+  version, and validates that. Use it for local validation too.
+- **Required checks on `main`** are exactly `lab-validate` and `dapr-secrets-result` (the aggregate
+  job of `test-dapr-secrets.yml`). Do not require the individual matrix legs.
+
 ## Track & challenge anatomy
+
+*(Legacy 1.0 tracks. For a 2.0 lab see above.)*
 
 - **`<track>/README.md`** is the Instruqt track config, authored as Markdown with headed
   sections (`# Name`, `## Url`, `## Teaser`, `## Time limit (minutes)`, `## Description`,
@@ -120,7 +164,8 @@ tools/track-tester/
     setup-dapr-101.sh
     setup-dapr-workflow.sh
     setup-dapr-workflow-aspire.sh
-    setup-dapr-secrets.sh
+    setup-dapr-secrets.sh   (reads pins via read_pin.py, sources dapr-secrets/scripts/seed-vault.sh)
+    read_pin.py, validate-lab.sh, check_lab_paths.py   2.0 lab helpers; tests in ci/tests/
   results/               (gitignored) output dirs from local/CI runs
 ```
 
@@ -289,7 +334,8 @@ Homebrew-vs-`/usr/local/bin` Dapr shadowing, per-language runtime notes), and li
 
 ## CI workflows
 
-Four workflows in `.github/workflows/` run the suites automatically. Each triggers on a
+Five workflows in `.github/workflows/` run the suites automatically (the four track workflows
+below, plus `lab-validate.yml`, which runs on every PR; see "Instruqt 2.0 labs"). Each triggers on a
 **daily schedule**, on **`workflow_dispatch`**, and on **pull requests** touching the track,
 the harness (`tools/track-tester/**`), or the workflow file. On failure, a `report` job
 opens or updates a single **`drift-report`** GitHub issue that names the failing legs and
@@ -300,7 +346,7 @@ gives `gh run download` commands for the Robot reports.
 | `test-dapr-101.yml` | `dapr-101` | 06:00 daily | doc-sync; agnostic (ch2–3); per-language matrix: dotnet, python, java, javascript |
 | `test-dapr-workflow.yml` | `dapr-workflow` | 06:15 daily | doc-sync (all challenges); per-language matrix: dotnet, java, python |
 | `test-dapr-workflow-aspire.yml` | `dapr-workflow-aspire` | 06:30 daily | harness unit tests (pytest); build-and-run (.NET 10 + Aspire CLI) |
-| `test-dapr-secrets.yml` | `dapr-secrets` | 06:45 daily | doc-sync (all challenges); matrix: dotnet, java, python, shared |
+| `test-dapr-secrets.yml` | `dapr-secrets` | 06:45 daily | `changes` (path filter); gated doc-sync and per-language matrix: dotnet, java, python, shared; aggregate `dapr-secrets-result` |
 
 Details worth knowing when editing CI:
 
@@ -312,9 +358,12 @@ Details worth knowing when editing CI:
   timeout, and a cold `~/.m2` download would otherwise eat into compile+startup time.
 - The dapr-secrets workflow runs a fourth matrix leg, `shared`, for the language-agnostic
   tests (it inverts the language tags with `--exclude`), starts and seeds a **HashiCorp Vault**
-  container for challenge 4, and guards the pinned Dapr runtime version: both pinned versions
-  are parsed out of `dapr-secrets/_setup/sandbox-setup.sh` by `ci/setup-dapr-secrets.sh`, so
-  the pin lives in exactly one place. A pre-test failure is recorded in `failed-<leg>.txt`
+  container for challenge 4 (via the sourceable `dapr-secrets/scripts/seed-vault.sh`), and guards
+  the pinned Dapr runtime version: `ci/setup-dapr-secrets.sh` reads the Dapr CLI pin from
+  `modules/dapr-sandbox/versions.hcl` and the runtime pin from `dapr-secrets/versions.hcl` with
+  `ci/read_pin.py`, so each pin lives in exactly one place. The demo repo is checked out at
+  `tracks_src_ref`. The workflow's `changes` job gates the other jobs by path so the required
+  `dapr-secrets-result` check still reports on PRs that don't touch the track. A pre-test failure is recorded in `failed-<leg>.txt`
   so the drift-report issue names the step that broke rather than reporting a test failure.
 - The aspire workflow does **not** install the Aspire project templates itself: the suite's
   first checkpoint runs the pinned `dotnet new install Aspire.ProjectTemplates@<ver>` command

@@ -1,37 +1,46 @@
-# Name
+# dapr-secrets
 
-Dapr Secrets - Read, Scope, and Swap Secret Stores
+Dapr University lab: **Dapr Secrets - Read, Scope, and Swap Secret Stores**. Four challenges, about
+30 minutes, in .NET, Python or Java. The learner reads a secret through the Secrets API, configures the
+local file secret store, sees an app refused by secret scoping, then swaps the file store for HashiCorp
+Vault without changing application code.
 
-## Url
+This is the first Instruqt 2.0 lab in the repo. The lab config lives in HCL (`main.hcl` holds the title,
+description and time limits), not in this file. The demo apps are not here: they are cloned from
+`diagrid-labs/ai-agent-tracks-instruqt` at the commit pinned in `versions.hcl`.
 
-dapr-secrets
+## File map
 
-## Teaser
+| Path | What it is |
+| --- | --- |
+| `main.hcl` | The `lab` resource: title, description, timeouts, chapter and page order |
+| `versions.hcl` | Lab pins: `dapr_runtime_version`, `tracks_src_ref`, and the `diagrid/dapr-sandbox` module block (exact version) |
+| `layouts.hcl`, `tabs.hcl`, `pages.hcl` | Layout, terminal/editor tabs, and the page for each challenge |
+| `tasks.hcl` | The checks and solves behind each page's tasks |
+| `scripts/lab-setup.sh` | Lab-specific VM setup (clone demo repo, `dapr init`, start Vault). Inlined into the VM startup by the module |
+| `scripts/seed-vault.sh` | Sourceable library defining `seed_vault`, shared by `lab-setup.sh` and CI |
+| `<n>-<slug>/assignment.md` | Learner instructions for each challenge |
+| `<n>-<slug>/scripts/check-*.sh`, `solve.sh` | Per-task checks and the solve for the challenge |
+| `<n>-<slug>/tests/challenge.robot` | Drift test for the challenge, run by CI |
 
-Learn how the Dapr Secrets API gives your apps access-controlled secrets: read a secret, configure the secret store, watch an app get refused by scoping, and swap the provider without touching code.
+Legacy 1.0 files (`_setup/`, `tabs.md`, per-challenge `README.md`, `setup.sh` and `check.sh`) are still
+here and will be removed once the 2.0 lab is live.
 
-Languages: .NET/Python/Java. Duration: 30 min.
+## Checking your changes
 
-## Time limit (minutes)
+```bash
+# Validate the lab (the script swaps in a local copy of the shared module; plain
+# `instruqt lab validate` cannot resolve the registry module)
+tools/track-tester/ci/validate-lab.sh dapr-secrets modules/dapr-sandbox
 
-30
+# Drift tests (see tools/track-tester/README.md for setup)
+(cd tools/track-tester && uv run robot --include python ../../dapr-secrets/*/tests/challenge.robot)
+```
 
-## Description
+To preview a branch in Instruqt, see section 10 of the runbook.
 
-In this self-paced track, you'll learn:
-- Why a secret store beats a config file or an environment variable, and how an app reads a secret through the Dapr Secrets API
-- How to configure the local file secret store, call the single and bulk secret endpoints, and let another component pull its password from the store with `secretKeyRef`
-- How to scope secrets so one app can read a secret and another app is refused
-- How to swap the local file store for HashiCorp Vault without changing any application code
+## Deploying
 
-You'll probably need around 28 minutes to complete the 4 challenges.
-
-If your session is idle for more than 10 minutes the session will stop and you'll need to restart the track. Tracks can be started up to 5 times and you can skip challenges to continue with the challenges you didn't finish previously.
-
-### Time out idle users (minutes)
-
-10
-
-### Extra time (minutes)
-
-10
+The lab in Instruqt is connected to `main` with root directory `dapr-secrets`. Merging to `main`
+deploys it. Pins and module versions are changed through a PR; see the maintenance procedures in the
+[Instruqt 2.0 runbook](../docs/instruqt-2-runbook.md).

@@ -10,7 +10,11 @@ track's `assignment.md` files and the upstream code they depend on (e.g. `dapr/q
 - `resources/` — shared, track-agnostic Robot keywords (Dapr process lifecycle, assertions).
 - `variables/` — shared values per track (source checkout base dir, expected output markers).
 - `docsync/` — a Python checker asserting each assignment's commands are covered by a suite.
-- `ci/` — scripts that reproduce a track's sandbox environment in CI.
+- `ci/` — scripts that reproduce a track's sandbox environment in CI, plus the Instruqt 2.0 lab
+  helpers: `read_pin.py` (reads a `variable` default from a `versions.hcl`),
+  `validate-lab.sh <lab-dir> <module-dir>` (validates a lab against a local copy of the shared
+  module, because `instruqt lab validate` cannot resolve registry modules), `check_lab_paths.py`
+  (checks files referenced from the HCL exist) and `ci/tests/` (pytest for these).
 
 Each runnable challenge's suite lives next to its `assignment.md`, e.g.
 `dapr-101/4-service-invocation-api/tests/challenge.robot`.
@@ -198,6 +202,9 @@ checkout. Beyond `dapr init` they need:
 - **All three runtimes** (.NET, Python + `uv`, JDK + Maven) unless you filter with
   `--include <lang>`. The language-agnostic tests carry no language tag, so CI selects them
   with `--exclude dotnet --exclude python --exclude java`.
+- **Linux for the challenge 3 and 4 solve scripts.** The `solve.sh` files in those challenges use
+  `setsid` and GNU `sed -i`, so the Robot cases that call them run on Linux CI only. Running them
+  on macOS is not supported.
 - **Free ports 5001–5003 and 3500–3502.** The suites fail fast when a leaked app still holds
   one, rather than asserting against the previous run's app.
 

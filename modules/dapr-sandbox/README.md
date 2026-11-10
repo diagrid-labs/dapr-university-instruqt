@@ -28,6 +28,10 @@ that file exists. Consequences for lab scripts:
 - An early `exit 0` only leaves the subshell, so the marker is still written.
 - The lab script runs inline, so it must background any long work itself if the learner should
   not wait for it.
+- The embedded lab script inherits `set -euo pipefail` from the module's startup script, so write
+  it for strict mode (guard `grep` and other commands that may exit non-zero).
+- A background job must redirect stdout and stderr, for example `nohup cmd >log 2>&1 &`. Otherwise
+  the job keeps the startup script's pipe open and the startup waits on it until the job ends.
 - With the default empty script the module still becomes ready.
 
 ## Output
