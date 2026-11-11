@@ -215,17 +215,7 @@ The sidecar does the lookup while it loads the state store, so the password is i
 curl -s -X POST -H "Content-Type: application/json" -d '[{"key":"order-1","value":"queued"}]' http://localhost:3500/v1.0/state/statestore
 ```
 
-This command prints nothing when it succeeds. Now read it back:
-
-```bash,run
-curl -s http://localhost:3500/v1.0/state/statestore/order-1
-```
-
-Expected output:
-
-```text,nocopy
-"queued"
-```
+This command prints nothing when it succeeds. Now look at what was saved. Open the **Dev Dashboard** tab and go to the **State** page. It lists the records in the state store: find the record with the key `order-1` and the app prefix `order-api`, and expand it to see its value, `queued`. Then go back to the **Editor** tab.
 
 > [!NOTE]
 > That does not prove the password came from the secret store. The Redis container that `dapr init` started has no password, so it accepts requests with or without one. To see the lookup happen you need the sidecar's own log.

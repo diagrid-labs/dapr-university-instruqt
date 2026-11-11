@@ -188,21 +188,13 @@ A secret that does not exist is a 500, just as it was with the local file.
 
 ## 5. The state store follows
 
-In challenge 2, the state store component got its password from `secretstore` through a `secretKeyRef`. That component is in the folder too, and it did not change. Its reference is now answered by Vault. Use the **curl** window to save and read a value. The key is a new one, `order-2`: `order-1` is still in Redis from challenge 2, so reading it back would not show that this save worked.
+In challenge 2, the state store component got its password from `secretstore` through a `secretKeyRef`. That component is in the folder too, and it did not change. Its reference is now answered by Vault. Use the **curl** window to save a value with a new key, `order-2`:
 
 ```bash,run
 curl -s -X POST -H "Content-Type: application/json" -d '[{"key":"order-2","value":"shipped"}]' http://localhost:3500/v1.0/state/statestore
 ```
 
-```bash,run
-curl -s http://localhost:3500/v1.0/state/statestore/order-2
-```
-
-Expected output:
-
-```text,nocopy
-"shipped"
-```
+Open the **Dev Dashboard** tab and go to the **State** page. It also lists `order-1`, which you saved in challenge 2. The record with the key `order-2` is the one you just saved through the Vault-backed component: expand it to see its value, `shipped`. Then go back to the **Editor** tab.
 
 Components that use `secretKeyRef` don't know which secret store provider is behind the name either.
 
