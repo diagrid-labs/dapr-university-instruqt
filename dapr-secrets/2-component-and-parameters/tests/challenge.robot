@@ -109,7 +109,7 @@ A Wrong SecretKeyRef Name Is Logged By The Sidecar
     [Tags]    component    control
     Control Variant Starts    wrong-name    name: orderdb-password    name: ${MISSING_NAME}
     Wait For Sidecar Log To Contain    wrong-name    ${SECRET_NOT_FOUND}
-    # The log line the assignment's note quotes for a secretKeyRef to a missing secret.
+    # The log line the sidecar writes for a secretKeyRef to a missing secret (not in the assignment).
     Assert Command Output Contains
     ...    grep -h "Error getting secret" .dapr/logs/order-api_daprd_*.log    ${SECRET_NOT_FOUND}    ${CONTROL_ROOT}/wrong-name
     ${log}=    Read Newest Sidecar Log    ${CONTROL_ROOT}/wrong-name

@@ -206,9 +206,6 @@ The list now shows every log entry that has *Component* in it. Find the entry th
 Component loaded: statestore (state.redis/v1)
 ```
 
-> [!NOTE]
-> A reference to a secret that does not exist does not stop the sidecar. If `name` in `statestore-with-secretref.yaml` pointed at a secret that is not in the store, for example `not-in-the-store`, the sidecar would log `Error getting secret: secret not-in-the-store not found`, load the state store without a password, and start the application anyway. In this demo application Redis does not require a password, so the state store would even keep working. With a Redis that does require one, the state store calls would fail, and this log line would be the only place that tells you why.
-
 ## 5. Stop the application
 
 Use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
