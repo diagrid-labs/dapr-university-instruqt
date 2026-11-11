@@ -1,3 +1,5 @@
+# Secret scoping
+
 In this lab, you'll run two apps that have the same code and read from the same secret store. One of them reads a secret. The other asks for the same secret and is told no. This hands-on lab takes about 8 minutes to complete.
 
 > [!IMPORTANT]
