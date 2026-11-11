@@ -167,14 +167,14 @@ Look at the shape. Dapr returns every secret as a map of its own, because a sing
 
 Open the `statestore-with-secretref.yaml` file in the same `resources` folder. It defines a Redis state store named `statestore`, and the sidecar loaded it together with the secret store. A Redis password is normally written into the component like this:
 
-```yaml
+```yaml,nocopy
 - name: redisPassword
   value: s3cr3t-pa55w0rd
 ```
 
 That puts the password in a file that is committed next to the code. This component does something different:
 
-```yaml
+```yaml,nocopy
 - name: redisPassword
   secretKeyRef:
     name: orderdb-password
@@ -186,7 +186,9 @@ auth:
 - `secretKeyRef` replaces `value`. It says: do not use a literal, look this one up. `name` is the secret and `key` is the field inside it. For the local file store they are the same.
 - `auth.secretStore` says which component to look it up in: the `secretstore` component from step 1.
 
-The sidecar does the lookup while it loads the state store, so the password is in `secrets.json` and nowhere else. First check that the state store works. Save a value:
+The sidecar does the lookup while it loads the state store, so the password is in `secrets.json` and nowhere else.
+
+First check that the state store works. The command below uses the Dapr State Management API on the sidecar (port `3500`) to save a value in the `statestore` component. Use the **curl** window to save the value:
 
 ```bash,run
 curl -s -X POST -H "Content-Type: application/json" -d '[{"key":"order-1","value":"queued"}]' http://localhost:3500/v1.0/state/statestore

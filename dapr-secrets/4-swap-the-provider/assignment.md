@@ -24,7 +24,7 @@ Use the **Editor** tab and open the `Demo3-SwapProvider` folder of your language
 
 Open `secretstore-vault.yaml` in `resources` and compare it with `secretstore-local.yaml` in the `resources` folder of your language (for example `dotnet/resources`):
 
-```yaml
+```yaml,nocopy
 metadata:
   name: secretstore
 spec:
