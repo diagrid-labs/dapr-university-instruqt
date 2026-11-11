@@ -8,6 +8,8 @@ resource "lab" "main" {
     - How to swap the local file store for HashiCorp Vault without changing any application code
 
     You'll probably need around 28 minutes to complete the 4 labs.
+
+    The sandbox is available for 30 minutes in total, and you can extend that time by 10 minutes. If you are inactive for 10 minutes, the sandbox times out. After a timeout, you need to restart the lab.
   EOT
 
   settings {

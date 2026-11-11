@@ -118,9 +118,11 @@ dapr run -f .
 
 > [!IMPORTANT]
 > Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing. The Java application can take a little longer to start.
+>
+> You can also check the application status in the **Dev Dashboard** tab: go to the **Applications** page and select `order-api`.
 
 > [!NOTE]
-> The application can start accepting requests a moment before its Dapr sidecar is ready. If the first `curl` in the next step returns an error with status 500 (`UNAVAILABLE`), that is not a failure of the swap. Wait a few seconds and run it again.
+> The application can start accepting requests a moment before its Dapr sidecar is ready. If the first `curl` in the next step returns an error with status 500 (`UNAVAILABLE`), wait a few seconds and run it again.
 
 The **Dapr CLI** window should show a line like this when the sidecar is started. The port number can differ, and your application's logs follow:
 

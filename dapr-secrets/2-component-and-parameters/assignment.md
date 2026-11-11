@@ -34,9 +34,6 @@ Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal st
 cd /root/ai-agent-tracks-instruqt/secrets
 ```
 
-> [!IMPORTANT]
-> Run `dapr run -f .` from inside the demo folder (`Demo1-ReadSecret` of your language). The `secretsFile` path in the component is relative to that folder. If another application is still running, stop it first with `Ctrl+C` in the **Dapr CLI** window.
-
 > [!NOTE]
 > Expand the language-specific instructions to start the application.
 
@@ -98,14 +95,6 @@ dapr run -f .
 </details>
 
 ###
-
-> [!IMPORTANT]
-> Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing. The Java application can take a little longer to start.
->
-> You can also check the application status in the **Dev Dashboard** tab: go to the **Applications** page and select `order-api`.
-
-> [!NOTE]
-> The application can start accepting requests a moment before its Dapr sidecar is ready. If the first `curl` command in the next step returns an error, wait a few seconds and run it again.
 
 ## 3. Read all secrets at once
 
