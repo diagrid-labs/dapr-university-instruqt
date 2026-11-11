@@ -76,11 +76,38 @@ def find_uncovered(commands: list[Command], haystack: str) -> list[Command]:
     return [c for c in commands if normalize(c.text) not in normalized_haystack]
 
 
+# A `cd` at the start of a command or after `&&`, `||` or `;`, and its target.
+_CD_RE = re.compile(r"(?:^|&&|\|\||;)\s*cd(?:\s+(\S+))?")
+
+
+def find_unanchored_cds(commands: list[Command]) -> list[Command]:
+    """Commands that `cd` to a relative path before any absolute `cd` on the page.
+
+    In an Instruqt 2.0 lab the terminals keep their folder across pages, so a page cannot assume
+    its terminal starts in the lab folder. A relative `cd` is safe once the page has first gone
+    to an absolute path (the lab folder). A target that starts with `/`, `~` or `$`, or a bare
+    `cd`, counts as absolute.
+    """
+    unanchored = []
+    anchored = False
+    for c in commands:
+        for m in _CD_RE.finditer(c.text):
+            target = m.group(1)
+            if target is None or target.startswith(("/", "~", "$")):
+                anchored = True
+            elif not anchored:
+                unanchored.append(c)
+                break
+    return unanchored
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    require_anchored_cd = "--require-anchored-cd" in argv
+    argv = [a for a in argv if a != "--require-anchored-cd"]
     if len(argv) < 2:
-        print("usage: check_doc_sync.py <assignment.md> <suite.robot> [more_files...]",
-              file=sys.stderr)
+        print("usage: check_doc_sync.py [--require-anchored-cd] <assignment.md> <suite.robot>"
+              " [more_files...]", file=sys.stderr)
         return 2
     assignment_path, *coverage_paths = argv
     try:
@@ -91,11 +118,21 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     commands = extract_run_commands(md_text)
     uncovered = find_uncovered(commands, haystack)
+    unanchored_cds = find_unanchored_cds(commands) if require_anchored_cd else []
     if uncovered:
         print(f"DRIFT: {len(uncovered)} assignment command(s) not covered in {assignment_path}:")
         for c in uncovered:
             label = c.lang or "all"
             print(f"  [{label}] {c.text}")
+    if unanchored_cds:
+        print(f"UNANCHORED CD: {len(unanchored_cds)} command(s) in {assignment_path} change to a"
+              " relative folder before the page has gone to the lab folder. Terminals keep their"
+              " folder across pages, so first add a Run block that goes to the lab folder with"
+              " an absolute path (for example `cd /root/<repo>/<folder>`):")
+        for c in unanchored_cds:
+            label = c.lang or "all"
+            print(f"  [{label}] {c.text}")
+    if uncovered or unanchored_cds:
         return 1
     print(f"OK: all {len(commands)} runnable command(s) covered ({assignment_path}).")
     return 0

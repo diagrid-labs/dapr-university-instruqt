@@ -50,6 +50,12 @@ The `dapr.yaml` file in the demo folder is a Multi-App Run file. It starts the `
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the demo folder (`Demo1-ReadSecret` of your language). The `secretsFile` path in the component is relative to that folder, so running the command from anywhere else means the secret store cannot find `secrets.json`.
 
+Use the **Dapr CLI** window to go to the lab folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+
+```bash,run
+cd /root/ai-agent-tracks-instruqt/secrets
+```
+
 > [!NOTE]
 > Expand the language-specific instructions to start the application.
 
@@ -166,9 +172,9 @@ Expected output:
 
 This is the same API in every language, and it is the same API no matter which secret store sits behind the `secretstore` component.
 
-## 6. Stop the application
+## 6. Leave the application running
 
-Use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
+Do not stop the application. The **Dapr CLI** window and the application in it stay as they are when you move to the next page, and the next challenge continues with this same application.
 
 ## What's next?
 

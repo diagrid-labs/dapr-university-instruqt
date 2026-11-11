@@ -278,6 +278,12 @@ WF_BASE = os.path.join(QUICKSTARTS_DIR, "tutorials", "workflow")
   wins over "Java").
 - Commands performed via `cwd=`/`bash -c` in the suite are covered by the trailing
   `# doc-sync coverage` comment lines in the suite.
+- `--require-anchored-cd` (used for 2.0 labs, e.g. in `test-dapr-secrets.yml`) also fails on a
+  relative `cd` in a runnable block that comes before any absolute `cd` on the page. A 2.0 lab's
+  terminals keep their folder and running processes across pages, so `working_directory` in
+  `tabs.hcl` only holds for the first page: each page that changes folder first runs a Run block
+  that goes to the lab folder (`cd /root/ai-agent-tracks-instruqt/secrets` for dapr-secrets) and
+  then uses relative paths.
 
 Run it:
 

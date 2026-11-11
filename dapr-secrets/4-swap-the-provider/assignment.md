@@ -44,6 +44,12 @@ The sandbox already stored your secrets in Vault, under the names Dapr expects (
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the `Demo3-SwapProvider` folder. If an application from an earlier challenge is still running, stop it first with `Ctrl+C` in the **Dapr CLI** window.
 
+Use the **Dapr CLI** window to go to the lab folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+
+```bash,run
+cd /root/ai-agent-tracks-instruqt/secrets
+```
+
 > [!NOTE]
 > Expand the language-specific instructions to start the application. The application is already built, so there is nothing you need to rebuild.
 

@@ -18,6 +18,12 @@ Nothing in the code of either app says which secrets it may read. Remember that,
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the `Demo2-Scoping` folder. The `secretsFile` path in the component is relative to the app folders inside it. If an app from an earlier challenge is still running, stop it first with `Ctrl+C` in the **Dapr CLI** window.
 
+Use the **Dapr CLI** window to go to the lab folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+
+```bash,run
+cd /root/ai-agent-tracks-instruqt/secrets
+```
+
 > [!NOTE]
 > Expand the language-specific instructions to start the applications.
 

@@ -421,6 +421,7 @@ Solve Teardown
     Wait For The Ports To Be Free
 
 # doc-sync coverage (expressed via cwd, cwd-relative paths and the Request keyword above):
+#   cd /root/ai-agent-tracks-instruqt/secrets
 #   cd dotnet/Demo3-SwapProvider
 #   cd python/Demo3-SwapProvider
 #   cd java/Demo3-SwapProvider
