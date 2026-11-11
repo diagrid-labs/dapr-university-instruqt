@@ -245,7 +245,7 @@ Assert SecretKeyRef Resolves
     Should Contain    ${log}    ${STATESTORE_LOADED}
     Should Not Contain    ${log}    Error getting secret
     Should Not Contain    ${log}    ${STORE_NOT_LOADED}
-    # The command the assignment gives the learner, literally, over every sidecar log in the folder.
+    # The same line over every sidecar log in the folder, not only the newest one.
     Assert Command Output Contains
     ...    grep -h "Component loaded: statestore" .dapr/logs/order-api_daprd_*.log    ${STATESTORE_LOADED}    ${cwd}
 

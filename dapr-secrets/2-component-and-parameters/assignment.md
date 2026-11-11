@@ -191,20 +191,6 @@ This command prints nothing when it succeeds. Now look at what was saved. Open t
 
 In this demo, the Redis container that `dapr init` started has no password, so it accepts requests with or without one.
 
-### Watch the lookup happen
-
-The sidecar log is not shown in the **Dapr CLI** window: `dapr run -f .` writes it to a file in the `.dapr/logs` folder of the demo folder. The **Dev Dashboard** reads those files for you.
-
-1. Open the **Dev Dashboard** tab and go to the **Logs** page.
-2. Select `order-api` in the application drop-down.
-3. Type `Component` in the search bar.
-
-The list now shows every log entry that has *Component* in it. Find the entry that says the state store was loaded (the timestamp differs):
-
-```text,nocopy
-Component loaded: statestore (state.redis/v1)
-```
-
 ## 5. Stop the application
 
 Use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
