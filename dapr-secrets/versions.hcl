@@ -7,16 +7,6 @@ variable "dapr_runtime_version" {
   default     = "1.19.1"
 }
 
-variable "code_server_version" {
-  description = "code-server (VS Code in the browser) release that lab-setup.sh installs when the image doesn't have it; shown in the Editor tab."
-  default     = "4.145.2"
-}
-
-variable "dev_dashboard_version" {
-  description = "Diagrid Dapr Dev Dashboard release (github.com/diagridio/dev-dashboard) that lab-setup.sh installs when the image doesn't have it; shown in the Dev Dashboard tab."
-  default     = "0.0.27"
-}
-
 variable "tracks_src_ref" {
   description = "Commit of diagrid-labs/ai-agent-tracks-instruqt that the lab checks out after cloning."
   default     = "b1da54839b14ee1bb124914b915f78200a8f5f4e"
@@ -33,15 +23,13 @@ variable "tracks_src_ref" {
 # version X of diagrid/dapr-sandbox is not published: not found" until the next push.
 module "sandbox" {
   source  = "diagrid/dapr-sandbox"
-  version = "1.0.1"
+  version = "1.0.2"
 
   variables = {
     lab_startup_script = "${file("scripts/seed-vault.sh")}\n${file("scripts/lab-setup.sh")}"
     lab_environment = {
-      DAPR_RUNTIME_VERSION  = variable.dapr_runtime_version
-      TRACKS_SRC_REF        = variable.tracks_src_ref
-      CODE_SERVER_VERSION   = variable.code_server_version
-      DEV_DASHBOARD_VERSION = variable.dev_dashboard_version
+      DAPR_RUNTIME_VERSION = variable.dapr_runtime_version
+      TRACKS_SRC_REF       = variable.tracks_src_ref
     }
   }
 }
