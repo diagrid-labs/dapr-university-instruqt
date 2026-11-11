@@ -34,9 +34,6 @@ Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal st
 cd /root/ai-agent-tracks-instruqt/secrets
 ```
 
-> [!NOTE]
-> Expand the language-specific instructions to start the application.
-
 <details>
    <summary><b>.NET</b></summary>
 
@@ -99,9 +96,6 @@ dapr run -f .
 ## 3. Read all secrets at once
 
 The application has a second endpoint, `GET /secrets`, that asks Dapr for every secret in the store with one call.
-
-> [!NOTE]
-> Expand the language-specific instructions to inspect the endpoint.
 
 <details>
    <summary><b>.NET</b></summary>
