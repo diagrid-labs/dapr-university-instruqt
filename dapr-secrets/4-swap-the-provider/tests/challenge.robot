@@ -42,8 +42,8 @@ ${VAULT_ONLY_MISSING}    {"name":"shipping-token","error":"${APP_MISSING_ERROR}"
 ${APP_MISSING}        {"name":"legacy-api-key","error":"${APP_MISSING_ERROR}"}
 ${APP_DENIED}         {"name":"orderdb-password","error":"${APP_DENIED_ERROR}"}
 # `dapr` lists the loaded components, with their type, on its metadata endpoint.
-${LOCAL_TYPE}         "name":"secretstore","type":"secretstores.local.file"
-${VAULT_TYPE}         "name":"secretstore","type":"secretstores.hashicorp.vault"
+${LOCAL_TYPE}         {"name":"secretstore","type":"secretstores.local.file"}
+${VAULT_TYPE}         {"name":"secretstore","type":"secretstores.hashicorp.vault"}
 ${STATESTORE_TYPE}    "name":"statestore","type":"state.redis"
 # Daprd 1.19.x log wording, pinned as in challenges 2 and 3 so a runtime change fails the suite.
 ${STATESTORE_LOADED}    Component loaded: statestore (state.redis/v1)
@@ -286,8 +286,8 @@ Walk Through The Swap
     Start Background Process    dapr run -f .    ${LOG}    app    cwd=${app_dir}
     Wait Until Command Output Contains
     ...    curl -s http://localhost:5001/secret/orderdb-password    ${ORDERDB_JSON}    ${timeout}
-    Assert Command Output Contains
-    ...    curl -s http://localhost:3500/v1.0/metadata | grep -o '"name":"secretstore","type":"[^"]*"'
+    Assert Pretty JSON Output
+    ...    curl -s http://localhost:3500/v1.0/metadata | jq '.components[] | select(.name == "secretstore") | {name, type}'
     ...    ${LOCAL_TYPE}
     # The local file has never heard of the Vault-only secret.
     ${only}=    Request    http://localhost:5001/secret/shipping-token
@@ -302,9 +302,12 @@ Walk Through The Swap
     Start Background Process    dapr run -f .    ${LOG}    app    cwd=${swap_dir}
     Wait Until Command Output Contains
     ...    curl -s http://localhost:5001/secret/orderdb-password    ${ORDERDB_JSON}    ${timeout}
-    Assert Command Output Contains
-    ...    curl -s http://localhost:3500/v1.0/metadata | grep -o '"name":"secretstore","type":"[^"]*"'
+    Assert Pretty JSON Output
+    ...    curl -s http://localhost:3500/v1.0/metadata | jq '.components[] | select(.name == "secretstore") | {name, type}'
     ...    ${VAULT_TYPE}
+    # The assignment's first request after the swap, through jq.
+    Assert Pretty JSON Output
+    ...    curl -s http://localhost:5001/secret/orderdb-password | jq    ${ORDERDB_JSON}
     Assert Command Output Contains
     ...    curl -s http://localhost:3500/v1.0/metadata | grep -o '"name":"statestore","type":"[^"]*"'
     ...    ${STATESTORE_TYPE}
@@ -345,13 +348,14 @@ Walk Through The Swap
     Should Be Equal    ${after}    ${before}
 
 Request
-    [Documentation]    GET a URL and return a dictionary with the response body and HTTP status.
+    [Documentation]    GET a URL and return a dictionary with the response body (compact JSON) and
+    ...    HTTP status, through the assignment's `curl -s -w ' %{http_code}\n' <url> | jq`.
     ...    `\%` keeps Robot from reading curl's %{http_code} as an environment variable, and
     ...    the doubled backslash hands curl a literal backslash-n.
     [Arguments]    ${url}
-    ${out}=    Capture Command Output    curl -s -w ' \%{http_code}\\n' ${url}
-    ${parts}=    Evaluate    $out.rsplit(" ", 1)
-    ${response}=    Create Dictionary    body=${parts}[0]    status=${parts}[1]
+    ${out}=    Capture Command Output    curl -s -w ' \%{http_code}\\n' ${url} | jq
+    # jq prints the formatted body and then the status on the last line.
+    ${response}=    Split Pretty JSON With Status    ${out}
     RETURN    ${response}
 
 Read Newest Sidecar Log
@@ -426,6 +430,6 @@ Solve Teardown
 #   cd python/Demo3-SwapProvider
 #   cd java/Demo3-SwapProvider
 #   dapr run -f .                  (Walk Through The Swap, cwd = the swap folder)
-#   curl -s -w ' %{http_code}\n' http://localhost:5001/secret/shipping-token
-#   curl -s -w ' %{http_code}\n' http://localhost:5001/secret/legacy-api-key
+#   curl -s -w ' %{http_code}\n' http://localhost:5001/secret/shipping-token | jq
+#   curl -s -w ' %{http_code}\n' http://localhost:5001/secret/legacy-api-key | jq
 #   docker exec -e VAULT_ADDR=http://127.0.0.1:8200 -e VAULT_TOKEN=root vault vault kv put secret/dapr/shipping-token shipping-token=from-vault

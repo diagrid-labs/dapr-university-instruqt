@@ -94,11 +94,14 @@ Start App And Wait Until It Serves Secrets
 Read Secrets Through The App
     [Arguments]    ${cwd}    ${timeout}=180s
     Start App And Wait Until It Serves Secrets    ${cwd}    ${timeout}
-    Assert Command Output Contains
-    ...    curl -s http://localhost:5001/secret/payments-api-key    ${PAYMENTS_JSON}
+    # The assignment's commands pipe the responses into jq.
+    Assert Pretty JSON Output
+    ...    curl -s http://localhost:5001/secret/orderdb-password | jq    ${ORDERDB_JSON}
+    Assert Pretty JSON Output
+    ...    curl -s http://localhost:5001/secret/payments-api-key | jq    ${PAYMENTS_JSON}
     # The same value, straight from the Dapr Secrets API of the sidecar.
-    Assert Command Output Contains
-    ...    curl -s http://localhost:3500/v1.0/secrets/secretstore/orderdb-password    ${RAW_JSON}
+    Assert Pretty JSON Output
+    ...    curl -s http://localhost:3500/v1.0/secrets/secretstore/orderdb-password | jq    ${RAW_JSON}
 
 Assert Unknown Secret Is Reported
     # `\%` keeps Robot from reading curl's %{http_code} as an environment variable.

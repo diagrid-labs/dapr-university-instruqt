@@ -133,25 +133,31 @@ The **Dapr CLI** window should show a line like this when the sidecar is started
 Use the **curl** window. This is the same request as in lab 1:
 
 ```bash,run
-curl -s http://localhost:5001/secret/orderdb-password
+curl -s http://localhost:5001/secret/orderdb-password | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"orderdb-password","value":"s3cr3t-pa55w0rd"}
+```json,nocopy
+{
+  "name": "orderdb-password",
+  "value": "s3cr3t-pa55w0rd"
+}
 ```
 
 Same application, same request, same answer. Now ask the sidecar which type of component `secretstore` is:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/metadata | grep -o '"name":"secretstore","type":"[^"]*"'
+curl -s http://localhost:3500/v1.0/metadata | jq '.components[] | select(.name == "secretstore") | {name, type}'
 ```
 
 Expected output:
 
-```text,nocopy
-"name":"secretstore","type":"secretstores.hashicorp.vault"
+```json,nocopy
+{
+  "name": "secretstore",
+  "type": "secretstores.hashicorp.vault"
+}
 ```
 
 The password came from Vault. You can prove it by adding a secret that only Vault has. It is not in `secrets.json`. This command stores a secret named `shipping-token` in Vault:
@@ -163,25 +169,33 @@ docker exec -e VAULT_ADDR=http://127.0.0.1:8200 -e VAULT_TOKEN=root vault vault 
 The application reads it right away:
 
 ```bash,run
-curl -s -w ' %{http_code}\n' http://localhost:5001/secret/shipping-token
+curl -s -w ' %{http_code}\n' http://localhost:5001/secret/shipping-token | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"shipping-token","value":"from-vault"} 200
+```json,nocopy
+{
+  "name": "shipping-token",
+  "value": "from-vault"
+}
+200
 ```
 
 The error contract did not change either. Ask for the secret that is in no store:
 
 ```bash,run
-curl -s -w ' %{http_code}\n' http://localhost:5001/secret/legacy-api-key
+curl -s -w ' %{http_code}\n' http://localhost:5001/secret/legacy-api-key | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"legacy-api-key","error":"INTERNAL"} 500
+```json,nocopy
+{
+  "name": "legacy-api-key",
+  "error": "INTERNAL"
+}
+500
 ```
 
 A secret that does not exist is a 500, just as it was with the local file.

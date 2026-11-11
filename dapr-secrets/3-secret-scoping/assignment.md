@@ -105,28 +105,36 @@ The **Dapr CLI** window should show these lines when the sidecars have started. 
 
 ## 3. Both apps read the secret
 
-Use the **curl** window. The `-w` option adds the HTTP status after the response body. Ask App A for the database password:
+Use the **curl** window. The `-w` option adds the HTTP status after the response body, and `jq` prints the body formatted, with the status on the last line. Ask App A for the database password:
 
 ```bash,run
-curl -s -w ' %{http_code}\n' http://localhost:5002/secret/orderdb-password
+curl -s -w ' %{http_code}\n' http://localhost:5002/secret/orderdb-password | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"orderdb-password","value":"s3cr3t-pa55w0rd"} 200
+```json,nocopy
+{
+  "name": "orderdb-password",
+  "value": "s3cr3t-pa55w0rd"
+}
+200
 ```
 
 Now ask App B for the very same secret:
 
 ```bash,run
-curl -s -w ' %{http_code}\n' http://localhost:5003/secret/orderdb-password
+curl -s -w ' %{http_code}\n' http://localhost:5003/secret/orderdb-password | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"orderdb-password","value":"s3cr3t-pa55w0rd"} 200
+```json,nocopy
+{
+  "name": "orderdb-password",
+  "value": "s3cr3t-pa55w0rd"
+}
+200
 ```
 
 Both apps got the password. That is not a bug in App B. Nothing has told Dapr that App B should be treated differently, so the secret store answers anyone who asks.
@@ -169,25 +177,33 @@ Wait until the two `Started Dapr` lines appear again. If you ask too early, you 
 Ask App B for the database password again, with the same command as before. Use the **curl** window:
 
 ```bash,run
-curl -s -w ' %{http_code}\n' http://localhost:5003/secret/orderdb-password
+curl -s -w ' %{http_code}\n' http://localhost:5003/secret/orderdb-password | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"orderdb-password","error":"PERMISSION_DENIED"} 403
+```json,nocopy
+{
+  "name": "orderdb-password",
+  "error": "PERMISSION_DENIED"
+}
+403
 ```
 
 App B was told no. Now ask App A, which has no configuration, for the same secret:
 
 ```bash,run
-curl -s -w ' %{http_code}\n' http://localhost:5002/secret/orderdb-password
+curl -s -w ' %{http_code}\n' http://localhost:5002/secret/orderdb-password | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"orderdb-password","value":"s3cr3t-pa55w0rd"} 200
+```json,nocopy
+{
+  "name": "orderdb-password",
+  "value": "s3cr3t-pa55w0rd"
+}
+200
 ```
 
 Same secret, same store, same code. App A gets the password and App B gets a 403, and the only difference between them is one line in `dapr.yaml`.
@@ -195,13 +211,17 @@ Same secret, same store, same code. App A gets the password and App B gets a 403
 The app did not make that decision. Ask App B's sidecar directly, bypassing the app:
 
 ```bash,run
-curl -s -w ' %{http_code}\n' http://localhost:3502/v1.0/secrets/secretstore/orderdb-password
+curl -s -w ' %{http_code}\n' http://localhost:3502/v1.0/secrets/secretstore/orderdb-password | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"errorCode":"ERR_PERMISSION_DENIED","message":"access denied by policy to get \"orderdb-password\" from \"secretstore\""} 403
+```json,nocopy
+{
+  "errorCode": "ERR_PERMISSION_DENIED",
+  "message": "access denied by policy to get \"orderdb-password\" from \"secretstore\""
+}
+403
 ```
 
 The sidecar refused the request. Notice the two spellings. Dapr says `ERR_PERMISSION_DENIED`. The app shows `PERMISSION_DENIED` because it reports the failure in its own words: it passes the refusal on instead of hiding it.
@@ -211,25 +231,33 @@ The sidecar refused the request. Notice the two spellings. Dapr says `ERR_PERMIS
 App B is allowed to read `payments-api-key`:
 
 ```bash,run
-curl -s -w ' %{http_code}\n' http://localhost:5003/secret/payments-api-key
+curl -s -w ' %{http_code}\n' http://localhost:5003/secret/payments-api-key | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"payments-api-key","value":"pk-test-7f3a9"} 200
+```json,nocopy
+{
+  "name": "payments-api-key",
+  "value": "pk-test-7f3a9"
+}
+200
 ```
 
 The configuration also allows `legacy-api-key`, but the secret store has no secret with that name:
 
 ```bash,run
-curl -s -w ' %{http_code}\n' http://localhost:5003/secret/legacy-api-key
+curl -s -w ' %{http_code}\n' http://localhost:5003/secret/legacy-api-key | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"legacy-api-key","error":"INTERNAL"} 500
+```json,nocopy
+{
+  "name": "legacy-api-key",
+  "error": "INTERNAL"
+}
+500
 ```
 
 This is a different failure: status 500, not 403. Dapr let the request through and the store had nothing to give. There are two kinds of no: `403` means you may not read this, and `500` means you may, and there is nothing there.
@@ -237,13 +265,17 @@ This is a different failure: status 500, not 403. Dapr let the request through a
 A 403 does not mean the secret exists, though. Ask App B for a secret that is not in the store and is not on the allowed list either:
 
 ```bash,run
-curl -s -w ' %{http_code}\n' http://localhost:5003/secret/does-not-exist
+curl -s -w ' %{http_code}\n' http://localhost:5003/secret/does-not-exist | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"does-not-exist","error":"PERMISSION_DENIED"} 403
+```json,nocopy
+{
+  "name": "does-not-exist",
+  "error": "PERMISSION_DENIED"
+}
+403
 ```
 
 It gets the same refusal as the real `orderdb-password`. Dapr answers a scoped-out request the same way whether or not the secret exists, so a refusal says nothing about whether it does. An app that is scoped out cannot use the refusals to find out which secrets are there.
@@ -265,23 +297,31 @@ dapr run -f .
 When the two `Started Dapr` lines appear again (and a `curl` that returns 500 `UNAVAILABLE` only means the sidecar is not ready yet), ask App B for the two secrets in the **curl** window:
 
 ```bash,run
-curl -s -w ' %{http_code}\n' http://localhost:5003/secret/orderdb-password
+curl -s -w ' %{http_code}\n' http://localhost:5003/secret/orderdb-password | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"orderdb-password","error":"PERMISSION_DENIED"} 403
+```json,nocopy
+{
+  "name": "orderdb-password",
+  "error": "PERMISSION_DENIED"
+}
+403
 ```
 
 ```bash,run
-curl -s -w ' %{http_code}\n' http://localhost:5003/secret/payments-api-key
+curl -s -w ' %{http_code}\n' http://localhost:5003/secret/payments-api-key | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"payments-api-key","value":"pk-test-7f3a9"} 200
+```json,nocopy
+{
+  "name": "payments-api-key",
+  "value": "pk-test-7f3a9"
+}
+200
 ```
 
 The result is the same, but the thinking is reversed. With an allow list, a secret that someone adds to the store later is off limits until you list it. With a deny list, it is open until you list it. For secrets, the allow list is usually the safer choice.
