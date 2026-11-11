@@ -4,10 +4,11 @@ export PATH="${HOME:-/root}/.local/bin:$PATH:/usr/local/bin"
 TRACKS_SRC_DIR="${TRACKS_SRC_DIR:-${HOME:-/root}/ai-agent-tracks-instruqt}"
 DEMO="Demo3-SwapProvider"
 
-# 1. Stop whatever the learner has running (any language, either folder) so the ports are free.
-# Both folders start the same app from the same place, so both are stopped.
+# 1. Stop whatever the learner has running (any language) so the ports are free. Demo1 and the
+# swap folder start the same app from the same place, so both are stopped; Demo2-Scoping's apps
+# may still be running from the previous page, because a 2.0 lab keeps them across pages.
 for lang in dotnet python java; do
-    for folder in Demo1-ReadSecret "$DEMO"; do
+    for folder in Demo1-ReadSecret Demo2-Scoping "$DEMO"; do
         (cd "$TRACKS_SRC_DIR/secrets/$lang/$folder" && dapr stop -f . >/dev/null 2>&1) || true
     done
 done

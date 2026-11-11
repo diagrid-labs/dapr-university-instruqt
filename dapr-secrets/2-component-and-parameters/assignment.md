@@ -20,7 +20,7 @@ You'll try both in step 6.
 
 ## 2. Check that the application is running
 
-The `order-api` application from the previous challenge should still be running in the **Dapr CLI** window. The `dapr.yaml` file in the demo folder points the sidecar at the `resources` folder, so every component file in that folder was loaded when the application started.
+The `order-api` application from the previous challenge should still be running in the **Dapr CLI** window. The **Dev Dashboard** tab lists it as well. The `dapr.yaml` file in the demo folder points the sidecar at the `resources` folder, so every component file in that folder was loaded when the application started.
 
 Use the **curl** window to read a single secret, as in the previous challenge:
 

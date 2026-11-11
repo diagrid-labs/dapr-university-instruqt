@@ -331,8 +331,8 @@ Walk Through The Swap
     # 4. The state store, whose password reference is resolved through `secretstore`, still works
     # and its reference found `orderdb-password` in Vault: no failed lookup in this run's log.
     Run And Expect RC Zero
-    ...    curl -s -X POST -H "Content-Type: application/json" -d '[{"key":"order-1","value":"queued"}]' http://localhost:3500/v1.0/state/statestore
-    Assert Command Output Contains    curl -s http://localhost:3500/v1.0/state/statestore/order-1    "queued"
+    ...    curl -s -X POST -H "Content-Type: application/json" -d '[{"key":"order-2","value":"shipped"}]' http://localhost:3500/v1.0/state/statestore
+    Assert Command Output Contains    curl -s http://localhost:3500/v1.0/state/statestore/order-2    "shipped"
     ${log}=    Read Newest Sidecar Log    ${app_dir}
     Should Contain    ${log}    ${STATESTORE_LOADED}
     Should Contain    ${log}    Component loaded: secretstore (secretstores.hashicorp.vault/v1)

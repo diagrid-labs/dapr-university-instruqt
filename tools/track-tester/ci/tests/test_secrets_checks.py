@@ -157,3 +157,24 @@ def test_ch4_vault_unreachable_app_cannot_read(stubs):
     swapped(stubs, read=500)
     assert rc(CH4 / "check-vault-loaded.sh") == 0
     assert rc(CH4 / "check-app-reads.sh") == 1
+
+
+def test_ch4_demo2_still_running_fails_previous_apps_check_only(stubs):
+    # Page 3's apps left running in a 2.0 lab: 5001 is down, 5002/5003 answer. Only the specific
+    # "stop the Demo2-Scoping apps" hint fails, not the generic "does not answer" one.
+    scoped(stubs)
+    assert rc(CH4 / "check-previous-apps-stopped.sh") == 1
+    assert rc(CH4 / "check-app-answers.sh") == 0
+    assert rc(CH4 / "check-vault-loaded.sh") == 0
+    assert rc(CH4 / "check-app-reads.sh") == 0
+
+
+def test_ch4_previous_apps_check_passes_when_swap_app_runs(stubs):
+    # The swap app answers: Demo2 apps that might also be up do not matter.
+    swapped(stubs)
+    stubs.up(5003, {"/secret/orderdb-password": (403, "x")})
+    assert rc(CH4 / "check-previous-apps-stopped.sh") == 0
+
+
+def test_ch4_previous_apps_check_passes_when_nothing_runs(stubs):
+    assert rc(CH4 / "check-previous-apps-stopped.sh") == 0
