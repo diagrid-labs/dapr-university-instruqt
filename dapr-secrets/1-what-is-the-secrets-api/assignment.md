@@ -124,7 +124,7 @@ dapr run -f .
 > You can also check the application status in the **Dev Dashboard** tab: go to the **Applications** page and select `order-api`.
 
 > [!NOTE]
-> The application can start accepting requests a moment before its Dapr sidecar is ready. If the first `curl` in the next step returns an error, that is not a problem with your setup: wait a few seconds and run it again.
+> The application can start accepting requests a moment before its Dapr sidecar is ready. If the first `curl` in the next step returns an error with status 500 (`UNAVAILABLE`), wait a few seconds and run it again.
 
 The **Dapr CLI** window should show a line like this when the sidecar is started. The port number can differ, and your own application's logs follow:
 
