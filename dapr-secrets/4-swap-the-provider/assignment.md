@@ -1,11 +1,11 @@
-In this challenge, you'll swap the secret store from a local file to HashiCorp Vault, and run the same application against it. This hands-on challenge takes about 7 minutes to complete.
+In this lab, you'll swap the secret store from a local file to HashiCorp Vault, and run the same application against it. This hands-on lab takes about 7 minutes to complete.
 
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
 ## Before you start
 
-The terminals, and the applications running in them, stay as they are when you move between pages. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `app-a` and `app-b` from the previous challenge, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
+The terminals, and the applications running in them, stay as they are when you move between pages. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `app-a` and `app-b` from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
 
 ## 1. One name, another store
 
@@ -13,9 +13,9 @@ The application asks Dapr for a secret store called `secretstore`. It has never 
 
 Use the **Editor** tab and open the `Demo3-SwapProvider` folder of your language (for example `dotnet/Demo3-SwapProvider`). It holds only configuration:
 
-- `dapr.yaml`: open it. `appDirPath` is `../Demo1-ReadSecret`, the very same application you used in challenges 1 and 2. It is not a copy. `resourcesPath` points to the `resources` folder next to it, which is the only difference with the `dapr.yaml` of `Demo1-ReadSecret`.
+- `dapr.yaml`: open it. `appDirPath` is `../Demo1-ReadSecret`, the very same application you used in labs 1 and 2. It is not a copy. `resourcesPath` points to the `resources` folder next to it, which is the only difference with the `dapr.yaml` of `Demo1-ReadSecret`.
 - `resources/secretstore-vault.yaml`: the new `secretstore`.
-- `resources/statestore-with-secretref.yaml`: the state store component from challenge 2, which takes its password from `secretstore`. You'll see what happens to it in step 5.
+- `resources/statestore-with-secretref.yaml`: the state store component from lab 2, which takes its password from `secretstore`. You'll see what happens to it in step 5.
 
 > [!NOTE]
 > `secretstore-vault.yaml` is in a folder of its own because a Dapr sidecar refuses to start when two components have the same name. Next to `secretstore-local.yaml` it would be a second `secretstore`.
@@ -41,14 +41,14 @@ spec:
 - `type` is now `secretstores.hashicorp.vault`. Only the implementation behind the name is different.
 - `vaultAddr` and `vaultToken` replace `secretsFile`. The sandbox runs Vault in a container in dev mode, where the root token is `root`. Never put a token in a file like this for a real Vault.
 
-The sandbox already stored your secrets in Vault, under the names Dapr expects (`secret/dapr/orderdb-password`, and so on). That is the work of the sandbox, not of the application. `legacy-api-key` is still not in the store, as in challenge 3.
+The sandbox already stored your secrets in Vault, under the names Dapr expects (`secret/dapr/orderdb-password`, and so on). That is the work of the sandbox, not of the application. `legacy-api-key` is still not in the store, as in lab 3.
 
 ## 3. Run the same application against Vault
 
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the `Demo3-SwapProvider` folder.
 
-Use the **Dapr CLI** window to go to the lab folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
 
 ```bash,run
 cd /root/ai-agent-tracks-instruqt/secrets
@@ -130,7 +130,7 @@ The **Dapr CLI** window should show a line like this when the sidecar is started
 
 ## 4. Ask for the secret, and find out where it came from
 
-Use the **curl** window. This is the same request as in challenge 1:
+Use the **curl** window. This is the same request as in lab 1:
 
 ```bash,run
 curl -s http://localhost:5001/secret/orderdb-password
@@ -188,13 +188,13 @@ A secret that does not exist is a 500, just as it was with the local file.
 
 ## 5. The state store follows
 
-In challenge 2, the state store component got its password from `secretstore` through a `secretKeyRef`. That component is in the folder too, and it did not change. Its reference is now answered by Vault. Use the **curl** window to save a value with a new key, `order-2`:
+In lab 2, the state store component got its password from `secretstore` through a `secretKeyRef`. That component is in the folder too, and it did not change. Its reference is now answered by Vault. Use the **curl** window to save a value with a new key, `order-2`:
 
 ```bash,run
 curl -s -X POST -H "Content-Type: application/json" -d '[{"key":"order-2","value":"shipped"}]' http://localhost:3500/v1.0/state/statestore
 ```
 
-Open the **Dev Dashboard** tab and go to the **State** page. It also lists `order-1`, which you saved in challenge 2. The record with the key `order-2` is the one you just saved through the Vault-backed component: expand it to see its value, `shipped`. Then go back to the **Editor** tab.
+Open the **Dev Dashboard** tab and go to the **State** page. It also lists `order-1`, which you saved in lab 2. The record with the key `order-2` is the one you just saved through the Vault-backed component: expand it to see its value, `shipped`. Then go back to the **Editor** tab.
 
 Components that use `secretKeyRef` don't know which secret store provider is behind the name either.
 

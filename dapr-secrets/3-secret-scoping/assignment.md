@@ -1,18 +1,18 @@
-In this challenge, you'll run two apps that have the same code and read from the same secret store. One of them reads a secret. The other asks for the same secret and is told no. This hands-on challenge takes about 8 minutes to complete.
+In this lab, you'll run two apps that have the same code and read from the same secret store. One of them reads a secret. The other asks for the same secret and is told no. This hands-on lab takes about 8 minutes to complete.
 
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
 ## Before you start
 
-The terminals, and the applications running in them, stay as they are when you move between pages. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example the `nested-demo` sidecar from the previous challenge, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
+The terminals, and the applications running in them, stay as they are when you move between pages. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example the `nested-demo` sidecar from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
 
 ## 1. Two apps, one store
 
 Use the **Editor** tab and open the `Demo2-Scoping` folder of your language (for example `dotnet/Demo2-Scoping`). It holds:
 
 - `AppA` and `AppB`: two apps with exactly the same code. Each has one endpoint, `GET /secret/{name}`, that asks the `secretstore` component for a secret. App A listens on 5002 and App B on 5003, and those ports are set in `dapr.yaml`, outside the application code.
-- `resources`: the `secretstore` component you know from the previous challenges, and a file named `config-app-b.yaml` that you'll meet in step 4.
+- `resources`: the `secretstore` component you know from the previous labs, and a file named `config-app-b.yaml` that you'll meet in step 4.
 - `dapr.yaml`: starts both apps, each with its own Dapr sidecar. Open it. App A's sidecar listens on port 3501 and App B's on 3502.
 
 Nothing in the code of either app says which secrets it may read. Remember that, because the refusal is coming and the code will not be where it comes from.
@@ -22,7 +22,7 @@ Nothing in the code of either app says which secrets it may read. Remember that,
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the `Demo2-Scoping` folder. The `secretsFile` path in the component is relative to the app folders inside it.
 
-Use the **Dapr CLI** window to go to the lab folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
 
 ```bash,run
 cd /root/ai-agent-tracks-instruqt/secrets
@@ -294,7 +294,7 @@ Run the check below while both applications are still running: it asks them. Whe
 
 ## What's next?
 
-So far every secret came from the `secrets.json` file. In the next and last challenge you'll swap the local file store for HashiCorp Vault. You'll run the same `order-api` application from challenges 1 and 2 against a `secretstore` component that points at Vault, without rebuilding or changing the application, and see that the state store's `secretKeyRef` follows the swap as well.
+So far every secret came from the `secrets.json` file. In the next and last lab you'll swap the local file store for HashiCorp Vault. You'll run the same `order-api` application from labs 1 and 2 against a `secretstore` component that points at Vault, without rebuilding or changing the application, and see that the state store's `secretKeyRef` follows the swap as well.
 
 ---
 

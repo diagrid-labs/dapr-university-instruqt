@@ -88,11 +88,11 @@ resource "task" "swap_provider" {
   }
 
   condition "previous_apps_stopped" {
-    description = "The apps from the scoping challenge are stopped"
+    description = "The apps from the scoping lab are stopped"
 
     check {
       script          = "4-swap-the-provider/scripts/check-previous-apps-stopped.sh"
-      failure_message = "App A or App B from the Demo2-Scoping folder is still running, and the app for this challenge is not. Press Ctrl+C in the Dapr CLI window to stop them, then start the app with 'dapr run -f .' from your Demo3-SwapProvider folder."
+      failure_message = "App A or App B from the Demo2-Scoping folder is still running, and the app for this lab is not. Press Ctrl+C in the Dapr CLI window to stop them, then start the app with 'dapr run -f .' from your Demo3-SwapProvider folder."
     }
   }
 

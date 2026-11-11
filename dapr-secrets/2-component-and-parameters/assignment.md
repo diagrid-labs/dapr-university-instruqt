@@ -1,4 +1,4 @@
-In this challenge, you'll find out what each field of a secret store component does, and read secrets one at a time and in bulk. You'll also see a second component get its password from the secret store instead of having it written in its own file. This hands-on challenge takes about 8 minutes to complete.
+In this lab, you'll find out what each field of a secret store component does, and read secrets one at a time and in bulk. You'll also see a second component get its password from the secret store instead of having it written in its own file. This hands-on lab takes about 8 minutes to complete.
 
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
@@ -20,7 +20,7 @@ You'll try both in step 6.
 
 ## 2. Check that the application is running
 
-The `order-api` application from the previous challenge should still be running in the **Dapr CLI** window. The `dapr.yaml` file in the demo folder points the sidecar at the `resources` folder, so every component file in that folder was loaded when the application started.
+The `order-api` application from the previous lab should still be running in the **Dapr CLI** window. The `dapr.yaml` file in the demo folder points the sidecar at the `resources` folder, so every component file in that folder was loaded when the application started.
 
 Open the **Dev Dashboard** tab and go to the **Applications** page. If `order-api` is listed there as running, go back to the **Editor** tab and continue with step 3.
 
@@ -31,7 +31,7 @@ If `order-api` is not on the **Applications** page, or the **Dapr CLI** window s
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the demo folder (`Demo1-ReadSecret` of your language). The `secretsFile` path in the component is relative to that folder. If another application is still running, stop it first with `Ctrl+C` in the **Dapr CLI** window.
 
-Use the **Dapr CLI** window to go to the lab folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
 
 ```bash,run
 cd /root/ai-agent-tracks-instruqt/secrets
@@ -242,7 +242,7 @@ Use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
 
 The `nested-demo` folder holds a secrets file with a nested secret, `orderdb`, that has two fields: `user` and `password`. Open `nested-demo/resources/nested-stores.yaml`. It has three secret stores that read that same file. They differ only in the two fields from step 1.
 
-Use the **Dapr CLI** window to go to the lab folder and then to the `nested-demo` folder, and start a sidecar without an application:
+Use the **Dapr CLI** window to go to the `secrets` folder and then to the `nested-demo` folder, and start a sidecar without an application:
 
 ```bash,run
 cd /root/ai-agent-tracks-instruqt/secrets
@@ -316,7 +316,7 @@ One request returns the whole database login. Use the **Dapr CLI** window to sto
 
 So far every application with a sidecar can read every secret in the store. That is convenient, but it is also the problem: any application could read the payments key too.
 
-In the next challenge you'll run two applications with the same code against one secret store. Both read the database password at first. Then you'll give one of them a Dapr configuration that lists the secrets it may read, and see it refused with a 403, without changing any code.
+In the next lab you'll run two applications with the same code against one secret store. Both read the database password at first. Then you'll give one of them a Dapr configuration that lists the secrets it may read, and see it refused with a 403, without changing any code.
 
 ---
 
