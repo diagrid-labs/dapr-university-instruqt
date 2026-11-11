@@ -43,6 +43,13 @@ if ! command -v uv >/dev/null 2>&1; then
   echo "$HOME/.local/bin" >> "${GITHUB_PATH:-/dev/null}"
 fi
 
+# jq: the challenge 2 suite runs the assignment's `curl -s ... | jq` commands. GitHub's Ubuntu
+# runners ship it; on the VM, dapr-secrets/scripts/lab-setup.sh downloads it.
+if ! command -v jq >/dev/null 2>&1; then
+  echo "ERROR: jq is not installed (brew install jq / apt-get install jq)." >&2
+  exit 1
+fi
+
 # 4. Install the Dapr CLI and initialize Dapr exactly as the assignments tell the learner to:
 # the unpinned install script from `master`, then a bare `dapr init`.
 #

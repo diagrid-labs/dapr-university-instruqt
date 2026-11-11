@@ -140,25 +140,35 @@ Open the `SecretController.java` file in the `java/Demo1-ReadSecret/src/main/jav
 Call it from the **curl** window:
 
 ```bash,run
-curl -s http://localhost:5001/secrets
+curl -s http://localhost:5001/secrets | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"orderdb-password":"s3cr3t-pa55w0rd","payments-api-key":"pk-test-7f3a9"}
+```json,nocopy
+{
+  "orderdb-password": "s3cr3t-pa55w0rd",
+  "payments-api-key": "pk-test-7f3a9"
+}
 ```
 
 Both secrets in the store come back. Now ask the sidecar directly:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/secretstore/bulk
+curl -s http://localhost:3500/v1.0/secrets/secretstore/bulk | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"orderdb-password":{"orderdb-password":"s3cr3t-pa55w0rd"},"payments-api-key":{"payments-api-key":"pk-test-7f3a9"}}
+```json,nocopy
+{
+  "orderdb-password": {
+    "orderdb-password": "s3cr3t-pa55w0rd"
+  },
+  "payments-api-key": {
+    "payments-api-key": "pk-test-7f3a9"
+  }
+}
 ```
 
 Look at the shape. Dapr returns every secret as a map of its own, because a single secret can hold several fields (you'll see that with `multiValued` in step 6). The application flattened that into one simple object before answering you.
@@ -247,49 +257,80 @@ The **Dapr CLI** window should show this message when the sidecar is up:
 First the store with the defaults. Use the **curl** window:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/nested-default/bulk
+curl -s http://localhost:3500/v1.0/secrets/nested-default/bulk | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"orderdb:password":{"orderdb:password":"demo-nested-password"},"orderdb:user":{"orderdb:user":"orders"},"payments-api-key":{"payments-api-key":"pk-test-7f3a9"}}
+```json,nocopy
+{
+  "orderdb:password": {
+    "orderdb:password": "demo-nested-password"
+  },
+  "orderdb:user": {
+    "orderdb:user": "orders"
+  },
+  "payments-api-key": {
+    "payments-api-key": "pk-test-7f3a9"
+  }
+}
 ```
 
 The nested `orderdb` secret became two flat secrets, and `:` joins the parts of the name. Now the store with `nestedSeparator` set to `.`:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/nested-flat/bulk
+curl -s http://localhost:3500/v1.0/secrets/nested-flat/bulk | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"orderdb.password":{"orderdb.password":"demo-nested-password"},"orderdb.user":{"orderdb.user":"orders"},"payments-api-key":{"payments-api-key":"pk-test-7f3a9"}}
+```json,nocopy
+{
+  "orderdb.password": {
+    "orderdb.password": "demo-nested-password"
+  },
+  "orderdb.user": {
+    "orderdb.user": "orders"
+  },
+  "payments-api-key": {
+    "payments-api-key": "pk-test-7f3a9"
+  }
+}
 ```
 
 Same secrets, different names. An application that asks for `orderdb:password` gets nothing from this store, so the separator is part of the contract between the component and its callers. Finally the store with `multiValued` set to `true`:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/nested-multi/bulk
+curl -s http://localhost:3500/v1.0/secrets/nested-multi/bulk | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"orderdb":{"password":"demo-nested-password","user":"orders"},"payments-api-key":{"payments-api-key":"pk-test-7f3a9"}}
+```json,nocopy
+{
+  "orderdb": {
+    "password": "demo-nested-password",
+    "user": "orders"
+  },
+  "payments-api-key": {
+    "payments-api-key": "pk-test-7f3a9"
+  }
+}
 ```
 
 Nothing is flattened. `orderdb` is one secret with two fields, which is the reason Dapr wraps every secret in a map. Ask for it by name:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/nested-multi/orderdb
+curl -s http://localhost:3500/v1.0/secrets/nested-multi/orderdb | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"password":"demo-nested-password","user":"orders"}
+```json,nocopy
+{
+  "password": "demo-nested-password",
+  "user": "orders"
+}
 ```
 
 One request returns the whole database login. Use the **Dapr CLI** window to stop the sidecar by pressing `Ctrl+C`.

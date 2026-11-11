@@ -12,6 +12,11 @@ variable "tracks_src_ref" {
   default     = "b1da54839b14ee1bb124914b915f78200a8f5f4e"
 }
 
+variable "jq_version" {
+  description = "jq release (github.com/jqlang/jq) that lab-setup.sh downloads, for the pretty-printed curl output on page 2. Remove once the sandbox image ships jq."
+  default     = "1.8.1"
+}
+
 # Shared sandbox module, published as diagrid/dapr-sandbox (source: ../modules/dapr-sandbox).
 # `instruqt lab validate` cannot resolve registry sources, so validate through
 # tools/track-tester/ci/validate-lab.sh, which swaps in a local copy of the module.
@@ -30,6 +35,7 @@ module "sandbox" {
     lab_environment = {
       DAPR_RUNTIME_VERSION = variable.dapr_runtime_version
       TRACKS_SRC_REF       = variable.tracks_src_ref
+      JQ_VERSION           = variable.jq_version
     }
   }
 }

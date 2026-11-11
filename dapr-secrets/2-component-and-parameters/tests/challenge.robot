@@ -90,12 +90,14 @@ Nested Secrets Follow NestedSeparator And MultiValued
     ...    ${LOG}    nested    cwd=${NESTED_DIR}
     Wait Until Command Output Contains
     ...    curl -s http://localhost:3500/v1.0/secrets/nested-default/bulk    ${NESTED_DEFAULT}    60s
-    Assert Command Output Contains
-    ...    curl -s http://localhost:3500/v1.0/secrets/nested-flat/bulk    ${NESTED_FLAT}
-    Assert Command Output Contains
-    ...    curl -s http://localhost:3500/v1.0/secrets/nested-multi/bulk    ${NESTED_MULTI}
-    Assert Command Output Contains
-    ...    curl -s http://localhost:3500/v1.0/secrets/nested-multi/orderdb    ${MULTI_ORDERDB}
+    Assert Pretty JSON Output
+    ...    curl -s http://localhost:3500/v1.0/secrets/nested-default/bulk | jq    ${NESTED_DEFAULT}
+    Assert Pretty JSON Output
+    ...    curl -s http://localhost:3500/v1.0/secrets/nested-flat/bulk | jq    ${NESTED_FLAT}
+    Assert Pretty JSON Output
+    ...    curl -s http://localhost:3500/v1.0/secrets/nested-multi/bulk | jq    ${NESTED_MULTI}
+    Assert Pretty JSON Output
+    ...    curl -s http://localhost:3500/v1.0/secrets/nested-multi/orderdb | jq    ${MULTI_ORDERDB}
 
 # Negative controls for the secretKeyRef assertion in the language tests. Each one starts a
 # multi-app run (`dapr run -f .`, the same way as the demos) from a throwaway folder holding a
@@ -224,9 +226,9 @@ Read All Secrets Through The App
     # because the doc-sync checker matches them against the assignment text.
     Wait Until Command Output Contains
     ...    curl -s http://localhost:5001/secret/orderdb-password    ${ORDERDB_JSON}    ${timeout}
-    Assert Command Output Contains    curl -s http://localhost:5001/secrets    ${BULK_JSON}
-    Assert Command Output Contains
-    ...    curl -s http://localhost:3500/v1.0/secrets/secretstore/bulk    ${RAW_BULK_JSON}
+    Assert Pretty JSON Output    curl -s http://localhost:5001/secrets | jq    ${BULK_JSON}
+    Assert Pretty JSON Output
+    ...    curl -s http://localhost:3500/v1.0/secrets/secretstore/bulk | jq    ${RAW_BULK_JSON}
     Assert SecretKeyRef Resolves    ${cwd}
 
 Assert SecretKeyRef Resolves
@@ -246,6 +248,15 @@ Assert SecretKeyRef Resolves
     # The command the assignment gives the learner, literally, over every sidecar log in the folder.
     Assert Command Output Contains
     ...    grep -h "Component loaded: statestore" .dapr/logs/order-api_daprd_*.log    ${STATESTORE_LOADED}    ${cwd}
+
+Assert Pretty JSON Output
+    # Run an assignment command that pipes curl into jq, and assert that its output is exactly the
+    # pretty-printed form of ${compact} (jq's default: 2-space indent, `"key": value`). That is
+    # also the form the assignment's expected-output blocks show.
+    [Arguments]    ${command}    ${compact}
+    ${result}=    Run And Expect RC Zero    ${command}
+    ${expected}=    Evaluate    json.dumps(json.loads($compact), indent=2)    modules=json
+    Should Be Equal    ${result.stdout.strip()}    ${expected}
 
 Read Newest Sidecar Log
     # The one place that reads the sidecar log, for the assertion and for every control. A
