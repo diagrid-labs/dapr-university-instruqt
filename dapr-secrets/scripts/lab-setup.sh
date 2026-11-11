@@ -180,22 +180,13 @@ if [ "$(git -C "$TRACKS_SRC_DIR" rev-parse HEAD)" != "$TRACKS_SRC_REF" ]; then
 fi
 
 # The Editor tab is code-server (VS Code in the browser) on the VM, shown through a `service` tab:
-# the built-in `editor` resource showed no files for a VM target. Install it when the image does
-# not have it yet, then run it as a transient systemd service so it outlives this startup script
-# and restarts if it stops. It runs as root, like the terminals, on the folder they open.
-: "${CODE_SERVER_VERSION:?CODE_SERVER_VERSION must be set}"
+# the built-in `editor` resource showed no files for a VM target. The sandbox image installs it
+# (pinned in modules/dapr-sandbox/versions.hcl); run it as a transient systemd service so it
+# outlives this startup script and restarts if it stops. It runs as root, like the terminals, on
+# the folder they open.
 CODE_SERVER_PORT=8888
-if ! command -v code-server >/dev/null 2>&1; then
-    log "installing code-server $CODE_SERVER_VERSION"
-    archive="code-server-${CODE_SERVER_VERSION}-linux-amd64"
-    bounded 120 curl -fsSL -o "/tmp/${archive}.tar.gz" \
-        "https://github.com/coder/code-server/releases/download/v${CODE_SERVER_VERSION}/${archive}.tar.gz" ||
-        die "downloading code-server $CODE_SERVER_VERSION failed."
-    tar -xzf "/tmp/${archive}.tar.gz" -C /opt
-    ln -sf "/opt/${archive}/bin/code-server" /usr/local/bin/code-server
-    rm -f "/tmp/${archive}.tar.gz"
-    log "code-server installed (${SECONDS}s since start)"
-fi
+command -v code-server >/dev/null 2>&1 ||
+    die "code-server is not installed; the sandbox image (modules/dapr-sandbox) should provide it."
 # VS Code user settings for a distraction-free lab editor:
 # - no "A git repository was found in the parent folders" prompt (the editor opens a subfolder
 #   of the demo clone),
@@ -235,24 +226,13 @@ done
 log "code-server listening on port ${CODE_SERVER_PORT} (${SECONDS}s since start)"
 
 # The Dev Dashboard tab: Diagrid's Dapr Dev Dashboard (github.com/diagridio/dev-dashboard), a live
-# view of the apps, sidecars, workflows and logs learners start with `dapr run`. Installed like
-# code-server when the image doesn't have it, and run as a transient systemd unit. It binds
-# 0.0.0.0 so Instruqt's service proxy can reach it; in this (host) mode it only accepts a
+# view of the apps, sidecars, workflows and logs learners start with `dapr run`. The sandbox image
+# installs it (pinned in modules/dapr-sandbox/versions.hcl); run it as a transient systemd unit.
+# It binds 0.0.0.0 so Instruqt's service proxy can reach it; in this (host) mode it only accepts a
 # loopback Host header, which the service tab sends (see tabs.hcl).
-: "${DEV_DASHBOARD_VERSION:?DEV_DASHBOARD_VERSION must be set}"
 DEV_DASHBOARD_PORT=9090
-if ! command -v diagrid-dev-dashboard >/dev/null 2>&1; then
-    log "installing the Dapr Dev Dashboard $DEV_DASHBOARD_VERSION"
-    archive="diagrid-dev-dashboard_${DEV_DASHBOARD_VERSION}_linux_amd64"
-    bounded 120 curl -fsSL -o "/tmp/${archive}.tar.gz" \
-        "https://github.com/diagridio/dev-dashboard/releases/download/v${DEV_DASHBOARD_VERSION}/${archive}.tar.gz" ||
-        die "downloading the Dapr Dev Dashboard $DEV_DASHBOARD_VERSION failed."
-    mkdir -p "/opt/${archive}"
-    tar -xzf "/tmp/${archive}.tar.gz" -C "/opt/${archive}"
-    ln -sf "/opt/${archive}/diagrid-dev-dashboard" /usr/local/bin/diagrid-dev-dashboard
-    rm -f "/tmp/${archive}.tar.gz"
-    log "Dapr Dev Dashboard installed (${SECONDS}s since start)"
-fi
+command -v diagrid-dev-dashboard >/dev/null 2>&1 ||
+    die "the Dapr Dev Dashboard is not installed; the sandbox image (modules/dapr-sandbox) should provide it."
 dev_dashboard_args=(--port "$DEV_DASHBOARD_PORT" --bind 0.0.0.0 --no-open --mode dapr-run)
 if command -v systemd-run >/dev/null 2>&1 && [ "$(id -u)" -eq 0 ]; then
     systemctl stop dev-dashboard-lab >/dev/null 2>&1 || true
