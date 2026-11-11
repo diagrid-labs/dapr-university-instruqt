@@ -148,21 +148,6 @@ Expected output:
 }
 ```
 
-Now ask for the other secret in the file:
-
-```bash,run
-curl -s http://localhost:5001/secret/payments-api-key | jq
-```
-
-Expected output:
-
-```json,nocopy
-{
-  "name": "payments-api-key",
-  "value": "pk-test-7f3a9"
-}
-```
-
 ## 5. Read a secret from the Dapr API directly
 
 The application did not read `secrets.json` itself. It called the Dapr Secrets API of its sidecar, and you can do the same with curl. The sidecar listens on port 3500 and the `secretstore` component is part of the URL:
@@ -185,10 +170,10 @@ This is the same API in every language, and it is the same API no matter which s
 
 Do not stop the application. The **Dapr CLI** window and the application in it stay as they are when you move to the next page, and the next lab continues with this same application.
 
-## What's next?
-
-In the next lab you'll take a closer look at the `secretstore` component, with the `order-api` application that is still running. You'll find out what each field of `secretstore-local.yaml` does, read all secrets with one call, let a Redis state store get its password from the secret store with `secretKeyRef`, and see how `nestedSeparator` and `multiValued` change the names of nested secrets.
-
 ---
 
 You've now read a secret through the Dapr Secrets API, from your application and from the sidecar directly.
+
+## What's next?
+
+In the next lab you'll take a closer look at the `secretstore` component, with the `order-api` application that is still running. You'll find out what each field of `secretstore-local.yaml` does, read all secrets with one call, let a Redis state store get its password from the secret store with `secretKeyRef`, and see how `nestedSeparator` and `multiValued` change the names of nested secrets.

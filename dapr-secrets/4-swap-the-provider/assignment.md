@@ -119,9 +119,6 @@ dapr run -f .
 >
 > You can also check the application status in the **Dev Dashboard** tab: go to the **Applications** page and select `order-api`.
 
-> [!NOTE]
-> The application can start accepting requests a moment before its Dapr sidecar is ready. If the first `curl` in the next step returns an error with status 500 (`UNAVAILABLE`), wait a few seconds and run it again.
-
 The **Dapr CLI** window should show a line like this when the sidecar is started. The port number can differ, and your application's logs follow:
 
 ```text,nocopy
@@ -236,12 +233,11 @@ Congratulations! 🎉 You've completed the Dapr University secrets learning trac
 We have more opportunities for you to learn and share knowledge:
 
 **Try another university track**
-- [Dapr 101: State Management, Service Invocation, and Pub/Sub](https://www.diagrid.io/university/dapr-101)
 - [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
 
-**Read more**
-- Read the [State of Dapr 2026 report](https://www.diagrid.io/reports-and-ebooks/state-of-dapr-2026).
-- Read the [Secrets management overview](https://docs.dapr.io/developing-applications/building-blocks/secrets/secrets-overview/) and [How to: use secret scoping](https://docs.dapr.io/operations/configuration/secret-scope/) in the Dapr Docs.
+**Try these Dapr tools**
+- [Dapr Dev Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-dev-dashboard/), a free & OSS companion tool for local Dapr development.
+- [Dapr Ops Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-ops-dashboard/), a free SaaS solution that automates the operational management of Dapr on Kubernetes.
 
 **Join the community**
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#agents* and language channels.

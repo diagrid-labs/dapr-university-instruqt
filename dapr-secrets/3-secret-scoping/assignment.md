@@ -91,9 +91,6 @@ dapr run -f .
 >
 > You can also check the application status in the **Dev Dashboard** tab: go to the **Applications** page and select `app-a` and `app-b`.
 
-> [!NOTE]
-> An application can start accepting requests a moment before its Dapr sidecar is ready. If the first `curl` in the next step returns an error with status 500 (`UNAVAILABLE`), wait a few seconds and run it again.
-
 The **Dapr CLI** window should show these lines when the sidecars have started. The port numbers can differ, and your applications' logs follow:
 
 ```text,nocopy
@@ -168,7 +165,7 @@ A sidecar reads its configuration when it starts, so restart the applications. U
 dapr run -f .
 ```
 
-Wait until the two `Started Dapr` lines appear again. If a `curl` returns an error with status 500 (`UNAVAILABLE`), the sidecar is not ready yet. That is not the refusal: wait a few seconds and run it again.
+Wait until the two `Started Dapr` lines appear again.
 
 ## 5. The refusal
 
@@ -293,7 +290,7 @@ Save the file. Use the **Dapr CLI** window: press `Ctrl+C`, wait for the applica
 dapr run -f .
 ```
 
-When the two `Started Dapr` lines appear again, ask App B for the two secrets. If a `curl` returns an error with status 500 (`UNAVAILABLE`), the sidecar is not ready yet: wait a few seconds and run it again. Use the **curl** window:
+When the two `Started Dapr` lines appear again, use the **curl** window to ask App B for the two secrets:
 
 ```bash,run
 curl -s -w ' %{http_code}\n' http://localhost:5003/secret/orderdb-password | jq
@@ -331,10 +328,10 @@ Run the check below while both applications are still running: it asks them. Whe
 
 <instruqt-task id="scoping"></instruqt-task>
 
-## What's next?
-
-So far every secret came from the `secrets.json` file. In the next and last lab you'll swap the local file store for HashiCorp Vault. You'll run the same `order-api` application from labs 1 and 2 against a `secretstore` component that points at Vault, without rebuilding or changing the application, and see that the state store's `secretKeyRef` follows the swap as well.
-
 ---
 
 An app can now only read the secrets it is allowed to read.
+
+## What's next?
+
+So far every secret came from the `secrets.json` file. In the next and last lab you'll swap the local file store for HashiCorp Vault. You'll run the same `order-api` application from labs 1 and 2 against a `secretstore` component that points at Vault, without rebuilding or changing the application, and see that the state store's `secretKeyRef` follows the swap as well.
