@@ -11,6 +11,9 @@ Library    OperatingSystem
 Library    Collections
 # String is used by Capture Command Output (Strip String).
 Library    String
+# Checks for assignment commands that pipe curl into jq (Output Should Be Pretty JSON, Split
+# Pretty JSON With Status).
+Library    ../libraries/jq_output.py
 
 *** Keywords ***
 # Each unindented name below defines a keyword. `[Arguments]` declares its
@@ -95,6 +98,15 @@ Assert Command Output Contains
     [Arguments]    ${command}    ${text}    ${cwd}=${EMPTY}
     ${result}=    Run And Expect RC Zero    ${command}    ${cwd}
     Should Contain    ${result.stdout}    ${text}
+    RETURN    ${result}
+
+Assert Pretty JSON Output
+    # Run a command that pipes into jq (`curl -s URL | jq`) and assert its output is exactly
+    # jq's formatting of the compact JSON ${compact}. Without pipefail a failed curl gives jq
+    # empty input and rc 0, so the empty output fails the comparison instead.
+    [Arguments]    ${command}    ${compact}    ${cwd}=${EMPTY}
+    ${result}=    Run And Expect RC Zero    ${command}    ${cwd}
+    Output Should Be Pretty JSON    ${result.stdout}    ${compact}
     RETURN    ${result}
 
 Run Multi-App And Assert Markers

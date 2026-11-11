@@ -249,15 +249,6 @@ Assert SecretKeyRef Resolves
     Assert Command Output Contains
     ...    grep -h "Component loaded: statestore" .dapr/logs/order-api_daprd_*.log    ${STATESTORE_LOADED}    ${cwd}
 
-Assert Pretty JSON Output
-    # Run an assignment command that pipes curl into jq, and assert that its output is exactly the
-    # pretty-printed form of ${compact} (jq's default: 2-space indent, `"key": value`). That is
-    # also the form the assignment's expected-output blocks show.
-    [Arguments]    ${command}    ${compact}
-    ${result}=    Run And Expect RC Zero    ${command}
-    ${expected}=    Evaluate    json.dumps(json.loads($compact), indent=2)    modules=json
-    Should Be Equal    ${result.stdout.strip()}    ${expected}
-
 Read Newest Sidecar Log
     # The one place that reads the sidecar log, for the assertion and for every control. A
     # multi-app run writes it to .dapr/logs under the folder it ran from, newest file last run.

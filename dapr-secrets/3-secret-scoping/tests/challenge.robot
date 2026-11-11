@@ -235,14 +235,15 @@ Walk Through The Scoping Story
     Should Be Equal    ${a_raw}[status]    200
 
 Request
-    [Documentation]    GET a URL and return a dictionary with the response body and HTTP status.
+    [Documentation]    GET a URL and return a dictionary with the response body (compact JSON) and
+    ...    HTTP status, through the assignment's `curl -s -w ' %{http_code}\n' <url> | jq`.
     ...    The command is the one the assignment shows, so the learner's output is what is asserted.
     ...    `\%` keeps Robot from reading curl's %{http_code} as an environment variable, and
     ...    the doubled backslash hands curl a literal backslash-n.
     [Arguments]    ${url}
-    ${out}=    Capture Command Output    curl -s -w ' \%{http_code}\\n' ${url}
-    ${parts}=    Evaluate    $out.rsplit(" ", 1)
-    ${response}=    Create Dictionary    body=${parts}[0]    status=${parts}[1]
+    ${out}=    Capture Command Output    curl -s -w ' \%{http_code}\\n' ${url} | jq
+    # jq prints the formatted body and then the status on the last line.
+    ${response}=    Split Pretty JSON With Status    ${out}
     RETURN    ${response}
 
 Read Newest Sidecar Log
@@ -316,10 +317,10 @@ Solve Teardown
 #   cd python/Demo2-Scoping
 #   cd java/Demo2-Scoping
 #   dapr run -f .
-#   curl -s -w ' %{http_code}\n' http://localhost:5002/secret/orderdb-password
-#   curl -s -w ' %{http_code}\n' http://localhost:5003/secret/orderdb-password
-#   curl -s -w ' %{http_code}\n' http://localhost:5003/secret/payments-api-key
-#   curl -s -w ' %{http_code}\n' http://localhost:5003/secret/legacy-api-key
-#   curl -s -w ' %{http_code}\n' http://localhost:5003/secret/does-not-exist
-#   curl -s -w ' %{http_code}\n' http://localhost:3502/v1.0/secrets/secretstore/orderdb-password
-#   curl -s -w ' %{http_code}\n' http://localhost:3502/v1.0/secrets/secretstore/legacy-api-key
+#   curl -s -w ' %{http_code}\n' http://localhost:5002/secret/orderdb-password | jq
+#   curl -s -w ' %{http_code}\n' http://localhost:5003/secret/orderdb-password | jq
+#   curl -s -w ' %{http_code}\n' http://localhost:5003/secret/payments-api-key | jq
+#   curl -s -w ' %{http_code}\n' http://localhost:5003/secret/legacy-api-key | jq
+#   curl -s -w ' %{http_code}\n' http://localhost:5003/secret/does-not-exist | jq
+#   curl -s -w ' %{http_code}\n' http://localhost:3502/v1.0/secrets/secretstore/orderdb-password | jq
+#   curl -s -w ' %{http_code}\n' http://localhost:3502/v1.0/secrets/secretstore/legacy-api-key | jq

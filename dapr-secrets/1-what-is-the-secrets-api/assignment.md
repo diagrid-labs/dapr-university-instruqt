@@ -137,25 +137,31 @@ The **Dapr CLI** window should show a line like this when the sidecar is started
 Use the **curl** window to ask the application for the `orderdb-password` secret:
 
 ```bash,run
-curl -s http://localhost:5001/secret/orderdb-password
+curl -s http://localhost:5001/secret/orderdb-password | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"orderdb-password","value":"s3cr3t-pa55w0rd"}
+```json,nocopy
+{
+  "name": "orderdb-password",
+  "value": "s3cr3t-pa55w0rd"
+}
 ```
 
 Now ask for the other secret in the file:
 
 ```bash,run
-curl -s http://localhost:5001/secret/payments-api-key
+curl -s http://localhost:5001/secret/payments-api-key | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"name":"payments-api-key","value":"pk-test-7f3a9"}
+```json,nocopy
+{
+  "name": "payments-api-key",
+  "value": "pk-test-7f3a9"
+}
 ```
 
 ## 5. Read a secret from the Dapr API directly
@@ -163,13 +169,15 @@ Expected output:
 The application did not read `secrets.json` itself. It called the Dapr Secrets API of its sidecar, and you can do the same with curl. The sidecar listens on port 3500 and the `secretstore` component is part of the URL:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/secretstore/orderdb-password
+curl -s http://localhost:3500/v1.0/secrets/secretstore/orderdb-password | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"orderdb-password":"s3cr3t-pa55w0rd"}
+```json,nocopy
+{
+  "orderdb-password": "s3cr3t-pa55w0rd"
+}
 ```
 
 This is the same API in every language, and it is the same API no matter which secret store sits behind the `secretstore` component.
