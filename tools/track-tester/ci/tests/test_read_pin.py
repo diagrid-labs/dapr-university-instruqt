@@ -112,6 +112,8 @@ REAL_PINS = {
         "java_version",
         "node_major",
         "dapr_cli_version",
+        "code_server_version",
+        "dev_dashboard_version",
         "image_ref",
     ],
     "dapr-secrets/versions.hcl": ["dapr_runtime_version", "tracks_src_ref"],
@@ -137,6 +139,9 @@ def test_render_image_script_inlines_pins():
     assert out.startswith("#!/usr/bin/env bash\n")
     assert f"export DAPR_CLI_VERSION={read_pin(str(REPO / "modules" / "dapr-sandbox" / "versions.hcl"), "dapr_cli_version")}" in out
     assert "export NODE_MAJOR=24" in out
+    module_pins = str(REPO / "modules" / "dapr-sandbox" / "versions.hcl")
+    assert f"export CODE_SERVER_VERSION={read_pin(module_pins, 'code_server_version')}" in out
+    assert f"export DEV_DASHBOARD_VERSION={read_pin(module_pins, 'dev_dashboard_version')}" in out
     assert str(REPO) not in out, "output must be self-contained (no repo paths)"
     syntax = subprocess.run(["bash", "-n"], input=out, capture_output=True, text=True)
     assert syntax.returncode == 0, syntax.stderr

@@ -4,7 +4,7 @@
 
 variable "image_ref" {
   description = "VM image the sandbox boots from. Replaced by the Image Builder output (diagrid/<image-name>:<tag>) once the image is built."
-  default     = "diagrid/dapr-sandbox:v1"
+  default     = "diagrid/dapr-sandbox-2:v1"
 }
 
 variable "dotnet_sdk_channel" {
@@ -25,6 +25,16 @@ variable "node_major" {
 variable "dapr_cli_version" {
   description = "Dapr CLI version"
   default     = "1.19.1"
+}
+
+variable "code_server_version" {
+  description = "code-server (VS Code in the browser) release, the labs' Editor tab. 4.145.2 is the version tested in the live dapr-secrets lab."
+  default     = "4.145.2"
+}
+
+variable "dev_dashboard_version" {
+  description = "Diagrid Dapr Dev Dashboard release (github.com/diagridio/dev-dashboard), the labs' Dev Dashboard tab. 0.0.27 is the version tested in the live dapr-secrets lab."
+  default     = "0.0.27"
 }
 
 variable "prewarm_dapr_runtime_version" {

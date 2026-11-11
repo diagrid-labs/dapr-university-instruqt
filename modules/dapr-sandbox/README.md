@@ -6,8 +6,10 @@ Published as `diagrid/dapr-sandbox`.
 ## What it provides
 
 A `vm` built from a custom image containing Docker Engine, .NET SDK, JDK + Maven, Python 3 + uv
-(on `/usr/local/bin`), Node.js + npm and the Dapr CLI, with package caches and container images
-pre-pulled. Versions are pinned in `versions.hcl`. The lab brings its own setup through
+(on `/usr/local/bin`), Node.js + npm, the Dapr CLI, code-server (VS Code in the browser) and
+Diagrid's Dapr Dev Dashboard, with package caches and container images pre-pulled. code-server and
+the Dev Dashboard are only installed; the lab setup starts them for the Editor and Dev Dashboard
+tabs. Versions are pinned in `versions.hcl`. The lab brings its own setup through
 `lab_startup_script`.
 
 ## Inputs
@@ -38,7 +40,8 @@ script had written it (module 1.0.0), so 1.0.1 removed it. Consequences for lab 
 - With the default empty script the module still becomes ready.
 
 The toolchain pins in `versions.hcl` (`image_ref`, `dotnet_sdk_channel`, `java_version`,
-`node_major`, `dapr_cli_version`, `prewarm_dapr_runtime_version`) are declared as `variable`
+`node_major`, `dapr_cli_version`, `code_server_version`, `dev_dashboard_version`,
+`prewarm_dapr_runtime_version`) are declared as `variable`
 blocks only so `read_pin.py` can read them. Labs must not override them: the image is prebuilt,
 so overriding a toolchain pin changes nothing (`image_ref` is the one exception, it picks the
 image). Only `cpu`, `memory`, `lab_startup_script` and `lab_environment` are inputs.
