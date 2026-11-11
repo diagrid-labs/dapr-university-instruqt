@@ -135,7 +135,7 @@ Both apps got the password. That is not a bug in App B. Nothing has told Dapr th
 
 Open `config-app-b.yaml` in the `resources` folder of `Demo2-Scoping`. It is a Dapr `Configuration` resource, not a component. A component says what Dapr can talk to. A configuration says how one sidecar behaves.
 
-```yaml
+```yaml,nocopy
 spec:
   secrets:
     scopes:
@@ -150,7 +150,7 @@ spec:
 
 The file does nothing yet, because no sidecar has been told to use it. Open `dapr.yaml` in the `Demo2-Scoping` folder. Under `app-b`, the line that starts with `# configFilePath:` is commented out. Delete the `# ` at the start of that line (the hash and the space after it) so that it reads:
 
-```yaml
+```yaml,nocopy
     configFilePath: ../resources/config-app-b.yaml
 ```
 

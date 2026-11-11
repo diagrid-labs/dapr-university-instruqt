@@ -167,14 +167,14 @@ Look at the shape. Dapr returns every secret as a map of its own, because a sing
 
 Open the `statestore-with-secretref.yaml` file in the same `resources` folder. It defines a Redis state store named `statestore`, and the sidecar loaded it together with the secret store. A Redis password is normally written into the component like this:
 
-```yaml
+```yaml,nocopy
 - name: redisPassword
   value: s3cr3t-pa55w0rd
 ```
 
 That puts the password in a file that is committed next to the code. This component does something different:
 
-```yaml
+```yaml,nocopy
 - name: redisPassword
   secretKeyRef:
     name: orderdb-password
