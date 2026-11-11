@@ -5,8 +5,8 @@ resource "layout" "main" {
     instructions {}
   }
 
-  # Right side: one panel on top with two tabs, the Editor (open by default) and the Dev
-  # Dashboard, which replaces the Editor view when selected; underneath, the two terminals side by
+  # Right side: one panel on top with two tabs, the Dev Dashboard and the Editor (open by default),
+  # each replacing the other when selected; underneath, the two terminals side by
   # side, so both stay visible (the assignments' Run buttons only send commands to a terminal that
   # is shown on the current page). The terminal columns have no width so they share the row equally.
   column {
@@ -15,15 +15,18 @@ resource "layout" "main" {
     row {
       height = "60"
 
+      # Declared after the Dev Dashboard on purpose: with the Editor declared first and
+      # `active = true`, the lab still opened on the Dev Dashboard (the last tab in the panel).
+      tab "dev_dashboard" {
+        target = resource.service.dev_dashboard
+        title  = "Dev Dashboard"
+        active = false
+      }
+
       tab "editor" {
         target = resource.service.editor
         title  = "Editor"
         active = true
-      }
-
-      tab "dev_dashboard" {
-        target = resource.service.dev_dashboard
-        title  = "Dev Dashboard"
       }
     }
 
