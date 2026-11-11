@@ -311,6 +311,7 @@ Solve Teardown
 
 # doc-sync coverage (the commands are run above through the Request and Start Background Process
 # keywords, which build them from the URL and the folder):
+#   cd /root/ai-agent-tracks-instruqt/secrets
 #   cd dotnet/Demo2-Scoping
 #   cd python/Demo2-Scoping
 #   cd java/Demo2-Scoping

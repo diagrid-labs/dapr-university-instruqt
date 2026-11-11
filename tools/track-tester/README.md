@@ -216,6 +216,9 @@ checkout. Beyond `dapr init` they need:
   catching *new/changed* upstream steps, not guaranteeing full behavioral coverage.
 - doc-sync only treats a fenced block as runnable when its info string is `bash` with a `run` flag
   (e.g. ` ```bash,run `); a plain ` ```bash ``` ` block is not required to be covered.
+- With `--require-anchored-cd` (2.0 labs) doc-sync also fails on a relative `cd` in a runnable
+  block that comes before any absolute `cd` on the page, because a 2.0 lab's terminals keep their
+  folder across pages.
 - Language runtimes in CI are provisioned per matrix language by the workflow's runtime-setup
   steps — `setup-dotnet`/`setup-java`/`setup-node` for dapr-101, and
   `setup-dotnet`/`setup-java`/`setup-python` for dapr-workflow — not by the setup script.

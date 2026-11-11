@@ -3,6 +3,10 @@ In this challenge, you'll run two apps that have the same code and read from the
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
+## Before you start
+
+The terminals, and the applications running in them, stay as they are when you move between pages. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example the `nested-demo` sidecar from the previous challenge, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
+
 ## 1. Two apps, one store
 
 Use the **Editor** tab and open the `Demo2-Scoping` folder of your language (for example `dotnet/Demo2-Scoping`). It holds:
@@ -16,7 +20,13 @@ Nothing in the code of either app says which secrets it may read. Remember that,
 ## 2. Run both apps
 
 > [!IMPORTANT]
-> Run `dapr run -f .` from inside the `Demo2-Scoping` folder. The `secretsFile` path in the component is relative to the app folders inside it. If an app from an earlier challenge is still running, stop it first with `Ctrl+C` in the **Dapr CLI** window.
+> Run `dapr run -f .` from inside the `Demo2-Scoping` folder. The `secretsFile` path in the component is relative to the app folders inside it.
+
+Use the **Dapr CLI** window to go to the lab folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+
+```bash,run
+cd /root/ai-agent-tracks-instruqt/secrets
+```
 
 > [!NOTE]
 > Expand the language-specific instructions to start the applications.

@@ -18,12 +18,36 @@ Two more optional fields of this component are not in the file, so they have the
 
 You'll try both in step 6.
 
-## 2. Run the application
+## 2. Check that the application is running
 
-The `dapr.yaml` file in the demo folder points the sidecar at the `resources` folder, so every component file in that folder is loaded.
+The `order-api` application from the previous challenge should still be running in the **Dapr CLI** window. The **Dev Dashboard** tab lists it as well. The `dapr.yaml` file in the demo folder points the sidecar at the `resources` folder, so every component file in that folder was loaded when the application started.
+
+Use the **curl** window to read a single secret, as in the previous challenge:
+
+```bash,run
+curl -s http://localhost:5001/secret/orderdb-password
+```
+
+Expected output:
+
+```text,nocopy
+{"name":"orderdb-password","value":"s3cr3t-pa55w0rd"}
+```
+
+If you see this output, the application is running: continue with *The sidecar log folder* below.
+
+### If the application is not running
+
+If the `curl` command prints nothing, or the **Dapr CLI** window shows a prompt instead of application logs, start the application again.
 
 > [!IMPORTANT]
-> Run `dapr run -f .` from inside the demo folder (`Demo1-ReadSecret` of your language). The `secretsFile` path in the component is relative to that folder.
+> Run `dapr run -f .` from inside the demo folder (`Demo1-ReadSecret` of your language). The `secretsFile` path in the component is relative to that folder. If another application is still running, stop it first with `Ctrl+C` in the **Dapr CLI** window.
+
+Use the **Dapr CLI** window to go to the lab folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+
+```bash,run
+cd /root/ai-agent-tracks-instruqt/secrets
+```
 
 > [!NOTE]
 > Expand the language-specific instructions to start the application.
@@ -91,9 +115,13 @@ dapr run -f .
 > Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing. The Java application can take a little longer to start.
 
 > [!NOTE]
-> The application can start accepting requests a moment before its Dapr sidecar is ready. If the first `curl` in the next step returns an error, wait a few seconds and run it again.
+> The application can start accepting requests a moment before its Dapr sidecar is ready. If the `curl` command returns an error, wait a few seconds and run it again.
 
-The **Dapr CLI** window should show these lines when the sidecar is started. The port number can differ, and your own application's logs follow:
+When the application is running, run the `curl` command above again.
+
+### The sidecar log folder
+
+When the application started, the **Dapr CLI** window showed these lines. The port number can differ, and your own application's logs follow:
 
 ```text,nocopy
 ℹ️  Started Dapr with app id "order-api". HTTP Port: 3500. gRPC Port: 39945
@@ -101,18 +129,6 @@ The **Dapr CLI** window should show these lines when the sidecar is started. The
 ```
 
 The second line matters later in this challenge: with `dapr run -f .` the sidecar's own log goes to that folder, not to the window.
-
-Use the **curl** window to read a single secret, as in the previous challenge:
-
-```bash,run
-curl -s http://localhost:5001/secret/orderdb-password
-```
-
-Expected output:
-
-```text,nocopy
-{"name":"orderdb-password","value":"s3cr3t-pa55w0rd"}
-```
 
 ## 3. Read all secrets at once
 
@@ -199,17 +215,7 @@ The sidecar does the lookup while it loads the state store, so the password is i
 curl -s -X POST -H "Content-Type: application/json" -d '[{"key":"order-1","value":"queued"}]' http://localhost:3500/v1.0/state/statestore
 ```
 
-This command prints nothing when it succeeds. Now read it back:
-
-```bash,run
-curl -s http://localhost:3500/v1.0/state/statestore/order-1
-```
-
-Expected output:
-
-```text,nocopy
-"queued"
-```
+This command prints nothing when it succeeds. Now look at what was saved. Open the **Dev Dashboard** tab and go to the **State** page. It lists the records in the state store: find the record with the key `order-1` and the app prefix `order-api`, and expand it to see its value, `queued`. Then go back to the **Editor** tab.
 
 > [!NOTE]
 > That does not prove the password came from the secret store. The Redis container that `dapr init` started has no password, so it accepts requests with or without one. To see the lookup happen you need the sidecar's own log.
@@ -218,7 +224,13 @@ Expected output:
 
 The sidecar log is not shown in the **Dapr CLI** window. `dapr run -f .` writes it to the `.dapr/logs` folder inside the demo folder, which is the folder named on the *Writing log files* line you saw earlier. Each time you start the application you get a new `order-api_daprd_*.log` file there.
 
-Use the **curl** window to go to your demo folder:
+Use the **curl** window to go to the lab folder:
+
+```bash,run
+cd /root/ai-agent-tracks-instruqt/secrets
+```
+
+Then go to your demo folder:
 
 <details>
    <summary><b>.NET</b></summary>
@@ -296,10 +308,14 @@ Use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
 
 The `nested-demo` folder holds a secrets file with a nested secret, `orderdb`, that has two fields: `user` and `password`. Open `nested-demo/resources/nested-stores.yaml`. It has three secret stores that read that same file. They differ only in the two fields from step 1.
 
-Use the **Dapr CLI** window to go to the folder and start a sidecar without an application:
+Use the **Dapr CLI** window to go to the lab folder and then to the `nested-demo` folder, and start a sidecar without an application:
 
 ```bash,run
-cd ../../nested-demo
+cd /root/ai-agent-tracks-instruqt/secrets
+```
+
+```bash,run
+cd nested-demo
 ```
 
 ```bash,run

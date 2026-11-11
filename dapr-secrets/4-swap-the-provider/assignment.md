@@ -3,6 +3,10 @@ In this challenge, you'll swap the secret store from a local file to HashiCorp V
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
+## Before you start
+
+The terminals, and the applications running in them, stay as they are when you move between pages. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `app-a` and `app-b` from the previous challenge, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
+
 ## 1. One name, another store
 
 The application asks Dapr for a secret store called `secretstore`. It has never known, and never will know, what is behind that name. So to swap the provider you don't touch the application. You change the YAML that defines `secretstore`.
@@ -42,7 +46,13 @@ The sandbox already stored your secrets in Vault, under the names Dapr expects (
 ## 3. Run the same application against Vault
 
 > [!IMPORTANT]
-> Run `dapr run -f .` from inside the `Demo3-SwapProvider` folder. If an application from an earlier challenge is still running, stop it first with `Ctrl+C` in the **Dapr CLI** window.
+> Run `dapr run -f .` from inside the `Demo3-SwapProvider` folder.
+
+Use the **Dapr CLI** window to go to the lab folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+
+```bash,run
+cd /root/ai-agent-tracks-instruqt/secrets
+```
 
 > [!NOTE]
 > Expand the language-specific instructions to start the application. The application is already built, so there is nothing you need to rebuild.
@@ -178,21 +188,13 @@ A secret that does not exist is a 500, just as it was with the local file.
 
 ## 5. The state store follows
 
-In challenge 2, the state store component got its password from `secretstore` through a `secretKeyRef`. That component is in the folder too, and it did not change. Its reference is now answered by Vault. Use the **curl** window to save and read a value:
+In challenge 2, the state store component got its password from `secretstore` through a `secretKeyRef`. That component is in the folder too, and it did not change. Its reference is now answered by Vault. Use the **curl** window to save a value with a new key, `order-2`:
 
 ```bash,run
-curl -s -X POST -H "Content-Type: application/json" -d '[{"key":"order-1","value":"queued"}]' http://localhost:3500/v1.0/state/statestore
+curl -s -X POST -H "Content-Type: application/json" -d '[{"key":"order-2","value":"shipped"}]' http://localhost:3500/v1.0/state/statestore
 ```
 
-```bash,run
-curl -s http://localhost:3500/v1.0/state/statestore/order-1
-```
-
-Expected output:
-
-```text,nocopy
-"queued"
-```
+Open the **Dev Dashboard** tab and go to the **State** page. It also lists `order-1`, which you saved in challenge 2. The record with the key `order-2` is the one you just saved through the Vault-backed component: expand it to see its value, `shipped`. Then go back to the **Editor** tab.
 
 Components that use `secretKeyRef` don't know which secret store provider is behind the name either.
 

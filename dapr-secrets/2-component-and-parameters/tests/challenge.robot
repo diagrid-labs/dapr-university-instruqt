@@ -318,12 +318,13 @@ Finish Value Proof
     Delete Proof Keys
 
 # doc-sync coverage (expressed via cwd and cwd-relative paths above):
+#   cd /root/ai-agent-tracks-instruqt/secrets
 #   cd dotnet/Demo1-ReadSecret
 #   cd python/Demo1-ReadSecret
 #   cd java/Demo1-ReadSecret
-#   cd ../../nested-demo
+#   cd nested-demo
 #   dapr run -f .                  (Read All Secrets Through The App, cwd = demo folder)
 #   dapr run --app-id nested-demo --dapr-http-port 3500 --resources-path resources
 #                                  (Nested Secrets Follow NestedSeparator And MultiValued)
-#   cd dotnet/Demo1-ReadSecret, cd python/Demo1-ReadSecret, cd java/Demo1-ReadSecret
-#                                  (the same folders, entered in the curl window for the log greps)
+#   The same three Demo1-ReadSecret folders are entered again in the curl window for the log
+#   greps, with the same commands as above.
