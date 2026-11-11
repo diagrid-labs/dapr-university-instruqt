@@ -1,3 +1,5 @@
+# The component and its parameters
+
 In this lab, you'll find out what each field of a secret store component does, and read secrets one at a time and in bulk. You'll also see a second component get its password from the secret store instead of having it written in its own file. This hands-on lab takes about 8 minutes to complete.
 
 > [!IMPORTANT]
@@ -197,7 +199,7 @@ Use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
 
 ## 6. Try nestedSeparator and multiValued
 
-The `nested-demo` folder holds a secrets file with a nested secret, `orderdb`, that has two fields: `user` and `password`. Open `nested-demo/resources/nested-stores.yaml`. It has three secret stores that read that same file. They differ only in the two fields from step 1.
+The `nested-demo` folder holds a secrets file with a nested secret, `orderdb`, that has two fields: `user` and `password`. Open `nested-demo/resources/nested-stores.yaml`. It has three secret store component definitions that read that same file. They differ only in the two fields from step 1.
 
 Use the **Dapr CLI** window to go to the `secrets` folder and then to the `nested-demo` folder, and start a sidecar without an application:
 
@@ -210,8 +212,10 @@ cd nested-demo
 ```
 
 ```bash,run
-dapr run --app-id nested-demo --dapr-http-port 3500 --resources-path resources
+dapr run --app-id nested-demo --dapr-http-port 3501 --resources-path resources
 ```
+
+This sidecar listens on port `3501` instead of `3500`, so it does not clash with the `order-api` sidecar if that one is still running.
 
 The **Dapr CLI** window should show this message when the sidecar is up:
 
@@ -222,7 +226,7 @@ The **Dapr CLI** window should show this message when the sidecar is up:
 First the store with the defaults. Use the **curl** window:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/nested-default/bulk | jq
+curl -s http://localhost:3501/v1.0/secrets/nested-default/bulk | jq
 ```
 
 Expected output:
@@ -244,7 +248,7 @@ Expected output:
 The nested `orderdb` secret became two flat secrets, and `:` joins the parts of the name. Now the store with `nestedSeparator` set to `.`:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/nested-flat/bulk | jq
+curl -s http://localhost:3501/v1.0/secrets/nested-flat/bulk | jq
 ```
 
 Expected output:
@@ -266,7 +270,7 @@ Expected output:
 Same secrets, different names. An application that asks for `orderdb:password` gets nothing from this store, so the separator is part of the contract between the component and its callers. Finally the store with `multiValued` set to `true`:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/nested-multi/bulk | jq
+curl -s http://localhost:3501/v1.0/secrets/nested-multi/bulk | jq
 ```
 
 Expected output:
@@ -286,7 +290,7 @@ Expected output:
 Nothing is flattened. `orderdb` is one secret with two fields, which is the reason Dapr wraps every secret in a map. Ask for it by name:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/nested-multi/orderdb | jq
+curl -s http://localhost:3501/v1.0/secrets/nested-multi/orderdb | jq
 ```
 
 Expected output:

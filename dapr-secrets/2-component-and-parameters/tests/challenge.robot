@@ -86,18 +86,18 @@ Nested Secrets Follow NestedSeparator And MultiValued
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Stop Process With SIGINT    nested
     Start Background Process
-    ...    dapr run --app-id nested-demo --dapr-http-port 3500 --resources-path resources
+    ...    dapr run --app-id nested-demo --dapr-http-port 3501 --resources-path resources
     ...    ${LOG}    nested    cwd=${NESTED_DIR}
     Wait Until Command Output Contains
-    ...    curl -s http://localhost:3500/v1.0/secrets/nested-default/bulk    ${NESTED_DEFAULT}    60s
+    ...    curl -s http://localhost:3501/v1.0/secrets/nested-default/bulk    ${NESTED_DEFAULT}    60s
     Assert Pretty JSON Output
-    ...    curl -s http://localhost:3500/v1.0/secrets/nested-default/bulk | jq    ${NESTED_DEFAULT}
+    ...    curl -s http://localhost:3501/v1.0/secrets/nested-default/bulk | jq    ${NESTED_DEFAULT}
     Assert Pretty JSON Output
-    ...    curl -s http://localhost:3500/v1.0/secrets/nested-flat/bulk | jq    ${NESTED_FLAT}
+    ...    curl -s http://localhost:3501/v1.0/secrets/nested-flat/bulk | jq    ${NESTED_FLAT}
     Assert Pretty JSON Output
-    ...    curl -s http://localhost:3500/v1.0/secrets/nested-multi/bulk | jq    ${NESTED_MULTI}
+    ...    curl -s http://localhost:3501/v1.0/secrets/nested-multi/bulk | jq    ${NESTED_MULTI}
     Assert Pretty JSON Output
-    ...    curl -s http://localhost:3500/v1.0/secrets/nested-multi/orderdb | jq    ${MULTI_ORDERDB}
+    ...    curl -s http://localhost:3501/v1.0/secrets/nested-multi/orderdb | jq    ${MULTI_ORDERDB}
 
 # Negative controls for the secretKeyRef assertion in the language tests. Each one starts a
 # multi-app run (`dapr run -f .`, the same way as the demos) from a throwaway folder holding a
@@ -326,5 +326,5 @@ Finish Value Proof
 #   cd java/Demo1-ReadSecret
 #   cd nested-demo
 #   dapr run -f .                  (Read All Secrets Through The App, cwd = demo folder)
-#   dapr run --app-id nested-demo --dapr-http-port 3500 --resources-path resources
+#   dapr run --app-id nested-demo --dapr-http-port 3501 --resources-path resources
 #                                  (Nested Secrets Follow NestedSeparator And MultiValued)

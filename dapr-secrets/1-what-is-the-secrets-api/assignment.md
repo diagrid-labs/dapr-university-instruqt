@@ -1,3 +1,5 @@
+# What is the Secrets API
+
 In this lab, you'll run an application that reads a secret through the Dapr Secrets API. This hands-on lab takes about 5 minutes to complete.
 
 > [!IMPORTANT]
