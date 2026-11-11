@@ -28,9 +28,6 @@ Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal st
 cd /root/ai-agent-tracks-instruqt/secrets
 ```
 
-> [!NOTE]
-> Expand the language-specific instructions to start the applications.
-
 <details>
    <summary><b>.NET</b></summary>
 

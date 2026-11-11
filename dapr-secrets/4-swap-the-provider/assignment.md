@@ -54,8 +54,7 @@ Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal st
 cd /root/ai-agent-tracks-instruqt/secrets
 ```
 
-> [!NOTE]
-> Expand the language-specific instructions to start the application. The application is already built, so there is nothing you need to rebuild.
+The application is already built, so there is nothing you need to rebuild.
 
 <details>
    <summary><b>.NET</b></summary>

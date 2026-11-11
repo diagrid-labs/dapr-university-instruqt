@@ -56,9 +56,6 @@ cd /root/ai-agent-tracks-instruqt/secrets
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the demo folder (`Demo1-ReadSecret` of your language). The `secretsFile` path in the component is relative to that folder, so running the command from anywhere else means the secret store cannot find `secrets.json`.
 
-> [!NOTE]
-> Expand the language-specific instructions to start the application.
-
 <details>
    <summary><b>.NET</b></summary>
 
