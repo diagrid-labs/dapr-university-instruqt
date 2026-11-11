@@ -281,9 +281,10 @@ It gets the same refusal as the real `orderdb-password`. Dapr answers a scoped-o
 
 ## 7. The other direction
 
-You can also write the rule the other way around: allow everything, and name what is forbidden. Open `config-app-b.yaml` again and make two changes. Change `defaultAccess: deny` to `defaultAccess: allow`, and replace the whole `allowedSecrets` line with this line:
+You can also write the rule the other way around: allow everything, and name what is forbidden. Open `config-app-b.yaml` again and replace the `defaultAccess` and `allowedSecrets` lines with these two lines:
 
 ```yaml,copy
+        defaultAccess: allow
         deniedSecrets: ["orderdb-password"]
 ```
 
