@@ -2,9 +2,6 @@
 
 In this lab, you'll swap the secret store from a local file to HashiCorp Vault, and run the same application against it. This hands-on lab takes about 7 minutes to complete.
 
-> [!IMPORTANT]
-> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
-
 ## Before you start
 
 The terminals, and the applications running in them, stay as they are when you move between pages. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `app-a` and `app-b` from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.

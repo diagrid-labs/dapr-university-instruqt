@@ -2,9 +2,6 @@
 
 In this lab, you'll find out what each field of a secret store component does, and read secrets one at a time and in bulk. You'll also see a second component get its password from the secret store instead of having it written in its own file. This hands-on lab takes about 8 minutes to complete.
 
-> [!IMPORTANT]
-> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
-
 ## 1. The component, field by field
 
 Use the **Editor** tab and open the `secretstore-local.yaml` file in the `resources` folder of your language (for example `dotnet/resources`). Every field in it has a job, and each one is something you could change:
