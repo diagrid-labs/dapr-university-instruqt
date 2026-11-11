@@ -328,10 +328,10 @@ Run the check below while both applications are still running: it asks them. Whe
 
 <instruqt-task id="scoping"></instruqt-task>
 
-## What's next?
-
-So far every secret came from the `secrets.json` file. In the next and last lab you'll swap the local file store for HashiCorp Vault. You'll run the same `order-api` application from labs 1 and 2 against a `secretstore` component that points at Vault, without rebuilding or changing the application, and see that the state store's `secretKeyRef` follows the swap as well.
-
 ---
 
 An app can now only read the secrets it is allowed to read.
+
+## What's next?
+
+So far every secret came from the `secrets.json` file. In the next and last lab you'll swap the local file store for HashiCorp Vault. You'll run the same `order-api` application from labs 1 and 2 against a `secretstore` component that points at Vault, without rebuilding or changing the application, and see that the state store's `secretKeyRef` follows the swap as well.

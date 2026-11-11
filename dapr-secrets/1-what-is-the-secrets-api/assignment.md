@@ -170,10 +170,10 @@ This is the same API in every language, and it is the same API no matter which s
 
 Do not stop the application. The **Dapr CLI** window and the application in it stay as they are when you move to the next page, and the next lab continues with this same application.
 
-## What's next?
-
-In the next lab you'll take a closer look at the `secretstore` component, with the `order-api` application that is still running. You'll find out what each field of `secretstore-local.yaml` does, read all secrets with one call, let a Redis state store get its password from the secret store with `secretKeyRef`, and see how `nestedSeparator` and `multiValued` change the names of nested secrets.
-
 ---
 
 You've now read a secret through the Dapr Secrets API, from your application and from the sidecar directly.
+
+## What's next?
+
+In the next lab you'll take a closer look at the `secretstore` component, with the `order-api` application that is still running. You'll find out what each field of `secretstore-local.yaml` does, read all secrets with one call, let a Redis state store get its password from the secret store with `secretKeyRef`, and see how `nestedSeparator` and `multiValued` change the names of nested secrets.

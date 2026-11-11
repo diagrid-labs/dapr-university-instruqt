@@ -297,12 +297,12 @@ Expected output:
 
 One request returns the whole database login. Use the **Dapr CLI** window to stop the sidecar by pressing `Ctrl+C`.
 
+---
+
+You now know what each part of a secret store component does.
+
 ## What's next?
 
 So far every application with a sidecar can read every secret in the store. That is convenient, but it is also the problem: any application could read the payments key too.
 
 In the next lab you'll run two applications with the same code against one secret store. Both read the database password at first. Then you'll give one of them a Dapr configuration that lists the secrets it may read, and see it refused with a 403, without changing any code.
-
----
-
-You now know what each part of a secret store component does.
