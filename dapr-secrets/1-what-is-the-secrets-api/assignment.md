@@ -178,10 +178,8 @@ Do not stop the application. The **Dapr CLI** window and the application in it s
 
 ## What's next?
 
-Right now there is one application and it can read every secret in the store. That is convenient, but it is also the problem: any application with a sidecar could read the payments key too.
-
-In challenge 3 you'll run two applications with the same code against one secret store. Both read their secrets without trouble at first, and then you'll make one of them fail on purpose.
+In the next challenge you'll take a closer look at the `secretstore` component, with the `order-api` application that is still running. You'll find out what each field of `secretstore-local.yaml` does, read all secrets with one call, let a Redis state store get its password from the secret store with `secretKeyRef`, and see how `nestedSeparator` and `multiValued` change the names of nested secrets.
 
 ---
 
-You've now read a secret through the Dapr Secrets API. Let's move on to the *secret store component* and how it can be configured.
+You've now read a secret through the Dapr Secrets API, from your application and from the sidecar directly.
