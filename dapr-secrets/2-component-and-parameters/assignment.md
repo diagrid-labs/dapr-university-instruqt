@@ -20,25 +20,13 @@ You'll try both in step 6.
 
 ## 2. Check that the application is running
 
-The `order-api` application from the previous challenge should still be running in the **Dapr CLI** window. The **Dev Dashboard** tab lists it as well. The `dapr.yaml` file in the demo folder points the sidecar at the `resources` folder, so every component file in that folder was loaded when the application started.
+The `order-api` application from the previous challenge should still be running in the **Dapr CLI** window. The `dapr.yaml` file in the demo folder points the sidecar at the `resources` folder, so every component file in that folder was loaded when the application started.
 
-Use the **curl** window to read a single secret, as in the previous challenge:
-
-```bash,run
-curl -s http://localhost:5001/secret/orderdb-password
-```
-
-Expected output:
-
-```text,nocopy
-{"name":"orderdb-password","value":"s3cr3t-pa55w0rd"}
-```
-
-If you see this output, the application is running: continue with *The sidecar log folder* below.
+Open the **Dev Dashboard** tab and go to the **Applications** page. If `order-api` is listed there as running, go back to the **Editor** tab and continue with step 3.
 
 ### If the application is not running
 
-If the `curl` command prints nothing, or the **Dapr CLI** window shows a prompt instead of application logs, start the application again.
+If `order-api` is not on the **Applications** page, or the **Dapr CLI** window shows a prompt instead of application logs, start the application again.
 
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the demo folder (`Demo1-ReadSecret` of your language). The `secretsFile` path in the component is relative to that folder. If another application is still running, stop it first with `Ctrl+C` in the **Dapr CLI** window.
@@ -115,20 +103,9 @@ dapr run -f .
 > Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing. The Java application can take a little longer to start.
 
 > [!NOTE]
-> The application can start accepting requests a moment before its Dapr sidecar is ready. If the `curl` command returns an error, wait a few seconds and run it again.
+> The application can start accepting requests a moment before its Dapr sidecar is ready. If the first `curl` command in the next step returns an error, wait a few seconds and run it again.
 
-When the application is running, run the `curl` command above again.
-
-### The sidecar log folder
-
-When the application started, the **Dapr CLI** window showed these lines. The port number can differ, and your own application's logs follow:
-
-```text,nocopy
-ℹ️  Started Dapr with app id "order-api". HTTP Port: 3500. gRPC Port: 39945
-ℹ️  Writing log files to directory : .../Demo1-ReadSecret/.dapr/logs
-```
-
-The second line matters later in this challenge: with `dapr run -f .` the sidecar's own log goes to that folder, not to the window.
+When the application is running, it is listed on the **Applications** page of the **Dev Dashboard** as well.
 
 ## 3. Read all secrets at once
 
@@ -222,55 +199,16 @@ This command prints nothing when it succeeds. Now look at what was saved. Open t
 
 ### Watch the lookup happen
 
-The sidecar log is not shown in the **Dapr CLI** window. `dapr run -f .` writes it to the `.dapr/logs` folder inside the demo folder, which is the folder named on the *Writing log files* line you saw earlier. Each time you start the application you get a new `order-api_daprd_*.log` file there.
+The sidecar log is not shown in the **Dapr CLI** window: `dapr run -f .` writes it to a file in the `.dapr/logs` folder of the demo folder. The **Dev Dashboard** reads those files for you.
 
-Use the **curl** window to go to the lab folder:
+1. Open the **Dev Dashboard** tab and go to the **Logs** page.
+2. Select `order-api` in the application drop-down.
+3. Type `Component` in the search bar.
 
-```bash,run
-cd /root/ai-agent-tracks-instruqt/secrets
-```
-
-Then go to your demo folder:
-
-<details>
-   <summary><b>.NET</b></summary>
-
-```bash,run
-cd dotnet/Demo1-ReadSecret
-```
-
-</details>
-
-<details>
-   <summary><b>Python</b></summary>
-
-```bash,run
-cd python/Demo1-ReadSecret
-```
-
-</details>
-
-<details>
-   <summary><b>Java</b></summary>
-
-```bash,run
-cd java/Demo1-ReadSecret
-```
-
-</details>
-
-###
-
-Search the sidecar logs for the line that says the state store was loaded:
-
-```bash,run
-grep -h "Component loaded: statestore" .dapr/logs/order-api_daprd_*.log
-```
-
-Expected output, one line for every time you started the application from this folder (the timestamp and instance name differ):
+The list now shows every log entry that has *Component* in it. Find the entry that says the state store was loaded (the timestamp differs):
 
 ```text,nocopy
-time="2026-10-21T10:15:02.123456789Z" level=info msg="Component loaded: statestore (state.redis/v1)" app_id=order-api ...
+Component loaded: statestore (state.redis/v1)
 ```
 
 ### Break the reference
@@ -284,16 +222,12 @@ Now make the reference point at a secret that does not exist.
 dapr run -f .
 ```
 
-Search the logs for the failed lookup:
+Go back to the **Logs** page of the **Dev Dashboard**, and select `order-api` again if the drop-down is empty. With `Component` in the search bar, you'll still find `Component loaded: statestore (state.redis/v1)`: the state store was loaded anyway.
 
-```bash,run
-grep -h "Error getting secret" .dapr/logs/order-api_daprd_*.log
-```
-
-Expected output:
+The failed lookup itself does not have the word *Component* in it. Replace the search text with `Error getting secret`:
 
 ```text,nocopy
-time="2026-10-21T10:21:40.123456789Z" level=error msg="Error getting secret: secret not-in-the-store not found" app_id=order-api ...
+Error getting secret: secret not-in-the-store not found
 ```
 
 Look at what did not happen: the sidecar did not stop. It logged the error and loaded the state store without a password, and the application still started. A component that cannot resolve its reference fails quietly, so this log line is the only place you will see it.
@@ -378,6 +312,12 @@ Expected output:
 
 One request returns the whole database login. Use the **Dapr CLI** window to stop the sidecar by pressing `Ctrl+C`.
 
+## What's next?
+
+So far every application with a sidecar can read every secret in the store. That is convenient, but it is also the problem: any application could read the payments key too.
+
+In the next challenge you'll run two applications with the same code against one secret store. Both read the database password at first. Then you'll give one of them a Dapr configuration that lists the secrets it may read, and see it refused with a 403, without changing any code.
+
 ---
 
-You now know what each part of a secret store component does. Let's move on to *secret scoping*, where you decide which application may read which secret.
+You now know what each part of a secret store component does.

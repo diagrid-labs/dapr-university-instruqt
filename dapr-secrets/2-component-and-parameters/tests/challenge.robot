@@ -326,5 +326,3 @@ Finish Value Proof
 #   dapr run -f .                  (Read All Secrets Through The App, cwd = demo folder)
 #   dapr run --app-id nested-demo --dapr-http-port 3500 --resources-path resources
 #                                  (Nested Secrets Follow NestedSeparator And MultiValued)
-#   The same three Demo1-ReadSecret folders are entered again in the curl window for the log
-#   greps, with the same commands as above.
