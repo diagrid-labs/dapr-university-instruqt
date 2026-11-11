@@ -13,7 +13,6 @@ ${APP_URL}       http://localhost:5001
 # The values secrets.example.json (the single owner of the demo values) holds, as the
 # assignment shows them. Every language returns compact JSON with "name" first.
 ${ORDERDB_JSON}     {"name":"orderdb-password","value":"s3cr3t-pa55w0rd"}
-${PAYMENTS_JSON}    {"name":"payments-api-key","value":"pk-test-7f3a9"}
 # The raw Dapr Secrets API response: the secret name maps to its value.
 ${RAW_JSON}         {"orderdb-password":"s3cr3t-pa55w0rd"}
 # What every app returns for a name the store does not have: the HTTP status follows the Dapr
@@ -97,8 +96,6 @@ Read Secrets Through The App
     # The assignment's commands pipe the responses into jq.
     Assert Pretty JSON Output
     ...    curl -s http://localhost:5001/secret/orderdb-password | jq    ${ORDERDB_JSON}
-    Assert Pretty JSON Output
-    ...    curl -s http://localhost:5001/secret/payments-api-key | jq    ${PAYMENTS_JSON}
     # The same value, straight from the Dapr Secrets API of the sidecar.
     Assert Pretty JSON Output
     ...    curl -s http://localhost:3500/v1.0/secrets/secretstore/orderdb-password | jq    ${RAW_JSON}

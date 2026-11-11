@@ -148,21 +148,6 @@ Expected output:
 }
 ```
 
-Now ask for the other secret in the file:
-
-```bash,run
-curl -s http://localhost:5001/secret/payments-api-key | jq
-```
-
-Expected output:
-
-```json,nocopy
-{
-  "name": "payments-api-key",
-  "value": "pk-test-7f3a9"
-}
-```
-
 ## 5. Read a secret from the Dapr API directly
 
 The application did not read `secrets.json` itself. It called the Dapr Secrets API of its sidecar, and you can do the same with curl. The sidecar listens on port 3500 and the `secretstore` component is part of the URL:
