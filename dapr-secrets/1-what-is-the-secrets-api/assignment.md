@@ -47,14 +47,14 @@ The secret store itself is defined in the `secretstore-local.yaml` file in the `
 
 The `dapr.yaml` file in the demo folder is a Multi-App Run file. It starts the `order-api` application together with its Dapr sidecar and tells Dapr where to find the components.
 
-> [!IMPORTANT]
-> Run `dapr run -f .` from inside the demo folder (`Demo1-ReadSecret` of your language). The `secretsFile` path in the component is relative to that folder, so running the command from anywhere else means the secret store cannot find `secrets.json`.
-
 Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
 
 ```bash,run
 cd /root/ai-agent-tracks-instruqt/secrets
 ```
+
+> [!IMPORTANT]
+> Run `dapr run -f .` from inside the demo folder (`Demo1-ReadSecret` of your language). The `secretsFile` path in the component is relative to that folder, so running the command from anywhere else means the secret store cannot find `secrets.json`.
 
 > [!NOTE]
 > Expand the language-specific instructions to start the application.
@@ -120,6 +120,8 @@ dapr run -f .
 
 > [!IMPORTANT]
 > Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing. The Java application can take a little longer to start.
+>
+> You can also check the application status in the **Dev Dashboard** tab: go to the **Applications** page and select `order-api`.
 
 > [!NOTE]
 > The application can start accepting requests a moment before its Dapr sidecar is ready. If the first `curl` in the next step returns an error, that is not a problem with your setup: wait a few seconds and run it again.
