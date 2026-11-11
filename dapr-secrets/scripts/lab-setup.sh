@@ -4,7 +4,7 @@
 # ready marker itself once this succeeds. So: -e/-u/pipefail are inherited, `exit` only leaves
 # the subshell, and nothing here may touch the marker.
 #
-# Needs DAPR_RUNTIME_VERSION and TRACKS_SRC_REF in the environment. Safe to re-run: the demo clone
+# Needs DAPR_RUNTIME_VERSION, TRACKS_SRC_REF and JQ_VERSION in the environment. Safe to re-run: the demo clone
 # and the Dapr containers are left alone when they already exist, Vault is re-seeded.
 set -euo pipefail
 
@@ -18,6 +18,7 @@ fi
 export HOME
 : "${DAPR_RUNTIME_VERSION:?DAPR_RUNTIME_VERSION must be set}"
 : "${TRACKS_SRC_REF:?TRACKS_SRC_REF must be set}"
+: "${JQ_VERSION:?JQ_VERSION must be set}"
 export PATH="$PATH:/usr/local/bin:$HOME/.local/bin"
 
 # Instruqt only shows the startup script's output in the lab Logs once the script has ended. Keep
@@ -141,6 +142,31 @@ until curl -sS -o /dev/null -m 10 https://github.com 2>/dev/null; do
     sleep 2
 done
 log "outbound HTTPS to github.com works (${SECONDS}s since start)"
+
+# jq pretty-prints the JSON of the page 2 curl commands (`curl -s ... | jq`). The sandbox image
+# does not ship it yet, so download the pinned static binary from the jq releases on GitHub (one
+# file, faster than apt). Skipped when jq is already installed. A failed download only logs a
+# warning: the lab works without it, the page 2 output is just not pretty-printed.
+install_jq() {
+    local arch url
+    case "$(uname -m)" in
+        x86_64) arch=amd64 ;;
+        aarch64 | arm64) arch=arm64 ;;
+        *) log "WARNING: no jq download for $(uname -m)"; return 0 ;;
+    esac
+    url="https://github.com/jqlang/jq/releases/download/jq-${JQ_VERSION}/jq-linux-${arch}"
+    if bounded 60 curl -fsSL --retry 3 -o /usr/local/bin/jq "$url" && chmod +x /usr/local/bin/jq; then
+        log "jq $JQ_VERSION installed (${SECONDS}s since start)"
+    else
+        rm -f /usr/local/bin/jq
+        log "WARNING: could not install jq from $url"
+    fi
+}
+if command -v jq >/dev/null 2>&1; then
+    log "jq already installed: $(jq --version)"
+else
+    install_jq
+fi
 
 # The demo repo holds the three-language apps and the scoping/Vault resources. It lives at a
 # fixed path because the track-tester suites and the assignments both refer to it.

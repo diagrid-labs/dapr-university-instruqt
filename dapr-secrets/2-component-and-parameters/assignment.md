@@ -140,25 +140,35 @@ Open the `SecretController.java` file in the `java/Demo1-ReadSecret/src/main/jav
 Call it from the **curl** window:
 
 ```bash,run
-curl -s http://localhost:5001/secrets
+curl -s http://localhost:5001/secrets | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"orderdb-password":"s3cr3t-pa55w0rd","payments-api-key":"pk-test-7f3a9"}
+```json,nocopy
+{
+  "orderdb-password": "s3cr3t-pa55w0rd",
+  "payments-api-key": "pk-test-7f3a9"
+}
 ```
 
 Both secrets in the store come back. Now ask the sidecar directly:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/secretstore/bulk
+curl -s http://localhost:3500/v1.0/secrets/secretstore/bulk | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"orderdb-password":{"orderdb-password":"s3cr3t-pa55w0rd"},"payments-api-key":{"payments-api-key":"pk-test-7f3a9"}}
+```json,nocopy
+{
+  "orderdb-password": {
+    "orderdb-password": "s3cr3t-pa55w0rd"
+  },
+  "payments-api-key": {
+    "payments-api-key": "pk-test-7f3a9"
+  }
+}
 ```
 
 Look at the shape. Dapr returns every secret as a map of its own, because a single secret can hold several fields (you'll see that with `multiValued` in step 6). The application flattened that into one simple object before answering you.
@@ -197,7 +207,7 @@ curl -s -X POST -H "Content-Type: application/json" -d '[{"key":"order-1","value
 This command prints nothing when it succeeds. Now look at what was saved. Open the **Dev Dashboard** tab and go to the **State** page. It lists the records in the state store: find the record with the key `order-1` and the app prefix `order-api`, and expand it to see its value, `queued`. Then go back to the **Editor** tab.
 
 > [!NOTE]
-> That does not prove the password came from the secret store. The Redis container that `dapr init` started has no password, so it accepts requests with or without one. To see the lookup happen you need the sidecar's own log.
+> A working state store does not prove that the password came from the secret store. To see the lookup happen, you need the sidecar's own log.
 
 ### Watch the lookup happen
 
@@ -213,28 +223,8 @@ The list now shows every log entry that has *Component* in it. Find the entry th
 Component loaded: statestore (state.redis/v1)
 ```
 
-### Break the reference
-
-Now make the reference point at a secret that does not exist.
-
-1. In the **Editor** tab, open `statestore-with-secretref.yaml` in your language's `resources` folder and change `name: orderdb-password` to `name: not-in-the-store`. Leave `key` alone.
-2. In the **Dapr CLI** window, press `Ctrl+C`, then start the application again from the same folder and wait a few seconds:
-
-```bash,run
-dapr run -f .
-```
-
-Go back to the **Logs** page of the **Dev Dashboard**, and select `order-api` again if the drop-down is empty. With `Component` in the search bar, you'll still find `Component loaded: statestore (state.redis/v1)`: the state store was loaded anyway.
-
-The failed lookup itself does not have the word *Component* in it. Replace the search text with `Error getting secret`:
-
-```text,nocopy
-Error getting secret: secret not-in-the-store not found
-```
-
-Look at what did not happen: the sidecar did not stop. It logged the error and loaded the state store without a password, and the application still started. A component that cannot resolve its reference fails quietly, so this log line is the only place you will see it.
-
-Change `name` back to `orderdb-password` in the **Editor** before you continue.
+> [!NOTE]
+> A reference to a secret that does not exist does not stop the sidecar. If `name` in `statestore-with-secretref.yaml` pointed at a secret that is not in the store, for example `not-in-the-store`, the sidecar would log `Error getting secret: secret not-in-the-store not found`, load the state store without a password, and start the application anyway. In this demo application Redis does not require a password, so the state store would even keep working. With a Redis that does require one, the state store calls would fail, and this log line would be the only place that tells you why.
 
 ## 5. Stop the application
 
@@ -267,49 +257,80 @@ The **Dapr CLI** window should show this message when the sidecar is up:
 First the store with the defaults. Use the **curl** window:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/nested-default/bulk
+curl -s http://localhost:3500/v1.0/secrets/nested-default/bulk | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"orderdb:password":{"orderdb:password":"demo-nested-password"},"orderdb:user":{"orderdb:user":"orders"},"payments-api-key":{"payments-api-key":"pk-test-7f3a9"}}
+```json,nocopy
+{
+  "orderdb:password": {
+    "orderdb:password": "demo-nested-password"
+  },
+  "orderdb:user": {
+    "orderdb:user": "orders"
+  },
+  "payments-api-key": {
+    "payments-api-key": "pk-test-7f3a9"
+  }
+}
 ```
 
 The nested `orderdb` secret became two flat secrets, and `:` joins the parts of the name. Now the store with `nestedSeparator` set to `.`:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/nested-flat/bulk
+curl -s http://localhost:3500/v1.0/secrets/nested-flat/bulk | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"orderdb.password":{"orderdb.password":"demo-nested-password"},"orderdb.user":{"orderdb.user":"orders"},"payments-api-key":{"payments-api-key":"pk-test-7f3a9"}}
+```json,nocopy
+{
+  "orderdb.password": {
+    "orderdb.password": "demo-nested-password"
+  },
+  "orderdb.user": {
+    "orderdb.user": "orders"
+  },
+  "payments-api-key": {
+    "payments-api-key": "pk-test-7f3a9"
+  }
+}
 ```
 
 Same secrets, different names. An application that asks for `orderdb:password` gets nothing from this store, so the separator is part of the contract between the component and its callers. Finally the store with `multiValued` set to `true`:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/nested-multi/bulk
+curl -s http://localhost:3500/v1.0/secrets/nested-multi/bulk | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"orderdb":{"password":"demo-nested-password","user":"orders"},"payments-api-key":{"payments-api-key":"pk-test-7f3a9"}}
+```json,nocopy
+{
+  "orderdb": {
+    "password": "demo-nested-password",
+    "user": "orders"
+  },
+  "payments-api-key": {
+    "payments-api-key": "pk-test-7f3a9"
+  }
+}
 ```
 
 Nothing is flattened. `orderdb` is one secret with two fields, which is the reason Dapr wraps every secret in a map. Ask for it by name:
 
 ```bash,run
-curl -s http://localhost:3500/v1.0/secrets/nested-multi/orderdb
+curl -s http://localhost:3500/v1.0/secrets/nested-multi/orderdb | jq
 ```
 
 Expected output:
 
-```text,nocopy
-{"password":"demo-nested-password","user":"orders"}
+```json,nocopy
+{
+  "password": "demo-nested-password",
+  "user": "orders"
+}
 ```
 
 One request returns the whole database login. Use the **Dapr CLI** window to stop the sidecar by pressing `Ctrl+C`.
