@@ -8,4 +8,4 @@ status() { curl -s -m 10 -o /dev/null -w '%{http_code}' "$1"; }
 if [ "$(status http://localhost:5002/)" != "000" ] || [ "$(status http://localhost:5003/)" != "000" ]; then
     exit 1
 fi
-echo "No apps from the previous challenge are blocking the swap."
+echo "No apps from the previous lab are blocking the swap."

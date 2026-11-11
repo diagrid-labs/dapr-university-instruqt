@@ -7,7 +7,7 @@ resource "lab" "main" {
     - How to scope secrets so one app can read a secret and another app is refused
     - How to swap the local file store for HashiCorp Vault without changing any application code
 
-    You'll probably need around 28 minutes to complete the 4 challenges.
+    You'll probably need around 28 minutes to complete the 4 labs.
   EOT
 
   settings {

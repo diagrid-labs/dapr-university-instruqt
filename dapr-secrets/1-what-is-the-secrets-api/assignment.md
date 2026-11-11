@@ -1,13 +1,13 @@
-In this challenge, you'll run an application that reads a secret through the Dapr Secrets API. This hands-on challenge takes about 5 minutes to complete.
+In this lab, you'll run an application that reads a secret through the Dapr Secrets API. This hands-on lab takes about 5 minutes to complete.
 
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
 ## 1. Why a secret store?
 
-The `order-api` application in this challenge needs a database password. It could read it from a config file or an environment variable, but then the password sits in plain text next to the code, in the deployment settings, and probably in a git history.
+The `order-api` application in this lab needs a database password. It could read it from a config file or an environment variable, but then the password sits in plain text next to the code, in the deployment settings, and probably in a git history.
 
-With the Dapr Secrets API the application only asks the Dapr sidecar for a secret *by name*. Where that secret really lives is configured in a Dapr component. In this challenge the component is the simplest one: a local file store that reads a `secrets.json` file.
+With the Dapr Secrets API the application only asks the Dapr sidecar for a secret *by name*. Where that secret really lives is configured in a Dapr component. In this lab the component is the simplest one: a local file store that reads a `secrets.json` file.
 
 The `secrets.json` file in the `secrets` folder contains two fake secrets: `orderdb-password` and `payments-api-key`.
 
@@ -50,7 +50,7 @@ The `dapr.yaml` file in the demo folder is a Multi-App Run file. It starts the `
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the demo folder (`Demo1-ReadSecret` of your language). The `secretsFile` path in the component is relative to that folder, so running the command from anywhere else means the secret store cannot find `secrets.json`.
 
-Use the **Dapr CLI** window to go to the lab folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
 
 ```bash,run
 cd /root/ai-agent-tracks-instruqt/secrets
@@ -174,11 +174,11 @@ This is the same API in every language, and it is the same API no matter which s
 
 ## 6. Leave the application running
 
-Do not stop the application. The **Dapr CLI** window and the application in it stay as they are when you move to the next page, and the next challenge continues with this same application.
+Do not stop the application. The **Dapr CLI** window and the application in it stay as they are when you move to the next page, and the next lab continues with this same application.
 
 ## What's next?
 
-In the next challenge you'll take a closer look at the `secretstore` component, with the `order-api` application that is still running. You'll find out what each field of `secretstore-local.yaml` does, read all secrets with one call, let a Redis state store get its password from the secret store with `secretKeyRef`, and see how `nestedSeparator` and `multiValued` change the names of nested secrets.
+In the next lab you'll take a closer look at the `secretstore` component, with the `order-api` application that is still running. You'll find out what each field of `secretstore-local.yaml` does, read all secrets with one call, let a Redis state store get its password from the secret store with `secretKeyRef`, and see how `nestedSeparator` and `multiValued` change the names of nested secrets.
 
 ---
 
