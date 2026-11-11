@@ -506,8 +506,15 @@ For a new .NET, JDK, Node, Dapr CLI, code-server, Dev Dashboard or prewarmed run
    `node_major`, `dapr_cli_version`, `code_server_version`, `dev_dashboard_version` or
    `prewarm_dapr_runtime_version`).
 2. Render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh > image.sh`.
-3. Rebuild the image as in section 2 (steps 2 to 9). When publishing, choose the existing image
-   `dapr-sandbox` and a new **Version** tag (for example `v2`).
+3. Rebuild the image as in section 2 (steps 2 to 9). How it publishes depends on where the build
+   session started:
+   - **From the system `ubuntu` 24.04 base** (recommended: the image is defined by `image.sh`
+     alone): a base image cannot take a new version, so Publish asks for a **new image name**. An
+     existing name is refused ("This team already has an image with this name"); use the next free
+     one, e.g. `dapr-sandbox-3` with tag `v1` (the module 1.0.2 image is `diagrid/dapr-sandbox-2:v1`).
+   - **From the previous image** (**New version** on the image's page, or Create image → Base image
+     → **Team**): under **Publish as** pick **a new version of** that image and a new tag (e.g.
+     `v2`). The new version is layered on the old one, including anything left over in it.
 4. Set `image_ref` in `modules/dapr-sandbox/versions.hcl` to the new reference.
 5. Open a PR. `lab-validate` and `dapr-secrets-result` must pass; merge it.
 6. Import/refresh the module and **Publish version** as the next number (for example `1.1.0`;

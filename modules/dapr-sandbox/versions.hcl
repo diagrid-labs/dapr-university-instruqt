@@ -4,7 +4,7 @@
 
 variable "image_ref" {
   description = "VM image the sandbox boots from. Replaced by the Image Builder output (diagrid/<image-name>:<tag>) once the image is built."
-  default     = "diagrid/dapr-sandbox:v1"
+  default     = "diagrid/dapr-sandbox-2:v1"
 }
 
 variable "dotnet_sdk_channel" {
