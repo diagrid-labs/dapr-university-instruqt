@@ -213,28 +213,8 @@ The list now shows every log entry that has *Component* in it. Find the entry th
 Component loaded: statestore (state.redis/v1)
 ```
 
-### Break the reference
-
-Now make the reference point at a secret that does not exist.
-
-1. In the **Editor** tab, open `statestore-with-secretref.yaml` in your language's `resources` folder and change `name: orderdb-password` to `name: not-in-the-store`. Leave `key` alone.
-2. In the **Dapr CLI** window, press `Ctrl+C`, then start the application again from the same folder and wait a few seconds:
-
-```bash,run
-dapr run -f .
-```
-
-Go back to the **Logs** page of the **Dev Dashboard**, and select `order-api` again if the drop-down is empty. With `Component` in the search bar, you'll still find `Component loaded: statestore (state.redis/v1)`: the state store was loaded anyway.
-
-The failed lookup itself does not have the word *Component* in it. Replace the search text with `Error getting secret`:
-
-```text,nocopy
-Error getting secret: secret not-in-the-store not found
-```
-
-Look at what did not happen: the sidecar did not stop. It logged the error and loaded the state store without a password, and the application still started. A component that cannot resolve its reference fails quietly, so this log line is the only place you will see it.
-
-Change `name` back to `orderdb-password` in the **Editor** before you continue.
+> [!NOTE]
+> A reference to a secret that does not exist does not stop the sidecar. If `name` in `statestore-with-secretref.yaml` pointed at a secret that is not in the store, for example `not-in-the-store`, the sidecar would log `Error getting secret: secret not-in-the-store not found`, load the state store without a password, and start the application anyway. In this demo application Redis does not require a password, so the state store would even keep working. With a Redis that does require one, the state store calls would fail, and this log line would be the only place that tells you why.
 
 ## 5. Stop the application
 
