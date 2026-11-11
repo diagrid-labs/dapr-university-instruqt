@@ -2,9 +2,6 @@
 
 In this lab, you'll run two apps that have the same code and read from the same secret store. One of them reads a secret. The other asks for the same secret and is told no. This hands-on lab takes about 8 minutes to complete.
 
-> [!IMPORTANT]
-> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
-
 ## Before you start
 
 The terminals, and the applications running in them, stay as they are when you move between pages. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example the `nested-demo` sidecar from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
