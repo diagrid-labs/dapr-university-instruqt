@@ -80,15 +80,16 @@ python3 -c 'import json, sys; [print(k, v) for k, v in json.load(open(sys.argv[1
       vault kv put "secret/dapr/$name" "$name=$value" >/dev/null </dev/null
 done
 
-# Pre-build Demo1-ReadSecret so the first `dapr run` isn't slow. The demo apps are added by the
-# challenge 1 task, so a missing directory is a no-op rather than a failure.
+# Pre-build the demo 1 app so the first `dapr run` isn't slow. Its folder is Demo1-ReadSecret in
+# .NET and demo1-read-secret in Python and Java. The demo apps are added by the challenge 1 task,
+# so a missing directory is a no-op rather than a failure.
 SECRETS_BASE="$TRACKS_SRC_DIR/secrets"
 if [ -d "$SECRETS_BASE/dotnet/Demo1-ReadSecret" ]; then
     (cd "$SECRETS_BASE/dotnet/Demo1-ReadSecret" && dotnet build)
 fi
-if [ -d "$SECRETS_BASE/python/Demo1-ReadSecret" ]; then
-    (cd "$SECRETS_BASE/python/Demo1-ReadSecret" && uv sync)
+if [ -d "$SECRETS_BASE/python/demo1-read-secret" ]; then
+    (cd "$SECRETS_BASE/python/demo1-read-secret" && uv sync)
 fi
-if [ -d "$SECRETS_BASE/java/Demo1-ReadSecret" ]; then
-    (cd "$SECRETS_BASE/java/Demo1-ReadSecret" && mvn -q -DskipTests package)
+if [ -d "$SECRETS_BASE/java/demo1-read-secret" ]; then
+    (cd "$SECRETS_BASE/java/demo1-read-secret" && mvn -q -DskipTests package)
 fi

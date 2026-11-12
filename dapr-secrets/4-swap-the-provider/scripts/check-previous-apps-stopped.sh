@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # In a 2.0 lab the Dapr CLI window keeps running whatever the learner started on the previous
-# page. When the swap app does not answer on 5001 but App A or App B from Demo2-Scoping still
+# page. When the swap app does not answer on 5001 but App A or App B from the scoping demo still
 # answers (5002/5003), fail here with that specific hint. In every other case pass, so
 # check-app-answers.sh gives the generic one.
 status() { curl -s -m 10 -o /dev/null -w '%{http_code}' "$1"; }

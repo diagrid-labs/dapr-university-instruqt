@@ -1,6 +1,7 @@
 *** Settings ***
 Name              Ch1 What Is The Secrets API
-Documentation     Drift test for dapr-secrets challenge 1: each language's Demo1-ReadSecret app
+Documentation     Drift test for dapr-secrets challenge 1: each language's demo 1 app
+...               (Demo1-ReadSecret in .NET, demo1-read-secret in Python and Java)
 ...               reads a secret through the Dapr Secrets API from the local file store, and
 ...               reports a failed read in the same shape in every language.
 Resource          ../../../tools/track-tester/resources/dapr.resource
@@ -30,42 +31,42 @@ DotNet Reads A Secret
     [Tags]    dotnet
     [Setup]    Wait For Port 5001 To Be Free
     [Teardown]    Stop Process With SIGINT    app
-    Run And Expect RC Zero    dotnet build    ${SECRETS_BASE}/dotnet/${DEMO1}
-    Read Secrets Through The App    ${SECRETS_BASE}/dotnet/${DEMO1}
+    Run And Expect RC Zero    dotnet build    ${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]
+    Read Secrets Through The App    ${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]
 
 DotNet Reports An Unknown Secret
     [Tags]    dotnet
     [Setup]    Wait For Port 5001 To Be Free
     [Teardown]    Stop Process With SIGINT    app
-    Start App And Wait Until It Serves Secrets    ${SECRETS_BASE}/dotnet/${DEMO1}
+    Start App And Wait Until It Serves Secrets    ${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]
     Assert Unknown Secret Is Reported
 
 Python Reads A Secret
     [Tags]    python
     [Setup]    Wait For Port 5001 To Be Free
     [Teardown]    Stop Process With SIGINT    app
-    Run And Expect RC Zero    uv sync    ${SECRETS_BASE}/python/${DEMO1}
-    Read Secrets Through The App    ${SECRETS_BASE}/python/${DEMO1}
+    Run And Expect RC Zero    uv sync    ${SECRETS_BASE}/python/${DEMO1}[python]
+    Read Secrets Through The App    ${SECRETS_BASE}/python/${DEMO1}[python]
 
 Python Reports An Unknown Secret
     [Tags]    python
     [Setup]    Wait For Port 5001 To Be Free
     [Teardown]    Stop Process With SIGINT    app
-    Start App And Wait Until It Serves Secrets    ${SECRETS_BASE}/python/${DEMO1}
+    Start App And Wait Until It Serves Secrets    ${SECRETS_BASE}/python/${DEMO1}[python]
     Assert Unknown Secret Is Reported
 
 Java Reads A Secret
     [Tags]    java
     [Setup]    Wait For Port 5001 To Be Free
     [Teardown]    Stop Process With SIGINT    app
-    Run And Expect RC Zero    mvn -q -DskipTests package    ${SECRETS_BASE}/java/${DEMO1}
-    Read Secrets Through The App    ${SECRETS_BASE}/java/${DEMO1}    timeout=300s
+    Run And Expect RC Zero    mvn -q -DskipTests package    ${SECRETS_BASE}/java/${DEMO1}[java]
+    Read Secrets Through The App    ${SECRETS_BASE}/java/${DEMO1}[java]    timeout=300s
 
 Java Reports An Unknown Secret
     [Tags]    java
     [Setup]    Wait For Port 5001 To Be Free
     [Teardown]    Stop Process With SIGINT    app
-    Start App And Wait Until It Serves Secrets    ${SECRETS_BASE}/java/${DEMO1}    timeout=300s
+    Start App And Wait Until It Serves Secrets    ${SECRETS_BASE}/java/${DEMO1}[java]    timeout=300s
     Assert Unknown Secret Is Reported
 
 *** Keywords ***
@@ -108,5 +109,5 @@ Assert Unknown Secret Is Reported
 # doc-sync coverage (expressed via cwd above):
 #   cd /root/ai-agent-tracks-instruqt/secrets
 #   cd dotnet/Demo1-ReadSecret
-#   cd python/Demo1-ReadSecret
-#   cd java/Demo1-ReadSecret
+#   cd python/demo1-read-secret
+#   cd java/demo1-read-secret

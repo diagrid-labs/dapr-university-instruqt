@@ -57,10 +57,10 @@ dapr run -f .
 
 Use the **Dapr CLI** window to run the commands.
 
-Navigate to the *python/Demo1-ReadSecret* folder:
+Navigate to the *python/demo1-read-secret* folder:
 
 ```bash,run
-cd python/Demo1-ReadSecret
+cd python/demo1-read-secret
 ```
 
 Run the application using the Dapr CLI:
@@ -76,10 +76,10 @@ dapr run -f .
 
 Use the **Dapr CLI** window to run the commands.
 
-Navigate to the *java/Demo1-ReadSecret* folder:
+Navigate to the *java/demo1-read-secret* folder:
 
 ```bash,run
-cd java/Demo1-ReadSecret
+cd java/demo1-read-secret
 ```
 
 Run the application using the Dapr CLI:
@@ -106,14 +106,14 @@ Open the `Program.cs` file in the `dotnet/Demo1-ReadSecret` folder. The `/secret
 <details>
    <summary><b>Python</b></summary>
 
-Open the `app.py` file in the `python/Demo1-ReadSecret` folder. The `/secrets` endpoint calls `client.get_bulk_secret(store_name="secretstore")`.
+Open the `app.py` file in the `python/demo1-read-secret` folder. The `/secrets` endpoint calls `client.get_bulk_secret(store_name="secretstore")`.
 
 </details>
 
 <details>
    <summary><b>Java</b></summary>
 
-Open the `SecretController.java` file in the `java/Demo1-ReadSecret/src/main/java/io/diagrid/university/secrets` folder. The `/secrets` endpoint calls `daprClient.getBulkSecret("secretstore")`.
+Open the `SecretController.java` file in the `java/demo1-read-secret/src/main/java/io/diagrid/university/secrets` folder. The `/secrets` endpoint calls `daprClient.getBulkSecret("secretstore")`.
 
 </details>
 

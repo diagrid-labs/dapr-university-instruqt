@@ -13,5 +13,5 @@ fi
 
 # Build the demo in all three languages so switching language later is not slow.
 (cd "$TRACKS_SRC_DIR/secrets/dotnet/Demo1-ReadSecret" && dotnet build)
-(cd "$TRACKS_SRC_DIR/secrets/python/Demo1-ReadSecret" && uv sync)
-(cd "$TRACKS_SRC_DIR/secrets/java/Demo1-ReadSecret" && mvn -q -DskipTests package)
+(cd "$TRACKS_SRC_DIR/secrets/python/demo1-read-secret" && uv sync)
+(cd "$TRACKS_SRC_DIR/secrets/java/demo1-read-secret" && mvn -q -DskipTests package)

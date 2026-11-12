@@ -12,10 +12,11 @@ if [ ! -f "$TRACKS_SRC_DIR/secrets/secrets.json" ]; then
 fi
 
 # Build the demo app in all three languages so switching language is not slow. The swap itself
-# runs this same build: Demo3-SwapProvider only holds a dapr.yaml and the Vault component.
+# runs this same build: the swap folder (Demo3-SwapProvider, demo3-swap-provider) only holds a
+# dapr.yaml and the Vault component.
 (cd "$TRACKS_SRC_DIR/secrets/dotnet/Demo1-ReadSecret" && dotnet build)
-(cd "$TRACKS_SRC_DIR/secrets/python/Demo1-ReadSecret" && uv sync)
-(cd "$TRACKS_SRC_DIR/secrets/java/Demo1-ReadSecret" && mvn -q -DskipTests package)
+(cd "$TRACKS_SRC_DIR/secrets/python/demo1-read-secret" && uv sync)
+(cd "$TRACKS_SRC_DIR/secrets/java/demo1-read-secret" && mvn -q -DskipTests package)
 
 # Vault is started and seeded by sandbox-setup.sh. Fail here, with a clear message, instead of
 # letting the learner meet an opaque sidecar error later.

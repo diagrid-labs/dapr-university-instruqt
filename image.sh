@@ -162,10 +162,13 @@ PREWARM_DIR="$(mktemp -d)"
 trap 'rm -rf "$PREWARM_DIR"' EXIT
 if git clone --depth 1 https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git "$PREWARM_DIR/repo"; then
     SECRETS_BASE="$PREWARM_DIR/repo/secrets"
-    # Demo3-SwapProvider holds no application code (it runs Demo1-ReadSecret against another
-    # secret store), so warming Demo1 and the two scoping apps covers all challenges.
+    # The swap demo (demo 3) holds no application code (it runs the demo 1 app against another
+    # secret store), so warming demo 1 and the two scoping apps covers all challenges. Folder
+    # names follow each language: PascalCase for .NET, kebab-case for Python and Java.
     for demo in Demo1-ReadSecret Demo2-Scoping/AppA Demo2-Scoping/AppB; do
         (cd "$SECRETS_BASE/dotnet/$demo" && dotnet build)
+    done
+    for demo in demo1-read-secret demo2-scoping/app-a demo2-scoping/app-b; do
         (cd "$SECRETS_BASE/python/$demo" && uv sync)
         (cd "$SECRETS_BASE/java/$demo" && mvn -q -DskipTests package)
     done

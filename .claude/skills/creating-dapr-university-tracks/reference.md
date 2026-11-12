@@ -140,6 +140,8 @@ dapr run -f .
 
 `dapr-secrets/3-secret-scoping/assignment.md` has the full three-language version. `dapr-workflow` uses a longer summary (`<summary><b>Run the .NET application</b></summary>`), `dapr-secrets` a bare one (`<summary><b>.NET</b></summary>`). Either reads fine — be consistent within a track.
 
+**Folder names differ per language, so give each `<details>` block its own path.** The demo repo names folders the way each language does: PascalCase for .NET (matching the `.csproj`, `dotnet/Demo2-Scoping/AppA`), kebab-case for Python and Java, as their projects usually are (`python/demo2-scoping/app-a`). Write the real path in each language's `cd` and in the "open the file in the *…* folder" prose, and where one sentence outside the blocks names a folder, give both forms ("`Demo2-Scoping` for .NET, `demo2-scoping` for Python and Java"). In scripts and Robot suites, map the language to its folder explicitly (an explicit path list in bash, a per-language dict such as `DEMO1` in `variables/dapr_secrets.py`) instead of building `secrets/$lang/<one name>`.
+
 ## Choosing an annotation
 
 The full table is in SKILL.md. Two things it doesn't have room for.
@@ -346,8 +348,8 @@ A command the suite performs indirectly — via a `cwd=` argument, a `bash -c '�
 ```robot
 # doc-sync coverage (expressed via cwd above):
 #   cd dotnet/Demo1-ReadSecret
-#   cd python/Demo1-ReadSecret
-#   cd java/Demo1-ReadSecret
+#   cd python/demo1-read-secret
+#   cd java/demo1-read-secret
 ```
 
 The parenthetical says *how* the suite really performs them — `(expressed via cwd / bash -c above)`, `(performed by ci/setup-dapr-101.sh, asserted above)`, `(the commands are run above through the Request and Start Background Process keywords)`. It is for the next human, not the checker: the checker would accept any comment at all, which is exactly why the block has to be kept honest by hand when you edit a suite.

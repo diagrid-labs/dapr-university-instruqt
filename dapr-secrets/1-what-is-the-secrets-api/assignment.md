@@ -31,14 +31,14 @@ Open the `Program.cs` file in the `dotnet/Demo1-ReadSecret` folder. The `/secret
 <details>
    <summary><b>Python</b></summary>
 
-Open the `app.py` file in the `python/Demo1-ReadSecret` folder. The `/secret/{name}` endpoint calls `client.get_secret(store_name="secretstore", key=name)`.
+Open the `app.py` file in the `python/demo1-read-secret` folder. The `/secret/{name}` endpoint calls `client.get_secret(store_name="secretstore", key=name)`.
 
 </details>
 
 <details>
    <summary><b>Java</b></summary>
 
-Open the `SecretController.java` file in the `java/Demo1-ReadSecret/src/main/java/io/diagrid/university/secrets` folder. The `/secret/{name}` endpoint calls `daprClient.getSecret("secretstore", name)`.
+Open the `SecretController.java` file in the `java/demo1-read-secret/src/main/java/io/diagrid/university/secrets` folder. The `/secret/{name}` endpoint calls `daprClient.getSecret("secretstore", name)`.
 
 </details>
 
@@ -60,7 +60,7 @@ cd /root/ai-agent-tracks-instruqt/secrets
 ```
 
 > [!IMPORTANT]
-> Run `dapr run -f .` from inside the demo folder (`Demo1-ReadSecret` of your language). The `secretsFile` path in the component is relative to that folder, so running the command from anywhere else means the secret store cannot find `secrets.json`.
+> Run `dapr run -f .` from inside the demo folder of your language: `Demo1-ReadSecret` for .NET, `demo1-read-secret` for Python and Java. The `secretsFile` path in the component is relative to that folder, so running the command from anywhere else means the secret store cannot find `secrets.json`.
 
 <details>
    <summary><b>.NET</b></summary>
@@ -86,10 +86,10 @@ dapr run -f .
 
 Use the **Dapr CLI** window to run the commands.
 
-Navigate to the *python/Demo1-ReadSecret* folder:
+Navigate to the *python/demo1-read-secret* folder:
 
 ```bash,run
-cd python/Demo1-ReadSecret
+cd python/demo1-read-secret
 ```
 
 Run the application using the Dapr CLI:
@@ -105,10 +105,10 @@ dapr run -f .
 
 Use the **Dapr CLI** window to run the commands.
 
-Navigate to the *java/Demo1-ReadSecret* folder:
+Navigate to the *java/demo1-read-secret* folder:
 
 ```bash,run
-cd java/Demo1-ReadSecret
+cd java/demo1-read-secret
 ```
 
 Run the application using the Dapr CLI:
