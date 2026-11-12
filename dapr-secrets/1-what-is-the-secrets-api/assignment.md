@@ -7,9 +7,13 @@ In this lab, you'll run an application that reads a secret through the Dapr Secr
 
 ## 1. Why a secret store?
 
-The `order-api` application in this lab needs a database password. It could read it from a config file or an environment variable, but then the password sits in plain text next to the code, in the deployment settings, and probably in a git history.
+The `order-api` application in this lab needs a password store. It could read it from a config file or an environment variable, but then the password sits in plain text next to the code, in the deployment settings, and probably in a git history.
 
-With the Dapr Secrets API the application only asks the Dapr sidecar for a secret *by name*. Where that secret really lives is configured in a Dapr component. In this lab the component is the simplest one: a local file store that reads a `secrets.json` file.
+With the Dapr Secrets API the application only asks the Dapr sidecar for a secret *by name*.
+
+![The application asks the Dapr sidecar for a secret, and the sidecar reads it from a secret store such as AWS Secrets Manager, Azure Key Vault, Google Key Management or HashiCorp Vault](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-secrets/1-what-is-the-secrets-api/images/secrets-cloud-stores.png?raw=true)
+
+Where that secret really lives is configured in a Dapr component. In this lab the component is the simplest one: a local file store that reads a `secrets.json` file.
 
 The `secrets.json` file in the `secrets` folder contains two fake secrets: `orderdb-password` and `payments-api-key`.
 
@@ -121,9 +125,6 @@ dapr run -f .
 > Inspect the output of the **Dapr CLI** window. Wait until the application is running before continuing. The Java application can take a little longer to start.
 >
 > You can also check the application status in the **Dev Dashboard** tab: go to the **Applications** page and select `order-api`.
-
-> [!NOTE]
-> The application can start accepting requests a moment before its Dapr sidecar is ready. If the first `curl` in the next step returns an error with status 500 (`UNAVAILABLE`), wait a few seconds and run it again.
 
 The **Dapr CLI** window should show a line like this when the sidecar is started. The port number can differ, and your own application's logs follow:
 
