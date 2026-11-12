@@ -2,8 +2,9 @@ TRACKS_SRC_DIR="${TRACKS_SRC_DIR:-$HOME/ai-agent-tracks-instruqt}"
 
 # Every language ships the same Configuration resource. One of them has to exist.
 config_found=false
-for lang in dotnet python java; do
-    if [ -f "$TRACKS_SRC_DIR/secrets/$lang/Demo2-Scoping/resources/config-app-b.yaml" ]; then
+# The scoping demo folder is Demo2-Scoping in .NET and demo2-scoping in Python and Java.
+for demo in dotnet/Demo2-Scoping python/demo2-scoping java/demo2-scoping; do
+    if [ -f "$TRACKS_SRC_DIR/secrets/$demo/resources/config-app-b.yaml" ]; then
         config_found=true
     fi
 done
@@ -14,13 +15,13 @@ b_orderdb=$(curl -s -m 10 -w ' %{http_code}' http://localhost:5003/secret/orderd
 b_payments=$(curl -s -m 10 -w ' %{http_code}' http://localhost:5003/secret/payments-api-key)
 
 if [ "$config_found" != "true" ]; then
-    fail-message "config-app-b.yaml is missing from the resources folder of Demo2-Scoping. Did the track setup finish?"
+    fail-message "config-app-b.yaml is missing from the resources folder of the scoping demo (Demo2-Scoping or demo2-scoping). Did the track setup finish?"
     exit 1
 elif [ "${a_orderdb##* }" != "200" ]; then
-    fail-message "App A cannot read orderdb-password (HTTP ${a_orderdb##* }). Is 'dapr run -f .' running in your Demo2-Scoping folder?"
+    fail-message "App A cannot read orderdb-password (HTTP ${a_orderdb##* }). Is 'dapr run -f .' running in your scoping demo folder (Demo2-Scoping or demo2-scoping)?"
     exit 1
 elif [ "${b_orderdb##* }" = "000" ]; then
-    fail-message "App B does not answer on port 5003. Is 'dapr run -f .' running in your Demo2-Scoping folder?"
+    fail-message "App B does not answer on port 5003. Is 'dapr run -f .' running in your scoping demo folder (Demo2-Scoping or demo2-scoping)?"
     exit 1
 elif [ "${b_orderdb##* }" = "200" ]; then
     fail-message "App B can still read orderdb-password. Did you remove the '# ' in front of configFilePath in dapr.yaml, and restart 'dapr run -f .' afterwards?"

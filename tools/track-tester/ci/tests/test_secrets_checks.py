@@ -115,10 +115,13 @@ def test_ch3_app_b_payments_refused_fails(stubs):
     assert rc(CH3 / "check-app-b-allowed.sh") == 1
 
 
-def test_ch3_config_present(tmp_path):
+# The scoping demo folder follows each language's convention: PascalCase in .NET, kebab-case in
+# Python and Java.
+@pytest.mark.parametrize("demo", ["dotnet/Demo2-Scoping", "python/demo2-scoping", "java/demo2-scoping"])
+def test_ch3_config_present(tmp_path, demo):
     env = {"TRACKS_SRC_DIR": str(tmp_path)}
     assert rc(CH3 / "check-config-present.sh", env) == 1
-    d = tmp_path / "secrets" / "python" / "Demo2-Scoping" / "resources"
+    d = tmp_path / "secrets" / demo / "resources"
     d.mkdir(parents=True)
     (d / "config-app-b.yaml").write_text("x")
     assert rc(CH3 / "check-config-present.sh", env) == 0
@@ -161,7 +164,7 @@ def test_ch4_vault_unreachable_app_cannot_read(stubs):
 
 def test_ch4_demo2_still_running_fails_previous_apps_check_only(stubs):
     # Page 3's apps left running in a 2.0 lab: 5001 is down, 5002/5003 answer. Only the specific
-    # "stop the Demo2-Scoping apps" hint fails, not the generic "does not answer" one.
+    # "stop the scoping demo's apps" hint fails, not the generic "does not answer" one.
     scoped(stubs)
     assert rc(CH4 / "check-previous-apps-stopped.sh") == 1
     assert rc(CH4 / "check-app-answers.sh") == 0

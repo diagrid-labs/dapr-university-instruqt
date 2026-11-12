@@ -16,9 +16,15 @@ import os
 
 TRACKS_SRC_DIR = os.environ.get("TRACKS_SRC_DIR") or os.path.expanduser("~/ai-agent-tracks-instruqt")
 SECRETS_BASE = os.path.join(TRACKS_SRC_DIR, "secrets")
-DEMO1 = "Demo1-ReadSecret"
-DEMO2 = "Demo2-Scoping"
-DEMO3 = "Demo3-SwapProvider"
+# Demo folder names per language. They follow each language's own convention: PascalCase for
+# .NET (matching the .csproj), kebab-case for Python and Java (the pyproject name and the Maven
+# artifactId). Use them as ${DEMO1}[${lang}], e.g. ${SECRETS_BASE}/python/${DEMO1}[python].
+DEMO1 = {"dotnet": "Demo1-ReadSecret", "python": "demo1-read-secret", "java": "demo1-read-secret"}
+DEMO2 = {"dotnet": "Demo2-Scoping", "python": "demo2-scoping", "java": "demo2-scoping"}
+DEMO3 = {"dotnet": "Demo3-SwapProvider", "python": "demo3-swap-provider", "java": "demo3-swap-provider"}
+# The two app folders inside DEMO2.
+APP_A = {"dotnet": "AppA", "python": "app-a", "java": "app-a"}
+APP_B = {"dotnet": "AppB", "python": "app-b", "java": "app-b"}
 DENIED_STATUS = "403"
 DENIED_BODY = "ERR_PERMISSION_DENIED"
 MISSING_STATUS = "500"

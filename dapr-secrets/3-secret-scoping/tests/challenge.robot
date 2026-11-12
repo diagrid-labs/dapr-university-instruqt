@@ -47,25 +47,25 @@ DotNet App B Is Refused A Secret App A Can Read
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Scoping Teardown
-    Run And Expect RC Zero    dotnet build    ${SECRETS_BASE}/dotnet/${DEMO2}/AppA
-    Run And Expect RC Zero    dotnet build    ${SECRETS_BASE}/dotnet/${DEMO2}/AppB
-    Walk Through The Scoping Story    ${SECRETS_BASE}/dotnet/${DEMO2}
+    Run And Expect RC Zero    dotnet build    ${SECRETS_BASE}/dotnet/${DEMO2}[dotnet]/${APP_A}[dotnet]
+    Run And Expect RC Zero    dotnet build    ${SECRETS_BASE}/dotnet/${DEMO2}[dotnet]/${APP_B}[dotnet]
+    Walk Through The Scoping Story    dotnet
 
 Python App B Is Refused A Secret App A Can Read
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Scoping Teardown
-    Run And Expect RC Zero    uv sync    ${SECRETS_BASE}/python/${DEMO2}/AppA
-    Run And Expect RC Zero    uv sync    ${SECRETS_BASE}/python/${DEMO2}/AppB
-    Walk Through The Scoping Story    ${SECRETS_BASE}/python/${DEMO2}
+    Run And Expect RC Zero    uv sync    ${SECRETS_BASE}/python/${DEMO2}[python]/${APP_A}[python]
+    Run And Expect RC Zero    uv sync    ${SECRETS_BASE}/python/${DEMO2}[python]/${APP_B}[python]
+    Walk Through The Scoping Story    python
 
 Java App B Is Refused A Secret App A Can Read
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Scoping Teardown
-    Run And Expect RC Zero    mvn -q -DskipTests package    ${SECRETS_BASE}/java/${DEMO2}/AppA
-    Run And Expect RC Zero    mvn -q -DskipTests package    ${SECRETS_BASE}/java/${DEMO2}/AppB
-    Walk Through The Scoping Story    ${SECRETS_BASE}/java/${DEMO2}    timeout=300s
+    Run And Expect RC Zero    mvn -q -DskipTests package    ${SECRETS_BASE}/java/${DEMO2}[java]/${APP_A}[java]
+    Run And Expect RC Zero    mvn -q -DskipTests package    ${SECRETS_BASE}/java/${DEMO2}[java]/${APP_B}[java]
+    Walk Through The Scoping Story    java    timeout=300s
 
 DotNet The Deny List Direction Refuses The Same Secret
     [Documentation]    The assignment's last step, step 8: defaultAccess allow with deniedSecrets.
@@ -73,7 +73,7 @@ DotNet The Deny List Direction Refuses The Same Secret
     [Tags]    dotnet    denylist
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Scoping Teardown
-    ${demo_dir}=    Set Variable    ${SECRETS_BASE}/dotnet/${DEMO2}
+    ${demo_dir}=    Set Variable    ${SECRETS_BASE}/dotnet/${DEMO2}[dotnet]
     Restore Dapr Yaml Files
     Copy File    ${demo_dir}/dapr.yaml    ${demo_dir}/dapr.yaml.suite-bak
     Copy File    ${demo_dir}/resources/config-app-b.yaml    ${demo_dir}/resources/config-app-b.yaml.suite-bak
@@ -99,7 +99,7 @@ DotNet The Deny List Direction Refuses The Same Secret
 # secret config-app-b.yaml denies. It was expected that a sidecar loading both would log
 # "Error getting secret" at startup. Measured on daprd 1.18.7 and 1.19.0 it does not: scoping applies to the
 # Secrets API calls an app makes, not to the lookups the sidecar does itself for a component.
-# Demo2-Scoping still has a resources folder of its own (no Redis dependency, no unrelated
+# The scoping demo still has a resources folder of its own (no Redis dependency, no unrelated
 # component next to the lesson), but not because of a startup error. If a runtime starts
 # applying scoping to secretKeyRef, this test fails and the isolation becomes necessary.
 # The clean-startup assertion in the language tests can fire: challenge 2's suite shows the same
@@ -111,7 +111,7 @@ Scoping Does Not Apply To A Component's SecretKeyRef Lookup
     [Teardown]    Stop Process With SIGINT    control
     Start Background Process
     ...    dapr run --app-id app-b --dapr-http-port 3502 --resources-path ../resources --config resources/config-app-b.yaml
-    ...    ${LOG_CONTROL}    control    cwd=${SECRETS_BASE}/dotnet/${DEMO2}
+    ...    ${LOG_CONTROL}    control    cwd=${SECRETS_BASE}/dotnet/${DEMO2}[dotnet]
     Wait Until Log Contains    ${LOG_CONTROL}    Component loaded: statestore    120s
     ${log}=    Get File    ${LOG_CONTROL}
     Should Not Contain    ${log}    ${SECRET_ERROR_LOG}
@@ -126,7 +126,7 @@ Solve Script Satisfies The Check Script
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Solve Teardown
     Restore Dapr Yaml Files
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${SECRETS_BASE}/dotnet/${DEMO2}
+    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${SECRETS_BASE}/dotnet/${DEMO2}[dotnet]
     Wait Until Command Output Contains
     ...    curl -s http://localhost:5003/secret/orderdb-password    ${ORDERDB_JSON}    180s
     # Before solving: App B can still read the secret, so the check must fail with its hint.
@@ -154,7 +154,8 @@ Wait For The Ports To Be Free
     Wait Until Keyword Succeeds    30s    1s    Port Should Be Free    5003
 
 Walk Through The Scoping Story
-    [Arguments]    ${demo_dir}    ${timeout}=180s
+    [Arguments]    ${lang}    ${timeout}=180s
+    ${demo_dir}=    Set Variable    ${SECRETS_BASE}/${lang}/${DEMO2}[${lang}]
     Restore Dapr Yaml Files
     Copy File    ${demo_dir}/dapr.yaml    ${demo_dir}/dapr.yaml.suite-bak
 
@@ -185,7 +186,7 @@ Walk Through The Scoping Story
 
     # 3. Exactly one failure is on screen: before anything is asked of app-b, its sidecar has
     # loaded the secret store without a single failed secret lookup.
-    ${sidecar_log}=    Read Newest Sidecar Log    ${demo_dir}/AppB    app-b
+    ${sidecar_log}=    Read Newest Sidecar Log    ${demo_dir}/${APP_B}[${lang}]    app-b
     Should Contain    ${sidecar_log}    ${STORE_LOADED_LOG}
     Should Not Contain    ${sidecar_log}    ${SECRET_ERROR_LOG}
 
@@ -264,7 +265,7 @@ Remove Hash In Front Of Config File Path
 Restore Dapr Yaml Files
     # dapr.yaml is edited in place, so put the committed copy back, including after a crashed run.
     FOR    ${lang}    IN    dotnet    python    java
-        ${dir}=    Set Variable    ${SECRETS_BASE}/${lang}/${DEMO2}
+        ${dir}=    Set Variable    ${SECRETS_BASE}/${lang}/${DEMO2}[${lang}]
         ${has_backup}=    Run Keyword And Return Status    File Should Exist    ${dir}/dapr.yaml.suite-bak
         IF    ${has_backup}
             Move File    ${dir}/dapr.yaml.suite-bak    ${dir}/dapr.yaml
@@ -293,11 +294,11 @@ Run Check Script
 Solve Teardown
     # solve.sh starts the .NET apps itself, in the background, so stop them through dapr.
     Run Keyword And Ignore Error    Stop Process With SIGINT    app
-    Run Process    dapr stop -f .    shell=True    cwd=${SECRETS_BASE}/dotnet/${DEMO2}    timeout=60s
+    Run Process    dapr stop -f .    shell=True    cwd=${SECRETS_BASE}/dotnet/${DEMO2}[dotnet]    timeout=60s
     Restore Dapr Yaml Files
     # solve.sh edits every language's dapr.yaml without a backup of its own; undo that too.
     FOR    ${lang}    IN    dotnet    python    java
-        ${file}=    Set Variable    ${SECRETS_BASE}/${lang}/${DEMO2}/dapr.yaml
+        ${file}=    Set Variable    ${SECRETS_BASE}/${lang}/${DEMO2}[${lang}]/dapr.yaml
         # Create File would also create a missing folder, so only touch a file that exists.
         IF    os.path.isfile($file)
             ${yaml}=    Get File    ${file}
@@ -314,8 +315,8 @@ Solve Teardown
 # keywords, which build them from the URL and the folder):
 #   cd /root/ai-agent-tracks-instruqt/secrets
 #   cd dotnet/Demo2-Scoping
-#   cd python/Demo2-Scoping
-#   cd java/Demo2-Scoping
+#   cd python/demo2-scoping
+#   cd java/demo2-scoping
 #   dapr run -f .
 #   curl -s -w ' %{http_code}\n' http://localhost:5002/secret/orderdb-password | jq
 #   curl -s -w ' %{http_code}\n' http://localhost:5003/secret/orderdb-password | jq

@@ -1,7 +1,7 @@
 *** Settings ***
 Name              Ch2 The Component And Its Parameters
 Documentation     Drift test for dapr-secrets challenge 2: the bulk endpoint of each language's
-...               Demo1-ReadSecret app, the raw bulk API, the nestedSeparator and multiValued
+...               demo 1 app (Demo1-ReadSecret, demo1-read-secret), the raw bulk API, the nestedSeparator and multiValued
 ...               parameters of the local file secret store, and a state store component whose
 ...               password comes from the secret store through secretKeyRef.
 Resource          ../../../tools/track-tester/resources/dapr.resource
@@ -64,22 +64,22 @@ DotNet Reads All Secrets
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Stop Process With SIGINT    app
-    Run And Expect RC Zero    dotnet build    ${SECRETS_BASE}/dotnet/${DEMO1}
-    Read All Secrets Through The App    ${SECRETS_BASE}/dotnet/${DEMO1}
+    Run And Expect RC Zero    dotnet build    ${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]
+    Read All Secrets Through The App    ${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]
 
 Python Reads All Secrets
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Stop Process With SIGINT    app
-    Run And Expect RC Zero    uv sync    ${SECRETS_BASE}/python/${DEMO1}
-    Read All Secrets Through The App    ${SECRETS_BASE}/python/${DEMO1}
+    Run And Expect RC Zero    uv sync    ${SECRETS_BASE}/python/${DEMO1}[python]
+    Read All Secrets Through The App    ${SECRETS_BASE}/python/${DEMO1}[python]
 
 Java Reads All Secrets
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Stop Process With SIGINT    app
-    Run And Expect RC Zero    mvn -q -DskipTests package    ${SECRETS_BASE}/java/${DEMO1}
-    Read All Secrets Through The App    ${SECRETS_BASE}/java/${DEMO1}    timeout=300s
+    Run And Expect RC Zero    mvn -q -DskipTests package    ${SECRETS_BASE}/java/${DEMO1}[java]
+    Read All Secrets Through The App    ${SECRETS_BASE}/java/${DEMO1}[java]    timeout=300s
 
 Nested Secrets Follow NestedSeparator And MultiValued
     [Tags]    component
@@ -322,8 +322,8 @@ Finish Value Proof
 # doc-sync coverage (expressed via cwd and cwd-relative paths above):
 #   cd /root/ai-agent-tracks-instruqt/secrets
 #   cd dotnet/Demo1-ReadSecret
-#   cd python/Demo1-ReadSecret
-#   cd java/Demo1-ReadSecret
+#   cd python/demo1-read-secret
+#   cd java/demo1-read-secret
 #   cd nested-demo
 #   dapr run -f .                  (Read All Secrets Through The App, cwd = demo folder)
 #   dapr run --app-id nested-demo --dapr-http-port 3501 --resources-path resources

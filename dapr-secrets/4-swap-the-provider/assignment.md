@@ -10,9 +10,9 @@ The terminals, and the applications running in them, stay as they are when you m
 
 The application asks Dapr for a secret store called `secretstore`. It has never known, and never will know, what is behind that name. So to swap the provider you don't touch the application. You change the YAML that defines `secretstore`.
 
-Use the **Editor** tab and open the `Demo3-SwapProvider` folder of your language (for example `dotnet/Demo3-SwapProvider`). It holds only configuration:
+Use the **Editor** tab and open the swap demo folder of your language: `dotnet/Demo3-SwapProvider`, `python/demo3-swap-provider` or `java/demo3-swap-provider`. It holds only configuration:
 
-- `dapr.yaml`: open it. `appDirPath` is `../Demo1-ReadSecret`, the very same application you used in labs 1 and 2. It is not a copy. `resourcesPath` points to the `resources` folder next to it, which is the only difference with the `dapr.yaml` of `Demo1-ReadSecret`.
+- `dapr.yaml`: open it. `appDirPath` points to the demo folder from labs 1 and 2 (`../Demo1-ReadSecret` in .NET, `../demo1-read-secret` in Python and Java), so it runs the very same application. It is not a copy. `resourcesPath` points to the `resources` folder next to it, which is the only difference with the `dapr.yaml` in that folder.
 - `resources/secretstore-vault.yaml`: the new `secretstore`.
 - `resources/statestore-with-secretref.yaml`: the state store component from lab 2, which takes its password from `secretstore`. You'll see what happens to it in step 5.
 
@@ -45,7 +45,7 @@ The sandbox already stored your secrets in Vault, under the names Dapr expects (
 ## 3. Run the same application against Vault
 
 > [!IMPORTANT]
-> Run `dapr run -f .` from inside the `Demo3-SwapProvider` folder.
+> Run `dapr run -f .` from inside the swap demo folder (`Demo3-SwapProvider` for .NET, `demo3-swap-provider` for Python and Java).
 
 Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
 
@@ -79,10 +79,10 @@ dapr run -f .
 
 Use the **Dapr CLI** window to run the commands.
 
-Navigate to the *python/Demo3-SwapProvider* folder:
+Navigate to the *python/demo3-swap-provider* folder:
 
 ```bash,run
-cd python/Demo3-SwapProvider
+cd python/demo3-swap-provider
 ```
 
 Run the application using the Dapr CLI:
@@ -98,10 +98,10 @@ dapr run -f .
 
 Use the **Dapr CLI** window to run the commands.
 
-Navigate to the *java/Demo3-SwapProvider* folder:
+Navigate to the *java/demo3-swap-provider* folder:
 
 ```bash,run
-cd java/Demo3-SwapProvider
+cd java/demo3-swap-provider
 ```
 
 Run the application using the Dapr CLI:
@@ -217,7 +217,7 @@ Run the check below while the application is still running: it asks it. When it 
 
 ---
 
-You ran the same application against a different `secretstore` YAML, and it read its secrets from Vault instead of a file. The application was already built, and no source file in `Demo1-ReadSecret` changed. That is what the Secrets API gives you: your code asks for a secret by name, and where it lives is a decision for the platform.
+You ran the same application against a different `secretstore` YAML, and it read its secrets from Vault instead of a file. The application was already built, and none of its source files changed. That is what the Secrets API gives you: your code asks for a secret by name, and where it lives is a decision for the platform.
 
 Here is what you did in this track:
 

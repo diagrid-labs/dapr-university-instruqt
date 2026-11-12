@@ -312,8 +312,9 @@ seed_vault "$TRACKS_SRC_DIR/secrets/secrets.json"
 log "Vault seeded (${SECONDS}s since start)"
 
 # Pre-build all demo apps in a fully detached background job (own stdin, stdout and stderr), so
-# the sandbox reports ready without waiting for the builds: Demo1-ReadSecret first (challenges 1,
-# 2 and 4), then Demo2-Scoping (challenge 3). A learner who runs `dapr run -f .` before a build has
+# the sandbox reports ready without waiting for the builds: demo 1 first (challenges 1, 2 and 4),
+# then the two scoping apps of demo 2 (challenge 3). Folder names follow each language: PascalCase
+# for .NET, kebab-case for Python and Java. A learner who runs `dapr run -f .` before a build has
 # finished only waits for that build. A failed build is logged and never fails the lab. Progress:
 # `tail -f /var/log/lab-prebuild.log`.
 SECRETS_BASE="$TRACKS_SRC_DIR/secrets"
@@ -328,10 +329,15 @@ build() { # build <dir> <command...>
         (cd "$dir" && "$@" </dev/null) || echo "WARN: build failed in $dir"
     fi
 }
-for demo in Demo1-ReadSecret Demo2-Scoping/AppA Demo2-Scoping/AppB; do
-    build "$base/dotnet/$demo" dotnet build
-    build "$base/python/$demo" uv sync
-    build "$base/java/$demo" mvn -q -DskipTests package
+build "$base/dotnet/Demo1-ReadSecret" dotnet build
+build "$base/python/demo1-read-secret" uv sync
+build "$base/java/demo1-read-secret" mvn -q -DskipTests package
+for app in AppA AppB; do
+    build "$base/dotnet/Demo2-Scoping/$app" dotnet build
+done
+for app in app-a app-b; do
+    build "$base/python/demo2-scoping/$app" uv sync
+    build "$base/java/demo2-scoping/$app" mvn -q -DskipTests package
 done
 echo "$(date -u +%H:%M:%S) == prebuild done"
 PREBUILD

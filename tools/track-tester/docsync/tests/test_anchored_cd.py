@@ -15,7 +15,7 @@ def test_relative_cd_after_an_absolute_cd_passes():
     cmds = [
         Command(text=ROOT, lang=None),
         Command(text="cd dotnet/Demo1-ReadSecret", lang="dotnet"),
-        Command(text="cd python/Demo1-ReadSecret", lang="python"),
+        Command(text="cd python/demo1-read-secret", lang="python"),
     ]
     assert ds.find_unanchored_cds(cmds) == []
 
@@ -32,7 +32,7 @@ def test_anchor_and_relative_cd_in_one_chain_pass():
 
 
 def test_relative_cd_inside_a_chain_is_reported():
-    cmds = [Command(text="dapr stop -f . && cd python/Demo2-Scoping", lang="python")]
+    cmds = [Command(text="dapr stop -f . && cd python/demo2-scoping", lang="python")]
     assert ds.find_unanchored_cds(cmds) == cmds
 
 

@@ -390,7 +390,7 @@ code-server-lab` and `curl -sI http://127.0.0.1:8888/` in a terminal.
 | 1. What is the Secrets API: instructions render, language `<details>` open, `bash,run` buttons paste into the terminal, Demo1 runs with `dapr run -f .` and the curl call returns the secret | [ ] | [ ] | [ ] |
 | 2. The component and its parameters: edit the component in the Editor, save, rerun, the single and bulk calls and `secretKeyRef` step work | [ ] | [ ] | [ ] |
 | 3. Secret scoping: app A reads `orderdb-password`, app B is refused (403) after enabling `configFilePath`, app B still reads `payments-api-key`; task check goes green | [ ] | [ ] | [ ] |
-| 4. Swap the provider: the app in Demo3-SwapProvider reads `orderdb-password` from Vault; task check goes green | [ ] | [ ] | [ ] |
+| 4. Swap the provider: the app in the swap folder (`Demo3-SwapProvider` in .NET, `demo3-swap-provider` in Python and Java) reads `orderdb-password` from Vault; task check goes green | [ ] | [ ] | [ ] |
 
 Also tick once per run: the Editor opens `/root/ai-agent-tracks-instruqt/secrets`; **Solve for
 me** on the task on pages 3 and 4 runs the solve script and marks the task "Solved for you" (the
@@ -406,7 +406,8 @@ not to the learner), so confirm the hints match the mistake:
   "App B is not refused orderdb-password with HTTP 403. If it can still read it, did you remove
   the '# ' in front of configFilePath in dapr.yaml, and restart 'dapr run -f .' afterwards? ...".
   Then fix it and confirm the check passes.
-- Page 4: start the app from `Demo1-ReadSecret` instead of `Demo3-SwapProvider`, then click
+- Page 4: start the app from the demo 1 folder (`Demo1-ReadSecret`, or `demo1-read-secret` in
+  Python and Java) instead of the swap folder (`Demo3-SwapProvider`, `demo3-swap-provider`), then click
   **Check**. **Expected:** the condition "Dapr loaded the Vault secret store" shows "The app isn't
   reading from Vault yet. Is secretstore-vault.yaml the component Dapr loaded? ...". Fix it
   and confirm the check passes.

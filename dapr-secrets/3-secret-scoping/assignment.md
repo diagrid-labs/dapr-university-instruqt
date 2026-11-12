@@ -8,9 +8,9 @@ The terminals, and the applications running in them, stay as they are when you m
 
 ## 1. Two apps, one store
 
-Use the **Editor** tab and open the `Demo2-Scoping` folder of your language (for example `dotnet/Demo2-Scoping`). It holds:
+Use the **Editor** tab and open the scoping demo folder of your language: `dotnet/Demo2-Scoping`, `python/demo2-scoping` or `java/demo2-scoping`. It holds:
 
-- `AppA` and `AppB`: two apps with exactly the same code. Each has one endpoint, `GET /secret/{name}`, that asks the `secretstore` component for a secret. App A listens on 5002 and App B on 5003, and those ports are set in `dapr.yaml`, outside the application code.
+- `AppA` and `AppB` (`app-a` and `app-b` in Python and Java): two apps with exactly the same code. Each has one endpoint, `GET /secret/{name}`, that asks the `secretstore` component for a secret. App A listens on 5002 and App B on 5003, and those ports are set in `dapr.yaml`, outside the application code.
 - `resources`: the `secretstore` component you know from the previous labs, and a file named `config-app-b.yaml` that you'll meet in step 4.
 - `dapr.yaml`: starts both apps, each with its own Dapr sidecar. Open it. App A's sidecar listens on port 3501 and App B's on 3502.
 
@@ -19,7 +19,7 @@ Nothing in the code of either app says which secrets it may read. Remember that,
 ## 2. Run both apps
 
 > [!IMPORTANT]
-> Run `dapr run -f .` from inside the `Demo2-Scoping` folder. The `secretsFile` path in the component is relative to the app folders inside it.
+> Run `dapr run -f .` from inside the scoping demo folder (`Demo2-Scoping` for .NET, `demo2-scoping` for Python and Java). The `secretsFile` path in the component is relative to the app folders inside it.
 
 Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
 
@@ -51,10 +51,10 @@ dapr run -f .
 
 Use the **Dapr CLI** window to run the commands.
 
-Navigate to the *python/Demo2-Scoping* folder:
+Navigate to the *python/demo2-scoping* folder:
 
 ```bash,run
-cd python/Demo2-Scoping
+cd python/demo2-scoping
 ```
 
 Run both applications using the Dapr CLI:
@@ -70,10 +70,10 @@ dapr run -f .
 
 Use the **Dapr CLI** window to run the commands.
 
-Navigate to the *java/Demo2-Scoping* folder:
+Navigate to the *java/demo2-scoping* folder:
 
 ```bash,run
-cd java/Demo2-Scoping
+cd java/demo2-scoping
 ```
 
 Run both applications using the Dapr CLI:
@@ -136,7 +136,7 @@ Both apps got the password. That is not a bug in App B. Nothing has told Dapr th
 
 ## 4. Tell App B no
 
-Open `config-app-b.yaml` in the `resources` folder of `Demo2-Scoping`. It is a Dapr `Configuration` resource, not a component. A component says what Dapr can talk to. A configuration says how one sidecar behaves.
+Open `config-app-b.yaml` in the `resources` folder of the scoping demo folder. It is a Dapr `Configuration` resource, not a component. A component says what Dapr can talk to. A configuration says how one sidecar behaves.
 
 ```yaml,nocopy
 spec:
@@ -151,7 +151,7 @@ spec:
 - `defaultAccess: deny` means that every secret in that store is off limits for this sidecar...
 - ...except the ones in `allowedSecrets`. App B may read `payments-api-key` and `legacy-api-key`, and nothing else. `orderdb-password` is not on the list.
 
-The file does nothing yet, because no sidecar has been told to use it. Open `dapr.yaml` in the `Demo2-Scoping` folder. Under `app-b`, the line that starts with `# configFilePath:` is commented out. Delete the `# ` at the start of that line (the hash and the space after it) so that it reads:
+The file does nothing yet, because no sidecar has been told to use it. Open `dapr.yaml` in the scoping demo folder. Under `app-b`, the line that starts with `# configFilePath:` is commented out. Delete the `# ` at the start of that line (the hash and the space after it) so that it reads:
 
 ```yaml,nocopy
     configFilePath: ../resources/config-app-b.yaml

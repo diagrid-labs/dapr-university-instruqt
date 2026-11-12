@@ -2,12 +2,14 @@
 Name              Ch4 Swap The Provider
 Documentation     Drift test for dapr-secrets challenge 4, the end of the track: the secret store
 ...               moves from a local file to HashiCorp Vault and the application is not touched.
-...               Per language it runs the unmodified Demo1-ReadSecret app twice, once against the
-...               local file store and once through Demo3-SwapProvider, which points the very same
-...               app at a resources folder whose `secretstore` component is Vault.
+...               Per language it runs the unmodified demo 1 app (Demo1-ReadSecret in .NET,
+...               demo1-read-secret in Python and Java) twice, once against the local file store
+...               and once through the demo 3 swap folder (Demo3-SwapProvider, demo3-swap-provider),
+...               which points the very same app at a resources folder whose `secretstore`
+...               component is Vault.
 ...
 ...               Ruling 3: the "no code change" claim is scoped to the SWAP. The source tree of
-...               Demo1-ReadSecret as it stands when this challenge begins is fingerprinted before
+...               the demo 1 app as it stands when this challenge begins is fingerprinted before
 ...               the local-file run, between the two runs and after the Vault run, and all three
 ...               fingerprints must be equal. It is deliberately NOT compared with challenge 1's
 ...               version of the app: challenge 2 added the bulk endpoint, so that comparison
@@ -16,7 +18,7 @@ Documentation     Drift test for dapr-secrets challenge 4, the end of the track:
 ...               The shared resources folder cannot simply gain a second component: Dapr refuses
 ...               to start when two components in one folder have the same name (see the
 ...               "Two Components With One Name" test), which is why the Vault component lives in
-...               Demo3-SwapProvider/resources next to a copy of the state store component.
+...               the swap folder's resources next to a copy of the state store component.
 Resource          ../../../tools/track-tester/resources/dapr.resource
 Variables         ../../../tools/track-tester/variables/dapr_secrets.py
 Suite Teardown    Run Keywords    Terminate All Processes    kill=True
@@ -54,8 +56,9 @@ ${VAULT_URL}            http://localhost:8200
 # Vault answers 200 on /v1/sys/health when it is initialized, unsealed and active.
 ${VAULT_CLI}            docker exec -e VAULT_ADDR=http://127.0.0.1:8200 -e VAULT_TOKEN=root vault vault
 ${PROOF_KEYS}           "prefix-from-vault||ref-proof" "vault-proof||ref-proof" "||ref-proof"
-# What fingerprints the app: every file of the source tree except build and run output.
-${FINGERPRINT}          find ${DEMO1} -type f -not -path '*/bin/*' -not -path '*/obj/*' -not -path '*/target/*' -not -path '*/.venv/*' -not -path '*/.dapr/*' -not -path '*/__pycache__/*' | LC_ALL=C sort | xargs sha256sum
+# What fingerprints the app: every file of the source tree except build and run output. The
+# Fingerprint keyword runs `find <the language's DEMO1 folder>` followed by this filter.
+${FINGERPRINT_FILTER}    -type f -not -path '*/bin/*' -not -path '*/obj/*' -not -path '*/target/*' -not -path '*/.venv/*' -not -path '*/.dapr/*' -not -path '*/__pycache__/*' | LC_ALL=C sort | xargs sha256sum
 
 *** Test Cases ***
 Ports Are Free Before The Apps Start
@@ -120,7 +123,7 @@ Two Components With One Name Do Not Load
     Remove Directory    ${dir}    recursive=True
     Create Directory    ${dir}/resources
     Copy File    ${SECRETS_BASE}/python/resources/secretstore-local.yaml    ${dir}/resources/secretstore-local.yaml
-    Copy File    ${SECRETS_BASE}/python/${DEMO3}/resources/secretstore-vault.yaml    ${dir}/resources/secretstore-vault.yaml
+    Copy File    ${SECRETS_BASE}/python/${DEMO3}[python]/resources/secretstore-vault.yaml    ${dir}/resources/secretstore-vault.yaml
     ${result}=    Run Process
     ...    dapr run --app-id duplicate --dapr-http-port 3500 --resources-path resources -- sleep 1
     ...    shell=True    cwd=${dir}    stderr=STDOUT    timeout=60s
@@ -128,9 +131,9 @@ Two Components With One Name Do Not Load
 
 The Vault Component Is The Same In Every Language
     [Tags]    component
-    ${dotnet}=    Get File    ${SECRETS_BASE}/dotnet/${DEMO3}/resources/secretstore-vault.yaml
-    ${python}=    Get File    ${SECRETS_BASE}/python/${DEMO3}/resources/secretstore-vault.yaml
-    ${java}=    Get File    ${SECRETS_BASE}/java/${DEMO3}/resources/secretstore-vault.yaml
+    ${dotnet}=    Get File    ${SECRETS_BASE}/dotnet/${DEMO3}[dotnet]/resources/secretstore-vault.yaml
+    ${python}=    Get File    ${SECRETS_BASE}/python/${DEMO3}[python]/resources/secretstore-vault.yaml
+    ${java}=    Get File    ${SECRETS_BASE}/java/${DEMO3}[java]/resources/secretstore-vault.yaml
     Should Be Equal    ${dotnet}    ${python}
     Should Be Equal    ${java}    ${python}
     Should Contain    ${python}    name: secretstore
@@ -140,28 +143,28 @@ The Vault Component Is The Same In Every Language
     # The state store component is a copy of the shared one, so it cannot drift from it.
     FOR    ${lang}    IN    dotnet    python    java
         ${shared}=    Get File    ${SECRETS_BASE}/${lang}/resources/statestore-with-secretref.yaml
-        ${copy}=    Get File    ${SECRETS_BASE}/${lang}/${DEMO3}/resources/statestore-with-secretref.yaml
+        ${copy}=    Get File    ${SECRETS_BASE}/${lang}/${DEMO3}[${lang}]/resources/statestore-with-secretref.yaml
         Should Be Equal    ${copy}    ${shared}
         # The swap folder runs the app that is already there, with its own port and app id.
-        ${run}=    Get File    ${SECRETS_BASE}/${lang}/${DEMO3}/dapr.yaml
-        ${demo1_run}=    Get File    ${SECRETS_BASE}/${lang}/${DEMO1}/dapr.yaml
-        Should Contain    ${run}    appDirPath: ../${DEMO1}
+        ${run}=    Get File    ${SECRETS_BASE}/${lang}/${DEMO3}[${lang}]/dapr.yaml
+        ${demo1_run}=    Get File    ${SECRETS_BASE}/${lang}/${DEMO1}[${lang}]/dapr.yaml
+        Should Contain    ${run}    appDirPath: ../${DEMO1}[${lang}]
         Should Contain    ${run}    resourcesPath: ./resources
         ${command}=    Evaluate    [l for l in $demo1_run.splitlines() if "command:" in l][0]
         Should Contain    ${run}    ${command}
     END
 
 The Swap Folder Holds No Application Code
-    [Documentation]    The claim "the application did not change" rests on Demo3-SwapProvider being
-    ...    configuration only: its dapr.yaml starts the app that is already in Demo1-ReadSecret. If
+    [Documentation]    The claim "the application did not change" rests on the swap folder being
+    ...    configuration only: its dapr.yaml starts the app that is already in the demo 1 folder. If
     ...    anyone adds code there, the swap is no longer the same app and this test fails.
     [Tags]    component
     FOR    ${lang}    IN    dotnet    python    java
-        @{entries}=    List Directory    ${SECRETS_BASE}/${lang}/${DEMO3}
+        @{entries}=    List Directory    ${SECRETS_BASE}/${lang}/${DEMO3}[${lang}]
         # Run output (.dapr) is ignored by git and is not part of the folder.
         ${entries}=    Evaluate    sorted(e for e in $entries if e != ".dapr")
         Should Be Equal    ${{",".join($entries)}}    dapr.yaml,resources
-        @{resources}=    List Directory    ${SECRETS_BASE}/${lang}/${DEMO3}/resources
+        @{resources}=    List Directory    ${SECRETS_BASE}/${lang}/${DEMO3}[${lang}]/resources
         Should Be Equal    ${{",".join(sorted($resources))}}    secretstore-vault.yaml,statestore-with-secretref.yaml
     END
 
@@ -169,21 +172,21 @@ DotNet The Same App Reads From Vault
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Swap Teardown
-    Run And Expect RC Zero    dotnet build    ${SECRETS_BASE}/dotnet/${DEMO1}
+    Run And Expect RC Zero    dotnet build    ${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]
     Walk Through The Swap    dotnet
 
 Python The Same App Reads From Vault
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Swap Teardown
-    Run And Expect RC Zero    uv sync    ${SECRETS_BASE}/python/${DEMO1}
+    Run And Expect RC Zero    uv sync    ${SECRETS_BASE}/python/${DEMO1}[python]
     Walk Through The Swap    python
 
 Java The Same App Reads From Vault
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Swap Teardown
-    Run And Expect RC Zero    mvn -q -DskipTests package    ${SECRETS_BASE}/java/${DEMO1}
+    Run And Expect RC Zero    mvn -q -DskipTests package    ${SECRETS_BASE}/java/${DEMO1}[java]
     Walk Through The Swap    java    timeout=300s
 
 A Secret In Vault Reaches A Component Through SecretKeyRef
@@ -226,7 +229,7 @@ Solve Script Satisfies The Check Script
     Should Not Be Equal As Integers    ${idle.rc}    0
     Should Contain    ${idle.stdout}    does not answer on port 5001
     # The app runs against the local file: the check must fail with the Vault hint.
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${SECRETS_BASE}/dotnet/${DEMO1}
+    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]
     Wait Until Command Output Contains
     ...    curl -s http://localhost:5001/secret/orderdb-password    ${ORDERDB_JSON}    180s
     ${before}=    Run Check Script
@@ -260,11 +263,11 @@ Wait For The Ports To Be Free
     Wait Until Keyword Succeeds    30s    1s    Port 3500 Should Be Free
 
 Fingerprint
-    [Documentation]    "<sha256>  <path>" for every source file of Demo1-ReadSecret, sorted. Kept
+    [Documentation]    "<sha256>  <path>" for every source file of the demo 1 app, sorted. Kept
     ...    as text, not as one hash, so a failing comparison shows which file differs.
     [Arguments]    ${lang}
-    ${out}=    Capture Command Output    ${FINGERPRINT}    ${SECRETS_BASE}/${lang}
-    Should Contain    ${out}    ${DEMO1}/dapr.yaml
+    ${out}=    Capture Command Output    find ${DEMO1}[${lang}] ${FINGERPRINT_FILTER}    ${SECRETS_BASE}/${lang}
+    Should Contain    ${out}    ${DEMO1}[${lang}]/dapr.yaml
     RETURN    ${out}
 
 Store Type Is
@@ -274,8 +277,8 @@ Store Type Is
 
 Walk Through The Swap
     [Arguments]    ${lang}    ${timeout}=180s
-    ${app_dir}=    Set Variable    ${SECRETS_BASE}/${lang}/${DEMO1}
-    ${swap_dir}=    Set Variable    ${SECRETS_BASE}/${lang}/${DEMO3}
+    ${app_dir}=    Set Variable    ${SECRETS_BASE}/${lang}/${DEMO1}[${lang}]
+    ${swap_dir}=    Set Variable    ${SECRETS_BASE}/${lang}/${DEMO3}[${lang}]
     File Should Exist    ${swap_dir}/resources/secretstore-vault.yaml
     ...    msg=${swap_dir}/resources/secretstore-vault.yaml does not exist
     ${before}=    Fingerprint    ${lang}
@@ -342,7 +345,7 @@ Walk Through The Swap
     Should Not Contain    ${log}    ${SECRET_ERROR_LOG}
     Should Not Contain    ${log}    ${STORE_NOT_LOADED}
 
-    # 5. Nothing under Demo1-ReadSecret differs between the local file run and the Vault run.
+    # 5. Nothing under the demo 1 folder differs between the local file run and the Vault run.
     Stop Process With SIGINT    app
     ${after}=    Fingerprint    ${lang}
     Should Be Equal    ${after}    ${before}
@@ -360,7 +363,7 @@ Request
 
 Read Newest Sidecar Log
     # A multi-app run writes the sidecar log to .dapr/logs under the app folder (appDirPath), also
-    # when it was started from another folder, as Demo3-SwapProvider does.
+    # when it was started from another folder, as the swap folder does.
     [Arguments]    ${cwd}
     ${log}=    Capture Command Output
     ...    cat "$(ls -t .dapr/logs/order-api_daprd_*.log | head -1)"    ${cwd}
@@ -387,7 +390,7 @@ Vault Proof Starts
     ${dir}=    Set Variable    ${CONTROL_ROOT}/vault-proof
     Remove Directory    ${dir}    recursive=True
     Create Directory    ${dir}/resources
-    Copy File    ${SECRETS_BASE}/python/${DEMO3}/resources/secretstore-vault.yaml    ${dir}/resources/secretstore-vault.yaml
+    Copy File    ${SECRETS_BASE}/python/${DEMO3}[python]/resources/secretstore-vault.yaml    ${dir}/resources/secretstore-vault.yaml
     ${state}=    Catenate    {"apiVersion": "dapr.io/v1alpha1", "kind": "Component",
     ...    "metadata": {"name": "statestore"}, "spec": {"type": "state.redis", "version": "v1",
     ...    "metadata": [{"name": "redisHost", "value": "localhost:6379"},
@@ -420,15 +423,15 @@ Run Check Script
 Solve Teardown
     # solve.sh starts the .NET app itself, in the background, so stop it through dapr.
     Run Keyword And Ignore Error    Stop Process With SIGINT    app
-    Run Process    dapr stop -f .    shell=True    cwd=${SECRETS_BASE}/dotnet/${DEMO3}    timeout=60s
-    Run Process    dapr stop -f .    shell=True    cwd=${SECRETS_BASE}/dotnet/${DEMO1}    timeout=60s
+    Run Process    dapr stop -f .    shell=True    cwd=${SECRETS_BASE}/dotnet/${DEMO3}[dotnet]    timeout=60s
+    Run Process    dapr stop -f .    shell=True    cwd=${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]    timeout=60s
     Wait For The Ports To Be Free
 
 # doc-sync coverage (expressed via cwd, cwd-relative paths and the Request keyword above):
 #   cd /root/ai-agent-tracks-instruqt/secrets
 #   cd dotnet/Demo3-SwapProvider
-#   cd python/Demo3-SwapProvider
-#   cd java/Demo3-SwapProvider
+#   cd python/demo3-swap-provider
+#   cd java/demo3-swap-provider
 #   dapr run -f .                  (Walk Through The Swap, cwd = the swap folder)
 #   curl -s -w ' %{http_code}\n' http://localhost:5001/secret/shipping-token | jq
 #   curl -s -w ' %{http_code}\n' http://localhost:5001/secret/legacy-api-key | jq

@@ -12,7 +12,7 @@ resource "task" "scoping" {
 
     check {
       script          = "3-secret-scoping/scripts/check-config-present.sh"
-      failure_message = "config-app-b.yaml is missing from the resources folder of Demo2-Scoping. Did the lab setup finish?"
+      failure_message = "config-app-b.yaml is missing from the resources folder of the scoping demo (Demo2-Scoping or demo2-scoping). Did the lab setup finish?"
     }
 
     solve {
@@ -29,7 +29,7 @@ resource "task" "scoping" {
 
     check {
       script          = "3-secret-scoping/scripts/check-app-a-reads.sh"
-      failure_message = "App A cannot read orderdb-password. Is 'dapr run -f .' running in your Demo2-Scoping folder?"
+      failure_message = "App A cannot read orderdb-password. Is 'dapr run -f .' running in your scoping demo folder (Demo2-Scoping or demo2-scoping)?"
     }
   }
 
@@ -38,7 +38,7 @@ resource "task" "scoping" {
 
     check {
       script          = "3-secret-scoping/scripts/check-app-b-answers.sh"
-      failure_message = "App B does not answer on port 5003. Is 'dapr run -f .' running in your Demo2-Scoping folder?"
+      failure_message = "App B does not answer on port 5003. Is 'dapr run -f .' running in your scoping demo folder (Demo2-Scoping or demo2-scoping)?"
     }
   }
 
@@ -75,7 +75,7 @@ resource "task" "swap_provider" {
 
     check {
       script          = "4-swap-the-provider/scripts/check-app-answers.sh"
-      failure_message = "The app does not answer on port 5001. Is 'dapr run -f .' running in your Demo3-SwapProvider folder?"
+      failure_message = "The app does not answer on port 5001. Is 'dapr run -f .' running in your swap demo folder (Demo3-SwapProvider or demo3-swap-provider)?"
     }
 
     solve {
@@ -92,7 +92,7 @@ resource "task" "swap_provider" {
 
     check {
       script          = "4-swap-the-provider/scripts/check-previous-apps-stopped.sh"
-      failure_message = "App A or App B from the Demo2-Scoping folder is still running, and the app for this lab is not. Press Ctrl+C in the Dapr CLI window to stop them, then start the app with 'dapr run -f .' from your Demo3-SwapProvider folder."
+      failure_message = "App A or App B from the scoping demo is still running, and the app for this lab is not. Press Ctrl+C in the Dapr CLI window to stop them, then start the app with 'dapr run -f .' from your swap demo folder (Demo3-SwapProvider or demo3-swap-provider)."
     }
   }
 
@@ -101,7 +101,7 @@ resource "task" "swap_provider" {
 
     check {
       script          = "4-swap-the-provider/scripts/check-vault-loaded.sh"
-      failure_message = "The app isn't reading from Vault yet. Is secretstore-vault.yaml the component Dapr loaded? Stop the running app with Ctrl+C and start it with 'dapr run -f .' from the Demo3-SwapProvider folder, not from Demo1-ReadSecret."
+      failure_message = "The app isn't reading from Vault yet. Is secretstore-vault.yaml the component Dapr loaded? Stop the running app with Ctrl+C and start it with 'dapr run -f .' from the swap demo folder (Demo3-SwapProvider or demo3-swap-provider), not from the demo 1 folder."
     }
   }
 
