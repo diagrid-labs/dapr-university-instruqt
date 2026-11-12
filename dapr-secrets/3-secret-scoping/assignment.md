@@ -10,7 +10,7 @@ The terminals, and the applications running in them, stay as they are when you m
 
 Use the **Editor** tab and open the scoping demo folder of your language: `dotnet/Demo2-Scoping`, `python/demo2-scoping` or `java/demo2-scoping`. It holds:
 
-- `AppA` and `AppB` (`app-a` and `app-b` in Python and Java): two apps with exactly the same code. Each has one endpoint, `GET /secret/{name}`, that asks the `secretstore` component for a secret. App A listens on 5002 and App B on 5003, and those ports are set in `dapr.yaml`, outside the application code.
+- `AppA` and `AppB` in .NET, `app-a` and `app-b` in Python and Java: two apps with exactly the same code. Each has one endpoint, `GET /secret/{name}`, that asks the `secretstore` component for a secret. App A listens on 5002 and App B on 5003, and those ports are set in `dapr.yaml`, outside the application code.
 - `resources`: the `secretstore` component you know from the previous labs, and a file named `config-app-b.yaml` that you'll meet in step 4.
 - `dapr.yaml`: starts both apps, each with its own Dapr sidecar. Open it. App A's sidecar listens on port 3501 and App B's on 3502.
 
@@ -136,7 +136,7 @@ Both apps got the password. That is not a bug in App B. Nothing has told Dapr th
 
 ## 4. Tell App B no
 
-Open `config-app-b.yaml` in the `resources` folder of the scoping demo folder. It is a Dapr `Configuration` resource, not a component. A component says what Dapr can talk to. A configuration says how one sidecar behaves.
+Open `config-app-b.yaml` in the scoping demo's `resources` folder. It is a Dapr `Configuration` resource, not a component. A component says what Dapr can talk to. A configuration says how one sidecar behaves.
 
 ```yaml,nocopy
 spec:
