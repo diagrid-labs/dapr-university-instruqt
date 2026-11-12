@@ -1,9 +1,6 @@
 # What is the Secrets API
 
-In this lab, you'll run an application that reads a secret through the Dapr Secrets API. This hands-on lab takes about 5 minutes to complete.
-
-> [!IMPORTANT]
-> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
+In this lab, you'll run an application that reads a secret through the Dapr Secrets API, it will take about 5 minutes to complete.
 
 ## 1. Why a secret store?
 
@@ -54,6 +51,9 @@ The secret store itself is defined in the `secretstore-local.yaml` file in the `
 The `dapr.yaml` file in the demo folder is a Multi-App Run file. It starts the `order-api` application together with its Dapr sidecar and tells Dapr where to find the components.
 
 Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
 ```bash,run
 cd /root/ai-agent-tracks-instruqt/secrets
