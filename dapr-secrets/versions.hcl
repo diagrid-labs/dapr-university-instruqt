@@ -9,7 +9,7 @@ variable "dapr_runtime_version" {
 
 variable "tracks_src_ref" {
   description = "Commit of diagrid-labs/ai-agent-tracks-instruqt that the lab checks out after cloning."
-  default     = "b1da54839b14ee1bb124914b915f78200a8f5f4e"
+  default     = "37fccac6583f4d5b1854002a234b5d25e4f3f9e8"
 }
 
 variable "jq_version" {
