@@ -10,6 +10,10 @@ resource "page" "subscription_types" {
 resource "page" "streaming_subscriptions" {
   title = "Streaming subscriptions"
   file  = "2-streaming-subscriptions/assignment.md"
+
+  activities = {
+    streaming = resource.task.streaming
+  }
 }
 
 resource "page" "cloudevents" {

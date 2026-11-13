@@ -213,3 +213,105 @@ def test_subscription_types_other_demo_without_invoicing_says_ctrl_c(stubs, tmp_
     assert code == 1
     assert "5103" in out
     assert "Ctrl+C" in out
+
+
+# ---- Page 2: streaming subscriptions (demo 2) ---------------------------------------------------
+P2 = LAB / "2-streaming-subscriptions" / "scripts"
+WH_LINE = "== APP - warehouse == warehouse received order o-2001\n"
+
+
+def demo2_up(stubs, warehouse_type="STREAMING"):
+    # Only order-api has an app port. The warehouse has no HTTP server, so 5102 stays down.
+    stubs.up(5101)
+    stubs.up(3510, {"/v1.0/metadata": (200, metadata("order-api"))})
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("warehouse", [("orders", warehouse_type)]))})
+
+
+def test_streaming_all_pass(stubs, tmp_path):
+    demo2_up(stubs)
+    write_log(tmp_path, "dotnet", "Demo2-Streaming", "Warehouse", "warehouse", WH_LINE)
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    for name in ("apps-running", "streaming", "received"):
+        assert rc(P2 / f"check-{name}.sh", env) == 0, name
+
+
+def test_streaming_nothing_running_fails_only_running_check(stubs, tmp_path):
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P2 / "check-apps-running.sh", env) == 1
+    assert rc(P2 / "check-streaming.sh", env) == 0
+    assert rc(P2 / "check-received.sh", env) == 0
+
+
+def test_streaming_warehouse_sidecar_down_fails_running_check(stubs, tmp_path):
+    stubs.up(5101)
+    code, out = run(P2 / "check-apps-running.sh", {"TRACKS_SRC_DIR": str(tmp_path)})
+    assert code == 1
+    assert "3511" in out
+
+
+def test_streaming_order_api_down_fails_running_check(stubs, tmp_path):
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("warehouse", [("orders", "STREAMING")]))})
+    code, out = run(P2 / "check-apps-running.sh", {"TRACKS_SRC_DIR": str(tmp_path)})
+    assert code == 1
+    assert "5101" in out
+
+
+def test_streaming_wrong_type_fails(stubs, tmp_path):
+    demo2_up(stubs, warehouse_type="PROGRAMMATIC")
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    code, out = run(P2 / "check-streaming.sh", env)
+    assert code == 1
+    assert "PROGRAMMATIC" in out
+    assert rc(P2 / "check-apps-running.sh", env) == 0
+
+
+def test_streaming_no_orders_subscription_fails(stubs, tmp_path):
+    stubs.up(5101)
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("warehouse"))})
+    assert rc(P2 / "check-streaming.sh", {"TRACKS_SRC_DIR": str(tmp_path)}) == 1
+
+
+def test_streaming_metadata_unreachable_is_gated(stubs, tmp_path):
+    stubs.up(5101)
+    assert rc(P2 / "check-streaming.sh", {"TRACKS_SRC_DIR": str(tmp_path)}) == 0
+
+
+def test_streaming_received_missing_line_fails(stubs, tmp_path):
+    demo2_up(stubs)
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P2 / "check-received.sh", env) == 1
+    write_log(tmp_path, "python", "demo2-streaming", "warehouse", "warehouse",
+              "== APP - warehouse == warehouse dropped unreadable event\n")
+    code, out = run(P2 / "check-received.sh", env)
+    assert code == 1
+    assert "step" in out
+
+
+def test_streaming_check_finds_logs_in_any_language(stubs, tmp_path):
+    # Java prefixes its lines with a Spring log header, and the learner may use any language.
+    demo2_up(stubs)
+    write_log(tmp_path, "java", "demo2-streaming", "warehouse", "warehouse",
+              "== APP - warehouse == 2026-11-13T10:00:00.000Z  INFO 1 --- [warehouse] OrderStream : "
+              "warehouse received order o-1\n")
+    assert rc(P2 / "check-received.sh", {"TRACKS_SRC_DIR": str(tmp_path)}) == 0
+
+
+def test_streaming_logs_of_other_demo_do_not_count(stubs, tmp_path):
+    demo2_up(stubs)
+    write_log(tmp_path, "dotnet", "Demo5-RoutingDeadLetter", "Warehouse", "warehouse", WH_LINE)
+    assert rc(P2 / "check-received.sh", {"TRACKS_SRC_DIR": str(tmp_path)}) == 1
+
+
+def test_streaming_wrong_demo_running(stubs, tmp_path):
+    # Page 1's demo is still running: order-api answers, and the sidecar on 3511 reports
+    # `shipping` instead of `warehouse`. The first condition must say to press Ctrl+C.
+    for p in (5101, 5102, 5103):
+        stubs.up(p)
+    stubs.up(3510, {"/v1.0/metadata": (200, metadata("order-api"))})
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("shipping", [("orders", "DECLARATIVE")]))})
+    stubs.up(3512, {"/v1.0/metadata": (200, metadata("invoicing", [("orders", "PROGRAMMATIC")]))})
+    code, out = run(P2 / "check-apps-running.sh", {"TRACKS_SRC_DIR": str(tmp_path)})
+    assert code == 1
+    assert "Ctrl+C" in out
+    assert "shipping" in out
+

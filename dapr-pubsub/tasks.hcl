@@ -51,3 +51,48 @@ resource "task" "subscription_types" {
     }
   }
 }
+
+resource "task" "streaming" {
+  description = "Check that the warehouse receives orders over a STREAMING subscription"
+
+  config {
+    target            = module.sandbox.output.vm
+    working_directory = "/root"
+    timeout           = "30s"
+  }
+
+  condition "apps_running" {
+    description = "order-api and the warehouse sidecar answer"
+
+    check {
+      script          = "2-streaming-subscriptions/scripts/check-apps-running.sh"
+      failure_message = "order-api (port 5101) or the sidecar of the warehouse (port 3511) does not answer. Is 'dapr run -f .' running in your Demo2 folder (Demo2-Streaming or demo2-streaming)? If another page's demo is still running, press Ctrl+C in the Dapr CLI window first."
+    }
+
+    solve {
+      script = "2-streaming-subscriptions/scripts/solve.sh"
+
+      config {
+        timeout = "180s"
+      }
+    }
+  }
+
+  condition "streaming" {
+    description = "The warehouse's subscription is STREAMING"
+
+    check {
+      script          = "2-streaming-subscriptions/scripts/check-streaming.sh"
+      failure_message = "The sidecar of the warehouse (port 3511) does not list the orders subscription as STREAMING. Check the Dapr CLI window for errors from the warehouse app, then wait a few seconds and run the check again."
+    }
+  }
+
+  condition "received" {
+    description = "The warehouse received an order"
+
+    check {
+      script          = "2-streaming-subscriptions/scripts/check-received.sh"
+      failure_message = "The warehouse has not logged 'warehouse received order' yet. Send an order with the curl command in step 4 and run the check again."
+    }
+  }
+}
