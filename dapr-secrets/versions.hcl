@@ -33,6 +33,6 @@ module "sandbox" {
     dapr_runtime_version = variable.dapr_runtime_version
     demo_repo_ref        = variable.tracks_src_ref
     editor_folder        = "secrets"
-    lab_startup_script = "${file("scripts/seed-vault.sh")}\n${file("scripts/lab-setup.sh")}"
+    lab_startup_script   = "${file("scripts/seed-vault.sh")}\n${file("scripts/lab-setup.sh")}"
   }
 }
