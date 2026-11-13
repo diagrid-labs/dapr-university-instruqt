@@ -18,7 +18,7 @@ if [ -n "$shipping_id" ]; then
         exit 1
     fi
     if [ "$shipping_id" != "shipping" ] || [ "$route" != "/orders/express" ]; then
-        echo "The sidecar on port 3511 belongs to '$shipping_id' and does not route express orders to /orders/express, so it is not this page's demo. Another page's demo is still running. Press Ctrl+C in the Dapr CLI window to stop it, then start this page's demo (Demo6-SwapProvider or demo6-swap-provider)."
+        echo "The sidecar on port 3511 belongs to '$shipping_id' and does not route express orders to /orders/express, so it is not this page's demo. Another page's demo is still running. Press Ctrl+C in the Dapr CLI window to stop it (if Skip or Solve started it, run the stop command under 'Before you start' instead), then start this page's demo (Demo6-SwapProvider or demo6-swap-provider)."
         exit 1
     fi
     type=$(metadata_component_type 3511 pubsub)
@@ -27,7 +27,7 @@ if [ -n "$shipping_id" ]; then
         exit 1
     fi
     if [ "$type" != "pubsub.rabbitmq" ]; then
-        echo "The component 'pubsub' of shipping is of type '$type', not pubsub.rabbitmq. The demo of the previous page is still running on Redis. Press Ctrl+C in the Dapr CLI window to stop it, then start this page's demo (Demo6-SwapProvider or demo6-swap-provider)."
+        echo "The component 'pubsub' of shipping is of type '$type', not pubsub.rabbitmq. The demo of the previous page is still running on Redis. Press Ctrl+C in the Dapr CLI window to stop it (if Skip or Solve started it, run the stop command under 'Before you start' instead), then start this page's demo (Demo6-SwapProvider or demo6-swap-provider)."
         exit 1
     fi
 fi

@@ -120,3 +120,7 @@ Walk Through Bulk Messages
 #   curl -s -X POST 'http://localhost:5101/orders/bulk?count=25&prefix=bulk'
 #   curl -s -X POST http://localhost:5102/orders/bulk -H 'Content-Type: application/json' \
 #     -d '{"entries":[{"entryId":"e1","event":{"data":{"orderId":"o-4001","item":"coffee-beans","quantity":1,"priority":"standard"},"datacontenttype":"application/json","id":"e1-event","source":"curl","specversion":"1.0","type":"com.dapr.event.sent"},"contentType":"application/cloudevents+json"},{"entryId":"e2","event":{"nothing":"here"},"contentType":"application/cloudevents+json"}],"topic":"orders"}'
+
+# doc-sync coverage (the stop command of "Before you start" is for demos that Skip or Solve started
+# in the background on the VM; the suite stops its own apps with Stop Process With SIGINT instead):
+#   for f in /root/ai-agent-tracks-instruqt/pubsub/*/*/dapr.yaml; do (cd "$(dirname "$f")" && dapr stop -f . >/dev/null 2>&1); done; echo "No demo of this lab is running now."

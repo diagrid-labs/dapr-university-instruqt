@@ -4,7 +4,15 @@ In this lab, you'll run a subscriber that has no port and no `Subscription` file
 
 ## Before you start
 
-The terminals, and the applications running in them, stay as they are when you move between pages. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `order-api`, `shipping` and `invoicing` from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
+The terminals, and the applications running in them, stay as they are when you move between pages. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `order-api`, `shipping` and `invoicing` from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`.
+
+If you used **Skip** or **Solve** on an earlier page, its apps run in the background, where `Ctrl+C` cannot reach them. This command stops every demo of this lab, however it was started. Run it in the **Dapr CLI** window (select that terminal in the dropdown that appears when you use the *Run* button):
+
+```bash,run
+for f in /root/ai-agent-tracks-instruqt/pubsub/*/*/dapr.yaml; do (cd "$(dirname "$f")" && dapr stop -f . >/dev/null 2>&1); done; echo "No demo of this lab is running now."
+```
+
+Then go back to the **Editor** tab.
 
 ## 1. A subscriber without a port
 

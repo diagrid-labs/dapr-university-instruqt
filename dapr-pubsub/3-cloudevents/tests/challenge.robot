@@ -114,3 +114,7 @@ Walk Through CloudEvents
 #     -d '{"orderId":"o-3001","item":"coffee-beans","quantity":2,"priority":"standard"}'
 #   curl -s -X POST http://localhost:5101/orders/raw -H 'Content-Type: application/json' \
 #     -d '{"orderId":"o-3002","item":"coffee-beans","quantity":3,"priority":"express"}'
+
+# doc-sync coverage (the stop command of "Before you start" is for demos that Skip or Solve started
+# in the background on the VM; the suite stops its own apps with Stop Process With SIGINT instead):
+#   for f in /root/ai-agent-tracks-instruqt/pubsub/*/*/dapr.yaml; do (cd "$(dirname "$f")" && dapr stop -f . >/dev/null 2>&1); done; echo "No demo of this lab is running now."

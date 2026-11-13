@@ -66,7 +66,7 @@ resource "task" "streaming" {
 
     check {
       script          = "2-streaming-subscriptions/scripts/check-apps-running.sh"
-      failure_message = "order-api (port 5101) or the sidecar of the warehouse (port 3511) does not answer. Is 'dapr run -f .' running in your Demo2 folder (Demo2-Streaming or demo2-streaming)? If another page's demo is still running, press Ctrl+C in the Dapr CLI window first."
+      failure_message = "order-api (port 5101) or the sidecar of the warehouse (port 3511) does not answer. Is 'dapr run -f .' running in your Demo2 folder (Demo2-Streaming or demo2-streaming)? If another page's demo is still running, press Ctrl+C in the Dapr CLI window first, or run the stop command under 'Before you start': it also stops apps that Ctrl+C cannot reach (started by Skip or Solve)."
     }
 
     solve {
@@ -111,7 +111,7 @@ resource "task" "cloudevents" {
 
     check {
       script          = "3-cloudevents/scripts/check-apps-running.sh"
-      failure_message = "order-api (port 5101) or shipping (port 5102) does not answer, or another page's demo is still running. Is 'dapr run -f .' running in your Demo3 folder (Demo3-CloudEvents or demo3-cloud-events)? If another page's demo is still running, press Ctrl+C in the Dapr CLI window first."
+      failure_message = "order-api (port 5101) or shipping (port 5102) does not answer, or another page's demo is still running. Is 'dapr run -f .' running in your Demo3 folder (Demo3-CloudEvents or demo3-cloud-events)? If another page's demo is still running, press Ctrl+C in the Dapr CLI window first, or run the stop command under 'Before you start': it also stops apps that Ctrl+C cannot reach (started by Skip or Solve). If the apps are still starting, wait a few seconds and run the check again."
     }
 
     solve {
@@ -156,7 +156,7 @@ resource "task" "bulk_messages" {
 
     check {
       script          = "4-bulk-messages/scripts/check-apps-running.sh"
-      failure_message = "order-api (port 5101) or shipping (port 5102) does not answer, or another page's demo is still running. Is 'dapr run -f .' running in your Demo4 folder (Demo4-Bulk or demo4-bulk)? If another page's demo is still running, press Ctrl+C in the Dapr CLI window first."
+      failure_message = "order-api (port 5101) or shipping (port 5102) does not answer, or another page's demo is still running. Is 'dapr run -f .' running in your Demo4 folder (Demo4-Bulk or demo4-bulk)? If another page's demo is still running, press Ctrl+C in the Dapr CLI window first, or run the stop command under 'Before you start': it also stops apps that Ctrl+C cannot reach (started by Skip or Solve). If the apps are still starting, wait a few seconds and run the check again."
     }
 
     solve {
@@ -201,7 +201,7 @@ resource "task" "routing" {
 
     check {
       script          = "5-routing-and-dead-letters/scripts/check-apps-running.sh"
-      failure_message = "order-api (port 5101) or shipping (port 5102) does not answer, or another page's demo is still running. Is 'dapr run -f .' running in your Demo5 folder (Demo5-RoutingDeadLetter or demo5-routing-dead-letter)? If another page's demo is still running, press Ctrl+C in the Dapr CLI window first."
+      failure_message = "order-api (port 5101) or shipping (port 5102) does not answer, or another page's demo is still running. Is 'dapr run -f .' running in your Demo5 folder (Demo5-RoutingDeadLetter or demo5-routing-dead-letter)? If another page's demo is still running, press Ctrl+C in the Dapr CLI window first, or run the stop command under 'Before you start': it also stops apps that Ctrl+C cannot reach (started by Skip or Solve). If the apps are still starting, wait a few seconds and run the check again."
     }
 
     solve {
@@ -263,7 +263,7 @@ resource "task" "swap_broker" {
 
     check {
       script          = "6-swap-the-broker/scripts/check-apps-running.sh"
-      failure_message = "order-api (port 5101) or shipping (port 5102) does not answer, or another page's demo is still running. Is 'dapr run -f .' running in your Demo6 folder (Demo6-SwapProvider or demo6-swap-provider)? If the demo of the previous page is still running, press Ctrl+C in the Dapr CLI window first."
+      failure_message = "order-api (port 5101) or shipping (port 5102) does not answer, or another page's demo is still running. Is 'dapr run -f .' running in your Demo6 folder (Demo6-SwapProvider or demo6-swap-provider)? If the demo of the previous page is still running, press Ctrl+C in the Dapr CLI window first, or run the stop command under 'Before you start': it also stops apps that Ctrl+C cannot reach (started by Skip or Solve). If the apps are still starting, wait a few seconds and run the check again."
     }
   }
 

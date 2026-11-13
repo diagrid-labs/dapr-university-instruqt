@@ -463,6 +463,17 @@ def test_cloudevents_other_shipping_demo_running_says_ctrl_c(stubs, tmp_path):
     assert rc(P3 / "check-raw.sh", env) == 0
 
 
+def test_cloudevents_shipping_still_starting_says_wait(stubs, tmp_path):
+    # Shipping's sidecar answers but has loaded no subscriptions yet: wait, do not say Ctrl+C.
+    stubs.up(5101)
+    stubs.up(5102)
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("shipping"))})
+    code, out = run(P3 / "check-apps-running.sh", {"TRACKS_SRC_DIR": str(tmp_path)})
+    assert code == 1
+    assert "starting" in out
+    assert "Ctrl+C" not in out
+
+
 # ---- Page 4: bulk messages (demo 4) -------------------------------------------------------------
 P4 = LAB / "4-bulk-messages" / "scripts"
 GOOD_ANSWER = ('{"statuses":[{"entryId":"e1","status":"SUCCESS"},'
@@ -599,6 +610,17 @@ def test_bulk_messages_shipping_with_other_route_says_ctrl_c(stubs, tmp_path, pa
     assert "Ctrl+C" in out
     assert rc(P4 / "check-batches.sh", env) == 0
     assert rc(P4 / "check-per-entry.sh", env) == 0
+
+
+def test_bulk_messages_shipping_still_starting_says_wait(stubs, tmp_path):
+    # Shipping's sidecar answers but has loaded no subscriptions yet: wait, do not say Ctrl+C.
+    stubs.up(5101)
+    stubs.up(5102)
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("shipping"))})
+    code, out = run(P4 / "check-apps-running.sh", {"TRACKS_SRC_DIR": str(tmp_path)})
+    assert code == 1
+    assert "starting" in out
+    assert "Ctrl+C" not in out
 
 
 # ---- Page 5: routing and dead letters (demo 5) --------------------------------------------------

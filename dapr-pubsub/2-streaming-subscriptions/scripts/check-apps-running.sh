@@ -12,7 +12,7 @@ LIB_CHECKS=/usr/local/lib/dapr-pubsub/lib-checks.sh
 # The warehouse has no app port, so the check asks its sidecar (3511) instead of an app port.
 warehouse_id=$(metadata_app_id 3511)
 if [ -n "$warehouse_id" ] && [ "$warehouse_id" != "warehouse" ]; then
-    echo "The sidecar on port 3511 belongs to '$warehouse_id', not 'warehouse'. Another page's demo is still running. Press Ctrl+C in the Dapr CLI window to stop it, then start this page's demo."
+    echo "The sidecar on port 3511 belongs to '$warehouse_id', not 'warehouse'. Another page's demo is still running. Press Ctrl+C in the Dapr CLI window to stop it (if Skip or Solve started it, run the stop command under 'Before you start' instead), then start this page's demo."
     exit 1
 fi
 missing=""

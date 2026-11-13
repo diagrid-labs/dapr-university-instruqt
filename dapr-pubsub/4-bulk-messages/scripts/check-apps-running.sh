@@ -13,9 +13,13 @@ LIB_CHECKS=/usr/local/lib/dapr-pubsub/lib-checks.sh
 # /orders/bulk, so that route tells it apart.
 shipping_id=$(metadata_app_id 3511)
 if [ -n "$shipping_id" ]; then
+    if [ "$shipping_id" = "shipping" ] && [ "$(metadata_sub_type 3511 orders)" = "NONE" ]; then
+        echo "The sidecar of shipping on port 3511 answers but reports no subscriptions yet. The app is still starting. Wait a few seconds and run the check again."
+        exit 1
+    fi
     route=$(metadata_sub_route 3511 orders)
     if [ "$shipping_id" != "shipping" ] || [ "$route" != "/orders/bulk" ]; then
-        echo "The sidecar on port 3511 belongs to '$shipping_id' and does not route orders to /orders/bulk, so it is not this page's demo. Another page's demo is still running. Press Ctrl+C in the Dapr CLI window to stop it, then start this page's demo (Demo4-Bulk or demo4-bulk)."
+        echo "The sidecar on port 3511 belongs to '$shipping_id' and does not route orders to /orders/bulk, so it is not this page's demo. Another page's demo is still running. Press Ctrl+C in the Dapr CLI window to stop it (if Skip or Solve started it, run the stop command under 'Before you start' instead), then start this page's demo (Demo4-Bulk or demo4-bulk)."
         exit 1
     fi
 fi

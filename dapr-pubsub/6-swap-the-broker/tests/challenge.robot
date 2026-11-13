@@ -164,3 +164,7 @@ Walk Through Swap
 #   done
 #   curl -s -u guest:guest http://localhost:15672/api/exchanges | jq -r '.[].name | select(startswith("orders"))' | sort
 #   curl -s -u guest:guest http://localhost:15672/api/queues | jq -r '.[].name' | sort
+
+# doc-sync coverage (the stop command of "Before you start" is for demos that Skip or Solve started
+# in the background on the VM; the suite stops its own apps with Stop Process With SIGINT instead):
+#   for f in /root/ai-agent-tracks-instruqt/pubsub/*/*/dapr.yaml; do (cd "$(dirname "$f")" && dapr stop -f . >/dev/null 2>&1); done; echo "No demo of this lab is running now."

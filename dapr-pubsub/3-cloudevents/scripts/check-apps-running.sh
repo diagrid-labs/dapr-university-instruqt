@@ -12,9 +12,13 @@ LIB_CHECKS=/usr/local/lib/dapr-pubsub/lib-checks.sh
 # its own orders-raw subscription in the metadata of that sidecar.
 shipping_id=$(metadata_app_id 3511)
 if [ -n "$shipping_id" ]; then
+    if [ "$shipping_id" = "shipping" ] && [ "$(metadata_sub_type 3511 orders)" = "NONE" ]; then
+        echo "The sidecar of shipping on port 3511 answers but reports no subscriptions yet. The app is still starting. Wait a few seconds and run the check again."
+        exit 1
+    fi
     raw_type=$(metadata_sub_type 3511 orders-raw)
     if [ "$shipping_id" != "shipping" ] || [ "$raw_type" = "NONE" ]; then
-        echo "The sidecar on port 3511 belongs to '$shipping_id' and has no orders-raw subscription, so it is not this page's demo. Another page's demo is still running. Press Ctrl+C in the Dapr CLI window to stop it, then start this page's demo (Demo3-CloudEvents or demo3-cloud-events)."
+        echo "The sidecar on port 3511 belongs to '$shipping_id' and has no orders-raw subscription, so it is not this page's demo. Another page's demo is still running. Press Ctrl+C in the Dapr CLI window to stop it (if Skip or Solve started it, run the stop command under 'Before you start' instead), then start this page's demo (Demo3-CloudEvents or demo3-cloud-events)."
         exit 1
     fi
 fi
