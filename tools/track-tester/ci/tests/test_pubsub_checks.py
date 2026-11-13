@@ -899,3 +899,17 @@ def test_swap_broker_management_api_down_fails(stubs, tmp_path):
     code, out = run(P6 / "check-dead-lettered.sh", swap_env(tmp_path))
     assert code == 1
     assert "Start RabbitMQ" in out
+
+
+def test_swap_broker_component_unreadable_uses_neutral_wording(stubs, tmp_path):
+    # Shipping's sidecar has routes but no component list: do not claim Redis is running.
+    import json
+    meta = json.loads(demo6_metadata())
+    del meta["components"]
+    stubs.up(5101)
+    stubs.up(5102)
+    stubs.up(3511, {"/v1.0/metadata": (200, json.dumps(meta))})
+    code, out = run(P6 / "check-apps-running.sh", swap_env(tmp_path))
+    assert code == 1
+    assert "pubsub.redis" not in out
+    assert "Redis" not in out

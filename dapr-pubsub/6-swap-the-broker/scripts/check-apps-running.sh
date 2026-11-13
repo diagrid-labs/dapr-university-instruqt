@@ -18,6 +18,10 @@ if [ -n "$shipping_id" ]; then
         exit 1
     fi
     type=$(metadata_component_type 3511 pubsub)
+    if [ -z "$type" ] || [ "$type" = "NONE" ]; then
+        echo "The sidecar of shipping on port 3511 does not report a component named 'pubsub' yet. If the apps are still starting, wait a few seconds and run the check again. Otherwise press Ctrl+C in the Dapr CLI window and start this page's demo (Demo6-SwapProvider or demo6-swap-provider)."
+        exit 1
+    fi
     if [ "$type" != "pubsub.rabbitmq" ]; then
         echo "The component 'pubsub' of shipping is of type '$type', not pubsub.rabbitmq. The demo of the previous page is still running on Redis. Press Ctrl+C in the Dapr CLI window to stop it, then start this page's demo (Demo6-SwapProvider or demo6-swap-provider)."
         exit 1

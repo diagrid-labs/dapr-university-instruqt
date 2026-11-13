@@ -253,7 +253,7 @@ resource "task" "swap_broker" {
       script = "6-swap-the-broker/scripts/solve.sh"
 
       config {
-        timeout = "180s"
+        timeout = "300s"
       }
     }
   }

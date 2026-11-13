@@ -132,7 +132,8 @@ Walk Through Swap
     Should Be Equal    ${exchanges}    orders\norders-dead
     ${queues}=    Capture Command Output
     ...    curl -s -u guest:guest http://localhost:15672/api/queues | jq -r '.[].name' | sort
-    Should Contain    ${queues}    shipping-orders\nshipping-orders-dead
+    # The container is fresh, so Dapr created exactly these two queues (order-insensitive).
+    Should Be Equal    ${queues}    shipping-orders\nshipping-orders-dead
 
     # 6. The check scripts of the page pass against the running demo.
     FOR    ${name}    IN    rabbitmq-running    apps-running    rabbitmq-component    dead-lettered
