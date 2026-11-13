@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -u
-# shellcheck disable=SC1091  # lib-checks.sh is resolved from the script folder at run time
-. "$(dirname "$0")/../../scripts/lib-checks.sh"
+# The lab's files are not on the VM: lab-setup.sh installs the helpers at this fixed path. The repo
+# copy next to the lab is the fallback for CI and pytest.
+LIB_CHECKS=/usr/local/lib/dapr-pubsub/lib-checks.sh
+[ -r "$LIB_CHECKS" ] || LIB_CHECKS="$(dirname "$0")/../../scripts/lib-checks.sh"
+# shellcheck disable=SC1090,SC1091  # resolved at run time
+. "$LIB_CHECKS"
 
 # The first condition of the page. When it fails, the others are gated, so this message is the only
 # hint the learner gets. Demos 1, 3, 4 and 5 all run `shipping` on 3511 with an orders subscription.

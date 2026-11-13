@@ -8,9 +8,24 @@
 # and the variables HOME, TRACKS_SRC_DIR, LAB_SETUP_LOG. -e/-u/pipefail are inherited, `exit` only
 # leaves the subshell, and nothing here may touch the marker.
 #
-# The only lab-specific work is the background pre-build of the demo apps. The RabbitMQ image is
-# already in the sandbox image; page 6 starts the broker. Safe to re-run.
+# versions.hcl puts scripts/lib-checks.sh in front of this file, so its helpers are defined here.
+# The lab-specific work: install those helpers for the check and solve scripts, and pre-build the
+# demo apps in the background. The RabbitMQ image is already in the sandbox image; page 6 starts the
+# broker. Safe to re-run.
 : "${TRACKS_SRC_DIR:?TRACKS_SRC_DIR must be set (set by the module sandbox-setup.sh)}"
+
+# The check and solve scripts run on the VM, where the lab's files are not, so they source the
+# helpers from this fixed path (and fall back to the repo copy in CI and pytest). Every function of
+# lib-checks.sh must be listed: `declare -f` fails, and so does the lab, when one is not defined.
+LAB_CHECKS_LIB_DIR="${LAB_CHECKS_LIB_DIR:-/usr/local/lib/dapr-pubsub}"
+mkdir -p "$LAB_CHECKS_LIB_DIR"
+{
+    echo "# shellcheck shell=bash"
+    echo "# Written by dapr-pubsub/scripts/lab-setup.sh from scripts/lib-checks.sh. Do not edit."
+    declare -f latest_app_log port_answers metadata_app_id metadata_sub_type metadata_sub_route \
+        metadata_component_type stop_all_demos start_demo_detached
+} >"$LAB_CHECKS_LIB_DIR/lib-checks.sh"
+log "check helpers installed in $LAB_CHECKS_LIB_DIR/lib-checks.sh"
 
 if [ ! -d "$TRACKS_SRC_DIR/pubsub" ]; then
     die "$TRACKS_SRC_DIR/pubsub not found. Is $TRACKS_SRC_DIR a current clone of diagrid-labs/ai-agent-tracks-instruqt?"

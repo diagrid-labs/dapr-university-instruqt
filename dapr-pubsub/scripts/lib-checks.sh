@@ -1,6 +1,9 @@
 # shellcheck shell=bash
-# Helpers sourced by the dapr-pubsub check scripts. Written for callers running under `set -u`;
-# no `set -e` of its own.
+# Helpers sourced by the dapr-pubsub check and solve scripts. Written for callers running under
+# `set -u`; no `set -e` of its own. Only function definitions: lab_startup_script (versions.hcl)
+# puts this file in front of lab-setup.sh, which writes every function below to
+# /usr/local/lib/dapr-pubsub/lib-checks.sh, because the lab's own files are not on the VM. A new
+# helper must be added to the list in lab-setup.sh (test_pubsub_lib_checks.py checks it).
 
 # latest_app_log <demo-key> <app-key>
 # Echoes the newest app log of <app-key> (order-api, shipping, invoicing or warehouse) for demo
@@ -13,7 +16,7 @@
 # Avoids GNU-only flags (find -printf, stat -c) so it also runs on macOS; `ls -t` sorts by mtime.
 latest_app_log() {
     local demo="$1" app="$2"
-    local base="${TRACKS_SRC_DIR:-$HOME/ai-agent-tracks-instruqt}/pubsub"
+    local base="${TRACKS_SRC_DIR:-${HOME:-/root}/ai-agent-tracks-instruqt}/pubsub"
     local folder="$demo"
     [ "$demo" = "6" ] && folder=5
     local files=() f lang
@@ -95,4 +98,32 @@ except ValueError:
 name = sys.argv[1]
 print(next((c.get("type", "") for c in meta.get("components") or [] if c.get("name") == name), "NONE"))' "$2" 2>/dev/null
     return 0
+}
+
+# stop_all_demos [<wait-seconds>]: stops every pubsub demo (any demo, any language) with
+# `dapr stop -f .`, however it was started, then waits up to <wait-seconds> (default 30) until
+# nothing answers on port 5101 any more. Always rc 0.
+stop_all_demos() {
+    local base="${TRACKS_SRC_DIR:-${HOME:-/root}/ai-agent-tracks-instruqt}/pubsub" dir
+    for dir in "$base"/dotnet/Demo*-* "$base"/python/demo*-* "$base"/java/demo*-*; do
+        [ -f "$dir/dapr.yaml" ] && { (cd "$dir" && dapr stop -f . >/dev/null 2>&1) || true; }
+    done
+    for _ in $(seq 1 "${1:-30}"); do
+        curl -s -o /dev/null -m 2 http://localhost:5101/ || break
+        sleep 1
+    done
+    return 0
+}
+
+# start_demo_detached <demo-dir> <log-file>: starts `dapr run -f .` in <demo-dir> in the background,
+# detached from the caller (own session where setsid exists, no stdin), output to <log-file>.
+start_demo_detached() {
+    (
+        cd "$1" || exit 1
+        if command -v setsid >/dev/null 2>&1; then
+            setsid nohup dapr run -f . </dev/null >"$2" 2>&1 &
+        else
+            nohup dapr run -f . </dev/null >"$2" 2>&1 &
+        fi
+    )
 }

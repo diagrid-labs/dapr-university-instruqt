@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -u
-# shellcheck disable=SC1091  # lib-checks.sh is resolved from the script folder at run time
-. "$(dirname "$0")/../../scripts/lib-checks.sh"
+# The lab's files are not on the VM: lab-setup.sh installs the helpers at this fixed path. The repo
+# copy next to the lab is the fallback for CI and pytest.
+LIB_CHECKS=/usr/local/lib/dapr-pubsub/lib-checks.sh
+[ -r "$LIB_CHECKS" ] || LIB_CHECKS="$(dirname "$0")/../../scripts/lib-checks.sh"
+# shellcheck disable=SC1090,SC1091  # resolved at run time
+. "$LIB_CHECKS"
 
 # Demo 6 runs the demo 5 apps and subscriptions, so shipping on 3511 looks exactly like page 5's
 # (the first route of its orders subscription is /orders/express). What tells the demos apart is the

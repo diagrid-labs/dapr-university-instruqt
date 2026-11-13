@@ -3,17 +3,15 @@ set -e
 export PATH="${HOME:-/root}/.local/bin:$PATH:/usr/local/bin"
 TRACKS_SRC_DIR="${TRACKS_SRC_DIR:-${HOME:-/root}/ai-agent-tracks-instruqt}"
 PUBSUB="$TRACKS_SRC_DIR/pubsub"
-# shellcheck disable=SC1091  # lib-checks.sh is resolved from the script folder at run time
-. "$(dirname "$0")/../../scripts/lib-checks.sh"
+# The lab's files are not on the VM: lab-setup.sh installs the helpers at this fixed path. The repo
+# copy next to the lab is the fallback for CI and pytest.
+LIB_CHECKS=/usr/local/lib/dapr-pubsub/lib-checks.sh
+[ -r "$LIB_CHECKS" ] || LIB_CHECKS="$(dirname "$0")/../../scripts/lib-checks.sh"
+# shellcheck disable=SC1090,SC1091  # resolved at run time
+. "$LIB_CHECKS"
 
 # 1. Stop whatever the learner has running (any demo, any language) so the ports are free again.
-for dir in "$PUBSUB"/dotnet/Demo*-* "$PUBSUB"/python/demo*-* "$PUBSUB"/java/demo*-*; do
-    [ -f "$dir/dapr.yaml" ] && { (cd "$dir" && dapr stop -f . >/dev/null 2>&1) || true; }
-done
-for _ in $(seq 1 15); do
-    curl -s -o /dev/null -m 2 http://localhost:5101/ || break
-    sleep 1
-done
+stop_all_demos 15
 
 # 2. Start RabbitMQ the way step 1 does. Safe to run again: any existing container goes first.
 docker rm -f rabbitmq >/dev/null 2>&1 || true
@@ -24,12 +22,7 @@ for _ in $(seq 1 45); do
 done
 
 # 3. Start demo 6 in .NET in the background.
-cd "$PUBSUB/dotnet/Demo6-SwapProvider"
-if command -v setsid >/dev/null 2>&1; then
-    setsid nohup dapr run -f . </dev/null >/tmp/dapr-pubsub-demo6.log 2>&1 &
-else
-    nohup dapr run -f . </dev/null >/tmp/dapr-pubsub-demo6.log 2>&1 &
-fi
+start_demo_detached "$PUBSUB/dotnet/Demo6-SwapProvider" /tmp/dapr-pubsub-demo6.log
 
 # 4. Wait (at most 90 seconds, the apps are pre-built) until both apps answer and the component is
 # RabbitMQ. Fail here with the log file named instead of sending orders to apps that are not there.

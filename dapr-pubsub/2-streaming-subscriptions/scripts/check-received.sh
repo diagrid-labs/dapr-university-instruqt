@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -u
-# shellcheck disable=SC1091  # lib-checks.sh is resolved from the script folder at run time
-. "$(dirname "$0")/../../scripts/lib-checks.sh"
+# The lab's files are not on the VM: lab-setup.sh installs the helpers at this fixed path. The repo
+# copy next to the lab is the fallback for CI and pytest.
+LIB_CHECKS=/usr/local/lib/dapr-pubsub/lib-checks.sh
+[ -r "$LIB_CHECKS" ] || LIB_CHECKS="$(dirname "$0")/../../scripts/lib-checks.sh"
+# shellcheck disable=SC1090,SC1091  # resolved at run time
+. "$LIB_CHECKS"
 
 # Gate: when the warehouse's sidecar does not answer, check-apps-running.sh reports it.
 [ -n "$(metadata_app_id 3511)" ] || exit 0
