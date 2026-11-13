@@ -81,3 +81,18 @@ else:
     print(rules[0].get("path", ""))' "$2" 2>/dev/null
     return 0
 }
+
+# metadata_component_type <dapr-http-port> <component-name>: echoes the type (for example
+# pubsub.rabbitmq or pubsub.redis) of the component with that name in the sidecar's metadata, NONE
+# when there is no such component, or nothing (rc 0) when the metadata cannot be read.
+metadata_component_type() {
+    curl -s -m 5 "http://localhost:$1/v1.0/metadata" 2>/dev/null | python3 -c '
+import json, sys
+try:
+    meta = json.load(sys.stdin)
+except ValueError:
+    sys.exit(0)
+name = sys.argv[1]
+print(next((c.get("type", "") for c in meta.get("components") or [] if c.get("name") == name), "NONE"))' "$2" 2>/dev/null
+    return 0
+}

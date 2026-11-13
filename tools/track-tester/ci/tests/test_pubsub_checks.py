@@ -715,3 +715,187 @@ def test_routing_shipping_still_starting_says_wait(stubs, tmp_path):
     assert code == 1
     assert "starting" in out
     assert "Ctrl+C" not in out
+
+
+# ---- Page 6: swap the broker (demo 6, the demo 5 apps on RabbitMQ) -------------------------------
+P6 = LAB / "6-swap-the-broker" / "scripts"
+RABBIT_PORT = 15672
+
+
+def demo6_metadata(app_id="shipping", pubsub_type="pubsub.rabbitmq"):
+    # As the sidecars of demo 6 report it: the demo 5 subscriptions (express rule first) plus a
+    # `pubsub` component whose type is the only thing that differs from demo 5.
+    import json
+    meta = json.loads(demo5_metadata(app_id))
+    meta["components"] = [{"name": "pubsub", "type": pubsub_type, "version": "v1", "capabilities": []},
+                          {"name": "resiliency", "type": "state.redis", "version": "v1"}]
+    return json.dumps(meta)
+
+
+def queues_body(*names):
+    import json
+    return json.dumps([{"name": n, "durable": True} for n in names])
+
+
+def docker_stub(tmp_path, running=True):
+    """A fake `docker` first on PATH: `docker ps` prints `rabbitmq` when running, nothing otherwise."""
+    d = tmp_path / "bin"
+    d.mkdir(exist_ok=True)
+    out = "rabbitmq" if running else ""
+    f = d / "docker"
+    f.write_text(f'#!/bin/sh\n[ "$1" = ps ] && echo "{out}"\nexit 0\n')
+    f.chmod(0o755)
+    return {"PATH": f"{d}{os.pathsep}{os.environ['PATH']}"}
+
+
+def demo6_up(stubs, pubsub_type="pubsub.rabbitmq", queues=("shipping-orders", "shipping-orders-dead")):
+    if not _free(RABBIT_PORT):
+        pytest.skip("port 15672 is in use")
+    stubs.up(5101)
+    stubs.up(5102)
+    stubs.up(3510, {"/v1.0/metadata": (200, demo6_metadata("order-api", pubsub_type))})
+    stubs.up(3511, {"/v1.0/metadata": (200, demo6_metadata("shipping", pubsub_type))})
+    if queues is not None:
+        stubs.up(RABBIT_PORT, {"/api/queues": (200, queues_body(*queues))})
+
+
+def swap_env(tmp_path, running=True):
+    return {"TRACKS_SRC_DIR": str(tmp_path), **docker_stub(tmp_path, running)}
+
+
+SWAP_CHECKS = ("rabbitmq-running", "apps-running", "rabbitmq-component", "dead-lettered")
+
+
+def test_swap_broker_all_pass(stubs, tmp_path):
+    demo6_up(stubs)
+    write_log(tmp_path, "dotnet", "Demo5-RoutingDeadLetter", "Shipping", "shipping",
+              ROUTED_LINES + DEAD_LINES)
+    env = swap_env(tmp_path)
+    for name in SWAP_CHECKS:
+        assert rc(P6 / f"check-{name}.sh", env) == 0, name
+
+
+def test_swap_rabbitmq_not_started(stubs, tmp_path):
+    # The learner skipped step 1: no rabbitmq container. Only that check says so, and it says what to do.
+    env = swap_env(tmp_path, running=False)
+    code, out = run(P6 / "check-rabbitmq-running.sh", env)
+    assert code == 1
+    assert "Start RabbitMQ" in out
+    assert "step 1" in out
+
+
+def test_swap_rabbitmq_not_started_without_docker_output_but_apps_up(stubs, tmp_path):
+    # Apps were started without the broker: the first failing check is still the RabbitMQ one.
+    demo6_up(stubs, queues=None)
+    env = swap_env(tmp_path, running=False)
+    assert rc(P6 / "check-rabbitmq-running.sh", env) == 1
+    assert rc(P6 / "check-dead-lettered.sh", env) == 1
+
+
+def test_swap_nothing_running_fails_only_running_checks(stubs, tmp_path):
+    env = swap_env(tmp_path)
+    assert rc(P6 / "check-rabbitmq-running.sh", env) == 0
+    assert rc(P6 / "check-apps-running.sh", env) == 1
+    assert rc(P6 / "check-rabbitmq-component.sh", env) == 0
+    assert rc(P6 / "check-dead-lettered.sh", env) == 0
+
+
+@pytest.mark.parametrize("down", [5101, 5102])
+def test_swap_one_app_down_fails_running_check(stubs, tmp_path, down):
+    if down != 5101:
+        stubs.up(5101)
+    if down != 5102:
+        stubs.up(5102)
+    stubs.up(3511, {"/v1.0/metadata": (200, demo6_metadata())})
+    code, out = run(P6 / "check-apps-running.sh", swap_env(tmp_path))
+    assert code == 1
+    assert str(down) in out
+
+
+def test_swap_broker_check_finds_logs_in_any_language(stubs, tmp_path):
+    demo6_up(stubs)
+    write_log(tmp_path, "java", "demo5-routing-dead-letter", "shipping", "shipping",
+              "== APP - shipping == 2026-11-13T10:00:05.000Z  INFO 1 --- [shipping] OrderController : "
+              "shipping dead-lettered order o-5003\n")
+    assert rc(P6 / "check-dead-lettered.sh", swap_env(tmp_path)) == 0
+
+
+def test_swap_broker_wrong_demo_running(stubs, tmp_path):
+    # Page 5's demo is still running on Redis: same apps, same routes, only the component differs.
+    demo6_up(stubs, pubsub_type="pubsub.redis")
+    env = swap_env(tmp_path)
+    code, out = run(P6 / "check-apps-running.sh", env)
+    assert code == 1
+    assert "Ctrl+C" in out
+    assert "pubsub.redis" in out
+    assert rc(P6 / "check-rabbitmq-component.sh", env) == 0
+    assert rc(P6 / "check-dead-lettered.sh", env) == 0
+
+
+def test_swap_broker_other_page_demo_running(stubs, tmp_path):
+    # Page 2's demo is still running: the sidecar on 3511 reports `warehouse`.
+    stubs.up(5101)
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("warehouse", [("orders", "STREAMING")]))})
+    env = swap_env(tmp_path)
+    code, out = run(P6 / "check-apps-running.sh", env)
+    assert code == 1
+    assert "Ctrl+C" in out
+    assert rc(P6 / "check-rabbitmq-component.sh", env) == 0
+    assert rc(P6 / "check-dead-lettered.sh", env) == 0
+
+
+@pytest.mark.parametrize("path", ["/orders", "/orders/bulk"])
+def test_swap_broker_shipping_with_other_route_says_ctrl_c(stubs, tmp_path, path):
+    stubs.up(5101)
+    stubs.up(5102)
+    stubs.up(3511, {"/v1.0/metadata": (200, routed_metadata("shipping", "orders", path))})
+    code, out = run(P6 / "check-apps-running.sh", swap_env(tmp_path))
+    assert code == 1
+    assert "Ctrl+C" in out
+
+
+def test_swap_broker_still_starting_says_wait(stubs, tmp_path):
+    stubs.up(5101)
+    stubs.up(5102)
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("shipping"))})
+    code, out = run(P6 / "check-apps-running.sh", swap_env(tmp_path))
+    assert code == 1
+    assert "starting" in out
+    assert "Ctrl+C" not in out
+
+
+def test_swap_broker_component_missing_fails(stubs, tmp_path):
+    # order-api's sidecar has no component named pubsub at all.
+    import json
+    meta = json.loads(demo6_metadata("order-api"))
+    meta["components"] = []
+    stubs.up(3510, {"/v1.0/metadata": (200, json.dumps(meta))})
+    code, out = run(P6 / "check-rabbitmq-component.sh", swap_env(tmp_path))
+    assert code == 1
+    assert "pubsub" in out
+
+
+def test_swap_broker_missing_queue_or_log_fails(stubs, tmp_path):
+    demo6_up(stubs, queues=("shipping-orders",))
+    env = swap_env(tmp_path)
+    write_log(tmp_path, "dotnet", "Demo5-RoutingDeadLetter", "Shipping", "shipping", DEAD_LINES)
+    code, out = run(P6 / "check-dead-lettered.sh", env)
+    assert code == 1
+    assert "shipping-orders-dead" in out
+    assert "step 4" in out
+
+
+def test_swap_broker_missing_log_line_fails(stubs, tmp_path):
+    demo6_up(stubs)
+    env = swap_env(tmp_path)
+    code, out = run(P6 / "check-dead-lettered.sh", env)
+    assert code == 1
+    assert "step 4" in out
+
+
+def test_swap_broker_management_api_down_fails(stubs, tmp_path):
+    demo6_up(stubs, queues=None)
+    write_log(tmp_path, "dotnet", "Demo5-RoutingDeadLetter", "Shipping", "shipping", DEAD_LINES)
+    code, out = run(P6 / "check-dead-lettered.sh", swap_env(tmp_path))
+    assert code == 1
+    assert "Start RabbitMQ" in out

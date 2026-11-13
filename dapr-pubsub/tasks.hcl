@@ -231,3 +231,57 @@ resource "task" "routing" {
     }
   }
 }
+
+resource "task" "swap_broker" {
+  description = "Check that RabbitMQ runs, the apps use it as the pubsub component and the poison order was dead-lettered through it"
+
+  config {
+    target            = module.sandbox.output.vm
+    working_directory = "/root"
+    timeout           = "30s"
+  }
+
+  condition "rabbitmq_running" {
+    description = "The RabbitMQ container is running"
+
+    check {
+      script          = "6-swap-the-broker/scripts/check-rabbitmq-running.sh"
+      failure_message = "The container 'rabbitmq' is not running. Start RabbitMQ with the Run block in step 1 first, then start the apps."
+    }
+
+    solve {
+      script = "6-swap-the-broker/scripts/solve.sh"
+
+      config {
+        timeout = "180s"
+      }
+    }
+  }
+
+  condition "apps_running" {
+    description = "order-api and shipping answer"
+
+    check {
+      script          = "6-swap-the-broker/scripts/check-apps-running.sh"
+      failure_message = "order-api (port 5101) or shipping (port 5102) does not answer, or another page's demo is still running. Is 'dapr run -f .' running in your Demo6 folder (Demo6-SwapProvider or demo6-swap-provider)? If the demo of the previous page is still running, press Ctrl+C in the Dapr CLI window first."
+    }
+  }
+
+  condition "rabbitmq_component" {
+    description = "The component pubsub is of type pubsub.rabbitmq"
+
+    check {
+      script          = "6-swap-the-broker/scripts/check-rabbitmq-component.sh"
+      failure_message = "The sidecar of order-api (port 3510) does not report the component 'pubsub' as pubsub.rabbitmq. Start 'dapr run -f .' in the Demo6 folder (Demo6-SwapProvider or demo6-swap-provider)."
+    }
+  }
+
+  condition "dead_lettered" {
+    description = "RabbitMQ has the queue shipping-orders-dead and shipping received the poison order from it"
+
+    check {
+      script          = "6-swap-the-broker/scripts/check-dead-lettered.sh"
+      failure_message = "RabbitMQ has no queue 'shipping-orders-dead' yet, or shipping has not logged 'dead-lettered order'. Send the three orders with the command in step 4, wait a few seconds for the 3 retries and run the check again."
+    }
+  }
+}

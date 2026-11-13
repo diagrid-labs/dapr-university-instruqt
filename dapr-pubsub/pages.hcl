@@ -46,4 +46,8 @@ resource "page" "routing_and_dead_letters" {
 resource "page" "swap_the_broker" {
   title = "Swap the broker"
   file  = "6-swap-the-broker/assignment.md"
+
+  activities = {
+    swap_broker = resource.task.swap_broker
+  }
 }
