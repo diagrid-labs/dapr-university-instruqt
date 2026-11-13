@@ -79,7 +79,12 @@ that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1
   inlines the lab's `lab_startup_script` into the VM startup (the lab's own files are not on the
   VM). A lab's `lab-setup.sh` holds only its own steps (Vault seeding for `dapr-secrets`, the demo
   pre-build for `dapr-pubsub`) and can use the helpers `log`, `die`, `bounded`, `wait_for_docker`
-  and `TRACKS_SRC_DIR`. It owns the ready marker `/var/lib/lab-setup/ready`. Instruqt waits for the
+  and `TRACKS_SRC_DIR`. Task check and solve scripts also run on the VM without the lab's files,
+  so a helper they source must be installed by the lab startup script: `dapr-pubsub` puts
+  `lib-checks.sh` in front of `lab-setup.sh` in `lab_startup_script`, `lab-setup.sh` writes the
+  helpers to `/usr/local/lib/dapr-pubsub/lib-checks.sh`, and the scripts source that path (with the
+  repo copy as the fallback for CI and pytest). The module owns the ready marker
+  `/var/lib/lab-setup/ready`. Instruqt waits for the
   startup script to finish before the sandbox is ready; the module has no VM health check. A change
   to the shared setup needs an image rebuild and a new module version. See
   `modules/dapr-sandbox/README.md`.

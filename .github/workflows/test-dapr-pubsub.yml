@@ -189,7 +189,7 @@ jobs:
       # does. The Java apps start via Maven under an app-readiness timeout; on a cold ~/.m2 the
       # dependency download would eat into time that also has to cover compile and startup.
       # Every Java app folder of demos 1-5 (each has its own pom). The swap demo (demo6) reuses the
-      # demo 1 apps and has no poms of its own. Found by glob so a new app folder is warmed too.
+      # demo 5 apps and has no poms of its own. Found by glob so a new app folder is warmed too.
       - name: Pre-warm Maven dependencies
         id: prewarm
         if: matrix.lang == 'java'

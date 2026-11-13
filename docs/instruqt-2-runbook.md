@@ -19,10 +19,14 @@ in `docs/instruqt-2-spike-checklist.md`, Part 1.
 | --- | --- | --- |
 | Dapr CLI | the value of `dapr_cli_version` | `modules/dapr-sandbox/versions.hcl` (`dapr_cli_version`) |
 | Pre-pulled Dapr runtime | the value of `prewarm_dapr_runtime_version` | `modules/dapr-sandbox/versions.hcl` (`prewarm_dapr_runtime_version`) |
-| Lab Dapr runtime | the value of `dapr_runtime_version` | `dapr-secrets/versions.hcl` (`dapr_runtime_version`) |
-| Demo repo commit | full SHA | `dapr-secrets/versions.hcl` (`tracks_src_ref`) |
-| Module version used by the lab | the value of `version` | `dapr-secrets/versions.hcl` (`module "sandbox"`, `version`) |
+| Lab Dapr runtime | the value of `dapr_runtime_version`, once per lab, equal to the pre-pulled runtime | `dapr-secrets/versions.hcl` and `dapr-pubsub/versions.hcl` (`dapr_runtime_version`) |
+| Demo repo commit | full SHA, once per lab | `dapr-secrets/versions.hcl` and `dapr-pubsub/versions.hcl` (`tracks_src_ref`) |
+| Module version used by the lab | the value of `version`, once per lab | `dapr-secrets/versions.hcl` and `dapr-pubsub/versions.hcl` (`module "sandbox"`, `version`) |
 | Image the VM boots from | `diagrid/<image-name>:<tag>` | `modules/dapr-sandbox/versions.hcl` (`image_ref`) |
+| RabbitMQ image (dapr-pubsub page 6) | `rabbitmq:<tag>-management` | `modules/dapr-sandbox/scripts/prewarm.sh`, `dapr-pubsub/6-swap-the-broker/assignment.md` and `scripts/solve.sh`, `tools/track-tester/variables/dapr_pubsub.py`; `test_pubsub_pins.py` fails when they differ |
+
+Sections 1 to 12 set up `dapr-secrets`. "Module 2.0.0 / dapr-pubsub" and "Checkpoint B" add the
+second lab; the maintenance procedures at the end cover both labs.
 
 ---
 
@@ -502,8 +506,21 @@ Do this only after Item 10 (timing) and the play-through are done.
 The shared boot setup moved from `dapr-secrets/scripts/lab-setup.sh` into the module
 (`modules/dapr-sandbox/scripts/sandbox-setup.sh`, installed in the image). The new module version
 is **2.0.0** (breaking: new required inputs `dapr_runtime_version`, `demo_repo_ref`, `editor_folder`
-and a new image). `dapr-secrets` moves onto it in the "Part A" PR. Follow these steps in this
-order; do not merge the Part A PR before step 2 is done.
+and a new image).
+
+All of this work sits on one branch, `feat/dapr-pubsub-lab`, but Instruqt reads `main` when you
+build the image, import the module and sync a lab. So it goes to `main` in **three merges**, in
+this order. Do not rebase or split `feat/dapr-pubsub-lab` itself: cut a branch per merge from
+`main` and cherry-pick the commits listed for it.
+
+| Merge | Commits on `feat/dapr-pubsub-lab` | What it changes | Merge when |
+| --- | --- | --- | --- |
+| **A1** | `fc6bba8..1e1ba1d` (docs, spec, plan and the `modules/` changes) plus `4da0552` (module image guard, from the final fix wave) | `docs/`, `modules/dapr-sandbox/`, harness tests | first; safe, because `dapr-secrets` still pins the published module 1.0.2 |
+| **A2** | `8d3bb2c` (`dapr-secrets` onto the shared setup and module 2.0.0) plus `eca6881` (`instruqt lab format` of `dapr-secrets/versions.hcl`) | `dapr-secrets/` | only after module 2.0.0 is published (step 4) |
+| **B** | `f145ee0..HEAD` (the `dapr-pubsub` lab, its CI and docs, and the final fix wave's `dapr-pubsub` changes) | `dapr-pubsub/`, its workflow, harness, `AGENTS.md`, this runbook | only after A2 is live and verified (Checkpoint B) |
+
+A1 and A2 were checked on their own: cherry-picked onto `1e1ba1d`, the harness pytest suite,
+`instruqt lab format` and `validate-lab.sh dapr-secrets modules/dapr-sandbox` all pass.
 
 1. **Baseline first.** Start the live `dapr-secrets` lab (still on module 1.0.2), open a terminal
    and run `grep 'done after' /var/log/lab-setup.log`. Record the seconds here before touching
@@ -511,20 +528,43 @@ order; do not merge the Part A PR before step 2 is done.
 
    - Baseline `done after` (module 1.0.2): ______ s (date: ______)
 
-2. **Build the image and publish the module.**
-   1. Render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh > image.sh`.
+2. **Merge A1.** From an up-to-date `main`:
+
+   ```bash
+   git switch -c part-a1-module-2 main
+   git cherry-pick fc6bba8^..1e1ba1d 4da0552
+   git push -u origin part-a1-module-2
+   ```
+
+   Open the PR into `main`. `lab-validate` and `dapr-secrets-result` must be green; merge it. The
+   published module 1.0.2 is immutable, so the live `dapr-secrets` lab does not change.
+
+3. **Build the image from `main` and merge `image_ref`.**
+   1. On `main`, render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh >
+      image.sh`.
    2. Build and publish the image as in section 2 (from the system `ubuntu` 24.04 base this needs a
       new image name, see "Toolchain bump" step 3).
-   3. Set `image_ref` in `modules/dapr-sandbox/versions.hcl` to the new reference. It is
-      deliberately not set in this branch: only the owner knows the reference after the build.
-      Commit and merge that change.
-   4. In the Instruqt UI: Building blocks > Modules > `diagrid/dapr-sandbox` > refresh, then
-      **Publish version** `2.0.0`.
+   3. On a new branch from `main`, set `image_ref` in `modules/dapr-sandbox/versions.hcl` to the new
+      reference (only the owner knows it after the build), commit only that file, open a PR and
+      merge it once `lab-validate` is green.
 
-3. **Merge the Part A PR and compare.** Merge the PR that moves `dapr-secrets` onto module 2.0.0
-   (`dapr-secrets/versions.hcl` pins `version = "2.0.0"`). Wait for the lab sync, start
-   `dapr-secrets` live and run `grep 'done after' /var/log/lab-setup.log` again. It must not be
-   slower than the baseline from step 1. Then click through all page checks (the four challenge
+4. **Publish module 2.0.0.** In the Instruqt UI: Building blocks > Modules > `diagrid/dapr-sandbox`
+   > refresh, then **Publish version** `2.0.0`. It now holds the module of A1 with the new
+   `image_ref`.
+
+5. **Merge A2 and compare.** Do not merge A2 until module 2.0.0 is published (step 4): the merge
+   syncs `dapr-secrets`, and a sync that pins an unpublished version fails with `version 2.0.0 of
+   diagrid/dapr-sandbox is not published: not found` until the next push under `dapr-secrets/`.
+
+   ```bash
+   git switch -c part-a2-dapr-secrets-module-2 main
+   git cherry-pick 8d3bb2c eca6881
+   git push -u origin part-a2-dapr-secrets-module-2
+   ```
+
+   Merge the PR once `lab-validate` and `dapr-secrets-result` are green. Wait for the lab sync,
+   start `dapr-secrets` live and run `grep 'done after' /var/log/lab-setup.log` again. It must not
+   be slower than the baseline from step 1. Then click through all page checks (the four challenge
    checks) and confirm `ls /var/lib/lab-setup/ready`, `jq --version` and `curl -s
    http://localhost:8200/v1/sys/health`.
 
@@ -532,16 +572,18 @@ order; do not merge the Part A PR before step 2 is done.
 
 ## Checkpoint B: dapr-pubsub lab
 
-Do this after the steps in "Module 2.0.0 / dapr-pubsub" above (Checkpoint A) are done: module
-2.0.0 published and `dapr-secrets` live on it.
+Do this after the steps in "Module 2.0.0 / dapr-pubsub" above (Checkpoint A) are done: A1 and A2
+merged, module 2.0.0 published and `dapr-secrets` live and verified on it.
 
-1. **Test the branch in CI first.** CI has not run for `dapr-pubsub` yet. Open the Part B PR
-   (`feat/dapr-pubsub-lab` into `main`): it touches `dapr-pubsub/**`, so its `pull_request` trigger
-   runs "Test dapr-pubsub track" (`test-dapr-pubsub.yml`). **Expected:** `dapr-pubsub-result` is
-   green (the Java leg is the slowest). Fix drift before merging. Dispatching the workflow by name
-   (`gh workflow run test-dapr-pubsub.yml`) only works once the file is on `main`.
-2. **Merge Part B** (the PR with the `dapr-pubsub` lab) only after the "Module 2.0.0 /
-   dapr-pubsub" section (Checkpoint A) is done.
+1. **Open PR B and test it in CI.** Merge `main` into `feat/dapr-pubsub-lab` (A1, the `image_ref`
+   change and A2 are already there as cherry-picks, so only the `dapr-pubsub` work remains in the
+   diff), push, and open the PR `feat/dapr-pubsub-lab` into `main`. It touches `dapr-pubsub/**`, so
+   its `pull_request` trigger runs "Test dapr-pubsub track" (`test-dapr-pubsub.yml`). CI has not run
+   for `dapr-pubsub` before. **Expected:** `lab-validate`, `dapr-secrets-result` and
+   `dapr-pubsub-result` are green (the Java leg is the slowest). Fix drift before merging.
+   Dispatching the workflow by name (`gh workflow run test-dapr-pubsub.yml`) only works once the file
+   is on `main`.
+2. **Merge PR B** only when A2 is live and verified (Checkpoint A, step 5).
 3. **Create the lab.** In Instruqt create a new lab `dapr-pubsub` connected to the repo, branch
    `main`, **Root directory** `dapr-pubsub`. Wait for the sync.
 4. **RabbitMQ tab (spike S3).** Open the RabbitMQ tab in a live run and log in with `guest` /
@@ -565,7 +607,10 @@ Do this after the steps in "Module 2.0.0 / dapr-pubsub" above (Checkpoint A) are
 
 ### Toolchain bump
 
-For a new .NET, JDK, Node, Dapr CLI, code-server, Dev Dashboard or prewarmed runtime version.
+For a new .NET, JDK, Node, Dapr CLI, code-server, Dev Dashboard or prewarmed runtime version, and
+for any change to `modules/dapr-sandbox/scripts/sandbox-setup.sh` or `prewarm.sh`: both are
+installed in the image, so a change to either only reaches a lab after an image rebuild (steps 2
+to 4) and a new module version (step 6).
 
 1. Edit the pin in `modules/dapr-sandbox/versions.hcl` (`dotnet_sdk_channel`, `java_version`,
    `node_major`, `dapr_cli_version`, `code_server_version`, `dev_dashboard_version` or
@@ -581,42 +626,53 @@ For a new .NET, JDK, Node, Dapr CLI, code-server, Dev Dashboard or prewarmed run
      → **Team**): under **Publish as** pick **a new version of** that image and a new tag (e.g.
      `v2`). The new version is layered on the old one, including anything left over in it.
 4. Set `image_ref` in `modules/dapr-sandbox/versions.hcl` to the new reference.
-5. Open a PR. `lab-validate` and `dapr-secrets-result` must pass; merge it.
-6. Import/refresh the module and **Publish version** as the next number (for example `1.1.0`;
-   section 7). The published `1.0.0` keeps the old image.
-7. In `dapr-secrets/versions.hcl`, bump `version` in the `module "sandbox"` block to that number
-   and merge by PR. Only after step 6: the merge syncs the lab, and a sync that pins a
+5. Open a PR. `lab-validate`, `dapr-secrets-result` and `dapr-pubsub-result` must pass; merge it.
+6. Import/refresh the module and **Publish version** as the next number (for example `2.1.0`;
+   section 7). The published versions keep their old image.
+7. In `dapr-secrets/versions.hcl` and `dapr-pubsub/versions.hcl`, bump `version` in the
+   `module "sandbox"` block to that number and merge by PR (one PR for both labs, or one per lab).
+   Only after step 6: the merge syncs each lab whose folder it changes, and a sync that pins a
    version that is not published yet fails with `failed to read hcl files: module "sandbox":
    version X of diagrid/dapr-sandbox is not published: not found`. Publishing afterwards does not
-   clear that error; the lab only re-reads its HCL on the next push to `main` that changes a file
-   under `dapr-secrets/`.
-8. If you bumped `prewarm_dapr_runtime_version`, `dapr_runtime_version` in
-   `dapr-secrets/versions.hcl` must equal it in the same change. The harness unit test
-   `test_prewarm_runtime_pin_matches_lab_runtime_pin` (`tools/track-tester/ci/tests/test_read_pin.py`,
-   run by `lab-validate`) fails the PR when they differ. See "Dapr runtime bump".
-9. Preview the lab on the branch (section 10) before merging step 7.
+   clear that error; a lab only re-reads its HCL on the next push to `main` that changes a file
+   under its own folder.
+8. If you bumped `prewarm_dapr_runtime_version`, `dapr_runtime_version` in both
+   `dapr-secrets/versions.hcl` and `dapr-pubsub/versions.hcl` must equal it in the same change. The
+   harness unit test `test_prewarm_runtime_pin_matches_lab_runtime_pin`
+   (`tools/track-tester/ci/tests/test_read_pin.py`, run by `lab-validate`, one case per lab) fails
+   the PR when they differ. See "Dapr runtime bump".
+9. Preview each lab on the branch (section 10) before merging step 7.
 
 ### Demo repo bump
 
-The lab and CI both use the same commit of `diagrid-labs/ai-agent-tracks-instruqt`.
+Each lab and its CI use the same commit of `diagrid-labs/ai-agent-tracks-instruqt`. The two labs
+pin it separately (`dapr-secrets` uses `secrets/`, `dapr-pubsub` uses `pubsub/`), so a bump can
+move one lab or both.
 
 1. Pick the new commit and copy its **full 40 character SHA**.
-2. In `dapr-secrets/versions.hcl` set `tracks_src_ref` to it, in a PR.
-3. CI tests that exact SHA (`languages` job, step "Read demo pin"). Merge when
-   `dapr-secrets-result` is green.
+2. In `dapr-secrets/versions.hcl` and/or `dapr-pubsub/versions.hcl` set `tracks_src_ref` to it, in a
+   PR.
+3. CI tests that exact SHA (`setup-dapr-secrets.sh` and `setup-dapr-pubsub.sh` read the pin). Merge
+   when the result check of every lab you bumped is green: `dapr-secrets-result` and/or
+   `dapr-pubsub-result`.
 4. If the new commit changes a demo's dependencies, rebuild the image so the caches match
    (Toolchain bump, steps 2 to 7): `prewarm.sh` clones the demo repo's default branch, not the
    pinned SHA.
 
 ### Dapr runtime bump
 
-1. Set both pins to the new version: `dapr_runtime_version` in `dapr-secrets/versions.hcl` and
-   `prewarm_dapr_runtime_version` in `modules/dapr-sandbox/versions.hcl`. They must be equal.
+1. Set all three pins to the new version: `dapr_runtime_version` in `dapr-secrets/versions.hcl`
+   and in `dapr-pubsub/versions.hcl`, and `prewarm_dapr_runtime_version` in
+   `modules/dapr-sandbox/versions.hcl`. They must be equal (`test_read_pin.py` checks each lab).
 2. Rebuild the image so the new `daprio/dapr` tag is pre-pulled (Toolchain bump, steps 2 to 7).
-3. Note how CI treats the runtime: `tools/track-tester/ci/setup-dapr-secrets.sh` runs an
-   unpinned `dapr init` (what a learner gets today) and fails when the running runtime's
-   MAJOR.MINOR differs from `dapr_runtime_version`. So a new Dapr minor turns the `languages`
-   job red until you bump the pin, which is the intended signal.
-4. Re-verify challenge 3's denial wording (403 `ERR_PERMISSION_DENIED`, 500 `ERR_SECRET_GET`)
-   against the new runtime; `tools/track-tester/variables/dapr_secrets.py` holds the expected
-   constants.
+3. Note how CI treats the runtime: `tools/track-tester/ci/setup-dapr-secrets.sh` and
+   `setup-dapr-pubsub.sh` run an unpinned `dapr init` (what a learner gets today) and fail when the
+   running runtime's MAJOR.MINOR differs from `dapr_runtime_version`. So a new Dapr minor turns
+   both labs' language jobs red (`dapr-secrets-result` and `dapr-pubsub-result`) until you bump the
+   pins, which is the intended signal.
+4. Re-verify the runtime-dependent output of both labs against the new runtime:
+   - `dapr-secrets` challenge 3's denial wording (403 `ERR_PERMISSION_DENIED`, 500
+     `ERR_SECRET_GET`); `tools/track-tester/variables/dapr_secrets.py` holds the expected constants.
+   - `dapr-pubsub`: the subscription types in the sidecar metadata (`DECLARATIVE`, `PROGRAMMATIC`,
+     `STREAMING`, used by the page 1 and 2 checks) and the streaming subscription API, which is
+     alpha in Dapr 1.19 (page 2). The `dapr-pubsub-result` suites cover both.
