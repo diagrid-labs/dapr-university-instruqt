@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Prints the self-contained script to paste into an Instruqt Image Builder session terminal.
-# It exports the toolchain pins from versions.hcl, then inlines install-tools.sh and prewarm.sh.
+# It exports the toolchain pins from versions.hcl, inlines install-tools.sh and prewarm.sh, then
+# installs sandbox-setup.sh to /usr/local/lib/dapr-sandbox/.
 #
 #   modules/dapr-sandbox/scripts/render-image-script.sh > image.sh
 
@@ -41,3 +42,13 @@ for script in install-tools.sh prewarm.sh; do
     echo "# ---- $script ----"
     tail -n +2 "$HERE/$script"
 done
+
+# Ship sandbox-setup.sh in the image: the module's startup script sources it at boot, before the
+# lab's own script. The heredoc is quoted, so the content is written verbatim.
+echo
+echo "# ---- install sandbox-setup.sh ----"
+echo "mkdir -p /usr/local/lib/dapr-sandbox"
+echo "cat > /usr/local/lib/dapr-sandbox/sandbox-setup.sh <<'SANDBOX_SETUP_EOF'"
+cat "$HERE/sandbox-setup.sh"
+echo "SANDBOX_SETUP_EOF"
+echo "chmod 0755 /usr/local/lib/dapr-sandbox/sandbox-setup.sh"
