@@ -23,6 +23,7 @@ node_major="$(pin node_major)"
 dapr_cli_version="$(pin dapr_cli_version)"
 code_server_version="$(pin code_server_version)"
 dev_dashboard_version="$(pin dev_dashboard_version)"
+jq_version="$(pin jq_version)"
 runtime_version="$(pin prewarm_dapr_runtime_version)"
 
 echo '#!/usr/bin/env bash'
@@ -34,6 +35,7 @@ echo "export NODE_MAJOR=$node_major"
 echo "export DAPR_CLI_VERSION=$dapr_cli_version"
 echo "export CODE_SERVER_VERSION=$code_server_version"
 echo "export DEV_DASHBOARD_VERSION=$dev_dashboard_version"
+echo "export JQ_VERSION=$jq_version"
 echo "export PREWARM_DAPR_RUNTIME_VERSION=$runtime_version"
 
 # Inline the script bodies without their shebang line.

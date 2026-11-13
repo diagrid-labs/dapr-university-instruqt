@@ -11,6 +11,7 @@
 #   Python + uv       the python demos (started with `uv run python app.py`); lab setup also
 #                     uses python3 for small scripting jobs
 #   Node.js + npm     tooling some labs need
+#   jq                labs pipe curl output through it
 #   git               lab setup scripts clone the demo repo
 #   code-server       VS Code in the browser, the labs' Editor tab (started by lab setup)
 #   Dev Dashboard     Diagrid's Dapr Dev Dashboard, the labs' Dev Dashboard tab (started by lab
@@ -22,7 +23,7 @@
 set -euo pipefail
 
 missing=0
-for var in DOTNET_SDK_CHANNEL JAVA_VERSION NODE_MAJOR DAPR_CLI_VERSION CODE_SERVER_VERSION DEV_DASHBOARD_VERSION; do
+for var in DOTNET_SDK_CHANNEL JAVA_VERSION NODE_MAJOR DAPR_CLI_VERSION CODE_SERVER_VERSION DEV_DASHBOARD_VERSION JQ_VERSION; do
     if [ -z "${!var:-}" ]; then
         echo "ERROR: required environment variable $var is not set" >&2
         missing=1
@@ -90,10 +91,20 @@ sudo tar -xzf "/tmp/${dd_archive}.tar.gz" -C "/opt/${dd_archive}"
 sudo ln -sf "/opt/${dd_archive}/diagrid-dev-dashboard" /usr/local/bin/diagrid-dev-dashboard
 rm -f "/tmp/${dd_archive}.tar.gz"
 
+# jq, pinned static binary (the distro package lags behind).
+case "$(uname -m)" in
+    x86_64) jq_arch=amd64 ;;
+    aarch64 | arm64) jq_arch=arm64 ;;
+    *) echo "ERROR: unsupported architecture $(uname -m) for jq" >&2; exit 1 ;;
+esac
+sudo curl -fsSL -o /usr/local/bin/jq \
+    "https://github.com/jqlang/jq/releases/download/jq-${JQ_VERSION}/jq-linux-${jq_arch}"
+sudo chmod 0755 /usr/local/bin/jq
+
 # Fail the image build loudly if anything above did not land, instead of at a learner's first
 # `dapr run`.
 echo "--- versions ---"
-for cmd in docker dapr dotnet java mvn python3 uv node npm git code-server diagrid-dev-dashboard; do
+for cmd in docker dapr dotnet java mvn python3 uv node npm git jq code-server diagrid-dev-dashboard; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
         echo "ERROR: $cmd is not installed" >&2
         exit 1
@@ -109,5 +120,6 @@ uv --version
 node --version
 npm --version
 git --version
+jq --version
 code-server --version | grep -m1 -E '^[0-9]+\.'
 diagrid-dev-dashboard --version
