@@ -204,10 +204,25 @@ def test_subscription_types_wrong_demo_running(stubs, tmp_path):
     stubs.up(3510, {"/v1.0/metadata": (200, metadata("order-api"))})
     stubs.up(3511, {"/v1.0/metadata": (200, metadata("warehouse", [("orders", "STREAMING")]))})
     stubs.up(3512, {"/v1.0/metadata": (200, metadata("invoicing", [("orders", "PROGRAMMATIC")]))})
-    code, out = run(P1 / "check-apps-running.sh", {"TRACKS_SRC_DIR": str(tmp_path)})
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    code, out = run(P1 / "check-apps-running.sh", env)
     assert code == 1
     assert "Ctrl+C" in out
     assert "warehouse" in out
+    # Only the one hint: every other condition stays silent.
+    for name in ("declarative", "programmatic", "both-received"):
+        assert rc(P1 / f"check-{name}.sh", env) == 0, name
+
+
+def test_subscription_types_wrong_demo_running_without_invoicing(stubs, tmp_path):
+    # Page 2's demo alone: order-api on 5101 and warehouse's sidecar on 3511, nothing else.
+    stubs.up(5101)
+    stubs.up(3510, {"/v1.0/metadata": (200, metadata("order-api"))})
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("warehouse", [("orders", "STREAMING")]))})
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P1 / "check-apps-running.sh", env) == 1
+    for name in ("declarative", "programmatic", "both-received"):
+        assert rc(P1 / f"check-{name}.sh", env) == 0, name
 
 
 def test_subscription_types_other_demo_without_invoicing_says_ctrl_c(stubs, tmp_path):
@@ -317,10 +332,14 @@ def test_streaming_wrong_demo_running(stubs, tmp_path):
     stubs.up(3510, {"/v1.0/metadata": (200, metadata("order-api"))})
     stubs.up(3511, {"/v1.0/metadata": (200, metadata("shipping", [("orders", "DECLARATIVE")]))})
     stubs.up(3512, {"/v1.0/metadata": (200, metadata("invoicing", [("orders", "PROGRAMMATIC")]))})
-    code, out = run(P2 / "check-apps-running.sh", {"TRACKS_SRC_DIR": str(tmp_path)})
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    code, out = run(P2 / "check-apps-running.sh", env)
     assert code == 1
     assert "Ctrl+C" in out
     assert "shipping" in out
+    # Only the one hint: every other condition stays silent.
+    for name in ("streaming", "received"):
+        assert rc(P2 / f"check-{name}.sh", env) == 0, name
 
 
 
@@ -828,6 +847,7 @@ def test_swap_broker_wrong_demo_running(stubs, tmp_path):
     assert code == 1
     assert "Ctrl+C" in out
     assert "pubsub.redis" in out
+    assert rc(P6 / "check-rabbitmq-running.sh", env) == 0
     assert rc(P6 / "check-rabbitmq-component.sh", env) == 0
     assert rc(P6 / "check-dead-lettered.sh", env) == 0
 
@@ -840,6 +860,7 @@ def test_swap_broker_other_page_demo_running(stubs, tmp_path):
     code, out = run(P6 / "check-apps-running.sh", env)
     assert code == 1
     assert "Ctrl+C" in out
+    assert rc(P6 / "check-rabbitmq-running.sh", env) == 0
     assert rc(P6 / "check-rabbitmq-component.sh", env) == 0
     assert rc(P6 / "check-dead-lettered.sh", env) == 0
 

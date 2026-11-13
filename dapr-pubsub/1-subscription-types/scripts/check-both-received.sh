@@ -11,6 +11,8 @@ LIB_CHECKS=/usr/local/lib/dapr-pubsub/lib-checks.sh
 # sees only that hint, not a second, misleading one.
 port_answers 5102 || exit 0
 port_answers 5103 || exit 0
+# Gate: another page's demo on port 3511 is reported by check-apps-running.sh as well.
+[ "$(metadata_app_id 3511)" = "shipping" ] || exit 0
 
 # The newest log of each app in any language folder: the learner may have used another language
 # on another page. Lines carry the app name, so a Java log with a Spring prefix still matches.

@@ -7,9 +7,11 @@ LIB_CHECKS=/usr/local/lib/dapr-pubsub/lib-checks.sh
 # shellcheck disable=SC1090,SC1091  # resolved at run time
 . "$LIB_CHECKS"
 
+# Gate: when warehouse's sidecar does not answer, or another page's app holds port 3511,
+# check-apps-running.sh reports it. Pass here so the learner sees only that hint, not a second,
+# misleading one.
+[ "$(metadata_app_id 3511)" = "warehouse" ] || exit 0
 type=$(metadata_sub_type 3511 orders)
-# Gate: when warehouse's sidecar does not answer, check-apps-running.sh reports it. Pass here so
-# the learner sees only that hint, not a second, misleading one.
 [ -n "$type" ] || exit 0
 if [ "$type" != "STREAMING" ]; then
     echo "The subscription of the warehouse to the orders topic is '$type', not STREAMING. The stream opens a moment after the app starts: wait for the Dapr CLI window to settle and run the check again."

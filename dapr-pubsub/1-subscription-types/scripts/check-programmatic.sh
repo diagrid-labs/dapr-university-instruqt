@@ -7,9 +7,12 @@ LIB_CHECKS=/usr/local/lib/dapr-pubsub/lib-checks.sh
 # shellcheck disable=SC1090,SC1091  # resolved at run time
 . "$LIB_CHECKS"
 
+# Gate: when invoicing's sidecar does not answer, or another page's demo holds port 3511,
+# check-apps-running.sh reports it. Pass here so the learner sees only that hint, not a second,
+# misleading one.
+[ "$(metadata_app_id 3511)" = "shipping" ] || exit 0
+[ "$(metadata_app_id 3512)" = "invoicing" ] || exit 0
 type=$(metadata_sub_type 3512 orders)
-# Gate: when invoicing's sidecar does not answer, check-apps-running.sh reports it. Pass here so
-# the learner sees only that hint, not a second, misleading one.
 [ -n "$type" ] || exit 0
 if [ "$type" != "PROGRAMMATIC" ]; then
     echo "Invoicing's subscription to the orders topic is '$type', not PROGRAMMATIC."
