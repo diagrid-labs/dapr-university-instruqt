@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Reproduce the dapr-secrets lab environment in CI: same pins, same demo checkout, same Vault
-# seeding library as dapr-secrets/scripts/lab-setup.sh.
+# seeding library as dapr-secrets/scripts/lab-setup.sh (the shared boot setup lives in
+# modules/dapr-sandbox/scripts/sandbox-setup.sh).
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
@@ -8,9 +9,10 @@ LAB_DIR="$REPO_ROOT/dapr-secrets"
 READ_PIN="$REPO_ROOT/tools/track-tester/ci/read_pin.py"
 TRACKS_SRC_DIR="${TRACKS_SRC_DIR:-$HOME/ai-agent-tracks-instruqt}"
 
-# 0. Syntax-check the lab scripts. CI cannot run lab-setup.sh (it inits Dapr on the VM) and runs
-# only its own sequence below, so this is the one CI signal that a bad edit to either script
+# 0. Syntax-check the lab and module scripts. CI cannot run them (they init Dapr on the VM) and
+# runs only its own sequence below, so this is the one CI signal that a bad edit to any of them
 # would otherwise kill the lab at launch.
+bash -n "$REPO_ROOT/modules/dapr-sandbox/scripts/sandbox-setup.sh"
 bash -n "$LAB_DIR/scripts/seed-vault.sh"
 bash -n "$LAB_DIR/scripts/lab-setup.sh"
 
@@ -44,7 +46,7 @@ if ! command -v uv >/dev/null 2>&1; then
 fi
 
 # jq: the challenge 2 suite runs the assignment's `curl -s ... | jq` commands. GitHub's Ubuntu
-# runners ship it; on the VM, dapr-secrets/scripts/lab-setup.sh downloads it.
+# runners ship it; on the VM, the sandbox image ships it (jq_version in modules/dapr-sandbox/versions.hcl).
 if ! command -v jq >/dev/null 2>&1; then
   echo "ERROR: jq is not installed (brew install jq / apt-get install jq)." >&2
   exit 1
