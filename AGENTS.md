@@ -55,52 +55,54 @@ tools/
 `dapr-secrets` and `dapr-pubsub` are **Instruqt 2.0 labs** (HCL config, shared sandbox module); every
 other track is a legacy 1.0 track. See "Instruqt 2.0 labs" below.
 
-Only `dapr-101`, `dapr-workflow`, `dapr-workflow-aspire`, `dapr-secrets` and `dapr-pubsub` currently have
-`track-tester` suites and CI workflows.
+Only `dapr-101`, `dapr-workflow`, `dapr-workflow-aspire`, `dapr-secrets` and `dapr-pubsub`
+currently have `track-tester` suites and CI workflows.
 
 ## Instruqt 2.0 labs
 
-New tracks are 2.0 labs; `dapr-secrets` and `dapr-pubsub` are the references. The legacy sections that follow
-(README.md config, `_setup/`, `tabs.md`) describe the other, still-1.0 tracks.
+New tracks are 2.0 labs; `dapr-secrets` and `dapr-pubsub` are the references. The legacy sections
+that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1.0 tracks.
 
-- **Lab layout.** A lab root (`dapr-secrets/`, `dapr-pubsub/`) holds HCL instead of README config: `main.hcl` (the
-  `lab` resource: title, description, timeouts, chapters/pages), `versions.hcl`, `layouts.hcl`,
-  `tabs.hcl`, `pages.hcl`, `tasks.hcl`, plus `scripts/` (`lab-setup.sh` with the lab's own steps only,
-  and helpers such as `seed-vault.sh` or `lib-checks.sh`) and
-  `<n>-<slug>/` challenge folders with `assignment.md`, `scripts/check-*.sh`, `solve.sh` and
+- **Lab layout.** A lab root (`dapr-secrets/`, `dapr-pubsub/`) holds HCL instead of README config:
+  `main.hcl` (the `lab` resource: title, description, timeouts, chapters/pages), `versions.hcl`,
+  `layouts.hcl`, `tabs.hcl`, `pages.hcl`, `tasks.hcl`, plus `scripts/` (`lab-setup.sh` with the
+  lab's own steps only, and helpers such as `seed-vault.sh` or `lib-checks.sh`) and `<n>-<slug>/`
+  challenge folders with `assignment.md`, `scripts/check-*.sh`, `solve.sh` and
   `tests/challenge.robot`. Until the legacy files are removed, `dapr-secrets/` also still contains
-  `_setup/`, `tabs.md`, challenge `README.md` files and the old `setup.sh`/`check.sh`; they no longer
-  drive the lab.
+  `_setup/`, `tabs.md`, challenge `README.md` files and the old `setup.sh`/`check.sh`; they no
+  longer drive the lab.
 - **`modules/dapr-sandbox/`** is the shared Instruqt module (published as `diagrid/dapr-sandbox`):
   one VM from a pre-built image with the toolchain installed. It owns the shared boot setup
   (`scripts/sandbox-setup.sh`, installed in the image: Docker/DNS wait, demo clone, Editor, Dev
-  Dashboard, `dapr init`), which the lab startup script sources from the image, configured by the inputs `dapr_runtime_version`, `demo_repo_ref`,
-  `editor_folder` (and `demo_repo_url`). It then inlines the lab's `lab_startup_script` into the VM
-  startup (the lab's own files are not on the VM). A lab's `lab-setup.sh` holds only its own steps
-  (Vault seeding for `dapr-secrets`, the demo pre-build for `dapr-pubsub`) and can use
-  the helpers `log`, `die`, `bounded`, `wait_for_docker` and `TRACKS_SRC_DIR`. It owns the ready
-  marker `/var/lib/lab-setup/ready`. Instruqt waits for the startup script to finish before
-  the sandbox is ready; the module has no VM health check. A change to the shared setup needs an
-  image rebuild and a new module version. See `modules/dapr-sandbox/README.md`.
+  Dashboard, `dapr init`), which the lab startup script sources from the image, configured by the
+  inputs `dapr_runtime_version`, `demo_repo_ref`, `editor_folder` (and `demo_repo_url`). It then
+  inlines the lab's `lab_startup_script` into the VM startup (the lab's own files are not on the
+  VM). A lab's `lab-setup.sh` holds only its own steps (Vault seeding for `dapr-secrets`, the demo
+  pre-build for `dapr-pubsub`) and can use the helpers `log`, `die`, `bounded`, `wait_for_docker`
+  and `TRACKS_SRC_DIR`. It owns the ready marker `/var/lib/lab-setup/ready`. Instruqt waits for the
+  startup script to finish before the sandbox is ready; the module has no VM health check. A change
+  to the shared setup needs an image rebuild and a new module version. See
+  `modules/dapr-sandbox/README.md`.
 - **Two `versions.hcl` files, one pin each.** Toolchain, `image_ref` and
   `prewarm_dapr_runtime_version` live in `modules/dapr-sandbox/versions.hcl`. The lab pins
-  (`dapr_runtime_version`, `tracks_src_ref`) and the exact module version live in
-  each lab's `versions.hcl` (`dapr-secrets/`, `dapr-pubsub/`). No pin appears in a second file. CI and scripts read pins with
-  `tools/track-tester/ci/read_pin.py <file.hcl> <name>`, so keep each pin a plain
+  (`dapr_runtime_version`, `tracks_src_ref`) and the exact module version live in each lab's
+  `versions.hcl` (`dapr-secrets/`, `dapr-pubsub/`). No pin appears in a second file. CI and scripts
+  read pins with `tools/track-tester/ci/read_pin.py <file.hcl> <name>`, so keep each pin a plain
   `variable "<name>" { default = "<value>" }` block.
-- **Deploy = merge to `main`.** The Instruqt lab is connected to branch `main`, root directory
-  the lab's folder (`dapr-secrets` or `dapr-pubsub`, one Instruqt lab each). There is no CLI publish. The module is imported and versioned in the Instruqt UI.
-  The owner steps are in `docs/instruqt-2-runbook.md`; schema facts are in
-  `docs/instruqt-2-spike-checklist.md`.
-- **`lab-validate` job** (`.github/workflows/lab-validate.yml`, every PR, no path filter): HCL format
-  check, referenced-files check (`check_lab_paths.py`), module and lab validate, shellcheck, and the
-  harness pytest suite. The Instruqt CLI version is pinned in that workflow.
-- **`tools/track-tester/ci/validate-lab.sh <lab-dir> <module-dir>`** exists because
-  `instruqt lab validate` cannot resolve registry modules. It copies the lab to a temp dir, copies the
-  module into `<tmp>/modules/dapr-sandbox`, rewrites the module block to a local source without a
-  version, and validates that. Use it for local validation too.
+- **Deploy = merge to `main`.** The Instruqt lab is connected to branch `main`, root directory the
+  lab's folder (`dapr-secrets` or `dapr-pubsub`, one Instruqt lab each). There is no CLI publish.
+  The module is imported and versioned in the Instruqt UI. The owner steps are in
+  `docs/instruqt-2-runbook.md`; schema facts are in `docs/instruqt-2-spike-checklist.md`.
+- **`lab-validate` job** (`.github/workflows/lab-validate.yml`, every PR, no path filter): HCL
+  format check, referenced-files check (`check_lab_paths.py`), module and lab validate, shellcheck,
+  and the harness pytest suite. The Instruqt CLI version is pinned in that workflow.
+- **`tools/track-tester/ci/validate-lab.sh <lab-dir> <module-dir>`** exists because `instruqt lab
+  validate` cannot resolve registry modules. It copies the lab to a temp dir, copies the module
+  into `<tmp>/modules/dapr-sandbox`, rewrites the module block to a local source without a version,
+  and validates that. Use it for local validation too.
 - **Required checks on `main`** are exactly `lab-validate`, `dapr-secrets-result` and
-  `dapr-pubsub-result` (the aggregate jobs of `test-dapr-secrets.yml` and `test-dapr-pubsub.yml`). Do not require the individual matrix legs.
+  `dapr-pubsub-result` (the aggregate jobs of `test-dapr-secrets.yml` and `test-dapr-pubsub.yml`).
+  Do not require the individual matrix legs.
 
 ## Track & challenge anatomy
 

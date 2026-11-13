@@ -370,7 +370,7 @@ The parenthetical says *how* the suite really performs them — `(expressed via 
 - provisions language runtimes (`setup-dotnet`/`setup-java`/`setup-node`/`setup-python`) and the Dapr sandbox (`tools/track-tester/ci/setup-<track>.sh`), then runs the suite with `uv run robot`;
 - has a `report` job (`if: failure()`) that opens/updates a `drift-report` labelled issue linking the failing run and the Robot artifact.
 
-**Pick a free cron slot.** The five existing workflows run at 06:00 (`dapr-101`), 06:15 (`dapr-workflow`), 06:30 (`dapr-workflow-aspire`) 06:45 (`dapr-secrets`) and 07:00 (`dapr-pubsub`) UTC. Take the next quarter hour.
+**Pick a free cron slot.** The five existing workflows run at 06:00 (`dapr-101`), 06:15 (`dapr-workflow`), 06:30 (`dapr-workflow-aspire`), 06:45 (`dapr-secrets`) and 07:00 (`dapr-pubsub`) UTC. Take the next quarter hour.
 
 **A language-agnostic leg.** When some tests aren't language-specific, add a `shared` matrix leg that inverts the language tags with `--exclude` (as `test-dapr-secrets.yml` does), so those tests run once instead of once per language.
 

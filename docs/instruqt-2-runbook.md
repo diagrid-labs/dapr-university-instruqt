@@ -532,14 +532,16 @@ order; do not merge the Part A PR before step 2 is done.
 
 ## Checkpoint B: dapr-pubsub lab
 
-Do this after the "Module 2.0.0" steps above (Checkpoint A) are done: module 2.0.0 published and
-`dapr-secrets` live on it.
+Do this after the steps in "Module 2.0.0 / dapr-pubsub" above (Checkpoint A) are done: module
+2.0.0 published and `dapr-secrets` live on it.
 
-1. **Test the branch in CI first.** CI has not run for `dapr-pubsub` yet. Push the feature branch
-   (`feat/dapr-pubsub-lab`) and run the workflow from the Actions tab (or `gh workflow run
-   test-dapr-pubsub.yml --ref feat/dapr-pubsub-lab`). **Expected:** `dapr-pubsub-result` is green
-   (the Java leg is the slowest). Fix drift before merging.
-2. **Merge Part B** (the PR with the `dapr-pubsub` lab) only after Checkpoint A.
+1. **Test the branch in CI first.** CI has not run for `dapr-pubsub` yet. Open the Part B PR
+   (`feat/dapr-pubsub-lab` into `main`): it touches `dapr-pubsub/**`, so its `pull_request` trigger
+   runs "Test dapr-pubsub track" (`test-dapr-pubsub.yml`). **Expected:** `dapr-pubsub-result` is
+   green (the Java leg is the slowest). Fix drift before merging. Dispatching the workflow by name
+   (`gh workflow run test-dapr-pubsub.yml`) only works once the file is on `main`.
+2. **Merge Part B** (the PR with the `dapr-pubsub` lab) only after the "Module 2.0.0 /
+   dapr-pubsub" section (Checkpoint A) is done.
 3. **Create the lab.** In Instruqt create a new lab `dapr-pubsub` connected to the repo, branch
    `main`, **Root directory** `dapr-pubsub`. Wait for the sync.
 4. **RabbitMQ tab (spike S3).** Open the RabbitMQ tab in a live run and log in with `guest` /
