@@ -173,7 +173,7 @@ The `count` must be a whole number from 1 to 100, written in plain digits. Anyth
 
 ## 4. Look at the batches
 
-Look at the **Dapr CLI** window. `shipping` received the 25 orders in a few requests instead of 25. With Redis you will typically see batches of 10, 10 and 5. The order inside a batch is not the order in which the orders were published:
+Look at the **Dapr CLI** window. `shipping` received the 25 orders in a few requests instead of 25. With Redis you will typically see batches of 10, 10 and 5. The order inside a batch is not the order in which the orders were published. As on the earlier pages, the real lines also carry the logger prefix of your language after `== APP - shipping ==`:
 
 ```text,nocopy
 == APP - shipping == shipping received batch of 10 orders: bulk-23,bulk-1,bulk-20,...

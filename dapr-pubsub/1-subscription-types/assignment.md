@@ -162,7 +162,7 @@ Expected output:
 {"orderId":"o-1001","topic":"orders"}
 ```
 
-Now look at the **Dapr CLI** window. Both subscribers logged the order, and the order of the two lines can differ:
+Now look at the **Dapr CLI** window. Both subscribers logged the order, and the order of the two lines can differ. The lines below show only the message: in the real output, each language adds its own logger prefix after `== APP - <app> ==`, for example `INFO:shipping:` in Python and a timestamped Spring log header in Java.
 
 ```text,nocopy
 == APP - shipping == shipping received order o-1001

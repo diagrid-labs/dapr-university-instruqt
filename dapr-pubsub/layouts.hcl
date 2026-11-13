@@ -5,7 +5,7 @@ resource "layout" "main" {
     instructions {}
   }
 
-  # Right side: one panel on top with three tabs, the Dev Dashboard, the Editor (open by default) and RabbitMQ,
+  # Right side: one panel on top with three tabs, the Dev Dashboard, RabbitMQ and the Editor (open by default),
   # each replacing the other when selected; underneath, the two terminals side by
   # side, so both stay visible (the assignments' Run buttons only send commands to a terminal that
   # is shown on the current page). The terminal columns have no width so they share the row equally.
@@ -15,11 +15,18 @@ resource "layout" "main" {
     row {
       height = "60"
 
-      # Declared after the Dev Dashboard on purpose: with the Editor declared first and
-      # `active = true`, the lab still opened on the Dev Dashboard (the last tab in the panel).
+      # The Editor is declared last on purpose: with the Editor declared first and
+      # `active = true`, the lab still opened on the last tab in the panel. So the Dev Dashboard
+      # and RabbitMQ come first and the Editor, the tab the pages start on, comes last.
       tab "dev_dashboard" {
         target = resource.service.dev_dashboard
         title  = "Dev Dashboard"
+        active = false
+      }
+
+      tab "rabbitmq" {
+        target = resource.service.rabbitmq
+        title  = "RabbitMQ"
         active = false
       }
 
@@ -27,12 +34,6 @@ resource "layout" "main" {
         target = resource.service.editor
         title  = "Editor"
         active = true
-      }
-
-      tab "rabbitmq" {
-        target = resource.service.rabbitmq
-        title  = "RabbitMQ"
-        active = false
       }
     }
 
