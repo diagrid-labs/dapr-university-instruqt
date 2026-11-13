@@ -42,6 +42,13 @@ class Stubs:
                 self.end_headers()
                 self.wfile.write(body.encode())
 
+            def do_POST(self):
+                self.rfile.read(int(self.headers.get("Content-Length") or 0))
+                status, body = routes.get("POST " + self.path, (404, ""))
+                self.send_response(status)
+                self.end_headers()
+                self.wfile.write(body.encode())
+
             def log_message(self, *a):
                 pass
 
@@ -435,3 +442,141 @@ def test_cloudevents_other_shipping_demo_running_says_ctrl_c(stubs, tmp_path):
     assert "Ctrl+C" in out
     assert rc(P3 / "check-envelope.sh", env) == 0
     assert rc(P3 / "check-raw.sh", env) == 0
+
+
+# ---- Page 4: bulk messages (demo 4) -------------------------------------------------------------
+P4 = LAB / "4-bulk-messages" / "scripts"
+GOOD_ANSWER = ('{"statuses":[{"entryId":"e1","status":"SUCCESS"},'
+               '{"entryId":"e2","status":"DROP"}]}')
+BATCH_LINE = "== APP - shipping == shipping received batch of 10 orders: bulk-23,bulk-1,bulk-20\n"
+
+
+def routed_metadata(app_id, topic, path):
+    import json
+    return json.dumps({"id": app_id, "subscriptions": [
+        {"pubsubname": "pubsub", "topic": topic, "rules": [{"path": path}], "type": "DECLARATIVE"}]})
+
+
+def demo4_up(stubs, answer=GOOD_ANSWER):
+    # Demo 4: shipping's only subscription is orders, routed to /orders/bulk.
+    stubs.up(5101)
+    stubs.up(5102, {"POST /orders/bulk": (200, answer)})
+    stubs.up(3510, {"/v1.0/metadata": (200, metadata("order-api"))})
+    stubs.up(3511, {"/v1.0/metadata": (200, routed_metadata("shipping", "orders", "/orders/bulk"))})
+
+
+def test_bulk_messages_all_pass(stubs, tmp_path):
+    demo4_up(stubs)
+    write_log(tmp_path, "dotnet", "Demo4-Bulk", "Shipping", "shipping", BATCH_LINE)
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    for name in ("apps-running", "batches", "per-entry"):
+        assert rc(P4 / f"check-{name}.sh", env) == 0, name
+
+
+def test_bulk_messages_nothing_running_fails_only_running_check(stubs, tmp_path):
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P4 / "check-apps-running.sh", env) == 1
+    assert rc(P4 / "check-batches.sh", env) == 0
+    assert rc(P4 / "check-per-entry.sh", env) == 0
+
+
+@pytest.mark.parametrize("down", [5101, 5102])
+def test_bulk_messages_one_app_down_fails_running_check(stubs, tmp_path, down):
+    if down != 5101:
+        stubs.up(5101)
+    if down != 5102:
+        stubs.up(5102)
+    stubs.up(3511, {"/v1.0/metadata": (200, routed_metadata("shipping", "orders", "/orders/bulk"))})
+    code, out = run(P4 / "check-apps-running.sh", {"TRACKS_SRC_DIR": str(tmp_path)})
+    assert code == 1
+    assert str(down) in out
+
+
+def test_bulk_messages_no_batch_line_fails(stubs, tmp_path):
+    demo4_up(stubs)
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P4 / "check-batches.sh", env) == 1
+    # A single-message line is not a batch line.
+    write_log(tmp_path, "python", "demo4-bulk", "shipping", "shipping",
+              "== APP - shipping == shipping received order o-1\n")
+    code, out = run(P4 / "check-batches.sh", env)
+    assert code == 1
+    assert "step" in out
+
+
+def test_bulk_messages_check_finds_logs_in_any_language(stubs, tmp_path):
+    demo4_up(stubs)
+    write_log(tmp_path, "java", "demo4-bulk", "shipping", "shipping",
+              "== APP - shipping == 2026-11-13T10:00:00.000Z  INFO 1 --- [shipping] OrderController : "
+              "shipping received batch of 5 orders: bulk-1,bulk-2\n")
+    assert rc(P4 / "check-batches.sh", {"TRACKS_SRC_DIR": str(tmp_path)}) == 0
+
+
+def test_bulk_messages_logs_of_other_demo_do_not_count(stubs, tmp_path):
+    demo4_up(stubs)
+    write_log(tmp_path, "dotnet", "Demo1-Subscriptions", "Shipping", "shipping", BATCH_LINE)
+    assert rc(P4 / "check-batches.sh", {"TRACKS_SRC_DIR": str(tmp_path)}) == 1
+
+
+@pytest.mark.parametrize("answer", [
+    '{"statuses":[{"entryId":"e1","status":"SUCCESS"},{"entryId":"e2","status":"SUCCESS"}]}',
+    '{"statuses":[{"entryId":"e1","status":"RETRY"},{"entryId":"e2","status":"DROP"}]}',
+    '{"statuses":[]}',
+    'not json',
+])
+def test_bulk_messages_per_entry_wrong_statuses_fail(stubs, tmp_path, answer):
+    demo4_up(stubs, answer)
+    code, out = run(P4 / "check-per-entry.sh", {"TRACKS_SRC_DIR": str(tmp_path)})
+    assert code == 1
+    assert "DROP" in out
+
+
+def test_bulk_messages_per_entry_ignores_field_order_and_spacing(stubs, tmp_path):
+    demo4_up(stubs, '{ "statuses": [ {"status": "DROP", "entryId": "e2"}, '
+                    '{"status": "SUCCESS", "entryId": "e1"} ] }')
+    assert rc(P4 / "check-per-entry.sh", {"TRACKS_SRC_DIR": str(tmp_path)}) == 0
+
+
+def test_bulk_messages_wrong_demo_running(stubs, tmp_path):
+    # Page 2's demo is still running: the sidecar on 3511 reports `warehouse`.
+    stubs.up(5101)
+    stubs.up(3510, {"/v1.0/metadata": (200, metadata("order-api"))})
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("warehouse", [("orders", "STREAMING")]))})
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    code, out = run(P4 / "check-apps-running.sh", env)
+    assert code == 1
+    assert "Ctrl+C" in out
+    assert "warehouse" in out
+    assert rc(P4 / "check-batches.sh", env) == 0
+    assert rc(P4 / "check-per-entry.sh", env) == 0
+
+
+@pytest.mark.parametrize("subs", [
+    [("orders", "DECLARATIVE")],  # demo 1 and 3: route /orders is not set in this stub, so empty path
+    [("orders", "DECLARATIVE"), ("orders-raw", "DECLARATIVE")],  # demo 3
+])
+def test_bulk_messages_other_shipping_demo_running_says_ctrl_c(stubs, tmp_path, subs):
+    # Demos 1, 3, 4 and 5 all run `shipping` on 3511. Only demo 4 routes orders to /orders/bulk.
+    for p in (5101, 5102, 5103):
+        stubs.up(p)
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("shipping", subs))})
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    code, out = run(P4 / "check-apps-running.sh", env)
+    assert code == 1
+    assert "Ctrl+C" in out
+    assert rc(P4 / "check-batches.sh", env) == 0
+    assert rc(P4 / "check-per-entry.sh", env) == 0
+
+
+@pytest.mark.parametrize("path", ["/orders", "/orders/standard"])
+def test_bulk_messages_shipping_with_other_route_says_ctrl_c(stubs, tmp_path, path):
+    # Demo 1 (/orders) and demo 5 (/orders/standard) have the same app ID and topic as demo 4.
+    stubs.up(5101)
+    stubs.up(5102)
+    stubs.up(3511, {"/v1.0/metadata": (200, routed_metadata("shipping", "orders", path))})
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    code, out = run(P4 / "check-apps-running.sh", env)
+    assert code == 1
+    assert "Ctrl+C" in out
+    assert rc(P4 / "check-batches.sh", env) == 0
+    assert rc(P4 / "check-per-entry.sh", env) == 0

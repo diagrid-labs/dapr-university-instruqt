@@ -141,3 +141,48 @@ resource "task" "cloudevents" {
     }
   }
 }
+
+resource "task" "bulk_messages" {
+  description = "Check that shipping received orders in batches and answers a status per entry"
+
+  config {
+    target            = module.sandbox.output.vm
+    working_directory = "/root"
+    timeout           = "30s"
+  }
+
+  condition "apps_running" {
+    description = "order-api and shipping answer"
+
+    check {
+      script          = "4-bulk-messages/scripts/check-apps-running.sh"
+      failure_message = "order-api (port 5101) or shipping (port 5102) does not answer, or another page's demo is still running. Is 'dapr run -f .' running in your Demo4 folder (Demo4-Bulk or demo4-bulk)? If another page's demo is still running, press Ctrl+C in the Dapr CLI window first."
+    }
+
+    solve {
+      script = "4-bulk-messages/scripts/solve.sh"
+
+      config {
+        timeout = "180s"
+      }
+    }
+  }
+
+  condition "batches" {
+    description = "Shipping received orders in batches"
+
+    check {
+      script          = "4-bulk-messages/scripts/check-batches.sh"
+      failure_message = "Shipping has not logged 'received batch of' yet. Publish the orders with the curl command in step 3 and run the check again."
+    }
+  }
+
+  condition "per_entry" {
+    description = "Shipping answers SUCCESS for a good entry and DROP for an unreadable one"
+
+    check {
+      script          = "4-bulk-messages/scripts/check-per-entry.sh"
+      failure_message = "Shipping did not answer SUCCESS for entry e1 and DROP for entry e2. Check the Dapr CLI window for errors from shipping and run the check again."
+    }
+  }
+}

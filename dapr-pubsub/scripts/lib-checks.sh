@@ -60,3 +60,24 @@ topic = sys.argv[1]
 print(next((s.get("type", "") for s in meta.get("subscriptions") or [] if s.get("topic") == topic), "NONE"))' "$2" 2>/dev/null
     return 0
 }
+
+# metadata_sub_route <dapr-http-port> <topic>: echoes the first route path (for example /orders/bulk)
+# of the subscription on <topic> in the sidecar's metadata, NONE when there is no such subscription,
+# or nothing (rc 0) when the metadata cannot be read. The metadata does not show `bulkSubscribe`,
+# but the route does tell demos apart that share an app ID and a topic.
+metadata_sub_route() {
+    curl -s -m 5 "http://localhost:$1/v1.0/metadata" 2>/dev/null | python3 -c '
+import json, sys
+try:
+    meta = json.load(sys.stdin)
+except ValueError:
+    sys.exit(0)
+topic = sys.argv[1]
+sub = next((s for s in meta.get("subscriptions") or [] if s.get("topic") == topic), None)
+if sub is None:
+    print("NONE")
+else:
+    rules = sub.get("rules") or [{}]
+    print(rules[0].get("path", ""))' "$2" 2>/dev/null
+    return 0
+}

@@ -28,6 +28,10 @@ resource "page" "cloudevents" {
 resource "page" "bulk_messages" {
   title = "Bulk messages"
   file  = "4-bulk-messages/assignment.md"
+
+  activities = {
+    bulk_messages = resource.task.bulk_messages
+  }
 }
 
 resource "page" "routing_and_dead_letters" {
