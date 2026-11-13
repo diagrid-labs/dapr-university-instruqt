@@ -315,3 +315,123 @@ def test_streaming_wrong_demo_running(stubs, tmp_path):
     assert "Ctrl+C" in out
     assert "shipping" in out
 
+
+
+# ---- Page 3: CloudEvents and raw payloads (demo 3) ----------------------------------------------
+P3 = LAB / "3-cloudevents" / "scripts"
+ENV_LINE = ('== APP - shipping == shipping received with envelope: {"data":{"orderId":"o-3001"},'
+            '"id":"6ce4e90a","source":"order-api","specversion":"1.0","type":"com.dapr.event.sent"}\n'
+            '== APP - shipping == shipping parsed CloudEvent id=6ce4e90a type=com.dapr.event.sent '
+            'source=order-api\n')
+RAW_LINE = '== APP - shipping == shipping received raw: {"orderId":"o-3002","item":"coffee-beans"}\n'
+
+
+def demo3_up(stubs):
+    # Demo 3: shipping subscribes to orders and, only here, to orders-raw.
+    stubs.up(5101)
+    stubs.up(5102)
+    stubs.up(3510, {"/v1.0/metadata": (200, metadata("order-api"))})
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata(
+        "shipping", [("orders", "DECLARATIVE"), ("orders-raw", "DECLARATIVE")]))})
+
+
+def test_cloudevents_all_pass(stubs, tmp_path):
+    demo3_up(stubs)
+    write_log(tmp_path, "dotnet", "Demo3-CloudEvents", "Shipping", "shipping", ENV_LINE + RAW_LINE)
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    for name in ("apps-running", "envelope", "raw"):
+        assert rc(P3 / f"check-{name}.sh", env) == 0, name
+
+
+def test_cloudevents_nothing_running_fails_only_running_check(stubs, tmp_path):
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P3 / "check-apps-running.sh", env) == 1
+    assert rc(P3 / "check-envelope.sh", env) == 0
+    assert rc(P3 / "check-raw.sh", env) == 0
+
+
+@pytest.mark.parametrize("down", [5101, 5102])
+def test_cloudevents_one_app_down_fails_running_check(stubs, tmp_path, down):
+    demo3_up_partial = [p for p in (5101, 5102) if p != down]
+    for p in demo3_up_partial:
+        stubs.up(p)
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata(
+        "shipping", [("orders", "DECLARATIVE"), ("orders-raw", "DECLARATIVE")]))})
+    code, out = run(P3 / "check-apps-running.sh", {"TRACKS_SRC_DIR": str(tmp_path)})
+    assert code == 1
+    assert str(down) in out
+
+
+def test_cloudevents_envelope_missing_lines_fails(stubs, tmp_path):
+    demo3_up(stubs)
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P3 / "check-envelope.sh", env) == 1
+    # Only the first of the two lines: the parsed line is what proves the SDK read it.
+    write_log(tmp_path, "python", "demo3-cloud-events", "shipping", "shipping",
+              "== APP - shipping == shipping received with envelope: {}\n")
+    code, out = run(P3 / "check-envelope.sh", env)
+    assert code == 1
+    assert "step" in out
+
+
+def test_cloudevents_raw_missing_line_fails(stubs, tmp_path):
+    demo3_up(stubs)
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P3 / "check-raw.sh", env) == 1
+    write_log(tmp_path, "python", "demo3-cloud-events", "shipping", "shipping", ENV_LINE)
+    code, out = run(P3 / "check-raw.sh", env)
+    assert code == 1
+    assert "step" in out
+
+
+def test_cloudevents_check_finds_logs_in_any_language(stubs, tmp_path):
+    # Java prefixes its lines with a Spring log header, and the learner may use any language.
+    demo3_up(stubs)
+    write_log(tmp_path, "java", "demo3-cloud-events", "shipping", "shipping",
+              "== APP - shipping == 2026-11-13T10:00:00.000Z  INFO 1 --- [shipping] OrderController : "
+              "shipping received with envelope: {}\n"
+              "== APP - shipping == 2026-11-13T10:00:00.000Z  INFO 1 --- [shipping] OrderController : "
+              "shipping parsed CloudEvent id=1 type=t source=s\n"
+              "== APP - shipping == 2026-11-13T10:00:00.000Z  INFO 1 --- [shipping] OrderController : "
+              "shipping received raw: {}\n")
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P3 / "check-envelope.sh", env) == 0
+    assert rc(P3 / "check-raw.sh", env) == 0
+
+
+def test_cloudevents_logs_of_other_demo_do_not_count(stubs, tmp_path):
+    demo3_up(stubs)
+    write_log(tmp_path, "dotnet", "Demo1-Subscriptions", "Shipping", "shipping", ENV_LINE + RAW_LINE)
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P3 / "check-envelope.sh", env) == 1
+    assert rc(P3 / "check-raw.sh", env) == 1
+
+
+def test_cloudevents_wrong_demo_running(stubs, tmp_path):
+    # Page 2's demo is still running: the sidecar on 3511 reports `warehouse`.
+    stubs.up(5101)
+    stubs.up(3510, {"/v1.0/metadata": (200, metadata("order-api"))})
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("warehouse", [("orders", "STREAMING")]))})
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    code, out = run(P3 / "check-apps-running.sh", env)
+    assert code == 1
+    assert "Ctrl+C" in out
+    assert "warehouse" in out
+    # Only the one hint: the log checks stay silent.
+    assert rc(P3 / "check-envelope.sh", env) == 0
+    assert rc(P3 / "check-raw.sh", env) == 0
+
+
+def test_cloudevents_other_shipping_demo_running_says_ctrl_c(stubs, tmp_path):
+    # Demos 1, 3, 4 and 5 all run `shipping` on 3511. Page 1's shipping has no orders-raw
+    # subscription, so it is told apart from demo 3 by that, and the log checks stay silent.
+    for p in (5101, 5102, 5103):
+        stubs.up(p)
+    stubs.up(3510, {"/v1.0/metadata": (200, metadata("order-api"))})
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("shipping", [("orders", "DECLARATIVE")]))})
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    code, out = run(P3 / "check-apps-running.sh", env)
+    assert code == 1
+    assert "Ctrl+C" in out
+    assert rc(P3 / "check-envelope.sh", env) == 0
+    assert rc(P3 / "check-raw.sh", env) == 0

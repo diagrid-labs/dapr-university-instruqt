@@ -96,3 +96,48 @@ resource "task" "streaming" {
     }
   }
 }
+
+resource "task" "cloudevents" {
+  description = "Check that shipping received one order with its CloudEvent envelope and one as a raw payload"
+
+  config {
+    target            = module.sandbox.output.vm
+    working_directory = "/root"
+    timeout           = "30s"
+  }
+
+  condition "apps_running" {
+    description = "order-api and shipping answer"
+
+    check {
+      script          = "3-cloudevents/scripts/check-apps-running.sh"
+      failure_message = "order-api (port 5101) or shipping (port 5102) does not answer, or another page's demo is still running. Is 'dapr run -f .' running in your Demo3 folder (Demo3-CloudEvents or demo3-cloud-events)? If another page's demo is still running, press Ctrl+C in the Dapr CLI window first."
+    }
+
+    solve {
+      script = "3-cloudevents/scripts/solve.sh"
+
+      config {
+        timeout = "180s"
+      }
+    }
+  }
+
+  condition "envelope" {
+    description = "Shipping received an order with a CloudEvent envelope"
+
+    check {
+      script          = "3-cloudevents/scripts/check-envelope.sh"
+      failure_message = "Shipping has not logged both 'received with envelope' and 'parsed CloudEvent' yet. Send an order with the first curl command in step 3 and run the check again."
+    }
+  }
+
+  condition "raw" {
+    description = "Shipping received a raw order"
+
+    check {
+      script          = "3-cloudevents/scripts/check-raw.sh"
+      failure_message = "Shipping has not logged 'received raw:' yet. Send an order to /orders/raw with the curl command in step 4 and run the check again."
+    }
+  }
+}

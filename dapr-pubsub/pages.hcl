@@ -19,6 +19,10 @@ resource "page" "streaming_subscriptions" {
 resource "page" "cloudevents" {
   title = "CloudEvents and raw payloads"
   file  = "3-cloudevents/assignment.md"
+
+  activities = {
+    cloudevents = resource.task.cloudevents
+  }
 }
 
 resource "page" "bulk_messages" {
