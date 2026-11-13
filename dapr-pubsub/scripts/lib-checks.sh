@@ -33,3 +33,30 @@ latest_app_log() {
 port_answers() {
     curl -s -o /dev/null -m 3 "http://localhost:$1/"
 }
+
+# metadata_app_id <dapr-http-port>: echoes the app ID the sidecar on that port reports, or nothing
+# (rc 0) when the metadata cannot be read.
+metadata_app_id() {
+    curl -s -m 5 "http://localhost:$1/v1.0/metadata" 2>/dev/null | python3 -c '
+import json, sys
+try:
+    print(json.load(sys.stdin).get("id", ""))
+except ValueError:
+    pass' 2>/dev/null
+    return 0
+}
+
+# metadata_sub_type <dapr-http-port> <topic>: echoes the type (DECLARATIVE, PROGRAMMATIC or
+# STREAMING) of the subscription on <topic> in the sidecar's metadata, NONE when there is no such
+# subscription, or nothing (rc 0) when the metadata cannot be read.
+metadata_sub_type() {
+    curl -s -m 5 "http://localhost:$1/v1.0/metadata" 2>/dev/null | python3 -c '
+import json, sys
+try:
+    meta = json.load(sys.stdin)
+except ValueError:
+    sys.exit(0)
+topic = sys.argv[1]
+print(next((s.get("type", "") for s in meta.get("subscriptions") or [] if s.get("topic") == topic), "NONE"))' "$2" 2>/dev/null
+    return 0
+}

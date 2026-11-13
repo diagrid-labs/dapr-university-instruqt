@@ -1,6 +1,10 @@
 resource "page" "subscription_types" {
   title = "Subscription types"
   file  = "1-subscription-types/assignment.md"
+
+  activities = {
+    subscription_types = resource.task.subscription_types
+  }
 }
 
 resource "page" "streaming_subscriptions" {
