@@ -16,6 +16,7 @@ The tracks are not intended to be run locally — they are hosted on Instruqt an
 
 - `dapr-101/` — Introductory Dapr track.
 - `dapr-secrets/` — Dapr Secrets track: read a secret through the Secrets API, configure the secret store component, scope secrets per application, and swap the local file store for HashiCorp Vault without changing application code.
+- `dapr-pubsub/` — Dapr Pub/Sub track: subscription types, streaming subscriptions, CloudEvents, bulk messages, routing and dead letters, and swapping the broker without changing application code.
 - `dapr-workflow/` — Dapr Workflow track (durable execution, task chaining, fan-out/fan-in, monitor, external events, child workflows, resiliency, workflow management).
 - `dapr-workflow-aspire/` — Dapr Workflow with .NET Aspire track.
 - `dapr-dotnet-aspire/` — Dapr + .NET Aspire integration track.
@@ -28,7 +29,7 @@ The tracks are not intended to be run locally — they are hosted on Instruqt an
 
 ## Testing
 
-Because the runnable tracks depend on upstream code (e.g. `dapr/quickstarts`, and `diagrid-labs/ai-agent-tracks-instruqt` for `dapr-secrets`), the assignment instructions can silently drift out of sync with the commands and output learners actually see. To catch this, `tools/track-tester/` holds an end-to-end test harness built on [Robot Framework](https://robotframework.org/): it runs the *actual* commands from each challenge's `assignment.md` and asserts on their output.
+Because the runnable tracks depend on upstream code (e.g. `dapr/quickstarts`, and `diagrid-labs/ai-agent-tracks-instruqt` for `dapr-secrets` and `dapr-pubsub`), the assignment instructions can silently drift out of sync with the commands and output learners actually see. To catch this, `tools/track-tester/` holds an end-to-end test harness built on [Robot Framework](https://robotframework.org/): it runs the *actual* commands from each challenge's `assignment.md` and asserts on their output.
 
 Each runnable challenge has a suite next to its assignment, e.g. `dapr-workflow/3-task-chaining/tests/challenge.robot`, with tests tagged per language (`dotnet` / `java` / `python` / `javascript`). A [doc-sync](tools/track-tester/README.md) checker additionally verifies every runnable command in an `assignment.md` is covered by its suite. See [`tools/track-tester/README.md`](tools/track-tester/README.md) for how to run the suites locally.
 

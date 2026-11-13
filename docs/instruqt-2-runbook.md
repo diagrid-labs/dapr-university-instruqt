@@ -530,6 +530,33 @@ order; do not merge the Part A PR before step 2 is done.
 
    - New `done after`: ______ s. Baseline: ______ s.
 
+## Checkpoint B: dapr-pubsub lab
+
+Do this after the "Module 2.0.0" steps above (Checkpoint A) are done: module 2.0.0 published and
+`dapr-secrets` live on it.
+
+1. **Test the branch in CI first.** CI has not run for `dapr-pubsub` yet. Push the feature branch
+   (`feat/dapr-pubsub-lab`) and run the workflow from the Actions tab (or `gh workflow run
+   test-dapr-pubsub.yml --ref feat/dapr-pubsub-lab`). **Expected:** `dapr-pubsub-result` is green
+   (the Java leg is the slowest). Fix drift before merging.
+2. **Merge Part B** (the PR with the `dapr-pubsub` lab) only after Checkpoint A.
+3. **Create the lab.** In Instruqt create a new lab `dapr-pubsub` connected to the repo, branch
+   `main`, **Root directory** `dapr-pubsub`. Wait for the sync.
+4. **RabbitMQ tab (spike S3).** Open the RabbitMQ tab in a live run and log in with `guest` /
+   `guest`. If the login fails, remove the `rabbitmq` service and tab from the lab and rely on the
+   page's curl alternative.
+5. **Required checks.** In the `main` branch protection add `dapr-pubsub-result` (workflow "Test
+   dapr-pubsub track"). The required checks are now exactly `lab-validate`, `dapr-secrets-result`
+   and `dapr-pubsub-result`.
+6. **Timed live run.** Start the lab, pick one language and play all six pages with a timer.
+   **Expected:**
+   - total time under 45 minutes;
+   - no build or image-pull waits;
+   - every page check passes;
+   - the `docker run` on page 6 prints no pull progress (the RabbitMQ image is in the sandbox image).
+
+   - Time: ______ min (language: ______, date: ______)
+
 ---
 
 ## Maintenance procedures
