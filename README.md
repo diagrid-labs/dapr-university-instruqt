@@ -34,7 +34,7 @@ Each runnable challenge has a suite next to its assignment, e.g. `dapr-workflow/
 
 ### GitHub workflows
 
-Four workflows in [`.github/workflows/`](.github/workflows/) run the suites automatically. Each triggers on a daily schedule, on `workflow_dispatch`, and on pull requests that touch the track, the harness, or the workflow file. When a run fails, the `report` job opens (or updates) a `drift-report` issue linking the failing run and the downloadable Robot report.
+Five workflows in [`.github/workflows/`](.github/workflows/) run the suites automatically. Each triggers on a daily schedule, on `workflow_dispatch`, and on pull requests that touch the track, the harness, or the workflow file. When a run fails, the `report` job opens (or updates) a `drift-report` issue linking the failing run and the downloadable Robot report.
 
 | Workflow | Track | Schedule (UTC) | Languages / notes |
 | --- | --- | --- | --- |
@@ -42,6 +42,7 @@ Four workflows in [`.github/workflows/`](.github/workflows/) run the suites auto
 | [`test-dapr-workflow.yml`](.github/workflows/test-dapr-workflow.yml) | `dapr-workflow` | 06:15 daily | dotnet, java, python (doc-sync + per-language matrix) |
 | [`test-dapr-workflow-aspire.yml`](.github/workflows/test-dapr-workflow-aspire.yml) | `dapr-workflow-aspire` | 06:30 daily | .NET 10 + Aspire CLI (harness unit tests + build-and-run) |
 | [`test-dapr-secrets.yml`](.github/workflows/test-dapr-secrets.yml) | `dapr-secrets` | 06:45 daily | dotnet, java, python + a language-agnostic `shared` leg (doc-sync + per-language matrix, HashiCorp Vault) |
+| [`test-dapr-pubsub.yml`](.github/workflows/test-dapr-pubsub.yml) | `dapr-pubsub` | 07:00 daily | dotnet, java, python + a language-agnostic `shared` leg (doc-sync + per-language matrix, RabbitMQ in challenge 6) |
 
 ## Contributing
 

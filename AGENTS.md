@@ -345,7 +345,7 @@ Homebrew-vs-`/usr/local/bin` Dapr shadowing, per-language runtime notes), and li
 
 ## CI workflows
 
-Five workflows in `.github/workflows/` run the suites automatically (the four track workflows
+Six workflows in `.github/workflows/` run the suites automatically (the five track workflows
 below, plus `lab-validate.yml`, which runs on every PR; see "Instruqt 2.0 labs"). Each triggers on a
 **daily schedule**, on **`workflow_dispatch`**, and on **pull requests** touching the track,
 the harness (`tools/track-tester/**`), or the workflow file. On failure, a `report` job
@@ -358,6 +358,7 @@ gives `gh run download` commands for the Robot reports.
 | `test-dapr-workflow.yml` | `dapr-workflow` | 06:15 daily | doc-sync (all challenges); per-language matrix: dotnet, java, python |
 | `test-dapr-workflow-aspire.yml` | `dapr-workflow-aspire` | 06:30 daily | harness unit tests (pytest); build-and-run (.NET 10 + Aspire CLI) |
 | `test-dapr-secrets.yml` | `dapr-secrets` | 06:45 daily | `changes` (path filter); gated doc-sync and per-language matrix: dotnet, java, python, shared; aggregate `dapr-secrets-result` |
+| `test-dapr-pubsub.yml` | `dapr-pubsub` | 07:00 daily | `changes` (path filter); gated doc-sync and per-language matrix: dotnet, java, python, shared; aggregate `dapr-pubsub-result` |
 
 Details worth knowing when editing CI:
 
