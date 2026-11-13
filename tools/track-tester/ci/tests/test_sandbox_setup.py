@@ -123,3 +123,12 @@ def test_startup_script_order():
     b = text.index("variable.lab_startup_script", a)
     c = text.index("touch /var/lib/lab-setup/ready", b)
     assert a < b < c
+
+
+def test_startup_script_fails_clearly_without_sandbox_setup_in_image():
+    # An image_ref from before module 2.0.0 has no sandbox-setup.sh: say so instead of a bare
+    # "No such file or directory" from `source`.
+    text = MAIN_HCL.read_text()
+    guard = text.index("[ -r /usr/local/lib/dapr-sandbox/sandbox-setup.sh ] || {")
+    assert "image_ref predates module 2.0.0" in text
+    assert guard < text.index("source /usr/local/lib/dapr-sandbox/sandbox-setup.sh")
