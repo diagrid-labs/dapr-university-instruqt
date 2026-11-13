@@ -650,9 +650,10 @@ def test_routing_missing_log_lines_fail(stubs, tmp_path):
     code, out = run(P5 / "check-routed.sh", env)
     assert code == 1
     assert "express" in out
+    assert "step 4" in out
     code, out = run(P5 / "check-dead-lettered.sh", env)
     assert code == 1
-    assert "step" in out
+    assert "step 4" in out
 
 
 def test_routing_check_finds_logs_in_any_language(stubs, tmp_path):
@@ -703,3 +704,14 @@ def test_routing_shipping_with_other_route_says_ctrl_c(stubs, tmp_path, path):
     assert "Ctrl+C" in out
     assert rc(P5 / "check-routed.sh", env) == 0
     assert rc(P5 / "check-dead-lettered.sh", env) == 0
+
+
+def test_routing_shipping_still_starting_says_wait(stubs, tmp_path):
+    # Shipping's sidecar answers but has loaded no subscriptions yet: wait, do not say Ctrl+C.
+    stubs.up(5101)
+    stubs.up(5102)
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("shipping"))})
+    code, out = run(P5 / "check-apps-running.sh", {"TRACKS_SRC_DIR": str(tmp_path)})
+    assert code == 1
+    assert "starting" in out
+    assert "Ctrl+C" not in out

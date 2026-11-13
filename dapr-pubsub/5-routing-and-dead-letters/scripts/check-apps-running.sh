@@ -10,6 +10,10 @@ set -u
 shipping_id=$(metadata_app_id 3511)
 if [ -n "$shipping_id" ]; then
     route=$(metadata_sub_route 3511 orders)
+    if [ "$shipping_id" = "shipping" ] && { [ -z "$route" ] || [ "$route" = "NONE" ]; }; then
+        echo "The sidecar of shipping on port 3511 answers but cannot report its subscriptions yet. The app is still starting. Wait a few seconds and run the check again."
+        exit 1
+    fi
     if [ "$shipping_id" != "shipping" ] || [ "$route" != "/orders/express" ]; then
         echo "The sidecar on port 3511 belongs to '$shipping_id' and does not route express orders to /orders/express, so it is not this page's demo. Another page's demo is still running. Press Ctrl+C in the Dapr CLI window to stop it, then start this page's demo (Demo5-RoutingDeadLetter or demo5-routing-dead-letter)."
         exit 1

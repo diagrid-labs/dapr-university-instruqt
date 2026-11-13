@@ -11,7 +11,7 @@ set -u
 # orders-dead. It shows up about 3 seconds after the order was published (3 retries, 1 second apart).
 log=$(latest_app_log 5 shipping)
 if [ -z "$log" ] || ! grep -q "shipping dead-lettered order" "$log"; then
-    echo "No 'shipping dead-lettered order' line yet in the log of shipping. Send the three orders with the command in step 3, wait a few seconds for the retries, then run the check again."
+    echo "No 'shipping dead-lettered order' line yet in the log of shipping. Send the three orders with the command in step 4, wait a few seconds for the retries, then run the check again."
     exit 1
 fi
 echo "Shipping received a dead-lettered order."

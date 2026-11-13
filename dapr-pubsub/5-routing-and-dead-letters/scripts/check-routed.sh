@@ -11,11 +11,11 @@ set -u
 # message, so only the message is matched.
 log=$(latest_app_log 5 shipping)
 if [ -z "$log" ] || ! grep -q "shipping standard order" "$log"; then
-    echo "No 'shipping standard order' line yet in the log of shipping. Send the three orders with the command in step 3, then run the check again."
+    echo "No 'shipping standard order' line yet in the log of shipping. Send the three orders with the command in step 4, then run the check again."
     exit 1
 fi
 if ! grep -q "shipping express order" "$log"; then
-    echo "No 'shipping express order' line yet in the log of shipping. Send the three orders with the command in step 3, then run the check again."
+    echo "No 'shipping express order' line yet in the log of shipping. Send the three orders with the command in step 4, then run the check again."
     exit 1
 fi
 echo "Shipping routed a standard order and an express order."

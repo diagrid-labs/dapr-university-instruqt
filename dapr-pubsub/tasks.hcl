@@ -218,7 +218,7 @@ resource "task" "routing" {
 
     check {
       script          = "5-routing-and-dead-letters/scripts/check-routed.sh"
-      failure_message = "Shipping has not logged both 'standard order' and 'express order' yet. Send the three orders with the command in step 3 and run the check again."
+      failure_message = "Shipping has not logged both 'standard order' and 'express order' yet. Send the three orders with the command in step 4 and run the check again."
     }
   }
 
@@ -227,7 +227,7 @@ resource "task" "routing" {
 
     check {
       script          = "5-routing-and-dead-letters/scripts/check-dead-lettered.sh"
-      failure_message = "Shipping has not logged 'dead-lettered order' yet. Send the three orders with the command in step 3, wait a few seconds for the 3 retries and run the check again."
+      failure_message = "Shipping has not logged 'dead-lettered order' yet. Send the three orders with the command in step 4, wait a few seconds for the 3 retries and run the check again."
     }
   }
 }

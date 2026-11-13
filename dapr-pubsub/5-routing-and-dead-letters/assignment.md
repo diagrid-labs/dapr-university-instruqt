@@ -68,7 +68,7 @@ scopes:
   - shipping
 ```
 
-`shipping` subscribes to `orders-dead` like to any other topic, and its `/orders/dead` route receives what ended up there.
+`shipping` subscribes to `orders-dead` like any other topic, and its `/orders/dead` route receives what ended up there.
 
 ## 2. Retries
 
