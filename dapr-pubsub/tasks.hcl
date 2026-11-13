@@ -186,3 +186,48 @@ resource "task" "bulk_messages" {
     }
   }
 }
+
+resource "task" "routing" {
+  description = "Check that shipping routed a standard and an express order and received the dead-lettered poison order"
+
+  config {
+    target            = module.sandbox.output.vm
+    working_directory = "/root"
+    timeout           = "30s"
+  }
+
+  condition "apps_running" {
+    description = "order-api and shipping answer"
+
+    check {
+      script          = "5-routing-and-dead-letters/scripts/check-apps-running.sh"
+      failure_message = "order-api (port 5101) or shipping (port 5102) does not answer, or another page's demo is still running. Is 'dapr run -f .' running in your Demo5 folder (Demo5-RoutingDeadLetter or demo5-routing-dead-letter)? If another page's demo is still running, press Ctrl+C in the Dapr CLI window first."
+    }
+
+    solve {
+      script = "5-routing-and-dead-letters/scripts/solve.sh"
+
+      config {
+        timeout = "180s"
+      }
+    }
+  }
+
+  condition "routed" {
+    description = "Shipping routed a standard order and an express order"
+
+    check {
+      script          = "5-routing-and-dead-letters/scripts/check-routed.sh"
+      failure_message = "Shipping has not logged both 'standard order' and 'express order' yet. Send the three orders with the command in step 3 and run the check again."
+    }
+  }
+
+  condition "dead_lettered" {
+    description = "Shipping received the poison order from orders-dead"
+
+    check {
+      script          = "5-routing-and-dead-letters/scripts/check-dead-lettered.sh"
+      failure_message = "Shipping has not logged 'dead-lettered order' yet. Send the three orders with the command in step 3, wait a few seconds for the 3 retries and run the check again."
+    }
+  }
+}

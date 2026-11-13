@@ -37,6 +37,10 @@ resource "page" "bulk_messages" {
 resource "page" "routing_and_dead_letters" {
   title = "Routing and dead letters"
   file  = "5-routing-and-dead-letters/assignment.md"
+
+  activities = {
+    routing = resource.task.routing
+  }
 }
 
 resource "page" "swap_the_broker" {

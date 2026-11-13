@@ -580,3 +580,126 @@ def test_bulk_messages_shipping_with_other_route_says_ctrl_c(stubs, tmp_path, pa
     assert "Ctrl+C" in out
     assert rc(P4 / "check-batches.sh", env) == 0
     assert rc(P4 / "check-per-entry.sh", env) == 0
+
+
+# ---- Page 5: routing and dead letters (demo 5) --------------------------------------------------
+P5 = LAB / "5-routing-and-dead-letters" / "scripts"
+ROUTED_LINES = ("== APP - shipping == shipping standard order o-5001\n"
+                "== APP - shipping == shipping express order o-5002\n")
+DEAD_LINES = ("== APP - shipping == shipping rejected order o-5003\n"
+              "== APP - shipping == shipping dead-lettered order o-5003\n")
+
+
+def demo5_metadata(app_id="shipping"):
+    # As the sidecar of demo 5's shipping reports it: the express rule comes first, then the default
+    # route as a rule without a match, and orders-dead is an ordinary subscription.
+    import json
+    return json.dumps({"id": app_id, "subscriptions": [
+        {"pubsubname": "pubsub", "topic": "orders-dead", "rules": [{"path": "/orders/dead"}],
+         "deadLetterTopic": "", "type": "DECLARATIVE"},
+        {"pubsubname": "pubsub", "topic": "orders",
+         "rules": [{"match": 'event.data.priority == "express"', "path": "/orders/express"},
+                   {"path": "/orders/standard"}],
+         "deadLetterTopic": "orders-dead", "type": "DECLARATIVE"}]})
+
+
+def demo5_up(stubs):
+    stubs.up(5101)
+    stubs.up(5102)
+    stubs.up(3510, {"/v1.0/metadata": (200, metadata("order-api"))})
+    stubs.up(3511, {"/v1.0/metadata": (200, demo5_metadata())})
+
+
+def test_routing_all_pass(stubs, tmp_path):
+    demo5_up(stubs)
+    write_log(tmp_path, "dotnet", "Demo5-RoutingDeadLetter", "Shipping", "shipping",
+              ROUTED_LINES + DEAD_LINES)
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    for name in ("apps-running", "routed", "dead-lettered"):
+        assert rc(P5 / f"check-{name}.sh", env) == 0, name
+
+
+def test_routing_nothing_running_fails_only_running_check(stubs, tmp_path):
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P5 / "check-apps-running.sh", env) == 1
+    assert rc(P5 / "check-routed.sh", env) == 0
+    assert rc(P5 / "check-dead-lettered.sh", env) == 0
+
+
+@pytest.mark.parametrize("down", [5101, 5102])
+def test_routing_one_app_down_fails_running_check(stubs, tmp_path, down):
+    if down != 5101:
+        stubs.up(5101)
+    if down != 5102:
+        stubs.up(5102)
+    stubs.up(3511, {"/v1.0/metadata": (200, demo5_metadata())})
+    code, out = run(P5 / "check-apps-running.sh", {"TRACKS_SRC_DIR": str(tmp_path)})
+    assert code == 1
+    assert str(down) in out
+
+
+def test_routing_missing_log_lines_fail(stubs, tmp_path):
+    demo5_up(stubs)
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P5 / "check-routed.sh", env) == 1
+    assert rc(P5 / "check-dead-lettered.sh", env) == 1
+    # Only the standard order, and only a rejection (no dead-lettering yet).
+    write_log(tmp_path, "python", "demo5-routing-dead-letter", "shipping", "shipping",
+              "== APP - shipping == shipping standard order o-5001\n"
+              "== APP - shipping == shipping rejected order o-5003\n")
+    code, out = run(P5 / "check-routed.sh", env)
+    assert code == 1
+    assert "express" in out
+    code, out = run(P5 / "check-dead-lettered.sh", env)
+    assert code == 1
+    assert "step" in out
+
+
+def test_routing_check_finds_logs_in_any_language(stubs, tmp_path):
+    demo5_up(stubs)
+    write_log(tmp_path, "java", "demo5-routing-dead-letter", "shipping", "shipping",
+              "== APP - shipping == 2026-11-13T10:00:00.000Z  INFO 1 --- [shipping] OrderController : "
+              "shipping standard order o-5001\n"
+              "== APP - shipping == 2026-11-13T10:00:01.000Z  INFO 1 --- [shipping] OrderController : "
+              "shipping express order o-5002\n"
+              "== APP - shipping == 2026-11-13T10:00:05.000Z  INFO 1 --- [shipping] OrderController : "
+              "shipping dead-lettered order o-5003\n")
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P5 / "check-routed.sh", env) == 0
+    assert rc(P5 / "check-dead-lettered.sh", env) == 0
+
+
+def test_routing_logs_of_earlier_demos_do_not_count(stubs, tmp_path):
+    demo5_up(stubs)
+    write_log(tmp_path, "dotnet", "Demo4-Bulk", "Shipping", "shipping", ROUTED_LINES + DEAD_LINES)
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    assert rc(P5 / "check-routed.sh", env) == 1
+    assert rc(P5 / "check-dead-lettered.sh", env) == 1
+
+
+def test_routing_wrong_demo_running(stubs, tmp_path):
+    # Page 2's demo is still running: the sidecar on 3511 reports `warehouse`.
+    stubs.up(5101)
+    stubs.up(3510, {"/v1.0/metadata": (200, metadata("order-api"))})
+    stubs.up(3511, {"/v1.0/metadata": (200, metadata("warehouse", [("orders", "STREAMING")]))})
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    code, out = run(P5 / "check-apps-running.sh", env)
+    assert code == 1
+    assert "Ctrl+C" in out
+    assert "warehouse" in out
+    assert rc(P5 / "check-routed.sh", env) == 0
+    assert rc(P5 / "check-dead-lettered.sh", env) == 0
+
+
+@pytest.mark.parametrize("path", ["/orders", "/orders/bulk"])
+def test_routing_shipping_with_other_route_says_ctrl_c(stubs, tmp_path, path):
+    # Demos 1 and 3 (/orders) and demo 4 (/orders/bulk) have the same app ID and topic as demo 5.
+    stubs.up(5101)
+    stubs.up(5102)
+    stubs.up(3511, {"/v1.0/metadata": (200, routed_metadata("shipping", "orders", path))})
+    env = {"TRACKS_SRC_DIR": str(tmp_path)}
+    code, out = run(P5 / "check-apps-running.sh", env)
+    assert code == 1
+    assert "Ctrl+C" in out
+    assert rc(P5 / "check-routed.sh", env) == 0
+    assert rc(P5 / "check-dead-lettered.sh", env) == 0
