@@ -1,5 +1,5 @@
 resource "lab" "main" {
-  title       = "Dapr Secrets - Read, Scope, and Swap Secret Stores"
+  title       = "Dapr Secrets - Safely use secrets in your applications"
   description = <<-EOT
     In this self-paced lab, you'll learn:
     - Why a secret store beats a config file or an environment variable, and how an app reads a secret through the Dapr Secrets API

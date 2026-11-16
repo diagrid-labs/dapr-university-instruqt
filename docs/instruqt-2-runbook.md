@@ -336,7 +336,7 @@ content is authored.
 
 **Expected:** on the **Labs** page the lab shows sync status "Success" with a green checkmark
 (the lab's overview page shows whether the latest push was picked up and whether validation
-passed). The lab is titled "Dapr Secrets - Read, Scope, and Swap Secret Stores" with chapter
+passed). The lab is titled "Dapr Secrets - Safely use secrets in your applications" with chapter
 "Dapr Secrets" and four pages (What is the Secrets API; The component and its parameters; Secret
 scoping; Swap the provider). The module `diagrid/dapr-sandbox` 1.0.0 resolves with no error in
 the lab editor. If it does not, the module was not published (section 7) or the version differs
