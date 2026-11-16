@@ -1,7 +1,7 @@
 resource "lab" "main" {
   title       = "Dapr Secrets - Safely use secrets in your applications"
   description = <<-EOT
-    In this self-paced lab, you'll learn:
+    In this self-paced track, you'll learn:
     - Why a secret store beats a config file or an environment variable, and how an app reads a secret through the Dapr Secrets API
     - How to configure the local file secret store, call the single and bulk secret endpoints, and let another component pull its password from the store with `secretKeyRef`
     - How to scope secrets so one app can read a secret and another app is refused
