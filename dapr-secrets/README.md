@@ -1,6 +1,6 @@
 # dapr-secrets
 
-Dapr University lab: **Dapr Secrets - Safely use secrets in your applications**. Four challenges, about
+Dapr University track: **Dapr Secrets - Safely use secrets in your applications**. Four challenges, about
 30 minutes, in .NET, Python or Java. The learner reads a secret through the Secrets API, configures the
 local file secret store, sees an app refused by secret scoping, then swaps the file store for HashiCorp
 Vault without changing application code.
