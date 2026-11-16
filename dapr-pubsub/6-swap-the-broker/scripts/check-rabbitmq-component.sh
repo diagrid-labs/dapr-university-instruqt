@@ -11,7 +11,7 @@ LIB_CHECKS=/usr/local/lib/dapr-pubsub/lib-checks.sh
 [ "$(metadata_app_id 3510)" = "order-api" ] || exit 0
 
 type=$(metadata_component_type 3510 pubsub)
-# A pubsub.redis component is the previous page's demo still running: check-apps-running.sh says so.
+# A pubsub.redis component is the previous lab's demo still running: check-apps-running.sh says so.
 [ "$type" = "pubsub.redis" ] && exit 0
 if [ "$type" != "pubsub.rabbitmq" ]; then
     echo "The sidecar of order-api (port 3510) reports the component 'pubsub' as '$type', not pubsub.rabbitmq. Check that you started 'dapr run -f .' in the Demo6-SwapProvider (or demo6-swap-provider) folder."

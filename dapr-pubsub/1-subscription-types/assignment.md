@@ -59,14 +59,14 @@ Open `OrderController.java` in the `java/demo1-subscriptions/invoicing/src/main/
 
 </details>
 
-When the sidecar of `invoicing` starts, it asks the app on `/dapr/subscribe` which topics it wants. The sidecar of `shipping` reads the YAML file instead, and the `shipping` app has no Dapr code at all. It reads each message with the open CloudEvents SDK, because Dapr delivers every message as a standard CloudEvent. You'll look at that envelope on a later page.
+When the sidecar of `invoicing` starts, it asks the app on `/dapr/subscribe` which topics it wants. The sidecar of `shipping` reads the YAML file instead, and the `shipping` app has no Dapr code at all. It reads each message with the open CloudEvents SDK, because Dapr delivers every message as a standard CloudEvent. You'll look at that envelope on a later lab.
 
 ## 3. Run the demo
 
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
-Use the **Dapr CLI** window to go to the `pubsub` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+Use the **Dapr CLI** window to go to the `pubsub` folder first. The terminal stays in whatever folder it was in when you move between labs, so this makes sure the commands below start from the right place:
 
 ```bash,run
 cd /root/ai-agent-tracks-instruqt/pubsub

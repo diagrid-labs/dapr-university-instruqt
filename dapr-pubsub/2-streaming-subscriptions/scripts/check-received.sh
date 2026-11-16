@@ -7,7 +7,7 @@ LIB_CHECKS=/usr/local/lib/dapr-pubsub/lib-checks.sh
 # shellcheck disable=SC1090,SC1091  # resolved at run time
 . "$LIB_CHECKS"
 
-# Gate: when the warehouse's sidecar does not answer, or another page's app holds port 3511,
+# Gate: when the warehouse's sidecar does not answer, or another lab's app holds port 3511,
 # check-apps-running.sh reports it.
 [ "$(metadata_app_id 3511)" = "warehouse" ] || exit 0
 

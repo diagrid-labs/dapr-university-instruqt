@@ -18,7 +18,7 @@ if [ -n "$shipping_id" ]; then
     fi
     raw_type=$(metadata_sub_type 3511 orders-raw)
     if [ "$shipping_id" != "shipping" ] || [ "$raw_type" = "NONE" ]; then
-        echo "The sidecar on port 3511 belongs to '$shipping_id' and has no orders-raw subscription, so it is not this page's demo. Another page's demo is still running. Press Ctrl+C in the Dapr CLI window to stop it (if Skip or Solve started it, run the stop command under 'Before you start' instead), then start this page's demo (Demo3-CloudEvents or demo3-cloud-events)."
+        echo "The sidecar on port 3511 belongs to '$shipping_id' and has no orders-raw subscription, so it is not this lab's demo. Another lab's demo is still running. Press Ctrl+C in the Dapr CLI window to stop it (if Skip or Solve started it, run the stop command under 'Before you start' instead), then start this lab's demo (Demo3-CloudEvents or demo3-cloud-events)."
         exit 1
     fi
 fi
@@ -27,7 +27,7 @@ port_answers 5101 || missing="$missing 5101 (order-api)"
 port_answers 5102 || missing="$missing 5102 (shipping)"
 [ -n "$shipping_id" ] || missing="$missing 3511 (the sidecar of shipping)"
 if [ -n "$missing" ]; then
-    echo "Nothing answers on port(s)$missing. Is 'dapr run -f .' running in this page's demo folder (Demo3-CloudEvents or demo3-cloud-events)? If another page's demo is still running, press Ctrl+C in the Dapr CLI window first."
+    echo "Nothing answers on port(s)$missing. Is 'dapr run -f .' running in this lab's demo folder (Demo3-CloudEvents or demo3-cloud-events)? If another lab's demo is still running, press Ctrl+C in the Dapr CLI window first."
     exit 1
 fi
 echo "order-api and shipping answer on ports 5101 and 5102."

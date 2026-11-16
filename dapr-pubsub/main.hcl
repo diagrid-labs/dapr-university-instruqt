@@ -1,7 +1,7 @@
 resource "lab" "main" {
   title       = "Pub/Sub deep dive: Subscription types, CloudEvents, Bulk Publishing and Routing"
   description = <<-EOT
-    In this self-paced lab, you'll learn:
+    In this self-paced track, you'll learn:
     - How declarative and programmatic subscriptions differ, and how an app subscribes to a topic in each
     - How a streaming subscription lets an app receive messages without exposing an HTTP endpoint
     - How CloudEvents wrap your messages, and how to publish and receive raw payloads instead

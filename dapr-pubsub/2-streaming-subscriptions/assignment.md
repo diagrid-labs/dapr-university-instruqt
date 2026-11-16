@@ -4,12 +4,12 @@ In this lab, you'll run a subscriber that has no port and no `Subscription` file
 
 ## Before you start
 
-The terminals, and the applications running in them, stay as they are when you move between pages. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `order-api`, `shipping` and `invoicing` from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`.
+The terminals, and the applications running in them, stay as they are when you move between labs. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `order-api`, `shipping` and `invoicing` from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`.
 
-If you used **Skip** or **Solve** on an earlier page, its apps run in the background, where `Ctrl+C` cannot reach them. This command stops every demo of this lab, however it was started. Run it in the **Dapr CLI** window (select that terminal in the dropdown that appears when you use the *Run* button):
+If you used **Skip** or **Solve** on an earlier lab, its apps run in the background, where `Ctrl+C` cannot reach them. This command stops every demo of this track, however it was started. Run it in the **Dapr CLI** window (select that terminal in the dropdown that appears when you use the *Run* button):
 
 ```bash,run
-for f in /root/ai-agent-tracks-instruqt/pubsub/*/*/dapr.yaml; do (cd "$(dirname "$f")" && dapr stop -f . >/dev/null 2>&1); done; echo "No demo of this lab is running now."
+for f in /root/ai-agent-tracks-instruqt/pubsub/*/*/dapr.yaml; do (cd "$(dirname "$f")" && dapr stop -f . >/dev/null 2>&1); done; echo "No demo of this track is running now."
 ```
 
 Then go back to the **Editor** tab.
@@ -58,7 +58,7 @@ Each handler answers `Success` for every message, which tells Dapr the message i
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
-Use the **Dapr CLI** window to go to the `pubsub` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+Use the **Dapr CLI** window to go to the `pubsub` folder first. The terminal stays in whatever folder it was in when you move between labs, so this makes sure the commands below start from the right place:
 
 ```bash,run
 cd /root/ai-agent-tracks-instruqt/pubsub

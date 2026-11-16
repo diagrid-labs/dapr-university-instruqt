@@ -4,12 +4,12 @@ In this lab, you'll publish 25 orders in one call and watch `shipping` receive t
 
 ## Before you start
 
-The terminals, and the applications running in them, stay as they are when you move between pages. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `order-api` and `shipping` from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`.
+The terminals, and the applications running in them, stay as they are when you move between labs. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `order-api` and `shipping` from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`.
 
-If you used **Skip** or **Solve** on an earlier page, its apps run in the background, where `Ctrl+C` cannot reach them. This command stops every demo of this lab, however it was started. Run it in the **Dapr CLI** window (select that terminal in the dropdown that appears when you use the *Run* button):
+If you used **Skip** or **Solve** on an earlier lab, its apps run in the background, where `Ctrl+C` cannot reach them. This command stops every demo of this track, however it was started. Run it in the **Dapr CLI** window (select that terminal in the dropdown that appears when you use the *Run* button):
 
 ```bash,run
-for f in /root/ai-agent-tracks-instruqt/pubsub/*/*/dapr.yaml; do (cd "$(dirname "$f")" && dapr stop -f . >/dev/null 2>&1); done; echo "No demo of this lab is running now."
+for f in /root/ai-agent-tracks-instruqt/pubsub/*/*/dapr.yaml; do (cd "$(dirname "$f")" && dapr stop -f . >/dev/null 2>&1); done; echo "No demo of this track is running now."
 ```
 
 Then go back to the **Editor** tab.
@@ -75,7 +75,7 @@ With `bulkSubscribe`, Dapr holds messages back and sends them as one request. A 
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
-Use the **Dapr CLI** window to go to the `pubsub` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
+Use the **Dapr CLI** window to go to the `pubsub` folder first. The terminal stays in whatever folder it was in when you move between labs, so this makes sure the commands below start from the right place:
 
 ```bash,run
 cd /root/ai-agent-tracks-instruqt/pubsub
@@ -173,7 +173,7 @@ The `count` must be a whole number from 1 to 100, written in plain digits. Anyth
 
 ## 4. Look at the batches
 
-Look at the **Dapr CLI** window. `shipping` received the 25 orders in a few requests instead of 25. With Redis you will typically see batches of 10, 10 and 5. The order inside a batch is not the order in which the orders were published. As on the earlier pages, the real lines also carry the logger prefix of your language after `== APP - shipping ==`:
+Look at the **Dapr CLI** window. `shipping` received the 25 orders in a few requests instead of 25. With Redis you will typically see batches of 10, 10 and 5. The order inside a batch is not the order in which the orders were published. As on the earlier labs, the real lines also carry the logger prefix of your language after `== APP - shipping ==`:
 
 ```text,nocopy
 == APP - shipping == shipping received batch of 10 orders: bulk-23,bulk-1,bulk-20,...
