@@ -331,7 +331,7 @@ jobs:
 
   report:
     needs: [docsync, languages]
-    if: failure()
+    if: failure() && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
