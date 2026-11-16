@@ -1,6 +1,6 @@
 *** Settings ***
 Name              Ch1 What Is The Secrets API
-Documentation     Drift test for dapr-secrets challenge 1: each language's demo 1 app
+Documentation     Drift test for dapr-secrets lab 1: each language's demo 1 app
 ...               (Demo1-ReadSecret in .NET, demo1-read-secret in Python and Java)
 ...               reads a secret through the Dapr Secrets API from the local file store, and
 ...               reports a failed read in the same shape in every language.
@@ -17,7 +17,7 @@ ${ORDERDB_JSON}     {"name":"orderdb-password","value":"s3cr3t-pa55w0rd"}
 # The raw Dapr Secrets API response: the secret name maps to its value.
 ${RAW_JSON}         {"orderdb-password":"s3cr3t-pa55w0rd"}
 # What every app returns for a name the store does not have: the HTTP status follows the Dapr
-# failure (INTERNAL -> 500 here; PERMISSION_DENIED -> 403, which challenge 3 asserts) and the
+# failure (INTERNAL -> 500 here; PERMISSION_DENIED -> 403, which lab 3 asserts) and the
 # body carries the gRPC status name. curl appends the status after the body.
 ${UNKNOWN_JSON}     {"name":"does-not-exist","error":"INTERNAL"} 500
 

@@ -1,11 +1,11 @@
 *** Settings ***
 Name              Ch3 Secret Scoping
-Documentation     Drift test for dapr-secrets challenge 3, the track's aha moment: App A reads a
+Documentation     Drift test for dapr-secrets lab 3, the track's aha moment: App A reads a
 ...               secret, App B asks for the same secret and is refused. Per language it walks the
 ...               assignment: both apps read the secret with no scoping, then app-b's Configuration
 ...               is switched on and app-b is told no while app-a is not.
 ...
-...               This suite owns the denial regression guard. Challenge 1's apps have a 403 branch
+...               This suite owns the denial regression guard. Lab 1's apps have a 403 branch
 ...               that only a scoping Configuration can trigger, so this is the only automated
 ...               coverage that branch has in .NET, Python and Java.
 ...
@@ -32,7 +32,7 @@ ${APP_DENIED}         {"name":"orderdb-password","error":"${APP_DENIED_ERROR}"}
 ${APP_MISSING}        {"name":"legacy-api-key","error":"${APP_MISSING_ERROR}"}
 # An unlisted name that is not in the store either. Scoping answers it with the same denial.
 ${APP_UNKNOWN}        {"name":"does-not-exist","error":"${APP_DENIED_ERROR}"}
-# Daprd 1.19.x log wording, as in challenge 2: pinned here so a runtime change fails the suite.
+# Daprd 1.19.x log wording, as in lab 2: pinned here so a runtime change fails the suite.
 ${SECRET_ERROR_LOG}      Error getting secret
 ${STORE_LOADED_LOG}      Component loaded: secretstore
 
@@ -102,7 +102,7 @@ DotNet The Deny List Direction Refuses The Same Secret
 # The scoping demo still has a resources folder of its own (no Redis dependency, no unrelated
 # component next to the lesson), but not because of a startup error. If a runtime starts
 # applying scoping to secretKeyRef, this test fails and the isolation becomes necessary.
-# The clean-startup assertion in the language tests can fire: challenge 2's suite shows the same
+# The clean-startup assertion in the language tests can fire: lab 2's suite shows the same
 # log line appearing for a secretKeyRef that cannot be resolved.
 
 Scoping Does Not Apply To A Component's SecretKeyRef Lookup

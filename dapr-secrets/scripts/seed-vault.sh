@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 # Library: defines seed_vault and nothing else, so it can be sourced (lab-setup.sh on the VM,
-# ci/setup-dapr-secrets.sh and the challenge 4 Robot test). Callers own `set -euo pipefail`.
+# ci/setup-dapr-secrets.sh and the lab 4 Robot test). Callers own `set -euo pipefail`.
 #
 # seed_vault <secrets.json>
 #   Starts HashiCorp Vault in dev mode (in-memory, root token "root", port 8200), waits up to

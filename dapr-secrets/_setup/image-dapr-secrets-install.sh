@@ -3,11 +3,11 @@
 # Shell = bash
 #
 # This script builds the base VM image once. Keep it in sync with the tools that
-# _setup/sandbox-setup.sh, the per-challenge scripts/setup.sh and the assignments assume are
+# _setup/sandbox-setup.sh, the per-lab scripts/setup.sh and the assignments assume are
 # already there:
 #
-#   Docker Engine     `dapr init` containers, and the hashicorp/vault container of challenge 4
-#   Dapr CLI          every challenge runs `dapr run -f .`
+#   Docker Engine     `dapr init` containers, and the hashicorp/vault container of lab 4
+#   Dapr CLI          every lab runs `dapr run -f .`
 #   .NET 10 SDK       the dotnet demos target net10.0
 #   JDK 17 + Maven    the java demos are Spring Boot 3.4.5 with <java.version>17</java.version>
 #                     and start with `mvn spring-boot:run`
@@ -68,7 +68,7 @@ PREWARM_DIR="$(mktemp -d)"
 if git clone --depth 1 https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git "$PREWARM_DIR/repo"; then
     SECRETS_BASE="$PREWARM_DIR/repo/secrets"
     # The swap demo (demo 3) holds no application code — it runs the demo 1 app against another
-    # secret store — so warming demo 1 and the two scoping apps covers all three challenges.
+    # secret store — so warming demo 1 and the two scoping apps covers all three labs.
     # Folder names follow each language: PascalCase for .NET, kebab-case for Python and Java.
     for demo in Demo1-ReadSecret Demo2-Scoping/AppA Demo2-Scoping/AppB; do
         (cd "$SECRETS_BASE/dotnet/$demo" && dotnet build)
