@@ -515,11 +515,11 @@ this order. Do not rebase or split `feat/dapr-pubsub-lab` itself: cut a branch p
 
 | Merge | Commits on `feat/dapr-pubsub-lab` | What it changes | Merge when |
 | --- | --- | --- | --- |
-| **A1** | `fc6bba8..1e1ba1d` (docs, spec, plan and the `modules/` changes) plus `4da0552` (module image guard, from the final fix wave) | `docs/`, `modules/dapr-sandbox/`, harness tests | first; safe, because `dapr-secrets` still pins the published module 1.0.2 |
-| **A2** | `8d3bb2c` (`dapr-secrets` onto the shared setup and module 2.0.0) plus `eca6881` (`instruqt lab format` of `dapr-secrets/versions.hcl`) | `dapr-secrets/` | only after module 2.0.0 is published (step 4) |
-| **B** | `f145ee0..HEAD` (the `dapr-pubsub` lab, its CI and docs, and the final fix wave's `dapr-pubsub` changes) | `dapr-pubsub/`, its workflow, harness, `AGENTS.md`, this runbook | only after A2 is live and verified (Checkpoint B) |
+| **A1** | `c61c9ea^..048e6fc` (docs, spec, plan and the `modules/` changes) plus `54afa5f` (module image guard, from the final fix wave) | `docs/`, `modules/dapr-sandbox/`, harness tests | first; safe, because `dapr-secrets` still pins the published module 1.0.2 |
+| **A2** | `271f99b` (`dapr-secrets` onto the shared setup and module 2.0.0) plus `a6518e2` (`instruqt lab format` of `dapr-secrets/versions.hcl`) | `dapr-secrets/` | only after module 2.0.0 is published (step 4) |
+| **B** | `8401692^..HEAD` (the `dapr-pubsub` lab, its CI and docs, and the final fix wave's `dapr-pubsub` changes) | `dapr-pubsub/`, its workflow, harness, `AGENTS.md`, this runbook | only after A2 is live and verified (Checkpoint B) |
 
-A1 and A2 were checked on their own: cherry-picked onto `1e1ba1d`, the harness pytest suite,
+A1 and A2 were checked on their own: cherry-picked onto `main` at `b594fb1`, the harness pytest suite,
 `instruqt lab format` and `validate-lab.sh dapr-secrets modules/dapr-sandbox` all pass.
 
 1. **Baseline first.** Start the live `dapr-secrets` lab (still on module 1.0.2), open a terminal
@@ -532,7 +532,8 @@ A1 and A2 were checked on their own: cherry-picked onto `1e1ba1d`, the harness p
 
    ```bash
    git switch -c part-a1-module-2 main
-   git cherry-pick fc6bba8^..1e1ba1d 4da0552
+   git cherry-pick c61c9ea^..048e6fc
+   git cherry-pick 54afa5f
    git push -u origin part-a1-module-2
    ```
 
@@ -558,7 +559,7 @@ A1 and A2 were checked on their own: cherry-picked onto `1e1ba1d`, the harness p
 
    ```bash
    git switch -c part-a2-dapr-secrets-module-2 main
-   git cherry-pick 8d3bb2c eca6881
+   git cherry-pick 271f99b a6518e2
    git push -u origin part-a2-dapr-secrets-module-2
    ```
 
