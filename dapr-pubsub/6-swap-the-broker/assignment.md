@@ -245,4 +245,4 @@ We have more opportunities for you to learn and share knowledge:
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#agents* and language channels.
 - Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.
 
-<instruqt-completion text="You've completed Pub/Sub deep dive!"></instruqt-completion>
+<instruqt-completion text="You've completed Dapr Pub/Sub!"></instruqt-completion>
