@@ -1,6 +1,6 @@
 *** Settings ***
 Name              Ch4 Swap The Provider
-Documentation     Drift test for dapr-secrets challenge 4, the end of the track: the secret store
+Documentation     Drift test for dapr-secrets lab 4, the end of the track: the secret store
 ...               moves from a local file to HashiCorp Vault and the application is not touched.
 ...               Per language it runs the unmodified demo 1 app (Demo1-ReadSecret in .NET,
 ...               demo1-read-secret in Python and Java) twice, once against the local file store
@@ -9,10 +9,10 @@ Documentation     Drift test for dapr-secrets challenge 4, the end of the track:
 ...               component is Vault.
 ...
 ...               Ruling 3: the "no code change" claim is scoped to the SWAP. The source tree of
-...               the demo 1 app as it stands when this challenge begins is fingerprinted before
+...               the demo 1 app as it stands when this lab begins is fingerprinted before
 ...               the local-file run, between the two runs and after the Vault run, and all three
-...               fingerprints must be equal. It is deliberately NOT compared with challenge 1's
-...               version of the app: challenge 2 added the bulk endpoint, so that comparison
+...               fingerprints must be equal. It is deliberately NOT compared with lab 1's
+...               version of the app: lab 2 added the bulk endpoint, so that comparison
 ...               would be false by construction.
 ...
 ...               The shared resources folder cannot simply gain a second component: Dapr refuses
@@ -47,7 +47,7 @@ ${APP_DENIED}         {"name":"orderdb-password","error":"${APP_DENIED_ERROR}"}
 ${LOCAL_TYPE}         {"name":"secretstore","type":"secretstores.local.file"}
 ${VAULT_TYPE}         {"name":"secretstore","type":"secretstores.hashicorp.vault"}
 ${STATESTORE_TYPE}    "name":"statestore","type":"state.redis"
-# Daprd 1.19.x log wording, pinned as in challenges 2 and 3 so a runtime change fails the suite.
+# Daprd 1.19.x log wording, pinned as in labs 2 and 3 so a runtime change fails the suite.
 ${STATESTORE_LOADED}    Component loaded: statestore (state.redis/v1)
 ${SECRET_ERROR_LOG}     Error getting secret
 ${STORE_NOT_LOADED}     references a secret store that isn't loaded
@@ -80,7 +80,7 @@ Vault Answers Its Health Endpoint Before Any App Starts
     ${payments}=    Capture Command Output
     ...    curl -s -H "X-Vault-Token: root" ${VAULT_URL}/v1/secret/data/dapr/payments-api-key
     Should Contain    ${payments}    pk-test-7f3a9
-    # legacy-api-key is deliberately not in secrets.json, so challenge 3's allowed-but-absent
+    # legacy-api-key is deliberately not in secrets.json, so lab 3's allowed-but-absent
     # secret is absent here too.
     ${legacy}=    Run Process
     ...    curl -s -o /dev/null -w '\%{http_code}' -H "X-Vault-Token: root" ${VAULT_URL}/v1/secret/data/dapr/legacy-api-key
@@ -115,7 +115,7 @@ The Vault Wait Loop Fails When Vault Never Becomes Ready
 Two Components With One Name Do Not Load
     [Documentation]    The reason the Vault component sits in its own folder. Putting
     ...    secretstore-vault.yaml next to secretstore-local.yaml would make `dapr run` fail for
-    ...    challenges 1 to 3 too. If a runtime starts accepting that, the folder split is no longer
+    ...    labs 1 to 3 too. If a runtime starts accepting that, the folder split is no longer
     ...    needed and this test says so.
     [Tags]    component
     [Setup]    Wait For The Ports To Be Free
@@ -285,7 +285,7 @@ Walk Through The Swap
     # A secret that only Vault has, created the way the assignment creates it.
     Run And Expect RC Zero    ${VAULT_CLI} kv put secret/dapr/shipping-token shipping-token=from-vault
 
-    # 1. The app as challenges 1 and 2 ran it: the local file store.
+    # 1. The app as labs 1 and 2 ran it: the local file store.
     Start Background Process    dapr run -f .    ${LOG}    app    cwd=${app_dir}
     Wait Until Command Output Contains
     ...    curl -s http://localhost:5001/secret/orderdb-password    ${ORDERDB_JSON}    ${timeout}

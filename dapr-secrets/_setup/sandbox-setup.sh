@@ -52,7 +52,7 @@ if [ ! -f "$TRACKS_SRC_DIR/secrets/secrets.example.json" ]; then
 fi
 cp "$TRACKS_SRC_DIR/secrets/secrets.example.json" "$TRACKS_SRC_DIR/secrets/secrets.json"
 
-# Vault in dev mode (in-memory, root token "root") holds the same secrets for challenge 4.
+# Vault in dev mode (in-memory, root token "root") holds the same secrets for lab 4.
 # Dev mode keeps nothing across restarts, so removing any existing container first and re-seeding
 # gives the same state on every run.
 docker rm -f vault >/dev/null 2>&1 || true
@@ -81,7 +81,7 @@ python3 -c 'import json, sys; [print(k, v) for k, v in json.load(open(sys.argv[1
 done
 
 # Pre-build the demo 1 app so the first `dapr run` isn't slow. Its folder is Demo1-ReadSecret in
-# .NET and demo1-read-secret in Python and Java. The demo apps are added by the challenge 1 task,
+# .NET and demo1-read-secret in Python and Java. The demo apps are added by the lab 1 task,
 # so a missing directory is a no-op rather than a failure.
 SECRETS_BASE="$TRACKS_SRC_DIR/secrets"
 if [ -d "$SECRETS_BASE/dotnet/Demo1-ReadSecret" ]; then

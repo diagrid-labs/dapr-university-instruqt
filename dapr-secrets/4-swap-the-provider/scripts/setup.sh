@@ -1,8 +1,8 @@
 set -e
 export PATH="$HOME/.local/bin:$PATH"
 
-# Self-sufficient: this challenge may be started directly from Instruqt's Progress button,
-# so it does not rely on sandbox-setup.sh (or an earlier challenge) having run.
+# Self-sufficient: this lab may be started directly from Instruqt's Progress button,
+# so it does not rely on sandbox-setup.sh (or an earlier lab) having run.
 TRACKS_SRC_DIR="$HOME/ai-agent-tracks-instruqt"
 if [ ! -d "$TRACKS_SRC_DIR/secrets" ]; then
     git clone https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git "$TRACKS_SRC_DIR"

@@ -312,8 +312,8 @@ seed_vault "$TRACKS_SRC_DIR/secrets/secrets.json"
 log "Vault seeded (${SECONDS}s since start)"
 
 # Pre-build all demo apps in a fully detached background job (own stdin, stdout and stderr), so
-# the sandbox reports ready without waiting for the builds: demo 1 first (challenges 1, 2 and 4),
-# then the two scoping apps of demo 2 (challenge 3). Folder names follow each language: PascalCase
+# the sandbox reports ready without waiting for the builds: demo 1 first (labs 1, 2 and 4),
+# then the two scoping apps of demo 2 (lab 3). Folder names follow each language: PascalCase
 # for .NET, kebab-case for Python and Java. A learner who runs `dapr run -f .` before a build has
 # finished only waits for that build. A failed build is logged and never fails the lab. Progress:
 # `tail -f /var/log/lab-prebuild.log`.

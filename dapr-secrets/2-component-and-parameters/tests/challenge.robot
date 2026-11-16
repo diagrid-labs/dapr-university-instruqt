@@ -1,6 +1,6 @@
 *** Settings ***
 Name              Ch2 The Component And Its Parameters
-Documentation     Drift test for dapr-secrets challenge 2: the bulk endpoint of each language's
+Documentation     Drift test for dapr-secrets lab 2: the bulk endpoint of each language's
 ...               demo 1 app (Demo1-ReadSecret, demo1-read-secret), the raw bulk API, the nestedSeparator and multiValued
 ...               parameters of the local file secret store, and a state store component whose
 ...               password comes from the secret store through secretKeyRef.
