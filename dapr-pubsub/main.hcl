@@ -56,6 +56,8 @@ resource "lab" "main" {
 
       page "swap_the_broker" {
         reference = resource.page.swap_the_broker
+        # Adds the RabbitMQ tab: the broker only runs from this page on (see layouts.hcl).
+        layout = resource.layout.broker
       }
     }
   }

@@ -589,7 +589,10 @@ merged, module 2.0.0 published and `dapr-secrets` live and verified on it.
    `main`, **Root directory** `dapr-pubsub`. Wait for the sync.
 4. **RabbitMQ tab (spike S3).** Open the RabbitMQ tab in a live run and log in with `guest` /
    `guest`. If the login fails, remove the `rabbitmq` service and tab from the lab and rely on the
-   page's curl alternative.
+   page's curl alternative. The tab is only in the `broker` layout, which page 6 uses, and it
+   connects once page 6 step 1 has started RabbitMQ.
+
+   - Result (2026-11-17): `guest` / `guest` logs in through the tab.
 5. **Required checks.** In the `main` branch protection add `dapr-pubsub-result` (workflow "Test
    dapr-pubsub track"). The required checks are now exactly `lab-validate`, `dapr-secrets-result`
    and `dapr-pubsub-result`.
