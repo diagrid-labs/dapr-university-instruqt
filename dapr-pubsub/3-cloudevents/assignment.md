@@ -139,13 +139,16 @@ Use the **curl** window to send an order to `order-api`. It publishes the order 
 
 ```bash,run
 curl -s -X POST http://localhost:5101/orders -H 'Content-Type: application/json' \
-  -d '{"orderId":"o-3001","item":"coffee-beans","quantity":2,"priority":"standard"}'
+  -d '{"orderId":"o-3001","item":"coffee-beans","quantity":2,"priority":"standard"}' | jq
 ```
 
 Expected output:
 
 ```json,nocopy
-{"orderId":"o-3001","topic":"orders"}
+{
+  "orderId": "o-3001",
+  "topic": "orders"
+}
 ```
 
 `shipping` logs the request body exactly as Dapr sent it. Open the **Dev Dashboard** tab, go to the **Logs** page, select `shipping` in the application drop-down and type `o-3001` in the search bar. The log line is on one line. It is wrapped here so you can read it:
@@ -186,13 +189,16 @@ Now send an order to the other endpoint. `order-api` publishes it to the topic `
 
 ```bash,run
 curl -s -X POST http://localhost:5101/orders/raw -H 'Content-Type: application/json' \
-  -d '{"orderId":"o-3002","item":"coffee-beans","quantity":3,"priority":"express"}'
+  -d '{"orderId":"o-3002","item":"coffee-beans","quantity":3,"priority":"express"}' | jq
 ```
 
 Expected output:
 
 ```json,nocopy
-{"orderId":"o-3002","topic":"orders-raw"}
+{
+  "orderId": "o-3002",
+  "topic": "orders-raw"
+}
 ```
 
 On the **Logs** page, search the `shipping` log for `o-3002`:

@@ -152,13 +152,16 @@ The **Dapr CLI** window should show these lines when the sidecars have started. 
 Use the **curl** window to ask `order-api` for 25 orders named `bulk-1` to `bulk-25`:
 
 ```bash,run
-curl -s -X POST 'http://localhost:5101/orders/bulk?count=25&prefix=bulk'
+curl -s -X POST 'http://localhost:5101/orders/bulk?count=25&prefix=bulk' | jq
 ```
 
 Expected output:
 
 ```json,nocopy
-{"sent":25,"failed":0}
+{
+  "sent": 25,
+  "failed": 0
+}
 ```
 
 The `count` must be a whole number from 1 to 100, written in plain digits. Anything else is answered with `400` and `{"error": "INVALID_COUNT"}`. A bulk publish can succeed for some messages and fail for others, which is why the answer reports both `sent` and `failed`.
@@ -183,13 +186,24 @@ You can see this by posting a hand-made batch straight to `shipping`, without th
 
 ```bash,run
 curl -s -X POST http://localhost:5102/orders/bulk -H 'Content-Type: application/json' \
-  -d '{"entries":[{"entryId":"e1","event":{"data":{"orderId":"o-4001","item":"coffee-beans","quantity":1,"priority":"standard"},"datacontenttype":"application/json","id":"e1-event","source":"curl","specversion":"1.0","type":"com.dapr.event.sent"},"contentType":"application/cloudevents+json"},{"entryId":"e2","event":{"nothing":"here"},"contentType":"application/cloudevents+json"}],"topic":"orders"}'
+  -d '{"entries":[{"entryId":"e1","event":{"data":{"orderId":"o-4001","item":"coffee-beans","quantity":1,"priority":"standard"},"datacontenttype":"application/json","id":"e1-event","source":"curl","specversion":"1.0","type":"com.dapr.event.sent"},"contentType":"application/cloudevents+json"},{"entryId":"e2","event":{"nothing":"here"},"contentType":"application/cloudevents+json"}],"topic":"orders"}' | jq
 ```
 
 Expected output:
 
 ```json,nocopy
-{"statuses":[{"entryId":"e1","status":"SUCCESS"},{"entryId":"e2","status":"DROP"}]}
+{
+  "statuses": [
+    {
+      "entryId": "e1",
+      "status": "SUCCESS"
+    },
+    {
+      "entryId": "e2",
+      "status": "DROP"
+    }
+  ]
+}
 ```
 
 `shipping` read `e1` with the CloudEvents SDK and answered `SUCCESS`. It could not read `e2`, so it answered `DROP` and logged `shipping dropped unreadable entry e2`. Search the `shipping` log on the **Logs** page for `entry e2` to see it. `DROP` tells Dapr to stop trying for that entry. Had the handler answered one status for the whole batch, a single bad entry would have made Dapr deliver all 10 again, including the 9 that were fine.

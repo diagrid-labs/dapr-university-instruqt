@@ -107,7 +107,7 @@ Walk Through Streaming Subscriptions
 #   dapr run -f .
 #   curl -s http://localhost:3511/v1.0/metadata | jq '.subscriptions'
 #   curl -s -X POST http://localhost:5101/orders -H 'Content-Type: application/json' \
-#     -d '{"orderId":"o-2001","item":"coffee-beans","quantity":1,"priority":"standard"}'
+#     -d '{"orderId":"o-2001","item":"coffee-beans","quantity":1,"priority":"standard"}' | jq
 #   curl -s -w '%{http_code}\n' -X POST http://localhost:3510/v1.0/publish/pubsub/orders \
 #     -H 'Content-Type: text/plain' -d 'not an order'
 

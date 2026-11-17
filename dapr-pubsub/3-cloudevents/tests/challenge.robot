@@ -104,7 +104,7 @@ Walk Through CloudEvents
 #   cd java/demo3-cloud-events
 #   dapr run -f .
 #   curl -s -X POST http://localhost:5101/orders -H 'Content-Type: application/json' \
-#     -d '{"orderId":"o-3001","item":"coffee-beans","quantity":2,"priority":"standard"}'
+#     -d '{"orderId":"o-3001","item":"coffee-beans","quantity":2,"priority":"standard"}' | jq
 #   curl -s -X POST http://localhost:5101/orders/raw -H 'Content-Type: application/json' \
-#     -d '{"orderId":"o-3002","item":"coffee-beans","quantity":3,"priority":"express"}'
+#     -d '{"orderId":"o-3002","item":"coffee-beans","quantity":3,"priority":"express"}' | jq
 
