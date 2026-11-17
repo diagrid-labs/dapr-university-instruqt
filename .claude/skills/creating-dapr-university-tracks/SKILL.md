@@ -40,8 +40,8 @@ config uses different words: the whole thing is a `lab` resource, which holds a 
 - `main.hcl` settings as in `dapr-secrets`: `timelimit { duration = "30m" extend = "10m" show_timer = true }`
   and `idle { enabled = true timeout = "10m" show_warning = true }`.
 - The `main.hcl` line "You'll probably need around N minutes to complete the M labs." is the sum of
-  the per-page estimates, **rounded down** (`dapr-secrets`: 25, `dapr-pubsub`: 40), under the time
-  limit.
+  the per-page estimates, **rounded down to a multiple of 5** (`dapr-secrets`: 28 → 25,
+  `dapr-pubsub`: 42 → 40), under the time limit.
 - Ask the user before going over 5 pages or 30 minutes. `dapr-pubsub` (6 pages / 45 minutes) is an
   approved exception, not a precedent.
 
@@ -90,8 +90,10 @@ folder per lab (`secrets/`, `pubsub/`), and the lab pins the commit as `tracks_s
    Don't claim the lab is live.
 
 To **add a page** to an existing lab: a new `<n>-<slug>/` folder, a `pages.hcl` resource, a `page`
-entry in `main.hcl`, a suite, the page added to the doc-sync and suite lists in `test-<lab>.yml`, the
-minutes line updated, and the "What's next?" of the previous page pointing at it. A page added after
+entry and a learn bullet in `main.hcl`, a suite, the page added to the doc-sync and suite lists in
+`test-<lab>.yml`, a `DEMO<n>` dict in the variables file, the new demo in the `lab-setup.sh` prebuild
+list, a line in the final page's recap, the minutes line updated (and `timelimit` if the sum passes
+it, after asking), and the "What's next?" of the previous page pointing at it. A page added after
 the current final page takes over the final-page intro and closing; the old final page gets a normal
 close. The module and `versions.hcl` stay as they are unless the page needs a new demo
 commit or something the image lacks.
@@ -109,7 +111,7 @@ including the final page, in reference.md → Page anatomy.
 | `` ```bash,run `` | A command the learner runs. The 2.0 labs write every command this way | Run button; doc-sync checks it |
 | `` ```text,nocopy `` / `` ```json,nocopy `` | Expected output, logs, JSON responses | No button |
 | `` ```<lang>,copy `` | Code or config the learner pastes into a file | Copy button |
-| `` ```yaml `` (bare) | A fragment the learner only reads | No button |
+| `` ```yaml,nocopy `` | A fragment the learner only reads | No button (a bare fence still gets a Copy button) |
 
 A `bash,run` block is a promise: doc-sync requires the command in the page's suite. Pipe JSON
 responses through `| jq` and show the result as `json,nocopy`.
@@ -161,7 +163,7 @@ test tags and CI matrix legs. A language the image lacks is a module change.
 | Pinning a module version that is not published in Instruqt | Publish first; the sync fails until then. |
 | Copying a pin into a second file | Each pin lives in one `versions.hcl`; CI reads it with `read_pin.py`. |
 | A terminal or tab that is not visible on a page whose Run blocks target it | Run buttons only reach visible terminals. Keep both terminals in the bottom row. |
-| A new lab missing from `lab-validate.yml` | Add it to the format, validate and shellcheck loops. |
+| A new lab missing from `lab-validate.yml` | Add it to the format, referenced-files (`check_lab_paths.py`), validate and shellcheck loops. |
 | Inventing a Holopin badge link | Badges are made outside the repo. Leave every badge element out until the user supplies one. |
 | Copying `dapr-pubsub`'s 6 pages / 45 minutes | Default is 3 to 5 pages and 30 minutes. Ask first. |
 | Volatile values copied from this skill | Copy versions, SHAs and links from the newest lab, not from here. |
@@ -170,7 +172,7 @@ test tags and CI matrix legs. A language the image lacks is a module change.
 
 - [ ] `main.hcl`: description (learn bullets, rounded-down minutes line, sandbox line, badge lines
       only with a badge), settings, layout, one chapter, one `page` entry per page
-- [ ] `pages.hcl` titles equal the page H1s; `layouts.hcl` and `tabs.hcl` copied from `dapr-pubsub`
+- [ ] `pages.hcl` titles equal the page H1s; `layouts.hcl` and `tabs.hcl` copied from `dapr-secrets` (no `broker` layout or `rabbitmq` service)
 - [ ] `versions.hcl`: `dapr_runtime_version`, `tracks_src_ref`, `module "sandbox"` with an exact,
       published version and the inputs
 - [ ] `scripts/lab-setup.sh`: only the lab's steps, safe to re-run, background pre-build
@@ -180,8 +182,9 @@ test tags and CI matrix legs. A language the image lacks is a module change.
       steps and `<instruqt-completion>`
 - [ ] Every command `bash,run` and covered by its suite; every output block `,nocopy`
 - [ ] `tools/track-tester/variables/<lab_with_underscores>.py`, `tools/track-tester/ci/setup-<lab>.sh`,
-      `.github/workflows/test-<lab>.yml`, the `lab-validate.yml` loops, a pin-agreement pytest
-      where values must match across files
+      `.github/workflows/test-<lab>.yml`, the `lab-validate.yml` loops, the lab in the parametrize
+      lists of `tools/track-tester/ci/tests/test_read_pin.py`, a pin-agreement pytest where other
+      values must match across files
 - [ ] `AGENTS.md` track and CI tables and the repo `README.md` workflow table updated
 - [ ] Local validation passed (reference.md → Local validation)
 - [ ] Owner steps listed for the user as pending

@@ -28,7 +28,7 @@ Complete the track to collect the Dapr University <topic> badge.
 ![Dapr University <topic> badge](<raw main URL of the badge image>)
 ```
 
-`<N>` is the sum of the per-page estimates rounded down; `<limit>` matches `timelimit.duration`.
+`<N>` is the sum of the per-page estimates rounded down to a multiple of 5; `<limit>` matches `timelimit.duration`.
 The last two lines exist only when a badge exists (see Images and badges). Keep `settings` as in
 `dapr-secrets` (30m / extend 10m / `show_timer`, idle 10m / `show_warning`) unless the user approved
 more. `layout = resource.layout.main`. Each page gets a `page "<snake_name>" { reference =
@@ -48,7 +48,8 @@ The `title` is the same text as the page's H1.
 
 ### layouts.hcl
 
-Copy as is. Instructions take the left 40; the right 60 has a top row with the **Dev Dashboard**
+Copy `dapr-secrets/layouts.hcl`, which has only the `main` layout. (`dapr-pubsub/layouts.hcl` also
+has a `broker` layout for its RabbitMQ tab; drop it unless the new lab needs the same.) Instructions take the left 40; the right 60 has a top row with the **Dev Dashboard**
 tab and then the **Editor** tab, and a bottom row with the **Dapr CLI** and **curl** terminals side
 by side. The Editor is declared last with `active = true`, because declaring it first did not make
 it open by default. Both terminals stay visible because Run buttons only send commands to a terminal
@@ -60,7 +61,7 @@ tab. Set it on that page's entry in `main.hcl`.
 
 ### tabs.hcl
 
-Copy as is and change the folder in both terminals' `working_directory`
+Copy `dapr-secrets/tabs.hcl` (dapr-pubsub's adds a `rabbitmq` service; drop it) and change the folder in both terminals' `working_directory`
 (`/root/ai-agent-tracks-instruqt/<folder>`). It defines `service "editor"` (code-server on port
 8888), `service "dev_dashboard"` (port 9090, with the `Host` and `Origin` custom request headers the
 Dev Dashboard needs, see the comment), and the `terminal "dapr_cli"` and `terminal "curl"`
@@ -325,8 +326,10 @@ adds, each modelled on its `dapr-pubsub` counterpart:
   `shared` leg (inverting the language tags with `--exclude`), an aggregate `<lab>-result` job, and
   a `report` job for the `drift-report` issue. Pick the next free daily schedule slot by reading the
   existing workflows.
-- **`.github/workflows/lab-validate.yml`**: add the lab to the format, validate (`validate-lab.sh`)
-  and shellcheck loops.
+- **`.github/workflows/lab-validate.yml`**: add the lab to the format, referenced-files
+  (`check_lab_paths.py`), validate (`validate-lab.sh`) and shellcheck loops.
+- **`tools/track-tester/ci/tests/test_read_pin.py`**: add the lab's `versions.hcl` to `REAL_PINS` and
+  the lab to the `test_prewarm_runtime_pin_matches_lab_runtime_pin` parametrize list.
 - **Docs**: the track table and CI table in `AGENTS.md`, and the track list and workflow table in
   the repo `README.md`.
 
@@ -344,7 +347,7 @@ Run these before saying the lab is done, from the repo root unless noted:
 - `(cd tools/track-tester && uv run robot --dryrun ../../<lab>/*/tests/challenge.robot)`
 - with Docker: `bash tools/track-tester/ci/setup-<lab>.sh`, then the suites for real
 - `(cd tools/track-tester && uv run pytest -q)`
-- the per-page minutes add up, rounded down, to the `main.hcl` line, under the time limit
+- the per-page minutes, rounded down to a multiple of 5, match the `main.hcl` line, under the time limit
 
 ## Owner hand-off
 
