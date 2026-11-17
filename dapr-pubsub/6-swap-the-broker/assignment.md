@@ -1,6 +1,6 @@
 # Swap the broker
 
-In this lab, you'll run the apps of the previous lab against RabbitMQ instead of Redis, and change nothing but a YAML file. This hands-on lab takes about 7 minutes to complete.
+In this final lab, you'll run the apps of the previous lab against RabbitMQ instead of Redis, and change nothing but a YAML file. This hands-on lab takes about 7 minutes to complete. At the end of the lab, you can claim the Dapr University Holopin badge for this track.
 
 ## Before you start
 
