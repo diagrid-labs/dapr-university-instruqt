@@ -122,9 +122,9 @@ dapr run -f .
 ###
 
 > [!IMPORTANT]
-> Inspect the output of the **Dapr CLI** window. Wait until both applications are running before continuing. The Java applications can take a little longer to start.
+> Wait until both applications are running before continuing. The Java applications can take a little longer to start.
 >
-> You can also check the application status in the **Dev Dashboard** tab: go to the **Applications** page and select `order-api` and `shipping`.
+> Open the **Dev Dashboard** tab and check the application health on the **Applications** page: select `order-api` and `shipping`. You can also inspect the output of the **Dapr CLI** window.
 
 The **Dapr CLI** window should show these lines when the sidecars have started. The port numbers can differ, and your applications' logs follow:
 
