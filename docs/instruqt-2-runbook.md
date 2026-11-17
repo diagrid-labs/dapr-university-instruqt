@@ -303,8 +303,7 @@ into the image, and a secret in a VM `environment` would be readable by learners
 team secrets for this lab (Building blocks -> Secrets stays untouched).
 
 **Expected:** `grep -rn "DockerPAT\|DockerUSER" dapr-secrets/scripts dapr-secrets/*.hcl modules`
-finds nothing. (Only the legacy `dapr-secrets/_setup/sandbox-setup.sh` still mentions them; the
-2.0 lab does not use `_setup/`.)
+finds nothing.
 
 ---
 
