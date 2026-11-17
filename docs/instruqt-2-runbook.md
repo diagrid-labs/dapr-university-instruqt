@@ -526,7 +526,7 @@ A1 and A2 were checked on their own: cherry-picked onto `main` at `b594fb1`, the
    and run `grep 'done after' /var/log/lab-setup.log`. Record the seconds here before touching
    anything else:
 
-   - Baseline `done after` (module 1.0.2): ______ s (date: ______)
+   - Baseline `done after` (module 1.0.2): 52 s (date: 2026-11-17)
 
 2. **Merge A1.** From an up-to-date `main`:
 
