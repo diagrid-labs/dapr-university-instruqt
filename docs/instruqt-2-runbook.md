@@ -23,7 +23,7 @@ in `docs/instruqt-2-spike-checklist.md`, Part 1.
 | Demo repo commit | full SHA, once per lab | `dapr-secrets/versions.hcl` and `dapr-pubsub/versions.hcl` (`tracks_src_ref`) |
 | Module version used by the lab | the value of `version`, once per lab | `dapr-secrets/versions.hcl` and `dapr-pubsub/versions.hcl` (`module "sandbox"`, `version`) |
 | Image the VM boots from | `diagrid/<image-name>:<tag>` | `modules/dapr-sandbox/versions.hcl` (`image_ref`) |
-| RabbitMQ image (dapr-pubsub page 6) | `rabbitmq:<tag>-management` | `modules/dapr-sandbox/scripts/prewarm.sh`, `dapr-pubsub/6-swap-the-broker/assignment.md` and `scripts/solve.sh`, `tools/track-tester/variables/dapr_pubsub.py`; `test_pubsub_pins.py` fails when they differ |
+| RabbitMQ image (dapr-pubsub page 6) | `rabbitmq:<tag>-management` | `modules/dapr-sandbox/scripts/prewarm.sh`, `dapr-pubsub/6-swap-the-broker/assignment.md`, `tools/track-tester/variables/dapr_pubsub.py`; `test_pubsub_pins.py` fails when they differ |
 
 Sections 1 to 12 set up `dapr-secrets`. "Module 2.0.0 / dapr-pubsub" and "Checkpoint B" add the
 second lab; the maintenance procedures at the end cover both labs.
@@ -393,28 +393,13 @@ code-server-lab` and `curl -sI http://127.0.0.1:8888/` in a terminal.
 | --- | --- | --- | --- |
 | 1. What is the Secrets API: instructions render, language `<details>` open, `bash,run` buttons paste into the terminal, Demo1 runs with `dapr run -f .` and the curl call returns the secret | [ ] | [ ] | [ ] |
 | 2. The component and its parameters: edit the component in the Editor, save, rerun, the single and bulk calls and `secretKeyRef` step work | [ ] | [ ] | [ ] |
-| 3. Secret scoping: app A reads `orderdb-password`, app B is refused (403) after enabling `configFilePath`, app B still reads `payments-api-key`; task check goes green | [ ] | [ ] | [ ] |
-| 4. Swap the provider: the app in the swap folder (`Demo3-SwapProvider` in .NET, `demo3-swap-provider` in Python and Java) reads `orderdb-password` from Vault; task check goes green | [ ] | [ ] | [ ] |
+| 3. Secret scoping: app A reads `orderdb-password`, app B is refused (403) after enabling `configFilePath`, app B still reads `payments-api-key` | [ ] | [ ] | [ ] |
+| 4. Swap the provider: the app in the swap folder (`Demo3-SwapProvider` in .NET, `demo3-swap-provider` in Python and Java) reads `orderdb-password` from Vault | [ ] | [ ] | [ ] |
 
-Also tick once per run: the Editor opens `/root/ai-agent-tracks-instruqt/secrets`; **Solve for
-me** on the task on pages 3 and 4 runs the solve script and marks the task "Solved for you" (the
-check is not run again after a solve); the **Finish & Exit** button on page 4 completes the lab; no page asks for a
+Also tick once per run: the Editor opens `/root/ai-agent-tracks-instruqt/secrets`; you can move
+to the next page without doing the current one (the labs have no page checks); the **Finish & Exit**
+button on page 4 completes the lab; no page asks for a
 credential; `env | grep -i -E "pat|token|password"` in the terminal shows nothing sensitive.
-
-**Deliberate failures (once per run, on pages 3 and 4).** A failed check shows only the fixed
-`failure_message` strings, one for every failing check (the script output goes to the lab logs,
-not to the learner), so confirm the hints match the mistake:
-
-- Page 3: do not remove the `# ` in front of `configFilePath` in `dapr.yaml`, then click
-  **Check**. **Expected:** the failing condition "App B is refused orderdb-password" shows
-  "App B is not refused orderdb-password with HTTP 403. If it can still read it, did you remove
-  the '# ' in front of configFilePath in dapr.yaml, and restart 'dapr run -f .' afterwards? ...".
-  Then fix it and confirm the check passes.
-- Page 4: start the app from the demo 1 folder (`Demo1-ReadSecret`, or `demo1-read-secret` in
-  Python and Java) instead of the swap folder (`Demo3-SwapProvider`, `demo3-swap-provider`), then click
-  **Check**. **Expected:** the condition "Dapr loaded the Vault secret store" shows "The app isn't
-  reading from Vault yet. Is secretstore-vault.yaml the component Dapr loaded? ...". Fix it
-  and confirm the check passes.
 
 If the learner sees nothing useful (no hint at all) record that as a finding: Instruqt may show
 only a generic failure for conditions.
@@ -464,8 +449,8 @@ workflow in the repo uses it yet, so skip this unless you add such a job.
    instruqt lab test diagrid/dapr-secrets --ref feat/dapr-secrets-instruqt-2-lab
    ```
 
-**Expected:** exit code 0. For every task the check runs on the untouched task and must fail,
-then the solve script runs and marks the task done (the check is not run again after the solve).
+**Expected:** exit code 0. `lab test` runs each task's check and solve scripts. The labs no
+longer have tasks, so it has nothing of the lab's own to test; what it does then is not verified.
 It tests the version on the platform for that branch, not your local files. `lab validate` and
 `lab format` need no token.
 
@@ -565,8 +550,7 @@ A1 and A2 were checked on their own: cherry-picked onto `main` at `b594fb1`, the
 
    Merge the PR once `lab-validate` and `dapr-secrets-result` are green. Wait for the lab sync,
    start `dapr-secrets` live and run `grep 'done after' /var/log/lab-setup.log` again. It must not
-   be slower than the baseline from step 1. Then click through all page checks (the four challenge
-   checks) and confirm `ls /var/lib/lab-setup/ready`, `jq --version` and `curl -s
+   be slower than the baseline from step 1. Then click through the four pages and confirm `ls /var/lib/lab-setup/ready`, `jq --version` and `curl -s
    http://localhost:8200/v1/sys/health`.
 
    - New `done after`: 56 s (date: 2026-11-17). Baseline: 52 s. Accepted by the owner: 4 s slower, measured from one start each.
@@ -600,7 +584,6 @@ merged, module 2.0.0 published and `dapr-secrets` live and verified on it.
    **Expected:**
    - total time under 45 minutes;
    - no build or image-pull waits;
-   - every page check passes;
    - the `docker run` on page 6 prints no pull progress (the RabbitMQ image is in the sandbox image).
 
    - Time: ______ min (language: ______, date: ______)

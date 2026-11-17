@@ -4,8 +4,7 @@ Documentation     Drift test for dapr-pubsub page 2: demo 2 runs `order-api` and
 ...               warehouse has no app port and no Subscription file: it opens a stream to its own
 ...               sidecar, and the sidecar's metadata lists the subscription as STREAMING. An order
 ...               reaches it over the stream, and a text/plain message published through the
-...               sidecar is logged as unreadable and acknowledged. The check scripts of the page
-...               then pass against the running demo.
+...               sidecar is logged as unreadable and acknowledged.
 ...
 ...               Log lines are read from the `dapr run` output, which has the prefix
 ...               `== APP - <appID> ==` and, in .NET and Java, a logger prefix too, so only the
@@ -99,13 +98,6 @@ Walk Through Streaming Subscriptions
     ...    curl -s -X POST http://localhost:5101/orders -H 'Content-Type: application/json' -d '{"orderId":"${order2}","item":"coffee-beans","quantity":1,"priority":"standard"}'
     Wait Until Log Contains    ${LOG}    warehouse received order ${order2}    ${timeout}
 
-    # 6. The check scripts of the page pass against the running demo.
-    FOR    ${name}    IN    apps-running    streaming    received
-        ${check}=    Run Process    bash    ${CH_DIR}/scripts/check-${name}.sh    stderr=STDOUT    timeout=60s
-        ...    env:TRACKS_SRC_DIR=${TRACKS_SRC_DIR}
-        Should Be Equal As Integers    ${check.rc}    0    msg=check-${name}.sh failed:\n${check.stdout}
-    END
-
 # doc-sync coverage (the commands are run above through keywords that build them from the
 # language and the folder, or with a unique order ID instead of the assignment's o-2001):
 #   cd /root/ai-agent-tracks-instruqt/pubsub
@@ -119,6 +111,3 @@ Walk Through Streaming Subscriptions
 #   curl -s -w '%{http_code}\n' -X POST http://localhost:3510/v1.0/publish/pubsub/orders \
 #     -H 'Content-Type: text/plain' -d 'not an order'
 
-# doc-sync coverage (the stop command of "Before you start" is for demos that Skip or Solve started
-# in the background on the VM; the suite stops its own apps with Stop Process With SIGINT instead):
-#   for f in /root/ai-agent-tracks-instruqt/pubsub/*/*/dapr.yaml; do (cd "$(dirname "$f")" && dapr stop -f . >/dev/null 2>&1); done; echo "No demo of this track is running now."

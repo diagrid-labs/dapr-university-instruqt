@@ -65,10 +65,11 @@ that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1
 
 - **Lab layout.** A lab root (`dapr-secrets/`, `dapr-pubsub/`) holds HCL instead of README config:
   `main.hcl` (the `lab` resource: title, description, timeouts, chapters/pages), `versions.hcl`,
-  `layouts.hcl`, `tabs.hcl`, `pages.hcl`, `tasks.hcl`, plus `scripts/` (`lab-setup.sh` with the
-  lab's own steps only, and helpers such as `seed-vault.sh` or `lib-checks.sh`) and `<n>-<slug>/`
-  challenge folders with `assignment.md`, `scripts/check-*.sh`, `solve.sh` and
-  `tests/challenge.robot`. Until the legacy files are removed, `dapr-secrets/` also still contains
+  `layouts.hcl`, `tabs.hcl`, `pages.hcl`, plus `scripts/` (`lab-setup.sh` with the lab's own steps
+  only, and helpers such as `seed-vault.sh`) and `<n>-<slug>/` challenge folders with
+  `assignment.md` and `tests/challenge.robot`. The labs have no tasks (no `tasks.hcl`, no check or
+  solve scripts): a learner can move to the next page at any time. Don't add page checks to a
+  2.0 lab; the drift tests cover what a check would. Until the legacy files are removed, `dapr-secrets/` also still contains
   `_setup/`, `tabs.md`, challenge `README.md` files and the old `setup.sh`/`check.sh`; they no
   longer drive the lab.
 - **`modules/dapr-sandbox/`** is the shared Instruqt module (published as `diagrid/dapr-sandbox`):
@@ -79,11 +80,7 @@ that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1
   inlines the lab's `lab_startup_script` into the VM startup (the lab's own files are not on the
   VM). A lab's `lab-setup.sh` holds only its own steps (Vault seeding for `dapr-secrets`, the demo
   pre-build for `dapr-pubsub`) and can use the helpers `log`, `die`, `bounded`, `wait_for_docker`
-  and `TRACKS_SRC_DIR`. Task check and solve scripts also run on the VM without the lab's files,
-  so a helper they source must be installed by the lab startup script: `dapr-pubsub` puts
-  `lib-checks.sh` in front of `lab-setup.sh` in `lab_startup_script`, `lab-setup.sh` writes the
-  helpers to `/usr/local/lib/dapr-pubsub/lib-checks.sh`, and the scripts source that path (with the
-  repo copy as the fallback for CI and pytest). The module owns the ready marker
+  and `TRACKS_SRC_DIR`. The module owns the ready marker
   `/var/lib/lab-setup/ready`. Instruqt waits for the
   startup script to finish before the sandbox is ready; the module has no VM health check. A change
   to the shared setup needs an image rebuild and a new module version. See

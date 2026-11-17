@@ -4,8 +4,7 @@ Documentation     Drift test for dapr-pubsub page 6: RabbitMQ is started with th
 ...               Run block (twice in a row, both must succeed), then demo 6 runs the demo 5 apps
 ...               against a `pubsub.rabbitmq` component. The same three orders give the same log
 ...               lines as page 5 (routed, 4 rejections, dead-lettered) and RabbitMQ shows the
-...               exchanges and queues Dapr created, through the management API. The check scripts
-...               of the page then pass against the running demo.
+...               exchanges and queues Dapr created, through the management API.
 ...
 ...               Demo 6 has no apps of its own, so they are built from the demo 5 folders. Their
 ...               logs land in the demo 5 app folders, but the suite reads the `dapr run` output.
@@ -29,15 +28,11 @@ Ports Are Free Before The Apps Start
 
 RabbitMQ Block Is Safe To Run Twice
     [Documentation]    Review focus 4: the learner can run the block of step 1 again at any time.
-    ...    The first failing check also says to start RabbitMQ when it is not there.
     Run Process    docker rm -f rabbitmq    shell=True
-    ${check}=    Run Process    bash    ${CH_DIR}/scripts/check-rabbitmq-running.sh    stderr=STDOUT
-    Should Be Equal As Integers    ${check.rc}    1
-    Should Contain    ${check.stdout}    Start RabbitMQ
     Start RabbitMQ From The Assignment
     Start RabbitMQ From The Assignment
-    ${check}=    Run Process    bash    ${CH_DIR}/scripts/check-rabbitmq-running.sh    stderr=STDOUT
-    Should Be Equal As Integers    ${check.rc}    0    msg=${check.stdout}
+    ${running}=    Run Process    docker ps --filter name\=^rabbitmq$ --format '{{.Names}}'    shell=True
+    Should Be Equal    ${running.stdout.strip()}    rabbitmq    msg=The container 'rabbitmq' is not running.
 
 DotNet Demo 6 Runs Demo 5 On RabbitMQ
     [Tags]    dotnet
@@ -138,13 +133,6 @@ Walk Through Swap
     # The container is fresh, so Dapr created exactly these two queues (order-insensitive).
     Should Be Equal    ${queues}    shipping-orders\nshipping-orders-dead
 
-    # 6. The check scripts of the page pass against the running demo.
-    FOR    ${name}    IN    rabbitmq-running    apps-running    rabbitmq-component    dead-lettered
-        ${check}=    Run Process    bash    ${CH_DIR}/scripts/check-${name}.sh    stderr=STDOUT    timeout=60s
-        ...    env:TRACKS_SRC_DIR=${TRACKS_SRC_DIR}
-        Should Be Equal As Integers    ${check.rc}    0    msg=check-${name}.sh failed:\n${check.stdout}
-    END
-
 # doc-sync coverage (the RabbitMQ block is extracted from the assignment and run as it is; the
 # other commands are run above through keywords that build them from the language and the folder,
 # or with a unique order prefix instead of the assignment's o-600x IDs):
@@ -169,6 +157,3 @@ Walk Through Swap
 #   curl -s -u guest:guest http://localhost:15672/api/exchanges | jq -r '.[].name | select(startswith("orders"))' | sort
 #   curl -s -u guest:guest http://localhost:15672/api/queues | jq -r '.[].name' | sort
 
-# doc-sync coverage (the stop command of "Before you start" is for demos that Skip or Solve started
-# in the background on the VM; the suite stops its own apps with Stop Process With SIGINT instead):
-#   for f in /root/ai-agent-tracks-instruqt/pubsub/*/*/dapr.yaml; do (cd "$(dirname "$f")" && dapr stop -f . >/dev/null 2>&1); done; echo "No demo of this track is running now."

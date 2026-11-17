@@ -3,7 +3,7 @@ Name              Ch3 CloudEvents
 Documentation     Drift test for dapr-pubsub page 3: demo 3 runs `order-api` and `shipping`. A normal
 ...               publish reaches shipping wrapped in a CloudEvent envelope (and shipping parses it
 ...               with the CloudEvents SDK), a publish with the `rawPayload` metadata arrives as the
-...               bare order. The check scripts of the page then pass against the running demo.
+...               bare order.
 ...
 ...               Log lines are read from the `dapr run` output, which has the prefix
 ...               `== APP - <appID> ==` and, in .NET and Java, a logger prefix too, so only the
@@ -96,13 +96,6 @@ Walk Through CloudEvents
     Should Be Equal    ${response}    {"orderId":"${order2}","topic":"orders-raw"}
     Wait Until Log Contains    ${LOG}    shipping received raw: {"orderId":"${order2}","item":"coffee-beans","quantity":3,"priority":"express"}    ${timeout}
 
-    # 6. The check scripts of the page pass against the running demo.
-    FOR    ${name}    IN    apps-running    envelope    raw
-        ${check}=    Run Process    bash    ${CH_DIR}/scripts/check-${name}.sh    stderr=STDOUT    timeout=60s
-        ...    env:TRACKS_SRC_DIR=${TRACKS_SRC_DIR}
-        Should Be Equal As Integers    ${check.rc}    0    msg=check-${name}.sh failed:\n${check.stdout}
-    END
-
 # doc-sync coverage (the commands are run above through keywords that build them from the
 # language and the folder, or with a unique order ID instead of the assignment's o-3001 and o-3002):
 #   cd /root/ai-agent-tracks-instruqt/pubsub
@@ -115,6 +108,3 @@ Walk Through CloudEvents
 #   curl -s -X POST http://localhost:5101/orders/raw -H 'Content-Type: application/json' \
 #     -d '{"orderId":"o-3002","item":"coffee-beans","quantity":3,"priority":"express"}'
 
-# doc-sync coverage (the stop command of "Before you start" is for demos that Skip or Solve started
-# in the background on the VM; the suite stops its own apps with Stop Process With SIGINT instead):
-#   for f in /root/ai-agent-tracks-instruqt/pubsub/*/*/dapr.yaml; do (cd "$(dirname "$f")" && dapr stop -f . >/dev/null 2>&1); done; echo "No demo of this track is running now."

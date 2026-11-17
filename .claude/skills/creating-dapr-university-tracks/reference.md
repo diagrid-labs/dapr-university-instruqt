@@ -270,7 +270,7 @@ The more complete legacy one (`dapr-secrets/_setup/sandbox-setup.sh`, until it i
 
 **Version pins live here and nowhere else (legacy tracks).** When CI must use the same version, it parses it back out of this file with awk over the `agent variable set` lines, so keep those lines in plain `agent variable set NAME VALUE` form and leave a comment saying why. In a 2.0 lab, pins are `variable` blocks in the two `versions.hcl` files, read with `tools/track-tester/ci/read_pin.py`.
 
-## Per-challenge scripts (legacy 1.0; in a 2.0 lab see `tasks.hcl`)
+## Per-challenge scripts (legacy 1.0 only; a 2.0 lab has no page checks, so no check or solve scripts)
 
 They live in `<challenge>/scripts/`. (`dapr-workflow-aspire/2-project-creation/setup.sh` sits at the challenge root and is empty — not a pattern.)
 

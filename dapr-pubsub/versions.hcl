@@ -16,9 +16,8 @@ variable "tracks_src_ref" {
 # `instruqt lab validate` cannot resolve registry sources, so validate through
 # tools/track-tester/ci/validate-lab.sh, which swaps in a local copy of the module.
 # The module's shared setup (sandbox-setup.sh in the image: Docker/DNS wait, demo clone, Editor,
-# Dev Dashboard, dapr init) runs first. The lab script is lib-checks.sh (defines the check helpers)
-# followed by lab-setup.sh (installs them to /usr/local/lib/dapr-pubsub and starts the pre-build);
-# the module inlines it into the VM startup script because the lab's files are not on the VM.
+# Dev Dashboard, dapr init) runs first. The lab script is lab-setup.sh (starts the pre-build); the
+# module inlines it into the VM startup script because the lab's files are not on the VM.
 # Publish the module version in Instruqt (Building blocks > Modules > Publish version) BEFORE
 # merging a change to `version` here. Every push syncs the lab and resolves this exact version; a
 # push that pins a not-yet-published version leaves the lab on "failed to read hcl files: ...
@@ -31,6 +30,6 @@ module "sandbox" {
     dapr_runtime_version = variable.dapr_runtime_version
     demo_repo_ref        = variable.tracks_src_ref
     editor_folder        = "pubsub"
-    lab_startup_script   = "${file("scripts/lib-checks.sh")}\n${file("scripts/lab-setup.sh")}"
+    lab_startup_script   = file("scripts/lab-setup.sh")
   }
 }

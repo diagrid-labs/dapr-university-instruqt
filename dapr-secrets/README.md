@@ -16,11 +16,9 @@ description and time limits), not in this file. The demo apps are not here: they
 | `main.hcl` | The `lab` resource: title, description, timeouts, chapter and page order |
 | `versions.hcl` | Lab pins: `dapr_runtime_version`, `tracks_src_ref`, and the `diagrid/dapr-sandbox` module block (exact version) |
 | `layouts.hcl`, `tabs.hcl`, `pages.hcl` | Layout, terminal/editor tabs, and the page for each lab |
-| `tasks.hcl` | The checks and solves behind each page's tasks |
 | `scripts/lab-setup.sh` | Lab-specific VM setup (secrets.json, start Vault, pre-build the demos). Runs after the module's shared setup, inlined into the VM startup by the module |
 | `scripts/seed-vault.sh` | Sourceable library defining `seed_vault`, shared by `lab-setup.sh` and CI |
 | `<n>-<slug>/assignment.md` | Learner instructions for each lab |
-| `<n>-<slug>/scripts/check-*.sh`, `solve.sh` | Per-task checks and the solve for the lab |
 | `<n>-<slug>/tests/challenge.robot` | Drift test for the lab, run by CI |
 
 Legacy 1.0 files (`_setup/`, `tabs.md`, per-lab `README.md`, `setup.sh` and `check.sh`) are still

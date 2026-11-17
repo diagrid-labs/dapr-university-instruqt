@@ -209,11 +209,9 @@ Open the **Dev Dashboard** tab and go to the **State** page. It also lists `orde
 
 Components that use `secretKeyRef` don't know which secret store provider is behind the name either.
 
-## 6. Check your work and stop
+## 6. Stop the application
 
-Run the check below while the application is still running: it asks it. When it passes, use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
-
-<instruqt-task id="swap_provider"></instruqt-task>
+Use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
 
 ---
 
