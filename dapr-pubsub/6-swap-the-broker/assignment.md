@@ -193,7 +193,7 @@ Open the **Dev Dashboard** tab, go to the **Logs** page, select `shipping` in th
 
 Routing, 4 deliveries of the poison order and its arrival on `orders-dead` all work the same, because they are done by Dapr and by the subscription files, not by the broker. Now look at what Dapr created in RabbitMQ.
 
-Open the **RabbitMQ** tab and log in with the user `guest` and the password `guest`. Under **Exchanges** you find `orders` and `orders-dead`, which are the topic names. Under **Queues** you find `shipping-orders` and `shipping-orders-dead`. Their names are `<app-id>-<topic>`: Dapr created one queue for each subscription of `shipping`. Then go back to the **Editor** tab.
+Open the **RabbitMQ** tab and log in with the user `guest` and the password `guest`. Under **Exchanges** you find `orders` and `orders-dead`, which are the topic names. Under **Queues and Streams** you find `shipping-orders` and `shipping-orders-dead`. Their names are `<app-id>-<topic>`: Dapr created one queue for each subscription of `shipping`. Then go back to the **Editor** tab.
 
 You can also ask the management API from the **curl** window. These commands list the exchanges and the queues:
 
