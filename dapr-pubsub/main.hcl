@@ -11,7 +11,7 @@ resource "lab" "main" {
 
     You'll probably need around 40 minutes to complete the 6 labs.
 
-    The sandbox is available for 45 minutes in total, and you can extend that time by 10 minutes. If you are inactive for 10 minutes, the sandbox times out. After a timeout, you need to restart the lab.
+    The sandbox is available for 45 minutes in total, and you can extend that time by 10 minutes. If you are inactive for 10 minutes, the sandbox times out. After a timeout, you need to restart the track.
 
     Complete the track to collect the Dapr University Dapr Pub/Sub badge.
 
