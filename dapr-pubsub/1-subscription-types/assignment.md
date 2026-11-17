@@ -6,7 +6,11 @@ In this lab, you'll run two apps that subscribe to the same topic in two differe
 
 An order system has a publisher, the app that announces "a new order came in", and subscribers, the apps that react to it, such as shipping and invoicing. The publisher sends the message to a *topic*, and a *broker* delivers a copy to every app that subscribes to that topic. The publisher does not know who is listening, so you can add a subscriber without changing it.
 
+![A publisher sends a message through an input channel to a message broker, which delivers a copy through an output channel to every subscriber](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/1-subscription-types/images/pubsub-pattern.png?raw=true)
+
 With Dapr, no app talks to the broker. The publisher sends the message to its Dapr sidecar and the sidecar hands it to the broker. Which broker that is lives in a Dapr component named `pubsub`. In this lab the component points at Redis, and in the last lab you'll swap it for RabbitMQ without touching the apps.
+
+![The Cart app publishes through its Dapr sidecar to a broker such as Redis, NATS, Azure Service Bus or RabbitMQ, and the Dapr sidecars of the Shipping and Email apps deliver the message to them. Each sidecar uses a component configuration YAML file](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/1-subscription-types/images/pubsub-components.png?raw=true)
 
 The question for the next minutes is how a subscriber tells Dapr which topic it wants. There are three ways: declarative, programmatic and streaming. This lab covers the first two, and the next one covers streaming.
 
