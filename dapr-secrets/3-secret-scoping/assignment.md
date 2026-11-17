@@ -19,6 +19,9 @@ Nothing in the code of either app says which secrets it may read. Remember that,
 ## 2. Run both apps
 
 > [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
+
+> [!IMPORTANT]
 > Run `dapr run -f .` from inside the scoping demo folder (`Demo2-Scoping` for .NET, `demo2-scoping` for Python and Java). The `secretsFile` path in the component is relative to the app folders inside it.
 
 Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:

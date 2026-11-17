@@ -19,6 +19,9 @@ You'll try both in step 6.
 
 ## 2. Check that the application is running
 
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
+
 The `order-api` application from the previous lab should still be running in the **Dapr CLI** window. The `dapr.yaml` file in the demo folder points the sidecar at the `resources` folder, so every component file in that folder was loaded when the application started.
 
 Open the **Dev Dashboard** tab and check the application health on the **Applications** page. If `order-api` shows a green dot in the **Health** column, it's running: go back to the **Editor** tab and continue with step 3.

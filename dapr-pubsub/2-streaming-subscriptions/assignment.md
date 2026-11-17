@@ -10,7 +10,7 @@ The terminals, and the applications running in them, stay as they are when you m
 
 In the previous lab, Dapr called the subscriber: the sidecar read the subscription and then sent each message to an HTTP endpoint of the app. A **streaming** subscription turns that around. The app opens a stream to its own sidecar and pulls the messages in, so the app needs no HTTP server, no port, no `/dapr/subscribe` endpoint and no `Subscription` file.
 
-> [!IMPORTANT]
+> [!WARNING]
 > Streaming subscriptions are an alpha API in Dapr 1.19. The SDK calls and their names can still change in a later release.
 
 Use the **Editor** tab and open the demo folder of your language: `dotnet/Demo2-Streaming`, `python/demo2-streaming` or `java/demo2-streaming`. It holds two apps, each with its own Dapr sidecar:

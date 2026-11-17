@@ -45,6 +45,9 @@ The sandbox already stored your secrets in Vault, under the names Dapr expects (
 ## 3. Run the same application against Vault
 
 > [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
+
+> [!IMPORTANT]
 > Run `dapr run -f .` from inside the swap demo folder (`Demo3-SwapProvider` for .NET, `demo3-swap-provider` for Python and Java).
 
 Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
