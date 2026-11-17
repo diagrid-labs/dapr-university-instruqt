@@ -1,4 +1,4 @@
-# The Editor tab: code-server (VS Code in the browser) that lab-setup.sh runs on the VM on port 8888,
+# The Editor tab: code-server (VS Code in the browser) that the dapr-sandbox module runs on the VM on port 8888,
 # opened on the demo folder. The built-in `editor` resource showed no files for a VM target.
 resource "service" "editor" {
   target = module.sandbox.output.vm
@@ -7,7 +7,7 @@ resource "service" "editor" {
   path   = "/"
 }
 
-# The Dev Dashboard tab: Diagrid's Dapr Dev Dashboard, which lab-setup.sh runs on the VM on port 9090.
+# The Dev Dashboard tab: Diagrid's Dapr Dev Dashboard, which the dapr-sandbox module runs on the VM on port 9090.
 # Outside container posture it rejects a non-loopback Host header ("forbidden: non-local Host
 # header") and cross-origin writes, so the tab presents itself as localhost.
 resource "service" "dev_dashboard" {

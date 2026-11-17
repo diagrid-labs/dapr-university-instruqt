@@ -497,6 +497,41 @@ Do this only after Item 10 (timing) and the play-through are done.
 
 ---
 
+## Module 2.0.0 / dapr-pubsub
+
+The shared boot setup moved from `dapr-secrets/scripts/lab-setup.sh` into the module
+(`modules/dapr-sandbox/scripts/sandbox-setup.sh`, installed in the image). The new module version
+is **2.0.0** (breaking: new required inputs `dapr_runtime_version`, `demo_repo_ref`, `editor_folder`
+and a new image). `dapr-secrets` moves onto it in the "Part A" PR. Follow these steps in this
+order; do not merge the Part A PR before step 2 is done.
+
+1. **Baseline first.** Start the live `dapr-secrets` lab (still on module 1.0.2), open a terminal
+   and run `grep 'done after' /var/log/lab-setup.log`. Record the seconds here before touching
+   anything else:
+
+   - Baseline `done after` (module 1.0.2): ______ s (date: ______)
+
+2. **Build the image and publish the module.**
+   1. Render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh > image.sh`.
+   2. Build and publish the image as in section 2 (from the system `ubuntu` 24.04 base this needs a
+      new image name, see "Toolchain bump" step 3).
+   3. Set `image_ref` in `modules/dapr-sandbox/versions.hcl` to the new reference. It is
+      deliberately not set in this branch: only the owner knows the reference after the build.
+      Commit and merge that change.
+   4. In the Instruqt UI: Building blocks > Modules > `diagrid/dapr-sandbox` > refresh, then
+      **Publish version** `2.0.0`.
+
+3. **Merge the Part A PR and compare.** Merge the PR that moves `dapr-secrets` onto module 2.0.0
+   (`dapr-secrets/versions.hcl` pins `version = "2.0.0"`). Wait for the lab sync, start
+   `dapr-secrets` live and run `grep 'done after' /var/log/lab-setup.log` again. It must not be
+   slower than the baseline from step 1. Then click through all page checks (the four challenge
+   checks) and confirm `ls /var/lib/lab-setup/ready`, `jq --version` and `curl -s
+   http://localhost:8200/v1/sys/health`.
+
+   - New `done after`: ______ s. Baseline: ______ s.
+
+---
+
 ## Maintenance procedures
 
 ### Toolchain bump
