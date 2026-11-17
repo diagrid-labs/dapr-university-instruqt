@@ -21,7 +21,7 @@ You'll try both in step 6.
 
 The `order-api` application from the previous lab should still be running in the **Dapr CLI** window. The `dapr.yaml` file in the demo folder points the sidecar at the `resources` folder, so every component file in that folder was loaded when the application started.
 
-Open the **Dev Dashboard** tab and check the application health on the **Applications** page. If `order-api` is listed there and healthy, go back to the **Editor** tab and continue with step 3.
+Open the **Dev Dashboard** tab and check the application health on the **Applications** page. If `order-api` shows a green dot in the **Health** column, it's running: go back to the **Editor** tab and continue with step 3.
 
 ### If the application is not running
 
@@ -210,7 +210,7 @@ dapr run --app-id nested-demo --dapr-http-port 3501 --resources-path resources
 
 This sidecar listens on port `3501` instead of `3500`, so it does not clash with the `order-api` sidecar if that one is still running.
 
-Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `nested-demo` is listed there once the sidecar is up. The **Dapr CLI** window also shows this message:
+Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `nested-demo` is ready when the **Health** column shows a green dot. The **Dapr CLI** window also shows this message:
 
 ```text,nocopy
 ✅  You're up and running! Dapr logs will appear here.

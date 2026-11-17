@@ -124,7 +124,7 @@ dapr run -f .
 > [!IMPORTANT]
 > Wait until the application is running before continuing. The Java application can take a little longer to start.
 >
-> Open the **Dev Dashboard** tab and check the application health on the **Applications** page: select `order-api`. You can also inspect the output of the **Dapr CLI** window.
+> Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `order-api` is ready when the **Health** column shows a green dot. You can also inspect the output of the **Dapr CLI** window.
 
 The **Dapr CLI** window should show a line like this when the sidecar is started. The port number can differ, and your own application's logs follow:
 
