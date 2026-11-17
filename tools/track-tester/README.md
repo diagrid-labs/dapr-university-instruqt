@@ -202,9 +202,6 @@ checkout. Beyond `dapr init` they need:
 - **All three runtimes** (.NET, Python + `uv`, JDK + Maven) unless you filter with
   `--include <lang>`. The language-agnostic tests carry no language tag, so CI selects them
   with `--exclude dotnet --exclude python --exclude java`.
-- **Linux for the challenge 3 and 4 solve scripts.** The `solve.sh` files in those challenges use
-  `setsid` and GNU `sed -i`, so the Robot cases that call them run on Linux CI only. Running them
-  on macOS is not supported.
 - **Free ports 5001–5003 and 3500–3502.** The suites fail fast when a leaked app still holds
   one, rather than asserting against the previous run's app.
 

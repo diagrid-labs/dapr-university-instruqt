@@ -251,11 +251,9 @@ The app answers with the status `DROP`. Look at the **Dapr CLI** window for the 
 
 `DROP` tells Dapr to throw the message away. The app does not answer with an error status, because Dapr would then deliver the same message again, and a message that cannot be read now will not be readable next time either.
 
-## 7. Check your work and stop
+## 7. Stop the applications
 
-Run the check below while the applications are still running: it asks them and reads their logs. When it passes, use the **Dapr CLI** window to stop the applications by pressing `Ctrl+C`.
-
-<instruqt-task id="subscription_types"></instruqt-task>
+Use the **Dapr CLI** window to stop the applications by pressing `Ctrl+C`.
 
 ---
 

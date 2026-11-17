@@ -4,15 +4,7 @@ In this lab, you'll publish one order normally and one as a raw payload, and see
 
 ## Before you start
 
-The terminals, and the applications running in them, stay as they are when you move between labs. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `order-api` and `warehouse` from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`.
-
-If you used **Skip** or **Solve** on an earlier lab, its apps run in the background, where `Ctrl+C` cannot reach them. This command stops every demo of this track, however it was started. Run it in the **Dapr CLI** window (select that terminal in the dropdown that appears when you use the *Run* button):
-
-```bash,run
-for f in /root/ai-agent-tracks-instruqt/pubsub/*/*/dapr.yaml; do (cd "$(dirname "$f")" && dapr stop -f . >/dev/null 2>&1); done; echo "No demo of this track is running now."
-```
-
-Then go back to the **Editor** tab.
+The terminals, and the applications running in them, stay as they are when you move between labs. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `order-api` and `warehouse` from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
 
 ## 1. Two subscriptions on one subscriber
 
@@ -223,11 +215,9 @@ The `rawPayload` metadata is set by the **publisher** only. Look at `subscriptio
 
 You do not need to try this. Remember it as: the publisher chooses raw to leave the envelope off, and the subscriber chooses raw to put one on.
 
-## 6. Check your work and stop
+## 6. Stop the applications
 
-Run the check below while the applications are still running: it asks them and reads their logs. When it passes, use the **Dapr CLI** window to stop the applications by pressing `Ctrl+C`.
-
-<instruqt-task id="cloudevents"></instruqt-task>
+Use the **Dapr CLI** window to stop the applications by pressing `Ctrl+C`.
 
 ---
 

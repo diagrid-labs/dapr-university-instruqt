@@ -26,7 +26,6 @@ Suite Teardown    Run Keywords    Terminate All Processes    kill=True
 
 *** Variables ***
 ${LOG}                ${TEMPDIR}/dapr-secrets-ch4.log
-${LOG_SOLVE}          ${TEMPDIR}/dapr-secrets-ch4-solve.log
 ${CONTROL_ROOT}       ${TEMPDIR}/dapr-secrets-ch4-control
 ${CH_DIR}             ${CURDIR}/..
 ${SEED_VAULT}         ${CURDIR}/../../scripts/seed-vault.sh
@@ -216,34 +215,6 @@ A Missing Secret In Vault Leaves The Component Value Empty
     Should Not Contain    ${keys}    prefix-from-vault||ref-proof
     Wait Until Log Contains    ${LOG}    ${SECRET_ERROR_LOG}    30s
 
-Solve Script Satisfies The Check Script
-    [Documentation]    A check that cannot fail, or a solve that does not satisfy it, would block
-    ...    or mislead every learner. Instruqt provides `fail-message`; a stand-in on PATH prints its
-    ...    text and exits 1. The apps are left running after the check, as they are for a learner:
-    ...    the last instruction of the assignment is to run Check BEFORE stopping them.
-    [Tags]    solve    dotnet
-    [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Solve Teardown
-    # Nothing runs: the check must fail, and say so.
-    ${idle}=    Run Check Script
-    Should Not Be Equal As Integers    ${idle.rc}    0
-    Should Contain    ${idle.stdout}    does not answer on port 5001
-    # The app runs against the local file: the check must fail with the Vault hint.
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]
-    Wait Until Command Output Contains
-    ...    curl -s http://localhost:5001/secret/orderdb-password    ${ORDERDB_JSON}    180s
-    ${before}=    Run Check Script
-    Should Not Be Equal As Integers    ${before.rc}    0
-    Should Contain    ${before.stdout}    The app isn't reading from Vault yet
-    ${solved}=    Run Process    bash    ${CH_DIR}/scripts/solve.sh    stderr=STDOUT    timeout=300s
-    ...    env:TRACKS_SRC_DIR=${TRACKS_SRC_DIR}
-    Should Be Equal As Integers    ${solved.rc}    0    msg=solve.sh failed:\n${solved.stdout}
-    ${after}=    Run Check Script
-    Should Be Equal As Integers    ${after.rc}    0    msg=check.sh failed after solve.sh:\n${after.stdout}
-    # And again: the check does not consume or stop anything, so it can be clicked twice.
-    ${again}=    Run Check Script
-    Should Be Equal As Integers    ${again.rc}    0    msg=check.sh failed the second time:\n${again.stdout}
-
 *** Keywords ***
 Port 5001 Should Be Free
     # curl exits 7 (connection refused) when nothing is listening. rc 0 means something answered.
@@ -409,23 +380,6 @@ Finish Vault Proof
     Run Keyword And Ignore Error    Stop Process With SIGINT    control
     Run Process    docker exec dapr_redis redis-cli DEL ${PROOF_KEYS}    shell=True
     Delete Vault Test Secrets
-
-Run Check Script
-    # fail-message comes from Instruqt; the stand-in prints its text and exits 1.
-    ${shim_dir}=    Set Variable    ${TEMPDIR}/dapr-secrets-ch4-shim
-    Create Directory    ${shim_dir}
-    Create File    ${shim_dir}/fail-message    \#!/bin/bash\necho "FAIL-MESSAGE: $*"\nexit 1\n
-    Run Process    chmod    +x    ${shim_dir}/fail-message
-    ${result}=    Run Process    bash    ${CH_DIR}/scripts/check.sh    stderr=STDOUT    timeout=120s
-    ...    env:PATH=${shim_dir}:%{PATH}    env:TRACKS_SRC_DIR=${TRACKS_SRC_DIR}
-    RETURN    ${result}
-
-Solve Teardown
-    # solve.sh starts the .NET app itself, in the background, so stop it through dapr.
-    Run Keyword And Ignore Error    Stop Process With SIGINT    app
-    Run Process    dapr stop -f .    shell=True    cwd=${SECRETS_BASE}/dotnet/${DEMO3}[dotnet]    timeout=60s
-    Run Process    dapr stop -f .    shell=True    cwd=${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]    timeout=60s
-    Wait For The Ports To Be Free
 
 # doc-sync coverage (expressed via cwd, cwd-relative paths and the Request keyword above):
 #   cd /root/ai-agent-tracks-instruqt/secrets

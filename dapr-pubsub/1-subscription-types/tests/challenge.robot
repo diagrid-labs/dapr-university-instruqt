@@ -3,8 +3,7 @@ Name              Ch1 Subscription Types
 Documentation     Drift test for dapr-pubsub page 1: demo 1 runs three apps, `order-api`,
 ...               `shipping` (declarative subscription from YAML) and `invoicing` (programmatic
 ...               subscription from code). One order reaches both subscribers, and each sidecar's
-...               metadata lists its subscription with the matching type. The check scripts of the
-...               page then pass against the running demo.
+...               metadata lists its subscription with the matching type.
 ...
 ...               Log lines are read from the `dapr run` output, which has the prefix
 ...               `== APP - <appID> ==` and, in Java, a Spring prefix too, so only the message
@@ -104,13 +103,6 @@ Walk Through Subscription Types
     ...    curl -s -X POST http://localhost:5102/orders -H 'Content-Type: application/json' -d 'not json'
     Should Contain    ${dropped}    DROP
     Wait Until Log Contains    ${LOG}    shipping dropped unreadable event    ${timeout}
-
-    # 7. The check scripts of the page pass against the running demo.
-    FOR    ${name}    IN    apps-running    declarative    programmatic    both-received
-        ${check}=    Run Process    bash    ${CH_DIR}/scripts/check-${name}.sh    stderr=STDOUT    timeout=60s
-        ...    env:TRACKS_SRC_DIR=${TRACKS_SRC_DIR}
-        Should Be Equal As Integers    ${check.rc}    0    msg=check-${name}.sh failed:\n${check.stdout}
-    END
 
 # doc-sync coverage (the commands are run above through keywords that build them from the
 # language and the folder, or with a unique order ID instead of the assignment's o-1001):

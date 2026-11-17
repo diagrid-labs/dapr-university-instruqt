@@ -1,5 +1,5 @@
-"""The RabbitMQ image tag lives in four places that must agree: the page 6 assignment's Run block,
-the page 6 solve script, the sandbox pre-warm list and the harness variables."""
+"""The RabbitMQ image tag lives in three places that must agree: the page 6 assignment's Run block,
+the sandbox pre-warm list and the harness variables."""
 import re
 from pathlib import Path
 
@@ -15,7 +15,6 @@ def tag_in(path):
 
 def test_rabbitmq_tag_matches_prewarm():
     assignment = tag_in(ROOT / "dapr-pubsub" / "6-swap-the-broker" / "assignment.md")
-    solve = tag_in(ROOT / "dapr-pubsub" / "6-swap-the-broker" / "scripts" / "solve.sh")
     prewarm = tag_in(ROOT / "modules" / "dapr-sandbox" / "scripts" / "prewarm.sh")
     variable = tag_in(ROOT / "tools" / "track-tester" / "variables" / "dapr_pubsub.py")
-    assert assignment == solve == prewarm == variable
+    assert assignment == prewarm == variable
