@@ -1,6 +1,6 @@
 # Swap the provider
 
-In this lab, you'll swap the secret store from a local file to HashiCorp Vault, and run the same application against it. This hands-on lab takes about 7 minutes to complete.
+In this final lab, you'll swap the secret store from a local file to HashiCorp Vault, and run the same application against it. This hands-on lab takes about 7 minutes to complete. At the end of the lab, you can claim the Dapr University Holopin badge for this track.
 
 ## Before you start
 
@@ -43,6 +43,9 @@ spec:
 The sandbox already stored your secrets in Vault, under the names Dapr expects (`secret/dapr/orderdb-password`, and so on). That is the work of the sandbox, not of the application. `legacy-api-key` is still not in the store, as in lab 3.
 
 ## 3. Run the same application against Vault
+
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the swap demo folder (`Demo3-SwapProvider` for .NET, `demo3-swap-provider` for Python and Java).

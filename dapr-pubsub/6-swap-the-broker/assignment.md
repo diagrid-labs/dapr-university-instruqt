@@ -1,6 +1,6 @@
 # Swap the broker
 
-In this lab, you'll run the apps of the previous lab against RabbitMQ instead of Redis, and change nothing but a YAML file. This hands-on lab takes about 7 minutes to complete.
+In this final lab, you'll run the apps of the previous lab against RabbitMQ instead of Redis, and change nothing but a YAML file. This hands-on lab takes about 7 minutes to complete. At the end of the lab, you can claim the Dapr University Holopin badge for this track.
 
 ## Before you start
 
@@ -25,7 +25,7 @@ for _ in $(seq 1 60); do
 done
 ```
 
-The first line removes an existing container, so you can run this block again whenever you like. Port 5672 is what Dapr connects to, and port 15672 is the management UI and API. The block waits until the broker accepts connections on its ports, which can take up to a minute. The ports are open on all interfaces so that the RabbitMQ tab can reach the broker, which is fine in a throwaway sandbox. On your own machine, bind them to `127.0.0.1` instead.
+The first line removes an existing container, so you can run this block again whenever you like. Port 5672 is what Dapr connects to, and port 15672 is the management UI and API. The block waits until the broker accepts connections on its ports, which can take up to a minute. Continue with the next section, we'll check RabbitMQ later.
 
 ## 2. A folder with no app code
 
@@ -193,7 +193,7 @@ Open the **Dev Dashboard** tab, go to the **Logs** page, select `shipping` in th
 
 Routing, 4 deliveries of the poison order and its arrival on `orders-dead` all work the same, because they are done by Dapr and by the subscription files, not by the broker. Now look at what Dapr created in RabbitMQ.
 
-Open the **RabbitMQ** tab and log in with the user `guest` and the password `guest`. Under **Exchanges** you find `orders` and `orders-dead`, which are the topic names. Under **Queues** you find `shipping-orders` and `shipping-orders-dead`. Their names are `<app-id>-<topic>`: Dapr created one queue for each subscription of `shipping`. Then go back to the **Editor** tab.
+Open the **RabbitMQ** tab and log in with the user `guest` and the password `guest`. Under **Exchanges** you find `orders` and `orders-dead`, which are the topic names. Under **Queues and Streams** you find `shipping-orders` and `shipping-orders-dead`. Their names are `<app-id>-<topic>`: Dapr created one queue for each subscription of `shipping`. Then go back to the **Editor** tab.
 
 You can also ask the management API from the **curl** window. These commands list the exchanges and the queues:
 
