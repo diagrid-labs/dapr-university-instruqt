@@ -162,7 +162,13 @@ Expected output:
 {"orderId":"o-1001","topic":"orders"}
 ```
 
-Now look at the **Dapr CLI** window. Both subscribers logged the order, and the order of the two lines can differ. The lines below show only the message: in the real output, each language adds its own logger prefix after `== APP - <app> ==`, for example `INFO:shipping:` in Python and a timestamped Spring log header in Java.
+Both subscribers logged the order. `dapr run -f .` writes the log of every app and every sidecar to a file in the `.dapr/logs` folder of the app, and the **Dev Dashboard** reads those files for you, with a search bar to find a line:
+
+1. Open the **Dev Dashboard** tab and go to the **Logs** page.
+2. Select `shipping` in the application drop-down.
+3. Type `o-1001` in the search bar.
+
+Then select `invoicing` in the drop-down and search for `o-1001` again. The lines below show only the message: in the real log, each language adds its own logger prefix after `== APP - <app> ==`, for example `INFO:shipping:` in Python and a timestamped Spring log header in Java.
 
 ```text,nocopy
 == APP - shipping == shipping received order o-1001
@@ -243,7 +249,7 @@ The `shipping` app uses the CloudEvents SDK, not a Dapr SDK, so it can only hand
 curl -s -X POST http://localhost:5102/orders -H 'Content-Type: application/json' -d 'not json'
 ```
 
-The app answers with the status `DROP`. Look at the **Dapr CLI** window for the log line:
+The app answers with the status `DROP`. On the **Logs** page of the **Dev Dashboard** tab, select `shipping` and search for `unreadable`:
 
 ```text,nocopy
 == APP - shipping == shipping dropped unreadable event

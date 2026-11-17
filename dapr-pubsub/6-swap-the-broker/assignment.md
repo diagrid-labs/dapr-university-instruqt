@@ -170,7 +170,7 @@ Expected output:
 
 ## 5. Read the log and look in the broker
 
-Look at the **Dapr CLI** window. Wait a few seconds for the last line. The output is the same as in the previous lab:
+Open the **Dev Dashboard** tab, go to the **Logs** page, select `shipping` in the application drop-down and type `order o-60` in the search bar. Wait a few seconds for the last line. The output is the same as in the previous lab:
 
 ```text,nocopy
 == APP - shipping == shipping standard order o-6001

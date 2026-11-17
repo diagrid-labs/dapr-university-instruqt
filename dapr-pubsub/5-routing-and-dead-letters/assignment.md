@@ -203,7 +203,7 @@ Expected output:
 
 ## 5. Read the log
 
-Look at the **Dapr CLI** window. `shipping` logs the routing first, then the retries of the poison order, then its arrival on `orders-dead`. Wait a few seconds for the last line:
+Open the **Dev Dashboard** tab, go to the **Logs** page, select `shipping` in the application drop-down and type `order o-50` in the search bar. `shipping` logs the routing first, then the retries of the poison order, then its arrival on `orders-dead`. Wait a few seconds for the last line:
 
 ```text,nocopy
 == APP - shipping == shipping standard order o-5001
