@@ -569,7 +569,7 @@ A1 and A2 were checked on their own: cherry-picked onto `main` at `b594fb1`, the
    checks) and confirm `ls /var/lib/lab-setup/ready`, `jq --version` and `curl -s
    http://localhost:8200/v1/sys/health`.
 
-   - New `done after`: 56 s (date: 2026-11-17). Baseline: 52 s. Accepted: 4 s slower, from one start each, within normal start-to-start variation.
+   - New `done after`: 56 s (date: 2026-11-17). Baseline: 52 s. Accepted by the owner: 4 s slower, measured from one start each.
 
 ## Checkpoint B: dapr-pubsub lab
 
