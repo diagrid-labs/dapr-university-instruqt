@@ -9,7 +9,7 @@ resource "lab" "main" {
     - How to route messages by content and send failed messages to a dead-letter topic after retries
     - How to swap Redis for RabbitMQ without changing any application code
 
-    You'll probably need around 42 minutes to complete the 6 labs.
+    You'll probably need around 40 minutes to complete the 6 labs.
 
     The sandbox is available for 45 minutes in total, and you can extend that time by 10 minutes. If you are inactive for 10 minutes, the sandbox times out. After a timeout, you need to restart the lab.
 
