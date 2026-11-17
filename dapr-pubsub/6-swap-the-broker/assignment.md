@@ -25,7 +25,7 @@ for _ in $(seq 1 60); do
 done
 ```
 
-The first line removes an existing container, so you can run this block again whenever you like. Port 5672 is what Dapr connects to, and port 15672 is the management UI and API. The block waits until the broker accepts connections on its ports, which can take up to a minute. The ports are open on all interfaces so that the RabbitMQ tab can reach the broker, which is fine in a throwaway sandbox. On your own machine, bind them to `127.0.0.1` instead.
+The first line removes an existing container, so you can run this block again whenever you like. Port 5672 is what Dapr connects to, and port 15672 is the management UI and API. The block waits until the broker accepts connections on its ports, which can take up to a minute. Continue with the next section, we'll check RabbitMQ later.
 
 ## 2. A folder with no app code
 
