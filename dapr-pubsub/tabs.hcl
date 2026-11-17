@@ -35,9 +35,8 @@ resource "terminal" "curl" {
 }
 
 # The RabbitMQ management UI, which the sandbox image runs on port 15672 once page 6 starts the
-# broker. OWNER CHECK (spike S3): whether `guest` can log in through this tab is not yet verified.
-# Fallback if it cannot: delete this resource and the RabbitMQ tab in layouts.hcl; page 6 already
-# uses the management API through curl.
+# broker. Only the `broker` layout (page 6) shows its tab. Verified live on 2026-11-17: `guest` /
+# `guest` logs in through this tab (spike S3).
 resource "service" "rabbitmq" {
   target = module.sandbox.output.vm
   port   = 15672
