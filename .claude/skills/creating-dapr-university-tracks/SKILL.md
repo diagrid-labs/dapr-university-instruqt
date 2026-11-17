@@ -135,10 +135,28 @@ asides. `> [!WARNING]` for a caveat such as an alpha API. Instruqt has no INFO t
 Name the window on every command ("Use the **curl** window to…"). Read logs on the Dev Dashboard
 Logs page.
 
-**Pages after page 1**: terminals and running apps survive page changes. A page that starts its own
-apps opens with `## Before you start` (check the Dev Dashboard, stop running apps with `Ctrl+C`). A
-page that keeps the previous page's app opens with a "Check that the application is running"
-section with a restart fallback (`dapr-secrets` page 2).
+## State carries over between pages
+
+A 2.0 lab is one sandbox for the whole track. Moving to another page changes only the instructions:
+terminals keep their folder and running processes, containers keep running with their data (Redis
+state, Vault secrets, RabbitMQ queues), files the learner edited stay edited, and the Editor keeps
+its open files. Learners can also skip pages, so a page may find state left over from any earlier
+page, or miss state a page it assumes was done. Write every page for both:
+
+- **Folder**: `working_directory` in `tabs.hcl` only holds on page 1. Every run section starts with
+  the anchored `cd /root/ai-agent-tracks-instruqt/<folder>`, then relative paths.
+- **Apps and ports**: pages reuse the same ports. Each page ends with `## N. Stop the applications`
+  (`Ctrl+C` in the **Dapr CLI** window), unless the next page reuses the app on purpose and its
+  "What's next?" says so (`dapr-secrets` page 1). A page that starts apps opens with
+  `## Before you start` (check the Dev Dashboard, stop what runs); a page that reuses the previous
+  page's app opens with a "Check that the application is running" section with a restart fallback
+  (`dapr-secrets` page 2).
+- **Containers**: a Run block that starts one removes it first (`docker rm -f <name> >/dev/null 2>&1
+  || true`), so it is safe to run again (`dapr-pubsub` page 6). Don't rely on a store being empty.
+- **Files**: a page that edits a file says what the file should look like afterwards, so it works
+  whether or not the learner already changed it; a later page doesn't assume the original.
+- **CI** runs each page's suite on its own, from a clean sandbox, so it never sees carried-over
+  state. The instructions are the only guard.
 
 ## Languages
 
@@ -180,6 +198,8 @@ test tags and CI matrix legs. A language the image lacks is a module change.
 - [ ] 3 to 5 page folders, each with `assignment.md` and `tests/challenge.robot`; minutes add up
 - [ ] Every page follows the page anatomy; the final page closes with recap, badge/feedback, next
       steps and `<instruqt-completion>`
+- [ ] Every page survives carried-over or missing state: anchored `cd`, the right opening, a
+      "Stop the applications" section (or a stated hand-over), restart-safe container blocks
 - [ ] Every command `bash,run` and covered by its suite; every output block `,nocopy`
 - [ ] `tools/track-tester/variables/<lab_with_underscores>.py`, `tools/track-tester/ci/setup-<lab>.sh`,
       `.github/workflows/test-<lab>.yml`, the `lab-validate.yml` loops, the lab in the parametrize

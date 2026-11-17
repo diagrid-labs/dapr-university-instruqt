@@ -62,7 +62,9 @@ tab. Set it on that page's entry in `main.hcl`.
 ### tabs.hcl
 
 Copy `dapr-secrets/tabs.hcl` (dapr-pubsub's adds a `rabbitmq` service; drop it) and change the folder in both terminals' `working_directory`
-(`/root/ai-agent-tracks-instruqt/<folder>`). It defines `service "editor"` (code-server on port
+(`/root/ai-agent-tracks-instruqt/<folder>`). That folder only holds on page 1: terminals keep
+their folder across pages, which is why every run section starts with the anchored `cd` (SKILL.md →
+State carries over between pages). It defines `service "editor"` (code-server on port
 8888), `service "dev_dashboard"` (port 9090, with the `Host` and `Origin` custom request headers the
 Dev Dashboard needs, see the comment), and the `terminal "dapr_cli"` and `terminal "curl"`
 resources. Add a `service` for any extra tab, targeting `module.sandbox.output.vm`.
@@ -186,6 +188,20 @@ Copy `dapr-pubsub/scripts/lab-setup.sh` and keep its header comment. The contrac
 7. **Callouts**: `[!IMPORTANT]` only for things the learner must do or must not skip; `[!NOTE]` for
    asides (and the "Expand the language-specific instructions" lead-in); `[!WARNING]` for caveats
    such as an alpha API. No INFO type exists.
+8. **Containers a page starts**: remove any existing one first, so the block is safe to run again,
+   and say so (`dapr-pubsub` page 6):
+
+   ```bash
+   docker rm -f rabbitmq >/dev/null 2>&1 || true
+   docker run -d --name rabbitmq … <image>
+   ```
+
+   "The first line removes an existing container, so you can run this block again whenever you
+   like."
+9. **Last numbered section**: `## N. Stop the applications` with "Use the **Dapr CLI** window to stop
+   the applications by pressing `Ctrl+C`." Leave it out only when the next page reuses the running
+   app; then that page's "What's next?" says the app keeps running (`dapr-secrets` page 1), and the
+   next page opens with the "is it running" check.
 
 ### End of a middle page
 
