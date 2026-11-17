@@ -165,7 +165,7 @@ The `count` must be a whole number from 1 to 100, written in plain digits. Anyth
 
 ## 4. Look at the batches
 
-Look at the **Dapr CLI** window. `shipping` received the 25 orders in a few requests instead of 25. With Redis you will typically see batches of 10, 10 and 5. The order inside a batch is not the order in which the orders were published. As on the earlier labs, the real lines also carry the logger prefix of your language after `== APP - shipping ==`:
+Open the **Dev Dashboard** tab, go to the **Logs** page, select `shipping` in the application drop-down and type `batch` in the search bar. `shipping` received the 25 orders in a few requests instead of 25. With Redis you will typically see batches of 10, 10 and 5. The order inside a batch is not the order in which the orders were published. As on the earlier labs, the real lines also carry the logger prefix of your language after `== APP - shipping ==`:
 
 ```text,nocopy
 == APP - shipping == shipping received batch of 10 orders: bulk-23,bulk-1,bulk-20,...
@@ -192,7 +192,7 @@ Expected output:
 {"statuses":[{"entryId":"e1","status":"SUCCESS"},{"entryId":"e2","status":"DROP"}]}
 ```
 
-`shipping` read `e1` with the CloudEvents SDK and answered `SUCCESS`. It could not read `e2`, so it answered `DROP` and logged `shipping dropped unreadable entry e2` in the **Dapr CLI** window. `DROP` tells Dapr to stop trying for that entry. Had the handler answered one status for the whole batch, a single bad entry would have made Dapr deliver all 10 again, including the 9 that were fine.
+`shipping` read `e1` with the CloudEvents SDK and answered `SUCCESS`. It could not read `e2`, so it answered `DROP` and logged `shipping dropped unreadable entry e2`. Search the `shipping` log on the **Logs** page for `entry e2` to see it. `DROP` tells Dapr to stop trying for that entry. Had the handler answered one status for the whole batch, a single bad entry would have made Dapr deliver all 10 again, including the 9 that were fine.
 
 ## 6. Stop the applications
 

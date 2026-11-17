@@ -173,7 +173,7 @@ Expected output:
 {"orderId":"o-2001","topic":"orders"}
 ```
 
-Now look at the **Dapr CLI** window. The warehouse logged the order:
+The warehouse logged the order. Open the **Dev Dashboard** tab, go to the **Logs** page, select `warehouse` in the application drop-down and type `o-2001` in the search bar:
 
 ```text,nocopy
 == APP - warehouse == warehouse received order o-2001
@@ -190,7 +190,7 @@ curl -s -w '%{http_code}\n' -X POST http://localhost:3510/v1.0/publish/pubsub/or
   -H 'Content-Type: text/plain' -d 'not an order'
 ```
 
-The sidecar answers `204`, which means it accepted the message. Look at the **Dapr CLI** window for the log line:
+The sidecar answers `204`, which means it accepted the message. On the **Logs** page of the **Dev Dashboard** tab, select `warehouse` and search for `unreadable`:
 
 ```text,nocopy
 == APP - warehouse == warehouse dropped unreadable event

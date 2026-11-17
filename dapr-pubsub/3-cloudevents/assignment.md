@@ -148,7 +148,7 @@ Expected output:
 {"orderId":"o-3001","topic":"orders"}
 ```
 
-Now look at the **Dapr CLI** window. `shipping` logs the request body exactly as Dapr sent it. The log line is on one line. It is wrapped here so you can read it:
+`shipping` logs the request body exactly as Dapr sent it. Open the **Dev Dashboard** tab, go to the **Logs** page, select `shipping` in the application drop-down and type `o-3001` in the search bar. The log line is on one line. It is wrapped here so you can read it:
 
 ```text,nocopy
 == APP - shipping == shipping received with envelope:
@@ -172,7 +172,7 @@ Your `id`, `time` and trace values are different, and the exact fields and their
 - `traceparent` and `traceid` carry the trace context, so a trace can follow the message from the publisher to the subscriber.
 - `pubsubname` and `topic` say where the message travelled.
 
-Right after it, `shipping` reads the same envelope with the open CloudEvents SDK and logs a few of its attributes:
+Right after it, `shipping` reads the same envelope with the open CloudEvents SDK and logs a few of its attributes. Search for `parsed CloudEvent` to find that line:
 
 ```text,nocopy
 == APP - shipping == shipping parsed CloudEvent id=6ce4e90a-c8aa-49bd-83ad-2c9f121cda9e type=com.dapr.event.sent source=order-api
@@ -195,7 +195,7 @@ Expected output:
 {"orderId":"o-3002","topic":"orders-raw"}
 ```
 
-Look at the **Dapr CLI** window again:
+On the **Logs** page, search the `shipping` log for `o-3002`:
 
 ```text,nocopy
 == APP - shipping == shipping received raw: {"orderId":"o-3002","item":"coffee-beans","quantity":3,"priority":"express"}
