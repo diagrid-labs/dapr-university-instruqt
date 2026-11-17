@@ -153,13 +153,16 @@ Use the **curl** window to send an order to `order-api`, which publishes it to t
 
 ```bash,run
 curl -s -X POST http://localhost:5101/orders -H 'Content-Type: application/json' \
-  -d '{"orderId":"o-1001","item":"coffee-beans","quantity":2,"priority":"standard"}'
+  -d '{"orderId":"o-1001","item":"coffee-beans","quantity":2,"priority":"standard"}' | jq
 ```
 
 Expected output:
 
 ```json,nocopy
-{"orderId":"o-1001","topic":"orders"}
+{
+  "orderId": "o-1001",
+  "topic": "orders"
+}
 ```
 
 Both subscribers logged the order. `dapr run -f .` writes the log of every app and every sidecar to a file in the `.dapr/logs` folder of the app, and the **Dev Dashboard** reads those files for you, with a search bar to find a line:
@@ -246,7 +249,15 @@ null
 The `shipping` app uses the CloudEvents SDK, not a Dapr SDK, so it can only handle a real CloudEvent. Post something that is not one straight to the app, bypassing Dapr:
 
 ```bash,run
-curl -s -X POST http://localhost:5102/orders -H 'Content-Type: application/json' -d 'not json'
+curl -s -X POST http://localhost:5102/orders -H 'Content-Type: application/json' -d 'not json' | jq
+```
+
+Expected output:
+
+```json,nocopy
+{
+  "status": "DROP"
+}
 ```
 
 The app answers with the status `DROP`. On the **Logs** page of the **Dev Dashboard** tab, select `shipping` and search for `unreadable`:

@@ -152,7 +152,7 @@ Walk Through Swap
 #     '{"orderId":"o-6001","item":"coffee-beans","quantity":1,"priority":"standard"}' \
 #     '{"orderId":"o-6002","item":"coffee-beans","quantity":1,"priority":"express"}' \
 #     '{"orderId":"o-6003","item":"poison","quantity":1,"priority":"standard"}'; do
-#     curl -s -X POST http://localhost:5101/orders -H 'Content-Type: application/json' -d "$o"; echo
+#     curl -s -X POST http://localhost:5101/orders -H 'Content-Type: application/json' -d "$o" | jq
 #   done
 #   curl -s -u guest:guest http://localhost:15672/api/exchanges | jq -r '.[].name | select(startswith("orders"))' | sort
 #   curl -s -u guest:guest http://localhost:15672/api/queues | jq -r '.[].name' | sort

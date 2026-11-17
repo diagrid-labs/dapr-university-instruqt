@@ -113,6 +113,6 @@ Walk Through Routing
 #     '{"orderId":"o-5001","item":"coffee-beans","quantity":1,"priority":"standard"}' \
 #     '{"orderId":"o-5002","item":"coffee-beans","quantity":1,"priority":"express"}' \
 #     '{"orderId":"o-5003","item":"poison","quantity":1,"priority":"standard"}'; do
-#     curl -s -X POST http://localhost:5101/orders -H 'Content-Type: application/json' -d "$o"; echo
+#     curl -s -X POST http://localhost:5101/orders -H 'Content-Type: application/json' -d "$o" | jq
 #   done
 

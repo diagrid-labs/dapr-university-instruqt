@@ -112,8 +112,8 @@ Walk Through Subscription Types
 #   cd java/demo1-subscriptions
 #   dapr run -f .
 #   curl -s -X POST http://localhost:5101/orders -H 'Content-Type: application/json' \
-#     -d '{"orderId":"o-1001","item":"coffee-beans","quantity":2,"priority":"standard"}'
+#     -d '{"orderId":"o-1001","item":"coffee-beans","quantity":2,"priority":"standard"}' | jq
 #   curl -s http://localhost:3511/v1.0/metadata | jq '.subscriptions'
 #   curl -s http://localhost:3512/v1.0/metadata | jq '.subscriptions'
 #   curl -s http://localhost:3510/v1.0/metadata | jq '.subscriptions'
-#   curl -s -X POST http://localhost:5102/orders -H 'Content-Type: application/json' -d 'not json'
+#   curl -s -X POST http://localhost:5102/orders -H 'Content-Type: application/json' -d 'not json' | jq

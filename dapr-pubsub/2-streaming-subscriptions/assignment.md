@@ -164,13 +164,16 @@ Use the **curl** window to send an order to `order-api`, which publishes it to t
 
 ```bash,run
 curl -s -X POST http://localhost:5101/orders -H 'Content-Type: application/json' \
-  -d '{"orderId":"o-2001","item":"coffee-beans","quantity":1,"priority":"standard"}'
+  -d '{"orderId":"o-2001","item":"coffee-beans","quantity":1,"priority":"standard"}' | jq
 ```
 
 Expected output:
 
 ```json,nocopy
-{"orderId":"o-2001","topic":"orders"}
+{
+  "orderId": "o-2001",
+  "topic": "orders"
+}
 ```
 
 The warehouse logged the order. Open the **Dev Dashboard** tab, go to the **Logs** page, select `warehouse` in the application drop-down and type `o-2001` in the search bar:

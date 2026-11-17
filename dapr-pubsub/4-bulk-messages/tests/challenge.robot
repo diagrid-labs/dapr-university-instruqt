@@ -109,7 +109,7 @@ Walk Through Bulk Messages
 #   cd python/demo4-bulk
 #   cd java/demo4-bulk
 #   dapr run -f .
-#   curl -s -X POST 'http://localhost:5101/orders/bulk?count=25&prefix=bulk'
+#   curl -s -X POST 'http://localhost:5101/orders/bulk?count=25&prefix=bulk' | jq
 #   curl -s -X POST http://localhost:5102/orders/bulk -H 'Content-Type: application/json' \
-#     -d '{"entries":[{"entryId":"e1","event":{"data":{"orderId":"o-4001","item":"coffee-beans","quantity":1,"priority":"standard"},"datacontenttype":"application/json","id":"e1-event","source":"curl","specversion":"1.0","type":"com.dapr.event.sent"},"contentType":"application/cloudevents+json"},{"entryId":"e2","event":{"nothing":"here"},"contentType":"application/cloudevents+json"}],"topic":"orders"}'
+#     -d '{"entries":[{"entryId":"e1","event":{"data":{"orderId":"o-4001","item":"coffee-beans","quantity":1,"priority":"standard"},"datacontenttype":"application/json","id":"e1-event","source":"curl","specversion":"1.0","type":"com.dapr.event.sent"},"contentType":"application/cloudevents+json"},{"entryId":"e2","event":{"nothing":"here"},"contentType":"application/cloudevents+json"}],"topic":"orders"}' | jq
 
