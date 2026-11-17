@@ -69,9 +69,7 @@ that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1
   only, and helpers such as `seed-vault.sh`) and `<n>-<slug>/` challenge folders with
   `assignment.md` and `tests/challenge.robot`. The labs have no tasks (no `tasks.hcl`, no check or
   solve scripts): a learner can move to the next page at any time. Don't add page checks to a
-  2.0 lab; the drift tests cover what a check would. Until the legacy files are removed, `dapr-secrets/` also still contains
-  `_setup/`, `tabs.md`, challenge `README.md` files and the old `setup.sh`/`check.sh`; they no
-  longer drive the lab.
+  2.0 lab; the drift tests cover what a check would.
 - **`modules/dapr-sandbox/`** is the shared Instruqt module (published as `diagrid/dapr-sandbox`):
   one VM from a pre-built image with the toolchain installed. It owns the shared boot setup
   (`scripts/sandbox-setup.sh`, installed in the image: Docker/DNS wait, demo clone, Editor, Dev

@@ -21,9 +21,6 @@ description and time limits), not in this file. The demo apps are not here: they
 | `<n>-<slug>/assignment.md` | Learner instructions for each lab |
 | `<n>-<slug>/tests/challenge.robot` | Drift test for the lab, run by CI |
 
-Legacy 1.0 files (`_setup/`, `tabs.md`, per-lab `README.md`, `setup.sh` and `check.sh`) are still
-here and will be removed once the 2.0 lab is live.
-
 ## Checking your changes
 
 ```bash
