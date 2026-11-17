@@ -27,12 +27,13 @@ Use the **curl** window to start it. The terminal for `dapr run` is the **Dapr C
 docker rm -f rabbitmq >/dev/null 2>&1 || true
 docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4.4.0-management
 for _ in $(seq 1 60); do
-  docker exec -u rabbitmq rabbitmq rabbitmq-diagnostics -q ping >/dev/null 2>&1 && break
+  docker exec -u rabbitmq rabbitmq rabbitmq-diagnostics -q check_running >/dev/null 2>&1 &&
+    docker exec -u rabbitmq rabbitmq rabbitmq-diagnostics -q check_port_connectivity >/dev/null 2>&1 && break
   sleep 1
 done
 ```
 
-The first line removes an existing container, so you can run this block again whenever you like. Port 5672 is what Dapr connects to, and port 15672 is the management UI and API. The block waits until the broker answers, which can take up to a minute. The ports are open on all interfaces so that the RabbitMQ tab can reach the broker, which is fine in a throwaway sandbox. On your own machine, bind them to `127.0.0.1` instead.
+The first line removes an existing container, so you can run this block again whenever you like. Port 5672 is what Dapr connects to, and port 15672 is the management UI and API. The block waits until the broker accepts connections on its ports, which can take up to a minute. The ports are open on all interfaces so that the RabbitMQ tab can reach the broker, which is fine in a throwaway sandbox. On your own machine, bind them to `127.0.0.1` instead.
 
 ## 2. A folder with no app code
 

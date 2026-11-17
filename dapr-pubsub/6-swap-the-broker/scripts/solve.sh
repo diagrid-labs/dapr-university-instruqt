@@ -17,7 +17,9 @@ stop_all_demos 15
 docker rm -f rabbitmq >/dev/null 2>&1 || true
 docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4.4.0-management >/dev/null
 for _ in $(seq 1 45); do
-    docker exec -u rabbitmq rabbitmq rabbitmq-diagnostics -q ping >/dev/null 2>&1 && break
+    # ping can pass before port 5672 accepts connections, and then dapr run fails on the component.
+    docker exec -u rabbitmq rabbitmq rabbitmq-diagnostics -q check_running >/dev/null 2>&1 &&
+        docker exec -u rabbitmq rabbitmq rabbitmq-diagnostics -q check_port_connectivity >/dev/null 2>&1 && break
     sleep 1
 done
 

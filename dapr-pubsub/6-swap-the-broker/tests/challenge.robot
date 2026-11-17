@@ -42,7 +42,8 @@ RabbitMQ Block Is Safe To Run Twice
 DotNet Demo 6 Runs Demo 5 On RabbitMQ
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Run Keywords    Stop Process With SIGINT    app
+    ...    AND    Run Keyword If Test Failed    Log File    ${LOG}
     Run And Expect RC Zero    dotnet build    ${PUBSUB_BASE}/dotnet/${DEMO5}[dotnet]/${ORDER_API}[dotnet]
     Run And Expect RC Zero    dotnet build    ${PUBSUB_BASE}/dotnet/${DEMO5}[dotnet]/${SHIPPING}[dotnet]
     Walk Through Swap    dotnet
@@ -50,7 +51,8 @@ DotNet Demo 6 Runs Demo 5 On RabbitMQ
 Python Demo 6 Runs Demo 5 On RabbitMQ
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Run Keywords    Stop Process With SIGINT    app
+    ...    AND    Run Keyword If Test Failed    Log File    ${LOG}
     Run And Expect RC Zero    uv sync    ${PUBSUB_BASE}/python/${DEMO5}[python]/${ORDER_API}[python]
     Run And Expect RC Zero    uv sync    ${PUBSUB_BASE}/python/${DEMO5}[python]/${SHIPPING}[python]
     Walk Through Swap    python
@@ -58,7 +60,8 @@ Python Demo 6 Runs Demo 5 On RabbitMQ
 Java Demo 6 Runs Demo 5 On RabbitMQ
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Run Keywords    Stop Process With SIGINT    app
+    ...    AND    Run Keyword If Test Failed    Log File    ${LOG}
     Run And Expect RC Zero    mvn -q -DskipTests package    ${PUBSUB_BASE}/java/${DEMO5}[java]/${ORDER_API}[java]
     Run And Expect RC Zero    mvn -q -DskipTests package    ${PUBSUB_BASE}/java/${DEMO5}[java]/${SHIPPING}[java]
     Walk Through Swap    java    timeout=300s
@@ -148,7 +151,8 @@ Walk Through Swap
 #   docker rm -f rabbitmq >/dev/null 2>&1 || true
 #   docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4.4.0-management
 #   for _ in $(seq 1 60); do
-#     docker exec -u rabbitmq rabbitmq rabbitmq-diagnostics -q ping >/dev/null 2>&1 && break
+#     docker exec -u rabbitmq rabbitmq rabbitmq-diagnostics -q check_running >/dev/null 2>&1 &&
+#       docker exec -u rabbitmq rabbitmq rabbitmq-diagnostics -q check_port_connectivity >/dev/null 2>&1 && break
 #     sleep 1
 #   done
 #   cd /root/ai-agent-tracks-instruqt/pubsub
