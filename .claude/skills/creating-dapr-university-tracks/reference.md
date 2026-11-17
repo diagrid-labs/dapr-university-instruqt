@@ -272,6 +272,10 @@ spelling; two languages means two blocks. The suite tags and CI matrix legs shri
 - The sandbox image provides the toolchain (Docker, Dapr CLI, .NET, JDK and Maven, Python and uv,
   Node, jq, git, code-server, Dev Dashboard) and pre-pulls container images
   (`modules/dapr-sandbox/scripts/install-tools.sh` and `prewarm.sh`).
+- **Every container image a lab runs must already be in the sandbox image**, wherever the lab starts
+  it (`lab-setup.sh` or a page's Run block). RabbitMQ and Vault are pre-pulled by `prewarm.sh`, so
+  their `docker run` prints no pull progress. Never let a learner wait for a `docker pull`, and never
+  pull at boot in `lab-setup.sh` to work around a missing image.
 - **Anything the image lacks is a module change**, not a boot step: edit the module scripts, rebuild
   the image, set `image_ref`, publish a new module version in Instruqt, then pin it in the lab. Only
   the owner can build and publish, so raise it with the user early and point to "Toolchain bump" in

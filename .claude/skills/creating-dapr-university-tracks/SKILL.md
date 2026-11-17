@@ -90,8 +90,10 @@ folder per lab (`secrets/`, `pubsub/`), and the lab pins the commit as `tracks_s
    Don't claim the lab is live.
 
 To **add a page** to an existing lab: a new `<n>-<slug>/` folder, a `pages.hcl` resource, a `page`
-entry in `main.hcl`, a suite, the minutes line updated, and the "What's next?" of the previous page
-pointing at it. The module and `versions.hcl` stay as they are unless the page needs a new demo
+entry in `main.hcl`, a suite, the page added to the doc-sync and suite lists in `test-<lab>.yml`, the
+minutes line updated, and the "What's next?" of the previous page pointing at it. A page added after
+the current final page takes over the final-page intro and closing; the old final page gets a normal
+close. The module and `versions.hcl` stay as they are unless the page needs a new demo
 commit or something the image lacks.
 
 ## Assignment quick reference
@@ -155,6 +157,7 @@ test tags and CI matrix legs. A language the image lacks is a module change.
 | `[!IMPORTANT]` for background information | Use `[!NOTE]` or `[!WARNING]`. |
 | A later page that starts apps with no `## Before you start`, or reuses an app with no "is it running" check | Pick one of the two openings. |
 | Starting a service in `lab-setup.sh` that only one later page needs | Start it from that page's Run block (RabbitMQ on `dapr-pubsub` page 6). |
+| A container image the sandbox image doesn't pre-pull (pulled on the learner's clock or at boot) | Add it to `modules/dapr-sandbox/scripts/prewarm.sh`: a module change and an owner step. |
 | Pinning a module version that is not published in Instruqt | Publish first; the sync fails until then. |
 | Copying a pin into a second file | Each pin lives in one `versions.hcl`; CI reads it with `read_pin.py`. |
 | A terminal or tab that is not visible on a page whose Run blocks target it | Run buttons only reach visible terminals. Keep both terminals in the bottom row. |
