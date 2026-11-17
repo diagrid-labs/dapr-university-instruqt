@@ -12,6 +12,10 @@ resource "lab" "main" {
     You'll probably need around 42 minutes to complete the 6 labs.
 
     The sandbox is available for 45 minutes in total, and you can extend that time by 10 minutes. If you are inactive for 10 minutes, the sandbox times out. After a timeout, you need to restart the lab.
+
+    Complete the track to collect the Dapr University Dapr Pub/Sub badge.
+
+    ![Dapr University Dapr Pub/Sub badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/6-swap-the-broker/images/Diagrid-Dapr-Uni-badge-pubsub_x300.png?raw=true)
   EOT
 
   settings {

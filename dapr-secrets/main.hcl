@@ -10,6 +10,10 @@ resource "lab" "main" {
     You'll probably need around 28 minutes to complete the 4 labs.
 
     The sandbox is available for 30 minutes in total, and you can extend that time by 10 minutes. If you are inactive for 10 minutes, the sandbox times out. After a timeout, you need to restart the lab.
+
+    Complete the track to collect the Dapr University Dapr Secrets badge.
+
+    ![Dapr University Dapr Secrets badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-secrets/4-swap-the-provider/images/Diagrid-Dapr-Uni-badge-secrets_x300.png?raw=true)
   EOT
 
   settings {

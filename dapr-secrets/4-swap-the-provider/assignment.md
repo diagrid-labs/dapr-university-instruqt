@@ -224,9 +224,15 @@ Here is what you did in this track:
 3. **Secret scoping:** you ran two identical apps and saw Dapr refuse one of them, with a 403 for a secret it may not read and a 500 for one that is not there.
 4. **Swap the provider:** you ran the same application with a `secretstore` that points at HashiCorp Vault, and saw that the only thing that differs in what the application reads its secrets through is the `secretstore` component file.
 
-## Feedback and further learning
+## Collect your badge & provide feedback
 
 Congratulations! 🎉 You've completed the Dapr University secrets learning track! Click **Finish & Exit** below to finish the lab 🚀.
+
+Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmwkvsna40001l4089b15z4w0). You'll need a GitHub account to claim the badge.
+
+[![Dapr University Dapr Secrets badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-secrets/4-swap-the-provider/images/Diagrid-Dapr-Uni-badge-secrets_x300.png?raw=true)](https://holopin.io/collect/cmwkvsna40001l4089b15z4w0)
+
+## Next steps
 
 We have more opportunities for you to learn and share knowledge:
 

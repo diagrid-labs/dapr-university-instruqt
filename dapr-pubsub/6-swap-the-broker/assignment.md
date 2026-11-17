@@ -219,9 +219,15 @@ Here is what you did in this track:
 5. **Routing and dead letters:** you routed orders by their priority, and watched a failing order get retried 3 times and arrive on a dead-letter topic.
 6. **Swap the broker:** you ran the same apps against a `pubsub` component that points at RabbitMQ, and saw that the component file is the only thing that differs.
 
-## Feedback and further learning
+## Collect your badge & provide feedback
 
 Congratulations! 🎉 You've completed the Dapr University pub/sub learning track! Click **Finish & Exit** below to finish the lab 🚀.
+
+Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmwkvuq6x0003l4085i88jbl5). You'll need a GitHub account to claim the badge.
+
+[![Dapr University Dapr Pub/Sub badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/6-swap-the-broker/images/Diagrid-Dapr-Uni-badge-pubsub_x300.png?raw=true)](https://holopin.io/collect/cmwkvuq6x0003l4085i88jbl5)
+
+## Next steps
 
 We have more opportunities for you to learn and share knowledge:
 
