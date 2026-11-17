@@ -11,7 +11,7 @@ A **track** is a self-paced, browser-based Dapr course hosted on [Instruqt](http
 
 ## New tracks are Instruqt 2.0 labs
 
-**Create every new track as a 2.0 lab on the shared `diagrid/dapr-sandbox` module.** `dapr-secrets` is the reference lab: copy its root files (`main.hcl`, `versions.hcl`, `layouts.hcl`, `tabs.hcl`, `pages.hcl`, `tasks.hcl`, `scripts/lab-setup.sh`) and challenge layout (`assignment.md`, `scripts/check-*.sh`, `solve.sh`, `tests/challenge.robot`). Lab config is HCL, not README.md. The module (`modules/dapr-sandbox/`) provides the VM, toolchain and ready marker; the lab only adds `lab_startup_script` and its own pins in `versions.hcl`. Validate with `tools/track-tester/ci/validate-lab.sh <lab-dir> modules/dapr-sandbox`. Deploy is a merge to `main` plus the one-time owner steps in `docs/instruqt-2-runbook.md`; the rules for pins, required checks and `lab-validate` are in `AGENTS.md` under "Instruqt 2.0 labs". Do not duplicate that here.
+**Create every new track as a 2.0 lab on the shared `diagrid/dapr-sandbox` module.** `dapr-secrets` and `dapr-pubsub` are the reference labs: copy their root files (`main.hcl`, `versions.hcl`, `layouts.hcl`, `tabs.hcl`, `pages.hcl`, `tasks.hcl`, `scripts/lab-setup.sh`) and challenge layout (`assignment.md`, `scripts/check-*.sh`, `solve.sh`, `tests/challenge.robot`). Lab config is HCL, not README.md. The module (`modules/dapr-sandbox/`) provides the VM, toolchain and ready marker; the lab passes the module inputs (`dapr_runtime_version`, `demo_repo_ref`, `editor_folder`, and `demo_repo_url` if not the default) and adds `lab_startup_script` and its own pins in `versions.hcl`. The module's shared boot setup (Docker wait, demo clone, Editor, `dapr init`) runs from the image first, so `scripts/lab-setup.sh` keeps only the lab's own steps (Vault seeding for `dapr-secrets`, the demo pre-build for `dapr-pubsub`). Validate with `tools/track-tester/ci/validate-lab.sh <lab-dir> modules/dapr-sandbox`. Deploy is a merge to `main` plus the one-time owner steps in `docs/instruqt-2-runbook.md`; the rules for pins, required checks and `lab-validate` are in `AGENTS.md` under "Instruqt 2.0 labs". Do not duplicate that here.
 
 Authoring conventions that are format-independent (sizing, `assignment.md` annotations, tab/terminal naming, closing the final challenge, secrets, drift tests) still apply. **Everything below about `README.md` config, `_setup/`, `tabs.md`, `sandbox-setup.sh` and image install scripts describes the legacy 1.0 tracks** (`dapr-101`, `dapr-workflow`, `dapr-workflow-aspire`, `dapr-agents*`, the AI tracks, `catalyst-101`); use it only when editing one of those.
 
@@ -26,7 +26,7 @@ Authoring conventions that are format-independent (sizing, `assignment.md` annot
 
 In a 2.0 lab the same limits live in `main.hcl`: `settings { timelimit { duration = "30m" extend = "10m" } idle { enabled = true timeout = "10m" } }` (use the `dapr-secrets` values as the model).
 
-If the topic needs more, ask the user before exceeding 5 challenges or 30 minutes.
+If the topic needs more, ask the user before exceeding 5 challenges or 30 minutes. `dapr-pubsub` (6 pages / 45 minutes) is an exception the user approved; it is not a precedent.
 
 **Which tracks are sizing models:** `dapr-secrets` (4 challenges / 30 min) and `dapr-workflow-aspire` (5 / 30) are on-spec. `dapr-101` (5 / 45) and `dapr-workflow` (11 / 50) predate the rule — copy their conventions, never their size.
 

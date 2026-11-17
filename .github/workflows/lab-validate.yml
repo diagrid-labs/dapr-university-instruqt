@@ -35,14 +35,14 @@ jobs:
         run: instruqt version
       - name: Check formatting
         run: |
-          for dir in modules/dapr-sandbox dapr-secrets; do
+          for dir in modules/dapr-sandbox dapr-secrets dapr-pubsub; do
             instruqt lab format "$dir"
           done
           # `instruqt lab format` always exits 0 and rewrites in place, so a diff means unformatted HCL.
           git diff --exit-code
       - name: Check referenced files exist
         run: |
-          for dir in modules/dapr-sandbox dapr-secrets; do
+          for dir in modules/dapr-sandbox dapr-secrets dapr-pubsub; do
             python3 tools/track-tester/ci/check_lab_paths.py "$dir"
           done
       - name: Validate module
@@ -50,11 +50,13 @@ jobs:
       - name: Validate lab
         # The lab consumes the registry module diagrid/dapr-sandbox, which `lab validate` cannot
         # resolve; the script validates a temp copy with the module swapped for the local one.
-        run: tools/track-tester/ci/validate-lab.sh dapr-secrets modules/dapr-sandbox
+        run: |
+          tools/track-tester/ci/validate-lab.sh dapr-secrets modules/dapr-sandbox
+          tools/track-tester/ci/validate-lab.sh dapr-pubsub modules/dapr-sandbox
       - name: Shellcheck lab and module scripts
         run: |
           # --shell=bash: the legacy per-challenge setup/check/solve scripts have no shebang.
-          find modules dapr-secrets -path '*/scripts/*.sh' -print0 | sort -z \
+          find modules dapr-secrets dapr-pubsub -path '*/scripts/*.sh' -print0 | sort -z \
             | xargs -0 shellcheck --shell=bash
       - name: Harness unit tests
         run: (cd tools/track-tester && uv sync && uv run pytest -v)
