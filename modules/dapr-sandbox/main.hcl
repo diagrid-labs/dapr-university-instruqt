@@ -8,6 +8,26 @@ variable "memory" {
   default     = 8192
 }
 
+variable "dapr_runtime_version" {
+  description = "Dapr runtime version that dapr init installs (the lab's own pin); the setup fails when it is empty"
+  default     = ""
+}
+
+variable "demo_repo_url" {
+  description = "Git URL of the demo repo cloned to /root/ai-agent-tracks-instruqt"
+  default     = "https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git"
+}
+
+variable "demo_repo_ref" {
+  description = "Commit SHA (or ref) of the demo repo to check out; the setup fails when it is empty"
+  default     = ""
+}
+
+variable "editor_folder" {
+  description = "Folder inside the demo clone that the Editor tab opens, e.g. \"pubsub\"; the setup fails when it is empty"
+  default     = ""
+}
+
 variable "lab_startup_script" {
   description = "Lab-specific setup script content, run by the VM on boot (pass file(\"scripts/...\") from the lab)"
   default     = ""
@@ -28,9 +48,11 @@ resource "vm" "sandbox" {
     memory = variable.memory
   }
 
-  # The lab script runs in a subshell so an early `exit` in it cannot skip or fake the marker;
+  # An image without sandbox-setup.sh (an image_ref from before module 2.0.0) fails with a clear
+  # message first. The shared setup (sourced from the image) and the lab script run in a subshell so an early
+  # `exit` in them cannot skip or fake the marker;
   # a failing lab script fails this script (set -e) before the marker is written.
-  startup_script = "#!/usr/bin/env bash\nset -euo pipefail\n(\n:\n${variable.lab_startup_script}\n)\nmkdir -p /var/lib/lab-setup\ntouch /var/lib/lab-setup/ready\n"
+  startup_script = "#!/usr/bin/env bash\nset -euo pipefail\n[ -r /usr/local/lib/dapr-sandbox/sandbox-setup.sh ] || { echo \"lab-setup: ERROR: the sandbox image has no /usr/local/lib/dapr-sandbox/sandbox-setup.sh; image_ref predates module 2.0.0\" >&2; exit 1; }\n(\nexport DAPR_RUNTIME_VERSION='${variable.dapr_runtime_version}'\nexport DEMO_REPO_URL='${variable.demo_repo_url}'\nexport DEMO_REPO_REF='${variable.demo_repo_ref}'\nexport EDITOR_FOLDER='${variable.editor_folder}'\nsource /usr/local/lib/dapr-sandbox/sandbox-setup.sh\n${variable.lab_startup_script}\n)\nmkdir -p /var/lib/lab-setup\ntouch /var/lib/lab-setup/ready\n"
   environment    = variable.lab_environment
 
   # No health_check: Instruqt keeps the sandbox in "Creating sandbox" until startup_script has

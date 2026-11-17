@@ -452,3 +452,37 @@ Where a step needs a throwaway lab, create it in the Instruqt UI (Labs, Create l
 - **How to test:** in the lab editor click the Share icon in the header, then Embeds, then New embed. Set Name `diagrid-university`, Lab version to the default branch, Access window 24 hours, Plays per end user 1 (or Unlimited if needed), Allowed sites to the Diagrid University site origin (scheme included, no path). Copy the iframe snippet from the Share tab and paste it into a test page on an allowed origin (or any page if Allowed sites is empty). Compare with the current embed code of a legacy track on the site.
 - **Expected result:** the iframe starts the lab with no sign-in; users beyond the plays limit or on a disallowed origin are refused. Record the snippet shape and whether it replaces the legacy track embed one-to-one, plus any `icp_` parameter you want to pass later (for the HubSpot gating follow-up).
 - **Finding:**
+
+## Module shared setup and dapr-pubsub
+
+Three unknowns that decide how the shared sandbox setup moves into `modules/dapr-sandbox` and how the `dapr-pubsub` lab is wired. S2 was verified locally; S1 and S3 need the Instruqt owner.
+
+### S1: Does `file()` in the module resolve relative to the module?
+
+- **Question:** does `file("scripts/sandbox-setup.sh")` inside `modules/dapr-sandbox/main.hcl` resolve relative to the module, both in `validate-lab.sh` and in a published module? Answer is `file()` or `image` (bake the script into the VM image).
+- **Local half (done, inconclusive):** with a scratch copy of the module, a `variable "probe" { default = file("scripts/install-tools.sh") }` (also wired into `startup_script` via `${variable.probe}`) and `tools/track-tester/ci/validate-lab.sh dapr-secrets <scratch-module>` pass. A probe on a file that does not exist (`scripts/nonexistent.sh`) and a probe on a file that exists only in the lab (`scripts/lab-setup.sh`) pass too. `instruqt lab validate` (CLI 2442-5df184f) does not evaluate `file()`, so local validation neither proves nor disproves resolution. Treat the local result as "no information".
+- **Owner step (pending):** publish a test module version of `diagrid/dapr-sandbox` that contains the probe wired into `startup_script` (add a distinctive marker line to the probed script), point a scratch lab at it, sync the lab, and check that the sync succeeds and that the marker appears in `/var/log` or the startup output on the VM. Repeat with a nonexistent path to confirm the sync fails loudly (otherwise a pass proves nothing).
+- **Decision rule:** `file()` resolves from the published module and the marker runs: use `file()`. Sync error, or the script silently missing: use `image`.
+- **Finding:** pending owner.
+
+### S2: Where does each app write its log?
+
+- **Verified locally** (macOS, Dapr CLI 1.19.1, runtime 1.19.1, .NET 10.0.402, Java 21 with Maven, Python with uv), demo 1 in all three languages: `dapr run -f .` from the demo folder, one `POST /orders` with the README curl, then stop. Each app's log is under that app's own `appDirPath`, not the demo folder:
+
+  `<demo>/<appDirPath>/.dapr/logs/<appID>_app_<yyyymmddHHMMSS>.log` (sidecar: `<appID>_daprd_<timestamp>.log`)
+
+  | Language | Example (shipping) |
+  | --- | --- |
+  | .NET | `pubsub/dotnet/Demo1-Subscriptions/Shipping/.dapr/logs/shipping_app_20261113123243.log` |
+  | Python | `pubsub/python/demo1-subscriptions/shipping/.dapr/logs/shipping_app_20261113123222.log` |
+  | Java | `pubsub/java/demo1-subscriptions/shipping/.dapr/logs/shipping_app_20261113123306.log` |
+
+  The folder is `Shipping`, `Invoicing`, `OrderApi` in .NET (the file name still uses the lowercase app ID, `order-api_app_...`), and `shipping`, `invoicing`, `order-api` in Python and Java. The timestamp changes on every run, so glob it: `<demo>/<appDirPath>/.dapr/logs/<appID>_app_*.log`, newest last (`ls -t ... | head -1`).
+- **App log content:** every line is prefixed with `== APP - <appID> == `. All three languages log `shipping received order o-1001` (Java adds a Spring log prefix before it, for example `... INFO 67216 --- [shipping] [nio-5102-exec-7] i.d.u.pubsub.shipping.OrderController    : shipping received order o-1001`). Use `grep`/`tail -f` on the glob above, not on a fixed file name.
+- **Gotchas:** the log files are created per run and the `.dapr/logs` folders survive between runs, so an older file can match the glob; pick the newest. The Python shipping log also showed orders from earlier runs (redelivered from Redis), so assert on the specific `orderId` published.
+
+### S3: Does the RabbitMQ management UI work through an Instruqt `service` tab?
+
+- **Question:** with `docker run ... -p 5672:5672 -p 15672:15672` (all interfaces, instead of `127.0.0.1:`), does `guest`/`guest` log in through an Instruqt `service` tab on port 15672? RabbitMQ only allows `guest` from localhost, and a proxied request may not count as localhost.
+- **Owner step (pending):** start a test lab on the module with a `service` tab on port 15672 and run `docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4.4.0-management` in the sandbox. Open the tab and try `guest`/`guest`. If login is refused (`User can only log in via localhost`), the lab must create a dedicated management user instead (for example `rabbitmqctl add_user` plus `set_user_tags administrator` and `set_permissions`), or set `RABBITMQ_DEFAULT_USER`/`RABBITMQ_DEFAULT_PASS` on the container.
+- **Finding:** pending owner.

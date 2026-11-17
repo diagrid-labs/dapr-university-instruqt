@@ -154,3 +154,27 @@ def test_prewarm_runtime_pin_matches_lab_runtime_pin():
     )
     lab_pin = read_pin(str(REPO / "dapr-secrets" / "versions.hcl"), "dapr_runtime_version")
     assert module_pin == lab_pin
+
+
+def test_render_image_script_installs_sandbox_setup():
+    r = subprocess.run(["bash", str(RENDER)], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    out = r.stdout
+    assert "/usr/local/lib/dapr-sandbox/sandbox-setup.sh" in out
+    assert "chmod 0755 /usr/local/lib/dapr-sandbox/sandbox-setup.sh" in out
+    body = (REPO / "modules" / "dapr-sandbox" / "scripts" / "sandbox-setup.sh").read_text()
+    assert body in out, "sandbox-setup.sh content must be embedded verbatim"
+    syntax = subprocess.run(["bash", "-n"], input=out, capture_output=True, text=True)
+    assert syntax.returncode == 0, syntax.stderr
+
+
+def test_render_image_script_has_jq_rabbitmq_and_pubsub():
+    r = subprocess.run(["bash", str(RENDER)], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    out = r.stdout
+    assert "export JQ_VERSION=1.8.1" in out
+    assert "rabbitmq:4.4.0-management" in out
+    assert "pubsub/dotnet/Demo1-Subscriptions" in out
+    assert "pubsub/java/demo4-bulk" in out
+    syntax = subprocess.run(["bash", "-n"], input=out, capture_output=True, text=True)
+    assert syntax.returncode == 0, syntax.stderr
