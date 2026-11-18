@@ -13,11 +13,11 @@ resource "lab" "main" {
 
     Complete the track to collect the Dapr University Dapr 101 badge.
 
-    ![Dapr University Dapr 101 badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-101/5-pubsub-api/Diagrid-Dapr-Uni-101_x500.png?raw=true)
+    <img src="https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-101/5-pubsub-api/Diagrid-Dapr-Uni-101_x500.png?raw=true" alt="Dapr University Dapr 101 badge" width="320" height="320">
 
-    While the sandbox starts, you can play with this sketch:
+    Enjoy some cellular automata art while the sandbox is being prepared.
 
-    <iframe src="https://editor.p5js.org/marcduiker/full/b3x-IDrmh"></iframe>
+    <iframe src="https://www.diagrid.io/demos/sketches/dapr-university.html" width="500" height="500"></iframe>
   EOT
 
   settings {
