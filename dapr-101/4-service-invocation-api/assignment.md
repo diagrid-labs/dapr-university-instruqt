@@ -1,16 +1,22 @@
-The goal of this challenge is to run two Dapr applications using the Dapr CLI and understand how they communicate with each other using service invocation. You can choose between applications written in .NET, Python, Java or JavaScript. This hands-on challenge takes about 5 minutes to complete.
+# Use the Service Invocation API
 
-## 1. Choose a language tab
+The goal of this lab is to run two Dapr applications using the Dapr CLI and understand how they communicate with each other using service invocation. You can choose between applications written in .NET, Python, Java or JavaScript. This hands-on lab takes about 5 minutes to complete.
 
-Use one of the language tabs to navigate to one of the Service Invocation examples. Each language tab contains two applications, located in `checkout` and `order-processor` subfolders, and a `dapr.yaml` file. The code you see in this challenge is available in the [Dapr QuickStarts](https://github.com/dapr/quickstarts/) repository. If you want to explore more code samples for other Dapr APIs in this repo, you can do so after completing this track.
+## Before you start
 
-## 2. Inspect the content of the `dapr.yaml` file:
+The terminals, and the applications running in them, stay as they are when you move between labs. The Dapr sidecar from the previous lab, `myapp`, is probably still running in the **Dapr CLI** window and it holds port 3500. Open the **Dev Dashboard** tab and look at the **Applications** page. If `myapp` is listed, use the **Dapr CLI** window to stop it by pressing `Ctrl+C`. Then go back to the **Editor** tab.
 
- The `dapr.yaml` file is a Dapr Multi-App Run template file and contains information about the Dapr applications to run simultaneously using the Dapr CLI.
+## 1. Choose a language
 
- For the .NET example the `dapr.yaml` is as follows:
+Use the **Editor** tab and open the service invocation demo folder of your language: `dapr-101/dotnet/ServiceInvocation`, `dapr-101/python/service-invocation`, `dapr-101/java/service-invocation` or `dapr-101/javascript/service-invocation`. Each folder contains two applications, located in the `checkout` and `order-processor` subfolders, and a `dapr.yaml` file.
 
-```bash,nocopy
+## 2. Inspect the content of the `dapr.yaml` file
+
+The `dapr.yaml` file is a Dapr Multi-App Run template file and contains information about the Dapr applications to run simultaneously using the Dapr CLI.
+
+For the .NET example the `dapr.yaml` is as follows:
+
+```yaml,nocopy
 version: 1
 apps:
   - appID: order-processor
@@ -29,58 +35,84 @@ For more information on Multi-App Run, see the [Dapr Docs](https://docs.dapr.io/
 
 ## 3. Inspect the `checkout` application
 
-Let's take a look at the `checkout` application that will make an HTTP request to the other service. Use the language tab of your choice to navigate to the `checkout` folder and select the code file that contains the application code.
+Let's take a look at the `checkout` application that will make an HTTP request to the other service. In the **Editor** tab, open the `checkout` folder of your language and select the code file that contains the application code: `Program.cs` for .NET, `app.py` for Python, `CheckoutServiceApplication.java` for Java (in `src/main/java/com/service`) or `index.js` for JavaScript.
 
 - The `checkout` application is doing a `for` loop to send 20 requests to the `order-processor` application.
 - You will see that the application constructs a Dapr URL. This is always `localhost` since Dapr runs in a process next to your application. You will also see the `dapr-app-id` header being set. For the .NET example this is configured as the `appID` parameter when creating an `HttpClient` via the `DaprClient`.
 - The `dapr-app-id` header is set to `order-processor` and this instructs Dapr where to send the request to. Dapr uses a name resolution component for service discovery that is based on Dapr application IDs, there is no need to use IP addresses.  When running in self-hosted mode, Dapr name resolution is based on mDNS by default.
-- Finally, when the POST request is made, the `/order` endpoint, that exists in the `order-processor` application is added to the URL.
+- Finally, when the POST request is made, the `/orders` endpoint, that exists in the `order-processor` application is added to the URL.
 
 ## 4. Inspect the `order-processor` application
 
-Now let's look at the `order-processor` service that contains the `/order` endpoint. Use the language tab of your choice to navigate to the `order-processor` folder and select the code file that contains the application code.
+Now let's look at the `order-processor` service that contains the `/orders` endpoint. In the **Editor** tab, open the `order-processor` folder of your language and select the code file that contains the application code: `Program.cs` for .NET, `app.py` for Python, `OrderProcessingServiceController.java` for Java (in `src/main/java/com/service/controller`) or `index.js` for JavaScript.
 
-Here, you will see a definition of the `/order` endpoint that accepts POST requests with an `Order` payload. The code prints an `"Order received"` message to the console and returns a HTTP status code 200.
+Here, you will see a definition of the `/orders` endpoint that accepts POST requests with an `Order` payload. The code prints an `"Order received"` message to the console and returns a HTTP status code 200.
 
 ## 5. Run the applications
 
-Now use the *Terminal* tab to run both `checkout` and `order-processor` applications using the Dapr CLI and the Multi-App Run file:
+> [!IMPORTANT]
+> When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
+
+Use the **Dapr CLI** window to go to the `dapr-101` folder first. The terminal stays in whatever folder it was in when you move between labs, so this makes sure the commands below start from the right place:
+
+```bash,run
+cd /root/ai-agent-tracks-instruqt/dapr-101
+```
+
+> [!IMPORTANT]
+> Run `dapr run -f .` from inside the demo folder of your language: `ServiceInvocation` for .NET, `service-invocation` for Python, Java and JavaScript. The `appDirPath` entries in `dapr.yaml` are relative to that folder.
+
+> [!NOTE]
+> When the apps start, the Editor shows a popup saying *Your application running on port `<number>` is available*. Close the popup, or click the settings gear to dismiss it. There is no UI to open, so don't click *Open in Browser*.
+
+Then use the **Dapr CLI** window to run both the `checkout` and `order-processor` applications using the Dapr CLI and the Multi-App Run file:
 
 <details>
    <summary><b>Run the .NET apps</b></summary>
 
-	Install the depedencies and build the applications:
+Use the **Dapr CLI** window to run the commands.
 
-```bash,run,copy
-dotnet build csharp/http/checkout
-dotnet build csharp/http/order-processor
+Navigate to the *dotnet/ServiceInvocation* folder:
+
+```bash,run
+cd dotnet/ServiceInvocation
+```
+
+Build the applications:
+
+```bash,run
+dotnet build checkout
+dotnet build order-processor
 ```
 
 Run the applications using the Dapr CLI:
 
-```bash,run,copy
-dapr run -f "csharp/http/dapr.yaml"
+```bash,run
+dapr run -f .
 ```
+
 </details>
 
 <details>
    <summary><b>Run the Python apps</b></summary>
 
-Navigate to the `python/http` folder:
+Use the **Dapr CLI** window to run the commands.
 
-```bash,run,copy
-cd python/http
+Navigate to the *python/service-invocation* folder:
+
+```bash,run
+cd python/service-invocation
 ```
 
 Install the dependencies:
 
-```bash,run,copy
+```bash,run
 uv sync --all-packages
 ```
 
 Run the applications using the Dapr CLI:
 
-```bash,run,copy
+```bash,run
 uv run dapr run -f .
 ```
 
@@ -89,47 +121,84 @@ uv run dapr run -f .
 <details>
    <summary><b>Run the Java apps</b></summary>
 
-Install the dependencies:
+Use the **Dapr CLI** window to run the commands.
 
-```bash,run,copy
-cd java/http/order-processor
-mvn clean install
+Navigate to the *java/service-invocation* folder:
+
+```bash,run
+cd java/service-invocation
+```
+
+Build the applications:
+
+```bash,run
+cd order-processor
+mvn -q -DskipTests install
 cd ../checkout
-mvn clean install
+mvn -q -DskipTests install
+cd ..
 ```
 
 Run the applications using the Dapr CLI:
 
-```bash,run,copy
-cd ..
+```bash,run
 dapr run -f .
 ```
+
 </details>
 
 <details>
    <summary><b>Run the JavaScript apps</b></summary>
 
+Use the **Dapr CLI** window to run the commands.
+
+Navigate to the *javascript/service-invocation* folder:
+
+```bash,run
+cd javascript/service-invocation
+```
+
 Install the dependencies:
 
-```bash,run,copy
-cd javascript/http/order-processor
+```bash,run
+cd order-processor
 npm install
 cd ../checkout
 npm install
+cd ..
 ```
 
 Run the applications using the Dapr CLI:
 
-```bash,run,copy
-cd ..
+```bash,run
 dapr run -f .
 ```
 
 </details>
 
-## Expected output
+###
 
-Regardless of the language you use, the expected output should contain log statements from the `order-processor` and `checkout` apps:
+> [!IMPORTANT]
+> Wait until both applications are running before continuing. The Java applications can take a little longer to start.
+>
+> Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `order-processor` and `checkout` are ready when the **Health** column shows a green dot. You can also inspect the output of the **Dapr CLI** window.
+
+The **Dapr CLI** window should show these lines when the sidecars have started. The port numbers can differ, and your applications' logs follow:
+
+```text,nocopy
+ℹ️  Started Dapr with app id "order-processor". HTTP Port: 3510. gRPC Port: 35935
+ℹ️  Started Dapr with app id "checkout". HTTP Port: 3511. gRPC Port: 39745
+```
+
+## 6. Read the logs
+
+Regardless of the language you use, the logs should contain statements from the `order-processor` and `checkout` apps. `dapr run -f .` writes the log of every app and every sidecar to a file in the `.dapr/logs` folder of the app, and the **Dev Dashboard** reads those files for you:
+
+1. Open the **Dev Dashboard** tab and go to the **Logs** page.
+2. Select `order-processor` in the target drop-down. The `app` chip shows the application's own log and the `daprd` chip shows the log of its sidecar.
+3. Then select `checkout` and look at its `app` log.
+
+The lines below show only the message: in the real log, each language adds its own logger prefix after `== APP - <app> ==`, and the order is printed in the format of that language.
 
 ```text,nocopy
 == APP - order-processor == Order received : Order { orderId = 1 }
@@ -141,5 +210,14 @@ Regardless of the language you use, the expected output should contain log state
 ...
 ```
 
-## Summary
-You've now successfully used the Dapr Service Invocation API to communicate between two applications. The application that is sending the request is using the **Dapr appID** to identify the target Dapr application. The format of the URL is **`{DAPR_HOST}:{DAPR_HTTP_PORT}/{METHOD}`**. The demos in this challenge used this URL: `http://localhost:3500/orders`. Let's try another frequently used Dapr API in the next challenge.
+## 7. Stop the applications
+
+Use the **Dapr CLI** window to stop the applications by pressing `Ctrl+C`.
+
+---
+
+You've now successfully used the Dapr Service Invocation API to communicate between two applications. The application that is sending the request is using the **Dapr appID** to identify the target Dapr application. The format of the URL is **`{DAPR_HOST}:{DAPR_HTTP_PORT}/{METHOD}`**. The demos in this lab used this URL: `http://localhost:3500/orders`.
+
+## What's next?
+
+Let's try another frequently used Dapr API in the next lab, "Use the Pub/Sub API".
