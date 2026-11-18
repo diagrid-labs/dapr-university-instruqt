@@ -24,6 +24,21 @@ Prepare Workdir
     Remove Directory    ${WORKDIR}    recursive=True
     Create Directory    ${WORKDIR}
 
+Capture Aspire Logs And Stop App
+    # `aspire run` prints only its banner, so ${LOG} never shows the ApiService or its
+    # Dapr sidecar. While the AppHost still runs, save every resource's console logs
+    # (ApiService, daprd sidecar, Valkey) and an Aspire export (logs and telemetry) next
+    # to the report. Runs on pass and fail, so a failing run can be compared with a
+    # passing one. A capture error never fails the test.
+    ${apphost}=    Set Variable    ${SOLUTION_DIR}${/}EnterpriseDiagnostics.AppHost${/}EnterpriseDiagnostics.AppHost.csproj
+    Run Keyword And Ignore Error    Run Process    aspire    logs    --apphost    ${apphost}
+    ...    --timestamps    --include-hidden    --non-interactive    --nologo
+    ...    stdout=${OUTPUT DIR}${/}aspire-resources.log    stderr=STDOUT    timeout=60s
+    Run Keyword And Ignore Error    Run Process    aspire    export    --apphost    ${apphost}
+    ...    --include-hidden    --non-interactive    --nologo    --output    ${OUTPUT DIR}${/}aspire-export.zip
+    ...    stdout=${OUTPUT DIR}${/}aspire-export.log    stderr=STDOUT    timeout=120s
+    Stop Process With SIGINT    app
+
 *** Test Cases ***
 Ch1 Install Aspire Templates
     # ch1 sets up the environment. The one drift-sensitive, environment-agnostic
@@ -58,7 +73,7 @@ Ch4 AppHost Build
     Apply Challenge    ${ASSIGN_4}    ${SOLUTION_DIR}    ${SOLUTION_DIR}    ${MANIFEST_CH4}
 
 Ch5 Run And Assert
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Capture Aspire Logs And Stop App
     # Launch `aspire run` (from the assignment) in the background; it starts the
     # ApiService + its Dapr sidecar. Skip the diagrid-dashboard docker step.
     ${aspire}=    Get Command Containing    ${ASSIGN_5}    aspire run
