@@ -71,7 +71,10 @@ fi
 if [ -z "$(docker ps -f "name=dapr_placement" -f "status=running" -q)" ] || \
    [ -z "$(docker ps -f "name=dapr_scheduler" -f "status=running" -q)" ] || \
    [ -z "$(docker ps -f "name=dapr_redis" -f "status=running" -q)" ]; then
-  dapr init
+  # Retries in CI when a container's host port is briefly taken on the runner (see dapr-init.sh).
+  # shellcheck source=dapr-init.sh
+  source "$REPO_ROOT/tools/track-tester/ci/dapr-init.sh"
+  dapr_init_with_retry
 fi
 
 # 5. Write secrets.json from the committed template (the single owner of the secret values) and

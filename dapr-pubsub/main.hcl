@@ -15,7 +15,11 @@ resource "lab" "main" {
 
     Complete the track to collect the Dapr University Dapr Pub/Sub badge.
 
-    ![Dapr University Dapr Pub/Sub badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/6-swap-the-broker/images/Diagrid-Dapr-Uni-badge-pubsub_x300.png?raw=true)
+    <img src="https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/6-swap-the-broker/images/Diagrid-Dapr-Uni-badge-pubsub_x300.png?raw=true" alt="Dapr University Dapr Pub/Sub badge" width="192" height="192">
+
+    Enjoy some cellular automata art while the sandbox is being prepared.
+
+    <iframe src="https://www.diagrid.io/demos/sketches/dapr-university.html" width="500" height="500"></iframe>
   EOT
 
   settings {
