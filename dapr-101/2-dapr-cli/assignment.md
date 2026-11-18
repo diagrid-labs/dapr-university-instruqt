@@ -41,7 +41,7 @@ As you can see in the output, the Dapr CLI can be used for many things, some com
 
 ## 2. What `dapr init` did
 
-Dapr runs as a sidecar alongside your application. In self-hosted mode, this means Dapr runs as a process on your local machine. The Dapr CLI by itself is not the Dapr sidecar that runs next to your application. The sidecar is installed locally by the CLI command `dapr init`, which ran when the sandbox started. By initializing Dapr, it:
+Dapr runs as a sidecar alongside your application. In self-hosted mode, this means Dapr runs as a process on your local machine. The Dapr CLI by itself is not the Dapr sidecar that runs next to your application. The sidecar is installed locally by the CLI command `dapr init`, which ran when the sandbox started. When `dapr init` ran, it:
 - Fetched and installed the Dapr sidecar binaries locally.
 - Created a development environment that streamlines application development with Dapr.
 

@@ -63,7 +63,7 @@ The `spec.metadata` contains connection details, in this case, Dapr connects to 
 
 Let's take a look at the `checkout` application. This application will publish messages to a topic on the message broker. In the **Editor** tab, open the `checkout` folder of your language and select the code file that contains the application code.
 
-- The `checkout` application is doing a `for` loop to send 10 messages to the message broker.
+- The `checkout` application is doing a `for` loop to send 10 messages to the message broker (9 in the Python version).
 - The application uses the Dapr SDK to create a Dapr client, and the `PublishEvent`/`Publish` method on this client is used to publish an `Order`.
 - The publish method takes the following arguments:
   - *Pub/Sub component name*: `orderpubsub`
@@ -263,6 +263,16 @@ The lines below show only the message: in the real log, each language adds its o
 ...
 ```
 
+The `Subscriber received` line looks different per language. The .NET line is shown above. The other languages log this after the prefix:
+
+```text,nocopy
+Subscriber received : 1
+Subscriber received: 1
+Subscriber received: {"orderId":1}
+```
+
+These are the Python, Java and JavaScript lines, in that order.
+
 ## 8. Inspect the subscription
 
 The `order-processor-sdk` application told its sidecar which topic to subscribe to, and the **Dev Dashboard** shows what the sidecar knows about it.
@@ -275,7 +285,7 @@ The `order-processor-sdk` application told its sidecar which topic to subscribe 
 You can publish a message to the topic yourself, without writing any code:
 
 1. On the **Subscriptions** page, use the publish action on the `orders` row. This opens the Publish dialog.
-2. Enter this value in the **Payload** field and leave the **Content-Type** as it is:
+2. Enter this value in the **Payload** field and set the **Content-Type** to `application/json`:
 
    ```json,nocopy
    {"orderId": 100}

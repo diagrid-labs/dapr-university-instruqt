@@ -37,7 +37,7 @@ For more information on Multi-App Run, see the [Dapr Docs](https://docs.dapr.io/
 
 Let's take a look at the `checkout` application that will make an HTTP request to the other service. In the **Editor** tab, open the `checkout` folder of your language and select the code file that contains the application code: `Program.cs` for .NET, `app.py` for Python, `CheckoutServiceApplication.java` for Java (in `src/main/java/com/service`) or `index.js` for JavaScript.
 
-- The `checkout` application is doing a `for` loop to send 20 requests to the `order-processor` application.
+- The `checkout` application is doing a `for` loop to send 20 requests to the `order-processor` application (19 in the Python version).
 - You will see that the application constructs a Dapr URL. This is always `localhost` since Dapr runs in a process next to your application. You will also see the `dapr-app-id` header being set. For the .NET example this is configured as the `appID` parameter when creating an `HttpClient` via the `DaprClient`.
 - The `dapr-app-id` header is set to `order-processor` and this instructs Dapr where to send the request to. Dapr uses a name resolution component for service discovery that is based on Dapr application IDs, there is no need to use IP addresses.  When running in self-hosted mode, Dapr name resolution is based on mDNS by default.
 - Finally, when the POST request is made, the `/orders` endpoint, that exists in the `order-processor` application is added to the URL.
@@ -196,6 +196,7 @@ Regardless of the language you use, the logs should contain statements from the 
 
 1. Open the **Dev Dashboard** tab and go to the **Logs** page.
 2. Select `order-processor` in the target drop-down. The `app` chip shows the application's own log and the `daprd` chip shows the log of its sidecar.
+   Type `Order received` in the search bar to show only the lines that the `/orders` endpoint logged.
 3. Then select `checkout` and look at its `app` log.
 
 The lines below show only the message: in the real log, each language adds its own logger prefix after `== APP - <app> ==`, and the order is printed in the format of that language.

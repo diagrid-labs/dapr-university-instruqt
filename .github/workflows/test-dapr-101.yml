@@ -96,11 +96,11 @@ jobs:
     # that still fires is recorded by `Record timeout` below.
     timeout-minutes: ${{ matrix.lang == 'java' && 60 || 45 }}
     env:
-      # `shared` is not a language: it runs every test that carries no language tag (the port checks
-      # and other language-agnostic checks). Robot's
-      # `--include` selects only tagged tests, so those tests run in NO language leg; this inverse
-      # filter picks up exactly the rest, once. Each language leg and `shared` together cover
-      # every test.
+      # `shared` is not a language: it runs every test that carries no language tag (ch2 and ch3).
+      # Robot's `--include` selects only tagged tests, so those tests run in NO language leg; this
+      # inverse filter picks up exactly the rest, once. Each language leg and `shared` together cover
+      # every test. The port checks in ch4 and ch5 carry all four language tags, so every language
+      # leg runs them and `shared` does not.
       TEST_FILTER: ${{ matrix.lang == 'shared' && '--exclude dotnet --exclude python --exclude java --exclude javascript' || format('--include {0}', matrix.lang) }}
       # The demo repo is checked out INSIDE the workspace (next step) rather than cloned to $HOME
       # by the setup script. hashFiles() can only see files under the workspace, and the Maven
@@ -255,9 +255,10 @@ jobs:
           failed=""
           # One list drives both the run loop and the dry run below. ch2 and ch3 carry no language
           # tag, so `--include <lang>` would match no tests there (robot exit 252): they run only in
-          # the `shared` leg. The language legs run the tagged challenges (ch4, ch5).
+          # the `shared` leg. The language legs run the tagged challenges (ch4, ch5, including their
+          # port checks); with the port checks tagged, `shared` would match no test in ch4 and ch5.
           if [ "${{ matrix.lang }}" = "shared" ]; then
-            challenges="2-dapr-cli:ch2 3-state-management-api:ch3 4-service-invocation-api:ch4 5-pubsub-api:ch5"
+            challenges="2-dapr-cli:ch2 3-state-management-api:ch3"
           else
             challenges="4-service-invocation-api:ch4 5-pubsub-api:ch5"
           fi

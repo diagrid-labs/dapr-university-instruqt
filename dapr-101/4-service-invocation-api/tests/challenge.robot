@@ -14,6 +14,7 @@ ${LOG}        ${TEMPDIR}/dapr-101-ch4.log
 Ports Are Free Before The Apps Start
     [Documentation]    A process leaked by a previous run squats a port and makes the next
     ...    `dapr run` fail with a bind error. Fail loudly here instead of inside the next test.
+    [Tags]    dotnet    python    java    javascript
     FOR    ${port}    IN    7001    8001    9001    5001    3500
         Port Should Be Free    ${port}
     END

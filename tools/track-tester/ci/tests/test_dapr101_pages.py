@@ -2,6 +2,8 @@
 import re
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[4]
 LAB = ROOT / "dapr-101"
 
@@ -35,18 +37,62 @@ def test_no_instruqt_var():
         assert "Instruqt-Var" not in page_text(page), page
 
 
+def fenced_blocks(text):
+    """Return (info string, body) for each fenced block, pairing fences line by line."""
+    blocks, info, body = [], None, []
+    for line in text.splitlines():
+        if line.startswith("```"):
+            if info is None:
+                info, body = line[3:].strip(), []
+            else:
+                blocks.append((info, "\n".join(body)))
+                info = None
+        elif info is not None:
+            body.append(line)
+    assert info is None, "unclosed code fence"
+    return blocks
+
+
 def test_page2_has_no_install_or_init():
-    blocks = re.findall(r"```.*?\n(.*?)```", page_text("2-dapr-cli"), re.S)
-    for block in blocks:
-        assert "dapr init" not in block
-        assert "install.sh" not in block
+    for info, body in fenced_blocks(page_text("2-dapr-cli")):
+        assert "dapr init" not in body, info
+        assert "install.sh" not in body, info
+
+
+def check_run_note(page, text):
+    """The run-button note sits in an IMPORTANT callout after the first numbered
+    heading and before the first bash,run block."""
+    lines = text.splitlines()
+    first_heading = next((i for i, l in enumerate(lines) if re.match(r"## \d+\.", l)), None)
+    first_run = next((i for i, l in enumerate(lines) if l.startswith("```bash,run")), None)
+    note = next((i for i, l in enumerate(lines) if l == "> " + RUN_NOTE), None)
+    assert first_heading is not None, f"{page}: no numbered '## <n>.' heading"
+    assert first_run is not None, f"{page}: no bash,run block"
+    assert note is not None, f"{page}: run-button note missing or not a '> ' quote line"
+    assert lines[note - 1] == "> [!IMPORTANT]", f"{page}: note must directly follow a '> [!IMPORTANT]' callout"
+    assert first_heading < note - 1 < first_run, f"{page}: callout must be after the first numbered heading and before the first bash,run block"
 
 
 def test_run_button_note():
     for page in PAGES_WITH_RUN:
-        text = page_text(page)
-        assert RUN_NOTE in text, page
-        assert text.index(RUN_NOTE) < text.index("```bash,run"), page
+        check_run_note(page, page_text(page))
+
+
+def test_run_button_note_check_rejects_bad_pages():
+    good = page_text("4-service-invocation-api")
+    check_run_note("good", good)
+    callout = "> [!IMPORTANT]\n> " + RUN_NOTE
+    assert callout in good
+    in_intro = good.replace(callout, "", 1).replace("## 1.", callout + "\n\n## 1.", 1)
+    mutations = {
+        "NOTE callout": good.replace("> [!IMPORTANT]\n> " + RUN_NOTE, "> [!NOTE]\n> " + RUN_NOTE, 1),
+        "placed in the intro": in_intro,
+        "no run block": good.replace("```bash,run", "```bash"),
+        "no note": good.replace(RUN_NOTE, "x"),
+    }
+    for name, mutated in mutations.items():
+        with pytest.raises(AssertionError):
+            check_run_note(name, mutated)
 
 
 def test_before_you_start():
