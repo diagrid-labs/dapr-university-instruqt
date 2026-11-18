@@ -123,15 +123,16 @@ The pages use the Dev Dashboard tab (already in `layouts.hcl` and `tabs.hcl`) fo
 |---|---|---|
 | Check application health | **Applications** page, **Health** column (green dot), in the "Wait until … running" callout and in `## Before you start` | 3, 4, 5 |
 | Inspect state records | **State** page: key, app prefix, value | 3 |
-| Inspect the pub/sub subscription and publish a message | The dashboard's pub/sub view: the subscription of `order-processor-sdk`, and publishing to `orderpubsub`/`orders` | 5 |
+| Inspect the pub/sub subscription and publish a message | **Subscriptions** page: the subscription of `order-processor-sdk`, and publishing to `orderpubsub`/`orders` | 5 |
 | Read app and sidecar logs | **Logs** page: select the app, search for a marker, and switch between the app's and the sidecar's logs | 3, 4, 5 |
 
-- **Labels.** Use the labels the live labs use: **Applications**, **Health**, **State**, **Logs**.
-  The public docs (docs.diagrid.io, updated 2026-10-14) don't describe the State, Logs or pub/sub
-  views. Before writing pages 3 to 5, the builder confirms the exact names in the sandbox's Dev
-  Dashboard (`dev_dashboard_version` in `modules/dapr-sandbox/versions.hcl`). That covers the
-  pub/sub view, the publish form's fields and how to switch between app and sidecar logs. Use the
-  names exactly as the UI shows them.
+- **Labels.** The pages are **Applications** (with the **Health** column), **State**,
+  **Subscriptions** and **Logs**. The first three besides Subscriptions are already used by the live
+  labs. The public docs (docs.diagrid.io, updated 2026-10-14) don't describe these pages, so before
+  writing pages 3 to 5 the builder confirms, in the sandbox's Dev Dashboard
+  (`dev_dashboard_version` in `modules/dapr-sandbox/versions.hcl`), the labels of the publish
+  form's fields and button on the **Subscriptions** page, and how to switch between an app's logs
+  and its sidecar's logs on the **Logs** page. Use the labels exactly as the UI shows them.
 - Every dashboard step ends with "Then go back to the **Editor** tab" when the page continues in
   the Editor, as in the other labs.
 - Dashboard steps are not commands, so doc-sync doesn't see them and CI can't click them. Where a
@@ -209,8 +210,9 @@ Each page:
    "Published data" and "Subscriber received" on page 5). Read them on the Dev Dashboard **Logs**
    page: select the app, search for the marker, then switch to the sidecar's logs for the same app.
    Fix page 5's ```` ```output ```` fence to `text,nocopy`.
-5. Page 5 only, after the run: inspect the `order-processor-sdk` subscription to `orders` on
-   `orderpubsub` in the Dev Dashboard. Then publish one message to that topic from the dashboard
+5. Page 5 only, after the run: on the Dev Dashboard **Subscriptions** page, inspect the
+   `order-processor-sdk` subscription to `orders` on `orderpubsub`. Then publish one message to
+   that topic from the same page
    with an `Order` payload (for example `{"orderId": 100}`), and find "Subscriber received" for it
    on the **Logs** page. `checkout-sdk` is a console app that exits after its 10 messages, and
    `order-processor-sdk` keeps running, so the dashboard publish is the way to send one more
