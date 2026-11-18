@@ -63,7 +63,7 @@ Open `OrderController.java` in the `java/demo1-subscriptions/invoicing/src/main/
 
 </details>
 
-When the sidecar of `invoicing` starts, it asks the app on `/dapr/subscribe` which topics it wants. The sidecar of `shipping` reads the YAML file instead, and the `shipping` app has no Dapr code at all. It reads each message with the open CloudEvents SDK, because Dapr delivers every message as a standard CloudEvent. You'll look at that envelope on a later lab.
+When the sidecar of `invoicing` starts, it asks the app on `/dapr/subscribe` which topics it wants. The sidecar of `shipping` reads the YAML file instead, and the `shipping` app has no Dapr code at all. It reads each message with the open CloudEvents SDK, because Dapr delivers every message as a standard CloudEvent. You'll look at that envelope in a later lab.
 
 ## 3. Run the demo
 
