@@ -9,7 +9,7 @@ and the same page style and CI shape. Learners then get the same sandbox and the
 the 101 track and the deeper tracks it leads into.
 
 This is a migration, not a rewrite. The track teaches the same thing in the same five pages. Only
-three things change on purpose:
+four things change on purpose:
 
 1. **The Dapr CLI is already installed and `dapr init` has already run** when the sandbox starts
    (the module does both). Page 2 no longer asks the learner to run the install script or
@@ -24,7 +24,10 @@ three things change on purpose:
    - Editor and Dev Dashboard instead of language tabs and a Redis terminal;
    - "What's next?" closes;
    - the final-page closing.
-3. **The last page recommends `dapr-pubsub`** under "Try another university track", in place of
+3. **The Dev Dashboard does the inspection.** The image has Diagrid's Dapr Dev Dashboard, and the
+   pages use it to check app health, inspect state records, inspect the pub/sub subscription and
+   publish a message, and read app and sidecar logs. See "Dev Dashboard" below.
+4. **The last page recommends `dapr-pubsub`** under "Try another university track", in place of
    `catalyst-101`.
 
 ## Goals
@@ -100,17 +103,40 @@ Root files are copied from `dapr-secrets` and adapted:
 |---|---|---|---|---|
 | 1 | `1-what-is-dapr` | What is Dapr | 3 | Style only. No Run blocks. Keep the sections and the overview image. Fix the typo "Currentely". Close with "What's next?" |
 | 2 | `2-dapr-cli` | The Dapr CLI | 3 | Verification only, see below |
-| 3 | `3-state-management-api` | Use the State Management API | 5 | Redis terminal → `docker exec` in the **curl** window; Dapr sidecar terminal → **Dapr CLI** window |
+| 3 | `3-state-management-api` | Use the State Management API | 5 | Redis terminal → Dev Dashboard **State** page; Dapr sidecar terminal → **Dapr CLI** window |
 | 4 | `4-service-invocation-api` | Use the Service Invocation API | 5 | Language tabs → Editor; anchored `cd`; the 2.0 run section |
-| 5 | `5-pubsub-api` | Use the Pub/Sub API | 5 | As page 4, plus the final-page closing, with dapr-pubsub as the next track |
+| 5 | `5-pubsub-api` | Use the Pub/Sub API | 6 | As page 4, plus inspecting the subscription and publishing a message from the Dev Dashboard, and the final-page closing, with dapr-pubsub as the next track |
 
-The total is 21 minutes, so the minutes line reads "around 20 minutes to complete the 5 labs". The
+The total is 22 minutes, so the minutes line reads "around 20 minutes to complete the 5 labs". The
 time limit is `30m` with `extend = "10m"`, and idle is `10m`. This is my call: today's track has a
 45-minute limit for 25 estimated minutes, and once the install and init steps are gone it fits the
 skill's default of 30. If you want to keep 45, change it.
 
 Each page title is today's challenge `README.md` name, except page 2. "Dapr CLI" becomes "The Dapr
 CLI" because the page no longer downloads anything. This is my call.
+
+### Dev Dashboard
+
+The pages use the Dev Dashboard tab (already in `layouts.hcl` and `tabs.hcl`) for four things:
+
+| Use | Where | Pages |
+|---|---|---|
+| Check application health | **Applications** page, **Health** column (green dot), in the "Wait until … running" callout and in `## Before you start` | 3, 4, 5 |
+| Inspect state records | **State** page: key, app prefix, value | 3 |
+| Inspect the pub/sub subscription and publish a message | The dashboard's pub/sub view: the subscription of `order-processor-sdk`, and publishing to `orderpubsub`/`orders` | 5 |
+| Read app and sidecar logs | **Logs** page: select the app, search for a marker, and switch between the app's and the sidecar's logs | 3, 4, 5 |
+
+- **Labels.** Use the labels the live labs use: **Applications**, **Health**, **State**, **Logs**.
+  The public docs (docs.diagrid.io, updated 2026-10-14) don't describe the State, Logs or pub/sub
+  views. Before writing pages 3 to 5, the builder confirms the exact names in the sandbox's Dev
+  Dashboard (`dev_dashboard_version` in `modules/dapr-sandbox/versions.hcl`). That covers the
+  pub/sub view, the publish form's fields and how to switch between app and sidecar logs. Use the
+  names exactly as the UI shows them.
+- Every dashboard step ends with "Then go back to the **Editor** tab" when the page continues in
+  the Editor, as in the other labs.
+- Dashboard steps are not commands, so doc-sync doesn't see them and CI can't click them. Where a
+  step depends on something a suite can check, the suite checks it through the sidecar API instead
+  (see Tests).
 
 ### Page 2: verification without install
 
@@ -145,15 +171,19 @@ CLI" because the page no longer downloads anything. This is my call.
   relative `cd`).
 - Open with `## Before you start` (check the Dev Dashboard and stop what runs). A learner who
   skipped back and forth may still have apps running.
-- The `keys *` steps become Run blocks in the **curl** window:
-  `docker exec dapr_redis redis-cli KEYS '*'`. The expected output follows what that command
-  prints: `myapp||name`, then an empty result. The existing suite already runs this exact command.
+- The two "Inspect the state using Redis CLI" steps become Dev Dashboard **State** page steps.
+  After the save, find the record with the key `name` and the app prefix `myapp`, and expand it to
+  see `"Bruce Wayne"`. Keep today's note that the key is prefixed with the app ID. After the
+  delete, the record is gone from the page. The `redis-cli` commands go away (my call). The
+  dashboard shows the same key and prefix with one terminal less, and the page has fewer commands
+  that could drift.
 - The save, get and delete curl commands, the IMPORTANT notes (regrade asides to `[!NOTE]` per the
   skill), stopping the sidecar, and `cat ~/.dapr/components/statestore.yaml` all stay. "Stop the
   Dapr process" becomes the `## N. Stop the applications` pattern. The component-file section stays
   after it, as it is today.
-- Optionally, point to the Dev Dashboard **Applications** page to see `myapp` while the sidecar
-  runs. This is left to the builder.
+- After starting the sidecar, point to the Dev Dashboard **Applications** page, where `myapp` is
+  listed. The sidecar's own log lines (such as `Component loaded: statestore (state.redis/v1)`)
+  can be read on the **Logs** page as well as in the **Dapr CLI** window.
 
 ### Pages 4 and 5: apps from the demo repo
 
@@ -176,9 +206,16 @@ Each page:
    and build steps fast. Keep them on the page anyway, so the page still works on a slow boot and
    learners see the real steps.
 4. Expected app output: the same markers as today ("Order received" and "Order passed" on page 4,
-   "Published data" and "Subscriber received" on page 5). Show them in the **Dapr CLI** window or on
-   the Dev Dashboard **Logs** page. Fix page 5's ```` ```output ```` fence to `text,nocopy`.
-5. A summary paragraph (keep today's), then `## N. Stop the applications`, `---` and "What's next?".
+   "Published data" and "Subscriber received" on page 5). Read them on the Dev Dashboard **Logs**
+   page: select the app, search for the marker, then switch to the sidecar's logs for the same app.
+   Fix page 5's ```` ```output ```` fence to `text,nocopy`.
+5. Page 5 only, after the run: inspect the `order-processor-sdk` subscription to `orders` on
+   `orderpubsub` in the Dev Dashboard. Then publish one message to that topic from the dashboard
+   with an `Order` payload (for example `{"orderId": 100}`), and find "Subscriber received" for it
+   on the **Logs** page. `checkout-sdk` is a console app that exits after its 10 messages, and
+   `order-processor-sdk` keeps running, so the dashboard publish is the way to send one more
+   message by hand.
+6. A summary paragraph (keep today's), then `## N. Stop the applications`, `---` and "What's next?".
    Page 5 instead uses the final-page closing:
    - "In this final lab…" with the Holopin badge sentence in the intro;
    - the recap of the five labs;
@@ -236,7 +273,13 @@ The shape of `dapr-pubsub`:
     `Assert Version Line Matches Minor` (or the exact version, as `dapr-pubsub` does), and the four
     containers. The doc-sync coverage comment for `wget` and `dapr init` goes away, because those
     commands are no longer on the page.
-  - Page 3: today's suite, with the Redis check using the exact page command.
+  - Page 3: today's suite. It keeps its `docker exec dapr_redis redis-cli KEYS '*'` assertions as
+    the stand-in for the State page steps, so the `myapp||name` key the page describes is still
+    tested.
+  - Page 5 also checks the dashboard steps through the sidecar: the `orders` subscription of
+    `order-processor-sdk` appears in its `/v1.0/metadata`, and publishing the page's example
+    payload to `orderpubsub`/`orders` (with `curl` to `/v1.0/publish` on a running sidecar)
+    produces "Subscriber received" for it. These checks are suite-only, not page commands.
   - Pages 4 and 5: today's per-language cases (tagged `dotnet`, `python`, `java`, `javascript`),
     pointed at `${DAPR101_BASE}` and run from the language's demo folder as the page does.
 - `tools/track-tester/variables/dapr_101.py`:
@@ -286,7 +329,6 @@ The shape of `dapr-pubsub`:
 
 - Exact wording of the reworded paragraphs, as long as it follows the skill and keeps today's
   meaning.
-- Whether page 3 points to the Dev Dashboard while the sidecar runs.
 - The order of tasks and how the demo repo commit and this repo's PR are sequenced. The pin must
   point at a pushed commit.
 
