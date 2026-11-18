@@ -40,7 +40,7 @@ tools/
 
 | Folder | What it teaches |
 | --- | --- |
-| `dapr-101/` | Dapr fundamentals (CLI, state, service invocation, pub/sub). |
+| `dapr-101/` | Dapr fundamentals (CLI, state, service invocation, pub/sub). A 2.0 lab of 5 pages; the .NET/Python/Java/JavaScript demo apps live in `diagrid-labs/ai-agent-tracks-instruqt` under `dapr-101/`. |
 | `dapr-secrets/` | The Secrets API: reading secrets, the secret store component and its parameters, secret scoping, and swapping the local file store for HashiCorp Vault (.NET/Python/Java; demo apps live in `diagrid-labs/ai-agent-tracks-instruqt` under `secrets/`). |
 | `dapr-pubsub/` | The Pub/Sub API in depth: subscription types (declarative, programmatic), streaming subscriptions, CloudEvents, bulk publish and subscribe, routing and dead-letter topics, and swapping the broker (.NET/Python/Java; demo apps live in `diagrid-labs/ai-agent-tracks-instruqt` under `pubsub/`). A 2.0 lab of 6 pages / 45 minutes, a user-approved exception to the 30-minute default. |
 | `dapr-workflow/` | Dapr Workflow patterns: durable execution, task chaining, fan-out/fan-in, monitor, external events, child workflows, resiliency/compensation, combined patterns, workflow management. |
@@ -52,7 +52,7 @@ tools/
 | `ai-agents-maf/` | Making Microsoft Agent Framework (MAF) agents reliable with Dapr Workflow (.NET Aspire). |
 | `catalyst-101/` | Introductory Diagrid track. |
 
-`dapr-secrets` and `dapr-pubsub` are **Instruqt 2.0 labs** (HCL config, shared sandbox module); every
+`dapr-101`, `dapr-secrets` and `dapr-pubsub` are **Instruqt 2.0 labs** (HCL config, shared sandbox module); every
 other track is a legacy 1.0 track. See "Instruqt 2.0 labs" below.
 
 Only `dapr-101`, `dapr-workflow`, `dapr-workflow-aspire`, `dapr-secrets` and `dapr-pubsub`
@@ -60,7 +60,7 @@ currently have `track-tester` suites and CI workflows.
 
 ## Instruqt 2.0 labs
 
-New tracks are 2.0 labs; `dapr-secrets` and `dapr-pubsub` are the references. The legacy sections
+New tracks are 2.0 labs; `dapr-101`, `dapr-secrets` and `dapr-pubsub` are the references. The legacy sections
 that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1.0 tracks.
 
 - **Lab layout.** A lab root (`dapr-secrets/`, `dapr-pubsub/`) holds HCL instead of README config:
@@ -100,8 +100,8 @@ that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1
   validate` cannot resolve registry modules. It copies the lab to a temp dir, copies the module
   into `<tmp>/modules/dapr-sandbox`, rewrites the module block to a local source without a version,
   and validates that. Use it for local validation too.
-- **Required checks on `main`** are exactly `lab-validate`, `dapr-secrets-result` and
-  `dapr-pubsub-result` (the aggregate jobs of `test-dapr-secrets.yml` and `test-dapr-pubsub.yml`).
+- **Required checks on `main`** are exactly `lab-validate`, `dapr-101-result`, `dapr-secrets-result` and
+  `dapr-pubsub-result` (the aggregate jobs of `test-dapr-101.yml`, `test-dapr-secrets.yml` and `test-dapr-pubsub.yml`).
   Do not require the individual matrix legs.
 
 ## Track & challenge anatomy
@@ -137,7 +137,7 @@ the matching `tests/challenge.robot` suite too (or the doc-sync CI job will fail
 
 `tools/track-tester/` is an end-to-end **drift** test harness built on
 [Robot Framework](https://robotframework.org/). The runnable tracks depend on upstream code
-(mostly [`dapr/quickstarts`](https://github.com/dapr/quickstarts); `dapr-secrets` and `dapr-pubsub` use
+(`dapr-workflow` uses [`dapr/quickstarts`](https://github.com/dapr/quickstarts); `dapr-101`, `dapr-secrets` and `dapr-pubsub` use
 `diagrid-labs/ai-agent-tracks-instruqt`); when that upstream code
 or the tooling around it changes, a track's `assignment.md` can silently fall out of sync
 with the commands and output a learner actually sees. The harness catches this by running
@@ -159,7 +159,8 @@ tools/track-tester/
     workflow.resource    workflow-specific keywords (imports dapr.resource)
     tests/smoke.robot    a smoke suite for the resources themselves
   variables/             shared Python-valued variables imported by suites
-    dapr_101.py          QUICKSTARTS_DIR + base dirs for dapr-101
+    dapr_101.py          TRACKS_SRC_DIR + DAPR101_BASE (demo repo's dapr-101/ folder), demo folder
+                         names and log markers for dapr-101
     dapr_workflow.py     QUICKSTARTS_DIR + WF_BASE (tutorials/workflow) for dapr-workflow
     dapr_workflow_aspire.py
     dapr_secrets.py      TRACKS_SRC_DIR + SECRETS_BASE, demo folder names and the
@@ -173,7 +174,8 @@ tools/track-tester/
     check_doc_sync.py    the doc-sync presence checker (a standalone Python script)
     tests/               pytest unit tests for it
   ci/                    scripts that reproduce each track's sandbox in CI
-    setup-dapr-101.sh
+    setup-dapr-101.sh       (reads pins via read_pin.py, clones the demo repo, inits Dapr; writes
+                            DAPR_CLI_VERSION/DAPR_RUNTIME_VERSION to GITHUB_ENV for the ch2 suite)
     setup-dapr-workflow.sh
     setup-dapr-workflow-aspire.sh
     setup-dapr-secrets.sh   (reads pins via read_pin.py, sources dapr-secrets/scripts/seed-vault.sh)
@@ -181,7 +183,7 @@ tools/track-tester/
     read_pin.py, validate-lab.sh, check_lab_paths.py   2.0 lab helpers; tests in ci/tests/
                          (test_read_pin, test_validate_lab, test_check_lab_paths, test_sandbox_setup,
                          test_secrets_checks, test_pubsub_checks, test_pubsub_lib_checks,
-                         test_pubsub_pins)
+                         test_pubsub_pins, test_dapr101_pages, test_dapr101_pins)
   results/               (gitignored) output dirs from local/CI runs
 ```
 
@@ -316,7 +318,8 @@ Everything runs from **`tools/track-tester/`** via `uv` (so paths to suites are
 ```bash
 # One-time: reproduce the sandbox (clones dapr/quickstarts to ~/quickstarts, installs the
 # Dapr CLI, runs `dapr init` — this re-inits your local Dapr). Needs Docker running.
-bash tools/track-tester/ci/setup-dapr-101.sh        # dapr-101 (pins the Dapr CLI version)
+bash tools/track-tester/ci/setup-dapr-101.sh        # dapr-101 (clones the demo repo, pins the Dapr CLI,
+                                                    # inits Dapr)
 bash tools/track-tester/ci/setup-dapr-workflow.sh   # dapr-workflow (Dapr CLI from master)
 bash tools/track-tester/ci/setup-dapr-secrets.sh    # dapr-secrets (clones the demo repo,
                                                     # pins the Dapr CLI, starts+seeds Vault)
@@ -367,7 +370,7 @@ gives `gh run download` commands for the Robot reports.
 
 | Workflow | Track | Schedule (UTC) | Jobs / matrix |
 | --- | --- | --- | --- |
-| `test-dapr-101.yml` | `dapr-101` | 06:00 daily | doc-sync; agnostic (ch2–3); per-language matrix: dotnet, python, java, javascript |
+| `test-dapr-101.yml` | `dapr-101` | 06:00 daily | `changes` (path filter); gated doc-sync and per-language matrix: dotnet, java, python, javascript, shared; aggregate `dapr-101-result` |
 | `test-dapr-workflow.yml` | `dapr-workflow` | 06:15 daily | doc-sync (all challenges); per-language matrix: dotnet, java, python |
 | `test-dapr-workflow-aspire.yml` | `dapr-workflow-aspire` | 06:30 daily | harness unit tests (pytest); build-and-run (.NET 10 + Aspire CLI) |
 | `test-dapr-secrets.yml` | `dapr-secrets` | 06:45 daily | `changes` (path filter); gated doc-sync and per-language matrix: dotnet, java, python, shared; aggregate `dapr-secrets-result` |
@@ -394,6 +397,12 @@ Details worth knowing when editing CI:
   aggregate `dapr-pubsub-result`). It has no seed step: the challenge 6 suite starts and removes its
   own RabbitMQ container from the assignment's Run block. Pins come from `modules/dapr-sandbox/versions.hcl`
   and `dapr-pubsub/versions.hcl`.
+- The dapr-101 workflow has the same shape (`changes` gate, `shared` leg, aggregate `dapr-101-result`) plus a
+  `javascript` leg with a Set up Node step (`node_major` from `modules/dapr-sandbox/versions.hcl`). The Java
+  leg reads `java_version` from the same file (the demos need JDK 21 or older) and pre-warms every pom under
+  `dapr-101/java`. `ci/setup-dapr-101.sh` writes `DAPR_CLI_VERSION` and `DAPR_RUNTIME_VERSION` to
+  `GITHUB_ENV` for the challenge 2 suite. Pins come from `modules/dapr-sandbox/versions.hcl` and
+  `dapr-101/versions.hcl`.
 - The aspire workflow does **not** install the Aspire project templates itself: the suite's
   first checkpoint runs the pinned `dotnet new install Aspire.ProjectTemplates@<ver>` command
   extracted from the assignment, keeping the pinned version a single source of truth (and
