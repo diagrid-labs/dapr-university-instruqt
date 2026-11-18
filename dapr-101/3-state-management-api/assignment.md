@@ -2,10 +2,6 @@
 
 The goal of this lab is to run the Dapr sidecar in self-hosted mode and use the State Management HTTP API to interact with a state store. You do this without running any application code: you make HTTP requests with cURL and send them to the Dapr process. This hands-on lab takes about 5 minutes to complete.
 
-## Before you start
-
-The terminals, and the applications running in them, stay as they are when you move between labs. Open the **Dev Dashboard** tab and look at which applications are running. If any are, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
-
 ## 1. Run a Dapr sidecar
 
 > [!IMPORTANT]

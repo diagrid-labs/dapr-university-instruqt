@@ -9,6 +9,9 @@ LAB = ROOT / "dapr-101"
 
 PAGES_WITH_RUN = ["2-dapr-cli", "3-state-management-api", "4-service-invocation-api", "5-pubsub-api"]
 STARTS_APPS = ["3-state-management-api", "4-service-invocation-api", "5-pubsub-api"]
+# Page 3 is the first page that starts anything, so only the pages after it need to stop
+# leftover processes first.
+AFTER_APPS = ["4-service-invocation-api", "5-pubsub-api"]
 MINUTES = {"1-what-is-dapr": 3, "2-dapr-cli": 3, "3-state-management-api": 5,
            "4-service-invocation-api": 5, "5-pubsub-api": 6}
 RUN_NOTE = "When you use the *Run* button on a command, select the matching terminal from the dropdown that appears."
@@ -96,8 +99,9 @@ def test_run_button_note_check_rejects_bad_pages():
 
 
 def test_before_you_start():
-    for page in STARTS_APPS:
+    for page in AFTER_APPS:
         assert "## Before you start" in page_text(page), page
+    assert "## Before you start" not in page_text("3-state-management-api")
 
 
 def test_stop_section():
