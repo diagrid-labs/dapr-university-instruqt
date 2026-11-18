@@ -265,13 +265,9 @@ The lines below show only the message: in the real log, each language adds its o
 
 The `Subscriber received` line looks different per language. The .NET line is shown above. The other languages log this after the prefix:
 
-```text,nocopy
-Subscriber received : 1
-Subscriber received: 1
-Subscriber received: {"orderId":1}
-```
-
-These are the Python, Java and JavaScript lines, in that order.
+- Python: `Subscriber received : 1`
+- Java: `Subscriber received: 1`
+- JavaScript: `Subscriber received: {"orderId":1}`
 
 ## 8. Inspect the subscription
 
