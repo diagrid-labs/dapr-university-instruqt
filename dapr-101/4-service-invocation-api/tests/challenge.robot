@@ -21,33 +21,37 @@ Ports Are Free Before The Apps Start
 DotNet Service Invocation
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
+    [Teardown]    Stop Apps If Started
     ${dir}=    Set Variable    ${DAPR101_BASE}/dotnet/${SVC_DEMO}[dotnet]
     Run And Expect RC Zero    dotnet build checkout    ${dir}
     Run And Expect RC Zero    dotnet build order-processor    ${dir}
-    Run Multi-App And Assert Markers    dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
+    Run Apps And Assert Markers    dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
 
 Python Service Invocation
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
+    [Teardown]    Stop Apps If Started
     ${dir}=    Set Variable    ${DAPR101_BASE}/python/${SVC_DEMO}[python]
     Run And Expect RC Zero    uv sync --all-packages    ${dir}
-    Run Multi-App And Assert Markers    uv run dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
+    Run Apps And Assert Markers    uv run dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
 
 Java Service Invocation
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
+    [Teardown]    Stop Apps If Started
     ${dir}=    Set Variable    ${DAPR101_BASE}/java/${SVC_DEMO}[java]
     Run And Expect RC Zero    mvn -q -DskipTests install    ${dir}/order-processor
     Run And Expect RC Zero    mvn -q -DskipTests install    ${dir}/checkout
-    Run Multi-App And Assert Markers    dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}    timeout=300s
+    Run Apps And Assert Markers    dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}    timeout=300s
 
 JavaScript Service Invocation
     [Tags]    javascript
     [Setup]    Wait For The Ports To Be Free
+    [Teardown]    Stop Apps If Started
     ${dir}=    Set Variable    ${DAPR101_BASE}/javascript/${SVC_DEMO}[javascript]
     Run And Expect RC Zero    npm install    ${dir}/order-processor
     Run And Expect RC Zero    npm install    ${dir}/checkout
-    Run Multi-App And Assert Markers    dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
+    Run Apps And Assert Markers    dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
 
 *** Keywords ***
 Port Should Be Free
@@ -61,6 +65,20 @@ Wait For The Ports To Be Free
     # The previous test's apps can take a moment to release the ports after SIGINT.
     FOR    ${port}    IN    7001    8001    9001    5001    3500
         Wait Until Keyword Succeeds    30s    1s    Port Should Be Free    ${port}
+    END
+
+Stop Apps If Started
+    # A failed build never starts the `apps` process, so stopping a missing alias must not
+    # mask the real failure.
+    Run Keyword And Ignore Error    Stop Process With SIGINT    apps
+
+Run Apps And Assert Markers
+    [Documentation]    Start the apps under the alias `apps` and wait for each log marker. The caller's
+    ...    teardown stops the apps, also when a marker never shows up.
+    [Arguments]    ${run_command}    ${cwd}    ${logfile}    ${markers}    ${timeout}=180s
+    Start Background Process    ${run_command}    ${logfile}    apps    cwd=${cwd}
+    FOR    ${marker}    IN    @{markers}
+        Wait Until Log Contains    ${logfile}    ${marker}    ${timeout}
     END
 
 # doc-sync coverage (the commands run above through cwd= arguments and ${dir}):

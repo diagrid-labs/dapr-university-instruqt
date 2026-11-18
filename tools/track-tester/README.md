@@ -32,7 +32,7 @@ that in a subshell: `(cd tools/track-tester && …)`, so you can paste them from
 # installs the Dapr CLI if you don't have one, and runs `dapr init` (re-inits your local Dapr).
 bash tools/track-tester/ci/setup-dapr-workflow.sh # dapr-workflow (installs Dapr CLI from master)
 # dapr-101 clones diagrid-labs/ai-agent-tracks-instruqt at `tracks_src_ref` to
-# ~/ai-agent-tracks-instruqt, installs the pinned Dapr CLI and runs `dapr init`. Pins are read with
+# ~/ai-agent-tracks-instruqt, installs the Dapr CLI (unpinned) and runs `dapr init`, then checks the runtime MAJOR.MINOR against the pin. Pins are read with
 # ci/read_pin.py from dapr-101/versions.hcl and modules/dapr-sandbox/versions.hcl.
 bash tools/track-tester/ci/setup-dapr-101.sh      # dapr-101
 # dapr-secrets clones diagrid-labs/ai-agent-tracks-instruqt to ~/ai-agent-tracks-instruqt,
@@ -172,9 +172,9 @@ export TRACKS_SRC_DIR="$HOME/dev/diagrid-labs/ai-agent-tracks-instruqt"
   ../../dapr-101/4-service-invocation-api/tests/challenge.robot)
 ```
 
-Only **challenge 2** asserts a version, and only its **MAJOR.MINOR** (`1.18.x`, read from `DAPR_CLI_VERSION` / `DAPR_RUNTIME_VERSION`, which
+Only **challenge 2** asserts a version, and only its **MAJOR.MINOR** (`1.19.x`, read from `DAPR_CLI_VERSION` / `DAPR_RUNTIME_VERSION`, which
 `setup-dapr-101.sh` derives from the pins in `modules/dapr-sandbox/versions.hcl` and `dapr-101/versions.hcl`): any patch release passes, so neither the suite nor the pin has to
-be touched when Dapr ships 1.18.4. If your local `dapr` is on a different *minor*, that suite reports
+be touched when Dapr ships 1.19.2. If your local `dapr` is on a different *minor*, that suite reports
 a mismatch — which is a *correct* signal, not a bug: it's the same signal the nightly run gives when
 Dapr's minor moves and the assignment's expected output needs updating. Either skip it locally (run
 the other challenges) or bring your Dapr up to that minor. If you manage Dapr with Homebrew,

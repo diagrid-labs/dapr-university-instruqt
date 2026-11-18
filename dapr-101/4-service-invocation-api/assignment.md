@@ -4,7 +4,7 @@ The goal of this lab is to run two Dapr applications using the Dapr CLI and unde
 
 ## Before you start
 
-The terminals, and the applications running in them, stay as they are when you move between labs. The Dapr sidecar from the previous lab, `myapp`, is probably still running in the **Dapr CLI** window and it holds port 3500. Open the **Dev Dashboard** tab and look at the **Applications** page. If `myapp` is listed, use the **Dapr CLI** window to stop it by pressing `Ctrl+C`. Then go back to the **Editor** tab.
+The terminals, and the applications running in them, stay as they are when you move between labs. The Dapr sidecar from the previous lab, `myapp`, may still be running in the **Dapr CLI** window if you skipped the stop step in the previous lab, and it holds port 3500. Open the **Dev Dashboard** tab and look at the **Applications** page. If `myapp` is listed, use the **Dapr CLI** window to stop it by pressing `Ctrl+C`. Then go back to the **Editor** tab.
 
 ## 1. Choose a language
 
@@ -216,7 +216,7 @@ Use the **Dapr CLI** window to stop the applications by pressing `Ctrl+C`.
 
 ---
 
-You've now successfully used the Dapr Service Invocation API to communicate between two applications. The application that is sending the request is using the **Dapr appID** to identify the target Dapr application. The format of the URL is **`{DAPR_HOST}:{DAPR_HTTP_PORT}/{METHOD}`**. The demos in this lab used this URL: `http://localhost:3500/orders`.
+You've now successfully used the Dapr Service Invocation API to communicate between two applications. The application that is sending the request is using the **Dapr appID** to identify the target Dapr application. The format of the URL is **`{DAPR_HOST}:{DAPR_HTTP_PORT}/{METHOD}`**. The demos in this lab used URLs like `http://localhost:<DAPR_HTTP_PORT>/orders`, where the Dapr CLI sets `DAPR_HTTP_PORT` for each application.
 
 ## What's next?
 

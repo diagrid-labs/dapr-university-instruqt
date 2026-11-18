@@ -4,7 +4,7 @@ In this final lab, you'll run two Dapr applications using the Dapr CLI and see h
 
 ## Before you start
 
-The terminals, and the applications running in them, stay as they are when you move between labs. Open the **Dev Dashboard** tab and look at the **Applications** page. If the applications from the previous lab, `order-processor` and `checkout`, are still listed, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
+The terminals, and the applications running in them, stay as they are when you move between labs. Open the **Dev Dashboard** tab and look at the **Applications** page. If the applications from the previous labs, `order-processor` and `checkout` (lab 4) or `myapp` (lab 3), are still listed, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
 
 ## 1. Choose a language
 

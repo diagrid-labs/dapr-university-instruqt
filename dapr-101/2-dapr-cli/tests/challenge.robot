@@ -18,8 +18,7 @@ Suite Teardown    Terminate All Processes    kill=True
 
 *** Variables ***
 # Scalar variables, referenced elsewhere as ${DAPR_VERSION}. Defined once here so
-# the pinned version is easy to bump in a single place. CI overrides both with
-# `robot --variable DAPR_VERSION:<x>`. By default they come from the DAPR_CLI_VERSION and
+# the pinned version is easy to bump in a single place. They come from the DAPR_CLI_VERSION and
 # DAPR_RUNTIME_VERSION environment variables that ci/setup-dapr-101.sh exports, read from
 # the pins in modules/dapr-sandbox/versions.hcl and dapr-101/versions.hcl.
 # Only the MAJOR.MINOR part (1.19) is asserted - see the version test below - so a

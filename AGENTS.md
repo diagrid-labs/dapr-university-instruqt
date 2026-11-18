@@ -77,7 +77,7 @@ that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1
   inputs `dapr_runtime_version`, `demo_repo_ref`, `editor_folder` (and `demo_repo_url`). It then
   inlines the lab's `lab_startup_script` into the VM startup (the lab's own files are not on the
   VM). A lab's `lab-setup.sh` holds only its own steps (Vault seeding for `dapr-secrets`, the demo
-  pre-build for `dapr-pubsub`) and can use the helpers `log`, `die`, `bounded`, `wait_for_docker`
+  pre-build for `dapr-pubsub` and `dapr-101`) and can use the helpers `log`, `die`, `bounded`, `wait_for_docker`
   and `TRACKS_SRC_DIR`. The module owns the ready marker
   `/var/lib/lab-setup/ready`. Instruqt waits for the
   startup script to finish before the sandbox is ready; the module has no VM health check. A change
@@ -86,11 +86,11 @@ that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1
 - **Two `versions.hcl` files, one pin each.** Toolchain, `image_ref` and
   `prewarm_dapr_runtime_version` live in `modules/dapr-sandbox/versions.hcl`. The lab pins
   (`dapr_runtime_version`, `tracks_src_ref`) and the exact module version live in each lab's
-  `versions.hcl` (`dapr-secrets/`, `dapr-pubsub/`). No pin appears in a second file. CI and scripts
+  `versions.hcl` (`dapr-101/`, `dapr-secrets/`, `dapr-pubsub/`). No pin appears in a second file. CI and scripts
   read pins with `tools/track-tester/ci/read_pin.py <file.hcl> <name>`, so keep each pin a plain
   `variable "<name>" { default = "<value>" }` block.
 - **Deploy = merge to `main`.** The Instruqt lab is connected to branch `main`, root directory the
-  lab's folder (`dapr-secrets` or `dapr-pubsub`, one Instruqt lab each). There is no CLI publish.
+  lab's folder (`dapr-101`, `dapr-secrets` or `dapr-pubsub`, one Instruqt lab each). There is no CLI publish.
   The module is imported and versioned in the Instruqt UI. The owner steps are in
   `docs/instruqt-2-runbook.md`; schema facts are in `docs/instruqt-2-spike-checklist.md`.
 - **`lab-validate` job** (`.github/workflows/lab-validate.yml`, every PR, no path filter): HCL
@@ -319,8 +319,8 @@ Everything runs from **`tools/track-tester/`** via `uv` (so paths to suites are
 # One-time: reproduce the sandbox (installs the Dapr CLI, runs `dapr init` — this re-inits your
 # local Dapr). Needs Docker running. dapr-workflow clones dapr/quickstarts to ~/quickstarts; the
 # 2.0 labs clone the demo repo to ~/ai-agent-tracks-instruqt at their `tracks_src_ref` pin.
-bash tools/track-tester/ci/setup-dapr-101.sh        # dapr-101 (clones the demo repo, pins the Dapr CLI,
-                                                    # inits Dapr)
+bash tools/track-tester/ci/setup-dapr-101.sh        # dapr-101 (clones the demo repo, installs the Dapr CLI,
+                                                    # guards the runtime MAJOR.MINOR, inits Dapr)
 bash tools/track-tester/ci/setup-dapr-workflow.sh   # dapr-workflow (Dapr CLI from master)
 bash tools/track-tester/ci/setup-dapr-secrets.sh    # dapr-secrets (clones the demo repo,
                                                     # pins the Dapr CLI, starts+seeds Vault)

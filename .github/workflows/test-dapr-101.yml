@@ -7,10 +7,10 @@ name: Test dapr-101 track
 
 on:
   schedule:
-    - cron: '0 6 * * *'   # Daily 06:00 UTC (staggered before dapr-workflow 06:15, dapr-workflow-aspire 06:30, dapr-secrets 06:45, dapr-101 07:00)
+    - cron: '0 6 * * *'   # Daily 06:00 UTC (staggered before dapr-workflow 06:15, dapr-workflow-aspire 06:30, dapr-secrets 06:45, dapr-pubsub 07:00)
   workflow_dispatch:
-  # No `paths` filter: docsync and languages are required checks, and a required check from a
-  # workflow that never started (path filter) blocks the merge. Instead the `changes` job
+  # No `paths` filter: the required `dapr-101-result` check comes from this workflow, and a required
+  # check from a workflow that never started (path filter) blocks the merge. Instead the `changes` job
   # decides, and the jobs it gates are reported as Skipped, which satisfies a required check.
   pull_request:
 
@@ -253,8 +253,14 @@ jobs:
           # failing challenges for this language (the `if !` guard is exempt from `set -e`,
           # so the loop keeps going). Fail the job at the end if any challenge failed.
           failed=""
-          # One list drives both the run loop and the dry run below.
-          challenges="2-dapr-cli:ch2 3-state-management-api:ch3 4-service-invocation-api:ch4 5-pubsub-api:ch5"
+          # One list drives both the run loop and the dry run below. ch2 and ch3 carry no language
+          # tag, so `--include <lang>` would match no tests there (robot exit 252): they run only in
+          # the `shared` leg. The language legs run the tagged challenges (ch4, ch5).
+          if [ "${{ matrix.lang }}" = "shared" ]; then
+            challenges="2-dapr-cli:ch2 3-state-management-api:ch3 4-service-invocation-api:ch4 5-pubsub-api:ch5"
+          else
+            challenges="4-service-invocation-api:ch4 5-pubsub-api:ch5"
+          fi
           # shellcheck disable=SC2086  # $TEST_FILTER is several words by design
           for ch in $challenges; do
             dir="${ch%%:*}"; out="${ch##*:}"

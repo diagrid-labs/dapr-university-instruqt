@@ -23,7 +23,7 @@ Ports Are Free Before The Apps Start
 DotNet Pub Sub
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    apps
+    [Teardown]    Stop Apps If Started
     ${dir}=    Set Variable    ${DAPR101_BASE}/dotnet/${PUBSUB_DEMO}[dotnet]
     Run And Expect RC Zero    dotnet build checkout    ${dir}
     Run And Expect RC Zero    dotnet build order-processor    ${dir}
@@ -32,7 +32,7 @@ DotNet Pub Sub
 Python Pub Sub
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    apps
+    [Teardown]    Stop Apps If Started
     ${dir}=    Set Variable    ${DAPR101_BASE}/python/${PUBSUB_DEMO}[python]
     Run And Expect RC Zero    uv sync --all-packages    ${dir}
     Run Apps And Check Subscription    uv run dapr run -f .    ${dir}
@@ -40,7 +40,7 @@ Python Pub Sub
 Java Pub Sub
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    apps
+    [Teardown]    Stop Apps If Started
     ${dir}=    Set Variable    ${DAPR101_BASE}/java/${PUBSUB_DEMO}[java]
     Run And Expect RC Zero    mvn -q -DskipTests install    ${dir}/order-processor
     Run And Expect RC Zero    mvn -q -DskipTests install    ${dir}/checkout
@@ -49,7 +49,7 @@ Java Pub Sub
 JavaScript Pub Sub
     [Tags]    javascript
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    apps
+    [Teardown]    Stop Apps If Started
     ${dir}=    Set Variable    ${DAPR101_BASE}/javascript/${PUBSUB_DEMO}[javascript]
     Run And Expect RC Zero    npm install    ${dir}/order-processor
     Run And Expect RC Zero    npm install    ${dir}/checkout
@@ -68,6 +68,11 @@ Wait For The Ports To Be Free
     FOR    ${port}    IN    @{PORTS}
         Wait Until Keyword Succeeds    30s    1s    Port Should Be Free    ${port}
     END
+
+Stop Apps If Started
+    # A failed build never starts the `apps` process, so stopping a missing alias must not
+    # mask the real failure.
+    Run Keyword And Ignore Error    Stop Process With SIGINT    apps
 
 Run Apps And Check Subscription
     [Documentation]    Start the apps under the alias `apps`, wait for the page's log markers, then check the
