@@ -21,7 +21,7 @@ Rules owned elsewhere, not repeated here: pins, required checks and `lab-validat
 ("Instruqt 2.0 labs"); the owner's Instruqt UI steps in `docs/instruqt-2-runbook.md`; schema facts
 in `docs/instruqt-2-spike-checklist.md`; the module in `modules/dapr-sandbox/README.md`.
 
-Editing one of the older tracks (`dapr-101`, `dapr-workflow`, `dapr-workflow-aspire`, the agent and
+Editing one of the older tracks (`dapr-workflow`, `dapr-workflow-aspire`, the agent and
 AI tracks, `catalyst-101`)? Those are legacy 1.0 tracks: follow `legacy-1.0.md` in this folder.
 
 Detail and templates for everything below: **reference.md** in this folder.

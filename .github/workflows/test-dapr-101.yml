@@ -1,22 +1,56 @@
 name: Test dapr-101 track
 
+# Required checks for the branch ruleset: exactly `lab-validate` (lab-validate.yml) and
+# `dapr-101-result` (the aggregate job below). Do NOT require `docsync` or
+# `languages (<lang>)`: a matrix job skipped by a job-level `if` is never expanded, so its
+# per-language check names would never be reported and the merge would wait forever.
+
 on:
   schedule:
-    - cron: '0 6 * * *'   # Daily 06:00 UTC
+    - cron: '0 6 * * *'   # Daily 06:00 UTC (staggered before dapr-workflow 06:15, dapr-workflow-aspire 06:30, dapr-secrets 06:45, dapr-pubsub 07:00)
   workflow_dispatch:
+  # No `paths` filter: the required `dapr-101-result` check comes from this workflow, and a required
+  # check from a workflow that never started (path filter) blocks the merge. Instead the `changes` job
+  # decides, and the jobs it gates are reported as Skipped, which satisfies a required check.
   pull_request:
-    paths:
-      - 'dapr-101/**'
-      - 'tools/track-tester/**'
-      - '.github/workflows/test-dapr-101.yml'
 
 permissions:
   contents: read
   issues: write
 
 jobs:
-  docsync:
+  changes:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # paths-filter lists the PR's files through the API; the workflow default is contents: read only.
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      relevant: ${{ steps.filter.outputs.relevant }}
+    steps:
+      # On pull_request, dorny/paths-filter asks the API for the changed files, so no checkout.
+      # If it errors, treat the change as relevant: running the tests is safe, skipping them is not.
+      - uses: dorny/paths-filter@v3
+        id: filter
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        with:
+          filters: |
+            relevant:
+              - 'dapr-101/**'
+              - 'modules/dapr-sandbox/**'
+              - 'tools/track-tester/**'
+              - '.github/workflows/test-dapr-101.yml'
+
+  docsync:
+    needs: changes
+    # Skipped (not pending) on pull requests that touch nothing relevant; always runs for
+    # schedule and workflow_dispatch. `!= 'false'` (not `== 'true'`) so an empty output, e.g. the
+    # filter step erroring, runs the tests rather than skipping them.
+    if: github.event_name != 'pull_request' || needs.changes.outputs.relevant != 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
@@ -28,9 +62,11 @@ jobs:
           mkdir -p results
           # Check every challenge even if an earlier one drifts, so one report shows
           # all drift (the `if !` guard is exempt from `set -e`, so the loop continues).
+          # --require-anchored-cd: a 2.0 lab's terminals keep their folder across pages, so a page
+          # must go to the lab folder (absolute `cd`) before any relative `cd` in a Run block.
           failed=""
           for ch in 2-dapr-cli 3-state-management-api 4-service-invocation-api 5-pubsub-api; do
-            if ! uv run python docsync/check_doc_sync.py \
+            if ! uv run python docsync/check_doc_sync.py --require-anchored-cd \
               ../../dapr-101/$ch/assignment.md \
               ../../dapr-101/$ch/tests/challenge.robot; then
               failed="$failed $ch"
@@ -50,111 +86,166 @@ jobs:
           path: tools/track-tester/results/failed-docsync.txt
           if-no-files-found: ignore
 
-  agnostic:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-      - name: Setup Dapr sandbox
-        run: bash tools/track-tester/ci/setup-dapr-101.sh
-      - name: Sync harness
-        run: (cd tools/track-tester && uv sync)
-      - name: Run challenges 2 and 3
-        run: |
-          cd tools/track-tester
-          mkdir -p results
-          # Run both challenges even if the first fails, so a single run reports all
-          # failing challenges (the `if !` guard is exempt from `set -e`). ch2 needs the
-          # Dapr version variables; ch3 does not, so they run as two explicit steps.
-          failed=""
-          if ! uv run robot --outputdir results/ch2 \
-            --variable "DAPR_VERSION:${DAPR_CLI_VERSION}" \
-            --variable "DAPR_RUNTIME_VERSION:${DAPR_RUNTIME_VERSION}" \
-            ../../dapr-101/2-dapr-cli/tests/challenge.robot; then
-            failed="$failed 2-dapr-cli"
-          fi
-          if ! uv run robot --outputdir results/ch3 \
-            ../../dapr-101/3-state-management-api/tests/challenge.robot; then
-            failed="$failed 3-state-management-api"
-          fi
-          # Merge the per-challenge results into one indexed report (results/report.html +
-          # results/log.html) so a single file lists every challenge with its status at a
-          # glance. `|| true` because rebot's exit code reflects test failures too.
-          uv run rebot --outputdir results --name "dapr-101 (agnostic)" \
-            results/ch*/output.xml || true
-          if [ -n "$failed" ]; then
-            # Record for the aggregate issue, then fail the job.
-            echo "agnostic:$failed" > results/failed-agnostic.txt
-            echo "::error::Failed challenges (agnostic):$failed"
-            exit 1
-          fi
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: robot-agnostic
-          path: tools/track-tester/results/
-
   languages:
+    needs: changes
+    if: github.event_name != 'pull_request' || needs.changes.outputs.relevant != 'false'
     runs-on: ubuntu-latest
+    # Bounds a hung `dapr init` or app start so a stuck leg costs
+    # 45 minutes of runner time rather than the 6-hour default. Java gets more: it resolves every
+    # demo pom and starts Spring Boot apps several times under 300 s readiness timeouts. A timeout
+    # that still fires is recorded by `Record timeout` below.
+    timeout-minutes: ${{ matrix.lang == 'java' && 60 || 45 }}
+    env:
+      # `shared` is not a language: it runs every test that carries no language tag (ch2 and ch3).
+      # Robot's `--include` selects only tagged tests, so those tests run in NO language leg; this
+      # inverse filter picks up exactly the rest, once. Each language leg and `shared` together cover
+      # every test. The port checks in ch4 and ch5 carry all four language tags, so every language
+      # leg runs them and `shared` does not.
+      TEST_FILTER: ${{ matrix.lang == 'shared' && '--exclude dotnet --exclude python --exclude java --exclude javascript' || format('--include {0}', matrix.lang) }}
+      # The demo repo is checked out INSIDE the workspace (next step) rather than cloned to $HOME
+      # by the setup script. hashFiles() can only see files under the workspace, and the Maven
+      # cache key below needs the demo poms. ci/setup-dapr-101.sh skips its own clone when
+      # this directory already holds a checkout.
+      TRACKS_SRC_DIR: ${{ github.workspace }}/ai-agent-tracks-instruqt
     strategy:
       fail-fast: false
       matrix:
-        lang: [dotnet, python, java, javascript]
+        lang: [dotnet, java, python, javascript, shared]
     steps:
       - uses: actions/checkout@v4
+      # The demo is pinned: the lab (dapr-101/versions.hcl, `tracks_src_ref`) and this CI
+      # check out the SAME commit, so what CI tests is what learners get. Demo changes arrive by
+      # bumping `tracks_src_ref` in a PR, which then runs this suite against the new commit.
+      # The pin lives only in versions.hcl; it is read here, never repeated.
+      - name: Read demo pin
+        id: pin
+        run: echo "ref=$(python3 tools/track-tester/ci/read_pin.py dapr-101/versions.hcl tracks_src_ref)" >> "$GITHUB_OUTPUT"
+      # Toolchain versions come from the sandbox module so CI tests what the image ships.
+      - name: Read toolchain pins
+        id: toolchain
+        run: |
+          {
+            echo "dotnet=$(python3 tools/track-tester/ci/read_pin.py modules/dapr-sandbox/versions.hcl dotnet_sdk_channel)"
+            echo "java=$(python3 tools/track-tester/ci/read_pin.py modules/dapr-sandbox/versions.hcl java_version)"
+            echo "node=$(python3 tools/track-tester/ci/read_pin.py modules/dapr-sandbox/versions.hcl node_major)"
+          } >> "$GITHUB_OUTPUT"
+      # The demo repo is public, so the default GITHUB_TOKEN is sufficient; no PAT is needed.
+      - uses: actions/checkout@v4
+        with:
+          repository: diagrid-labs/ai-agent-tracks-instruqt
+          ref: ${{ steps.pin.outputs.ref }}
+          path: ai-agent-tracks-instruqt
       - uses: astral-sh/setup-uv@v5
+      # 10.0.x only (test-dapr-workflow.yml installs 8.0.x and 9.0.x): the dapr-101 .NET demos
+      # target net10.0, so older SDKs cannot build them.
       - name: Set up .NET
+        id: dotnet
         if: matrix.lang == 'dotnet'
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            8.0.x
-            9.0.x
+          dotnet-version: '${{ steps.toolchain.outputs.dotnet }}.x'
       - name: Set up Java
+        id: jdk
         if: matrix.lang == 'java'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
-      # The Java quickstarts are cloned into $HOME/quickstarts at runtime (outside the
-      # workspace), so setup-java's built-in `cache: maven` can't find their poms to key on.
-      # Cache ~/.m2 explicitly instead. A per-run key with a prefix restore-key means we
-      # always restore the newest prior cache and re-save (picking up any new deps) each run.
+          java-version: '${{ steps.toolchain.outputs.java }}'
+      # setup-java's built-in `cache: maven` would not reliably find these poms, so cache ~/.m2
+      # explicitly. The key is the hash of the demo poms (inside the workspace, see TRACKS_SRC_DIR
+      # above); a prefix restore-key still restores the newest older cache when a pom changes,
+      # so only the delta is downloaded.
       - name: Cache Maven repository
         if: matrix.lang == 'java'
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
-          key: maven-dapr101-${{ github.run_id }}
+          key: maven-dapr101-${{ hashFiles('ai-agent-tracks-instruqt/dapr-101/java/**/pom.xml') }}
           restore-keys: |
             maven-dapr101-
       - name: Set up Node
+        id: node
         if: matrix.lang == 'javascript'
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '${{ steps.toolchain.outputs.node }}'
+      - name: Set up Python
+        id: py
+        if: matrix.lang == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # Runs a full `dapr init` (Docker is preinstalled on ubuntu-latest), then fails if the runtime
+      # that came up is not the pinned MAJOR.MINOR. No broker is started here: the demos use the Redis
+      # container that `dapr init` starts.
+      #
+      # The Dapr install is deliberately unpinned (see the script): the suites assert what a learner
+      # gets today, so a new Dapr minor turns the runtime guard red. That is the correct signal; the
+      # step below makes it legible. Output is teed to a log so the failing reason can be recorded.
       - name: Setup Dapr sandbox
-        run: bash tools/track-tester/ci/setup-dapr-101.sh
+        id: setup
+        shell: bash
+        run: |
+          mkdir -p tools/track-tester/results
+          bash tools/track-tester/ci/setup-dapr-101.sh 2>&1 | tee tools/track-tester/results/setup.log
       - name: Sync harness
+        id: sync
         run: (cd tools/track-tester && uv sync)
-      # Pre-warm the Maven cache OUTSIDE the harness's timed build step. `mvn clean install`
-      # runs under a hard 300s timeout (dapr.resource); on a cold ~/.m2 the dependency
-      # download alone can exceed that and the build gets SIGTERM'd mid-download. Fetching
-      # dependencies here (untimed) means the timed step only has to compile and test.
+      # Pre-warm the Maven cache OUTSIDE the harness's timed run, as the dapr-workflow Java leg
+      # does. The Java apps start via Maven under an app-readiness timeout; on a cold ~/.m2 the
+      # dependency download would eat into time that also has to cover compile and startup.
+      # Every Java app folder under dapr-101/java (each has its own pom). Found by glob so a new
+      # app folder is warmed too.
       - name: Pre-warm Maven dependencies
+        id: prewarm
         if: matrix.lang == 'java'
         run: |
-          QS="${QUICKSTARTS_DIR:-$HOME/quickstarts}"
-          for proj in \
-            service_invocation/java/http/order-processor \
-            service_invocation/java/http/checkout \
-            pub_sub/java/sdk/order-processor \
-            pub_sub/java/sdk/checkout; do
-            echo "::group::go-offline $proj"
-            mvn -q -B -f "$QS/$proj/pom.xml" dependency:go-offline
+          JAVA_BASE="$TRACKS_SRC_DIR/dapr-101/java"
+          poms="$(find "$JAVA_BASE" -name pom.xml | sort)"
+          if [ -z "$poms" ]; then
+            echo "::error::no pom.xml found under $JAVA_BASE"
+            exit 1
+          fi
+          for pom in $poms; do
+            echo "::group::go-offline ${pom#"$JAVA_BASE"/}"
+            mvn -q -B -f "$pom" dependency:go-offline
             echo "::endgroup::"
           done
-      - name: Run challenges 4 and 5 for ${{ matrix.lang }}
+      # Any failure BEFORE the results loop (toolchain setup, the Dapr setup script, `uv sync`,
+      # the Maven pre-warm) writes no failed-<lang>.txt, so the report job would open an issue with
+      # no cause in it. Record one here. Conditioned on failure() || cancelled() rather than on a
+      # step's `failure` outcome, so a cancelled step (e.g. one killed by a timeout) is recorded too.
+      # It sits before the run step, so it cannot fire for an ordinary test failure.
+      - name: Record pre-test failure
+        if: failure() || cancelled()
+        shell: bash
+        env:
+          OUTCOMES: >-
+            Set-up-.NET=${{ steps.dotnet.outcome }}
+            Set-up-Java=${{ steps.jdk.outcome }}
+            Set-up-Node=${{ steps.node.outcome }}
+            Set-up-Python=${{ steps.py.outcome }}
+            Setup-Dapr-sandbox=${{ steps.setup.outcome }}
+            Sync-harness=${{ steps.sync.outcome }}
+            Pre-warm-Maven=${{ steps.prewarm.outcome }}
+        run: |
+          mkdir -p tools/track-tester/results
+          step=""
+          for o in $OUTCOMES; do
+            case "${o#*=}" in success|skipped|"") ;; *) step="${o%%=*}"; break ;; esac
+          done
+          step="${step//-/ }"
+          reason=""
+          if [ "$step" = "Setup Dapr sandbox" ]; then
+            # The script's first `ERROR:` line; for the runtime guard it names both versions.
+            reason="$(grep -m1 '^ERROR:' tools/track-tester/results/setup.log 2>/dev/null || true)"
+          fi
+          [ -n "$reason" ] || reason="step '${step:-unknown}' did not succeed; see its log"
+          # Reasons are rendered inside backticks in the issue; neutralise any backtick.
+          reason="${reason//\`/\'}"
+          echo "${{ matrix.lang }}: setup-failed: $reason" > tools/track-tester/results/failed-${{ matrix.lang }}.txt
+          echo "::error::Pre-test failure (${{ matrix.lang }}): $reason"
+      - name: Run all dapr-101 challenges for ${{ matrix.lang }}
         run: |
           cd tools/track-tester
           mkdir -p results
@@ -162,34 +253,101 @@ jobs:
           # failing challenges for this language (the `if !` guard is exempt from `set -e`,
           # so the loop keeps going). Fail the job at the end if any challenge failed.
           failed=""
-          for ch in 4-service-invocation-api:ch4 5-pubsub-api:ch5; do
+          # One list drives both the run loop and the dry run below. ch2 and ch3 carry no language
+          # tag, so `--include <lang>` would match no tests there (robot exit 252): they run only in
+          # the `shared` leg. The language legs run the tagged challenges (ch4, ch5, including their
+          # port checks); with the port checks tagged, `shared` would match no test in ch4 and ch5.
+          if [ "${{ matrix.lang }}" = "shared" ]; then
+            challenges="2-dapr-cli:ch2 3-state-management-api:ch3"
+          else
+            challenges="4-service-invocation-api:ch4 5-pubsub-api:ch5"
+          fi
+          # shellcheck disable=SC2086  # $TEST_FILTER is several words by design
+          for ch in $challenges; do
             dir="${ch%%:*}"; out="${ch##*:}"
-            if ! uv run robot --outputdir "results/$out" --include ${{ matrix.lang }} \
+            if ! uv run robot --outputdir "results/$out" $TEST_FILTER \
               "../../dapr-101/$dir/tests/challenge.robot"; then
               failed="$failed $dir"
             fi
           done
-          # Merge the per-challenge results into one indexed report (results/report.html +
-          # results/log.html) so a single file lists every challenge with its status at a
-          # glance. `|| true` because rebot's exit code reflects test failures too.
-          uv run rebot --outputdir results --name "dapr-101 (${{ matrix.lang }})" \
+          # Merge the per-challenge results into one indexed report. `|| true` because rebot's
+          # exit code reflects test failures too.
+          uv run rebot --outputdir results --output output.xml --name "dapr-101 (${{ matrix.lang }})" \
             results/ch*/output.xml || true
+          # Guard against a green run that tested nothing (a filter matching no tests, a future
+          # Skip, or a suite that crashed before running its tests). A dry run of the same suites
+          # and filter gives the expected test count; the merged result must contain exactly that
+          # many tests, none skipped. Test FAILURES are not judged here (robot's own exit code in
+          # the loop above already fails the leg for those).
+          #
+          # This does NOT prove the filter selects every test in the suite: the dry run applies the
+          # same filter, so a test that no leg's filter matches is invisible to it. That coverage
+          # comes from the `shared` leg, whose inverse filter picks up every test with no language
+          # tag. A new language tag must be added to the matrix and to the `shared` exclusions.
+          suites=""
+          for ch in $challenges; do suites="$suites ../../dapr-101/${ch%%:*}/tests/challenge.robot"; done
+          # shellcheck disable=SC2086
+          uv run robot --dryrun $TEST_FILTER --output results/expected.xml \
+            --log NONE --report NONE $suites > /dev/null || true
+          if ! uv run python - results/expected.xml results/output.xml <<'PY'
+          import sys
+          from robot.api import ExecutionResult
+          exp = ExecutionResult(sys.argv[1]).statistics.total
+          got = ExecutionResult(sys.argv[2]).statistics.total
+          print(f"expected {exp.total} tests, merged result has {got.total} (passed {got.passed}, failed {got.failed}, skipped {got.skipped})")
+          ok = exp.total > 0 and got.total == exp.total and got.skipped == 0
+          sys.exit(0 if ok else 1)
+          PY
+          then
+            echo "::error::Test count mismatch for ${{ matrix.lang }}: no tests ran, the count differs from the dry run, or a test was skipped (a filter that matches nothing, a suite that crashed, a Skip)"
+            failed="$failed count-mismatch"
+          fi
           if [ -n "$failed" ]; then
             # Record for the aggregate issue, then fail the job.
             echo "${{ matrix.lang }}:$failed" > results/failed-${{ matrix.lang }}.txt
             echo "::error::Failed challenges (${{ matrix.lang }}):$failed"
             exit 1
           fi
+      # The run step is the one that hits the job timeout, and `Record pre-test failure` above has
+      # already been evaluated (and skipped) by then. cancelled() is true for a timed-out job, and
+      # for nothing else here since fail-fast is off. Do not overwrite a record the run step wrote.
+      - name: Record timeout
+        if: cancelled()
+        shell: bash
+        run: |
+          mkdir -p tools/track-tester/results
+          f=tools/track-tester/results/failed-${{ matrix.lang }}.txt
+          [ -s "$f" ] || echo "${{ matrix.lang }}: timed-out: the leg exceeded its time budget" > "$f"
+          echo "::error::${{ matrix.lang }} leg exceeded its time budget"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: robot-${{ matrix.lang }}
           path: tools/track-tester/results/
+          if-no-files-found: ignore
+
+  # Single, non-matrix result for the required check. Succeeds when the gated jobs passed or were
+  # skipped (irrelevant PR); fails on any failure or cancellation. Not a dependency of `report`.
+  dapr-101-result:
+    needs: [changes, docsync, languages]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fail if any gated job failed or was cancelled
+        env:
+          RESULTS: ${{ needs.changes.result }} ${{ needs.docsync.result }} ${{ needs.languages.result }}
+        run: |
+          echo "changes/docsync/languages: $RESULTS"
+          for r in $RESULTS; do
+            case "$r" in failure|cancelled) echo "::error::a dapr-101 job ended as $r"; exit 1 ;; esac
+          done
 
   report:
-    needs: [docsync, agnostic, languages]
-    if: failure()
+    needs: [docsync, languages]
+    if: failure() && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Download failure summaries
         uses: actions/download-artifact@v4
@@ -201,7 +359,7 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            // Each failing leg wrote a `failed-<leg>.txt` (e.g. "python: 5-pubsub-api")
+            // Each failing leg wrote a `failed-<leg>.txt` (e.g. "python: 5-monitor")
             // into its artifact; gather them so the issue names the exact failures.
             const lines = [];
             const root = 'artifacts';
@@ -218,27 +376,35 @@ jobs:
             if (fs.existsSync(root)) walk(root);
             lines.sort();
             const details = lines.length
-              ? lines.map(l => `  - \`${l}\``).join('\n')
+              ? lines.map(l => `  - \`${l.replace(/`/g, "'")}\``).join('\n')
               : '  - (no per-challenge detail captured — check the failing job logs)';
             // Build one `gh run download` line per failing leg that produced a robot
             // report (docsync uploads only a text summary, no report). Each downloads
             // into its own ./report-<leg> folder so multiple reports can co-exist.
             const reportLegs = [...new Set(lines.map(l => l.split(':')[0].trim()))]
               .filter(leg => leg && leg !== 'docsync');
-            const downloadCmds = (reportLegs.length ? reportLegs : ['<lang>'])
-              .map(leg => `gh run download ${context.runId} -n robot-${leg} -D ./report-${leg}`)
-              .join('\n');
-            const openLeg = reportLegs.length ? reportLegs[0] : '<lang>';
-            const title = 'Dapr 101 track drift detected';
+            const downloadCmds = reportLegs.length
+              ? reportLegs.map(leg => `gh run download ${context.runId} -n robot-${leg} -D ./report-${leg}`).join('\n')
+              : '# doc-sync failure only: no robot report; see the docsync job log';
+            // A setup failure (runtime guard, missing demo folder) is not drift in the
+            // assignments; give it its own title and intro so a maintainer can tell them apart.
+            const setupLines = lines.filter(l => l.includes('setup-failed'));
+            const setupOnly = lines.length > 0 && setupLines.length === lines.length;
+            const title = setupOnly
+              ? 'Dapr 101 track setup failed'
+              : 'Dapr 101 track drift detected';
+            const intro = setupOnly
+              ? `The dapr-101 leg(s) **failed before any challenge ran**, so nothing was tested. The assignments may be fine: this is the environment, or Dapr itself has moved. If the reason names a runtime newer than the pin, that is the intended signal that Dapr moved past the pinned version: re-verify the assignments' expected output (and \`tools/track-tester/variables/dapr_101.py\`) on the new runtime, then update \`dapr_runtime_version\` (and \`prewarm_dapr_runtime_version\` in \`modules/dapr-sandbox/versions.hcl\`) in \`dapr-101/versions.hcl\` (\`tools/track-tester/ci/setup-dapr-101.sh\` reads the pin from there).`
+              : `The dapr-101 drift test **failed**.${setupLines.length ? ' (At least one leg also failed during setup; see the entries marked \`setup-failed\`.)' : ''}`;
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const body = [
-              `The dapr-101 drift test **failed**.`,
+              intro,
               ``,
               `**Failing legs (\`leg: challenge …\`):**`,
               details,
               ``,
               `- Run: ${runUrl}`,
-              `- For a per-language index, download the \`robot-<lang>\` (or \`robot-agnostic\`) artifact and open \`report.html\` (every challenge listed; failures in red) or \`log.html\`.`,
+              `- For a per-language index, download the \`robot-<lang>\` artifact and open \`report.html\` (every challenge listed; failures in red) or \`log.html\`.`,
               ``,
               `Download and open the report(s) for the failing leg(s):`,
               '```bash',

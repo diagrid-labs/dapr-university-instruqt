@@ -131,7 +131,7 @@ Assert Version Line Matches Minor
     # of ${pinned}, with ANY patch (and any pre-release suffix). Patch releases
     # (1.18.0 -> 1.18.4) therefore don't fail the suite, while a minor/major bump still
     # does - that's the drift worth reporting, since that's when the assignment's expected
-    # output (and the pinned version in _setup/sandbox-setup.sh) genuinely needs revisiting.
+    # output (and the pinned version in the track's versions.hcl, or in modules/dapr-sandbox/versions.hcl) genuinely needs revisiting.
     [Arguments]    ${output}    ${label}    ${pinned}
     # The pattern is assembled in Python (via Evaluate) because it must not contain a
     # literal backslash: Robot strips backslashes out of test data before the expression

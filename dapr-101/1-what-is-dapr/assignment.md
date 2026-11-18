@@ -1,6 +1,8 @@
-## 1. Why Dapr?
+# What is Dapr
 
-Dapr, the Distributed Application Runtime, is used by many large enterprises, such as Grafana, Zeiss, and FICO, to speed up distributed application development. On average, application developers save 30% of development time when using Dapr, compared to not using Dapr for building back-end applications. This theoretical challenge takes about 3 minutes to complete.
+Dapr, the Distributed Application Runtime, is used by many large enterprises, such as Grafana, Zeiss, and FICO, to speed up distributed application development. On average, application developers save 30% of development time when using Dapr, compared to not using Dapr for building back-end applications. This lab takes about 3 minutes to complete.
+
+## 1. Why Dapr?
 
 Dapr provides APIs, which decouples your application code from the underlying infrastructure your applications are using, such as data stores, message brokers, secret stores and many others. This means that your code does not use any resource-specific code or dependencies, and you can easily swap out these resources without any code changes.
 
@@ -12,7 +14,7 @@ You can use any language when building distributed applications with Dapr, since
 
 Your application communicates with the Dapr sidecar via HTTP or gRPC. Dapr also offers client SDKs that make it even easier to communicate with the sidecar, especially for typed languages.
 
-Currentely Dapr has SDKs for these languages:
+Currently Dapr has SDKs for these languages:
 - .NET
 - Java
 - Python
@@ -42,4 +44,8 @@ Dapr also provides built-in capabilities for **security**, **observability**, an
 
 ---
 
-This Dapr 101 learning track covers the State Management, Service Invocation, and Pub/Sub APIs. Future learning tracks will cover more APIs and cross-cutting concerns.
+This Dapr 101 lab covers the State Management, Service Invocation, and Pub/Sub APIs. Other University tracks cover more APIs and cross-cutting concerns.
+
+## What's next?
+
+In the next lab you'll use the Dapr CLI: you'll check that it's installed and that Dapr is initialized in the sandbox.
