@@ -11,6 +11,8 @@ TRACKS_SRC_DIR = os.environ.get("TRACKS_SRC_DIR") or os.path.expanduser("~/ai-ag
 DAPR101_BASE = os.path.join(TRACKS_SRC_DIR, "dapr-101")
 # Demo folder names per language, used as ${SVC_DEMO}[${lang}], e.g. ${DAPR101_BASE}/python/${SVC_DEMO}[python].
 # PascalCase for .NET (matching the .csproj), kebab-case for the others.
+# Page 3: a run template that starts only a sidecar (app ID myapp, HTTP port 3500).
+STATE_DEMO = "state-management"
 SVC_DEMO = {"dotnet": "ServiceInvocation", "python": "service-invocation", "java": "service-invocation", "javascript": "service-invocation"}
 PUBSUB_DEMO = {"dotnet": "PubSub", "python": "pub-sub", "java": "pub-sub", "javascript": "pub-sub"}
 # Log markers the apps print once the flow works.

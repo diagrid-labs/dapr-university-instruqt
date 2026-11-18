@@ -7,31 +7,52 @@ The goal of this lab is to run the Dapr sidecar in self-hosted mode and use the 
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
-First a Dapr sidecar process needs to be started. Run this command in the **Dapr CLI** window:
+First a Dapr sidecar process needs to be started. Use the **Editor** tab and open `state-management/dapr.yaml`:
 
-```bash,run
-dapr run --app-id myapp --dapr-http-port 3500
+```yaml,nocopy
+version: 1
+apps:
+  - appID: myapp
+    appDirPath: .
+    daprHTTPPort: 3500
 ```
+
+This run template starts one Dapr sidecar with the app ID `myapp` and HTTP port `3500`. It has no `command`, so no application starts: you make the HTTP requests with cURL yourself.
 
 > [!NOTE]
-> When you run a Dapr process, you always need to specify an `app-id` that identifies your application. In this case there is no application but you're executing cURL commands, so in a sense you are the application that uses the Dapr API.
+> Dapr always needs an app ID that identifies your application. In this case there is no application but you're executing cURL commands, so in a sense you are the application that uses the Dapr API.
 
-A lot of output will be printed by running this command. The last few lines should contain:
+Use the **Dapr CLI** window to go to the `state-management` folder:
 
-```text,nocopy
-ℹ️  Dapr sidecar is up and running.
-✅  You're up and running! Dapr logs will appear here.
+```bash,run
+cd /root/ai-agent-tracks-instruqt/dapr-101/state-management
 ```
 
-Open the **Dev Dashboard** tab and go to the **Applications** page: `myapp` is listed there, and its sidecar is ready when the **Health** column shows a green dot. Then go back to the **Editor** tab.
+Start the sidecar with the Dapr CLI:
 
-If you scroll up in the **Dapr CLI** window you'll find this info statement that tells you what type of storage Dapr is using in this demo:
-
-```text,nocopy
-INFO[0000] Component loaded: statestore (state.redis/v1)
+```bash,run
+dapr run -f .
 ```
 
-At the end of this lab you'll inspect this in more detail.
+The output should contain these lines. The gRPC port number can differ:
+
+```text,nocopy
+⚠  No application command found for app "myapp" present in dapr.yaml
+ℹ️  Started Dapr with app id "myapp". HTTP Port: 3500. gRPC Port: 50001
+ℹ️  Writing log files to directory : /root/ai-agent-tracks-instruqt/dapr-101/state-management/.dapr/logs
+```
+
+The warning is expected, since the run template has no application. Because you started the sidecar with a run template, Dapr writes the sidecar logs to a file instead of the terminal, and the **Dev Dashboard** shows them.
+
+Open the **Dev Dashboard** tab and go to the **Applications** page: `myapp` is listed there, and its sidecar is ready when the **Health** column shows a green dot.
+
+Now go to the **Logs** page, select `myapp` in the application drop-down, select the `daprd` source to see the sidecar logs, and type `Component loaded` in the search bar. You'll find this line, which tells you what type of storage Dapr is using in this demo:
+
+```text,nocopy
+Component loaded: statestore (state.redis/v1)
+```
+
+Then go back to the **Editor** tab. At the end of this lab you'll inspect this component in more detail.
 
 ## 2. Save state
 
@@ -90,8 +111,7 @@ Use the **Dapr CLI** window to stop the sidecar by pressing `Ctrl+C`.
 The output should be:
 
 ```text,nocopy
-terminated signal received: shutting down
-✅  Exited Dapr successfully
+ℹ️  Received signal to stop Dapr and app processes. Shutting down Dapr and app processes.
 ```
 
 ## 8. Inspect the state store component file
