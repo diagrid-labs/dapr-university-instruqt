@@ -63,7 +63,7 @@ currently have `track-tester` suites and CI workflows.
 New tracks are 2.0 labs; `dapr-101`, `dapr-secrets` and `dapr-pubsub` are the references. The legacy sections
 that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1.0 tracks.
 
-- **Lab layout.** A lab root (`dapr-secrets/`, `dapr-pubsub/`) holds HCL instead of README config:
+- **Lab layout.** A lab root (`dapr-101/`, `dapr-secrets/`, `dapr-pubsub/`) holds HCL instead of README config:
   `main.hcl` (the `lab` resource: title, description, timeouts, chapters/pages), `versions.hcl`,
   `layouts.hcl`, `tabs.hcl`, `pages.hcl`, plus `scripts/` (`lab-setup.sh` with the lab's own steps
   only, and helpers such as `seed-vault.sh`) and `<n>-<slug>/` challenge folders with
@@ -316,8 +316,9 @@ Everything runs from **`tools/track-tester/`** via `uv` (so paths to suites are
 `../../<track>/...`). The examples wrap that in a subshell so you can paste from the repo root.
 
 ```bash
-# One-time: reproduce the sandbox (clones dapr/quickstarts to ~/quickstarts, installs the
-# Dapr CLI, runs `dapr init` — this re-inits your local Dapr). Needs Docker running.
+# One-time: reproduce the sandbox (installs the Dapr CLI, runs `dapr init` — this re-inits your
+# local Dapr). Needs Docker running. dapr-workflow clones dapr/quickstarts to ~/quickstarts; the
+# 2.0 labs clone the demo repo to ~/ai-agent-tracks-instruqt at their `tracks_src_ref` pin.
 bash tools/track-tester/ci/setup-dapr-101.sh        # dapr-101 (clones the demo repo, pins the Dapr CLI,
                                                     # inits Dapr)
 bash tools/track-tester/ci/setup-dapr-workflow.sh   # dapr-workflow (Dapr CLI from master)
@@ -326,9 +327,9 @@ bash tools/track-tester/ci/setup-dapr-secrets.sh    # dapr-secrets (clones the d
 bash tools/track-tester/ci/setup-dapr-pubsub.sh     # dapr-pubsub (clones the demo repo,
                                                     # installs the Dapr CLI, inits Dapr)
 
-# Optional: point suites at an existing checkout instead of ~/quickstarts.
+# Optional: point the dapr-workflow suites at an existing checkout instead of ~/quickstarts.
 export QUICKSTARTS_DIR="$HOME/dev/dapr/quickstarts"
-# The dapr-secrets and dapr-pubsub suites use their own checkout, with the same pattern.
+# The dapr-101, dapr-secrets and dapr-pubsub suites use their own checkout, with the same pattern.
 export TRACKS_SRC_DIR="$HOME/dev/diagrid-labs/ai-agent-tracks-instruqt"
 
 # Sync harness deps.

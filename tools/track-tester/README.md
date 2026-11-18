@@ -2,8 +2,8 @@
 
 End-to-end drift tests for Dapr University tracks, built on [Robot Framework](https://robotframework.org/).
 The tests run the *actual* commands a learner runs and assert on their output, so that drift between a
-track's `assignment.md` files and the upstream code they depend on (e.g. `dapr/quickstarts`, and
-`diagrid-labs/ai-agent-tracks-instruqt` for `dapr-secrets`) is caught automatically.
+track's `assignment.md` files and the upstream code they depend on (e.g. `dapr/quickstarts` for `dapr-workflow`, and
+`diagrid-labs/ai-agent-tracks-instruqt` for `dapr-101`, `dapr-secrets` and `dapr-pubsub`) is caught automatically.
 
 ## Layout
 
@@ -28,19 +28,22 @@ that in a subshell: `(cd tools/track-tester && …)`, so you can paste them from
 ### Setup
 
 ```bash
-# One-time: reproduce the sandbox environment. Clones dapr/quickstarts to ~/quickstarts,
+# One-time: reproduce the sandbox environment. dapr-workflow clones dapr/quickstarts to ~/quickstarts,
 # installs the Dapr CLI if you don't have one, and runs `dapr init` (re-inits your local Dapr).
-bash tools/track-tester/ci/setup-dapr-101.sh     # dapr-101 (installs Dapr CLI from master)
 bash tools/track-tester/ci/setup-dapr-workflow.sh # dapr-workflow (installs Dapr CLI from master)
+# dapr-101 clones diagrid-labs/ai-agent-tracks-instruqt at `tracks_src_ref` to
+# ~/ai-agent-tracks-instruqt, installs the pinned Dapr CLI and runs `dapr init`. Pins are read with
+# ci/read_pin.py from dapr-101/versions.hcl and modules/dapr-sandbox/versions.hcl.
+bash tools/track-tester/ci/setup-dapr-101.sh      # dapr-101
 # dapr-secrets clones diagrid-labs/ai-agent-tracks-instruqt to ~/ai-agent-tracks-instruqt,
 # pins the Dapr CLI/runtime, and starts and seeds a HashiCorp Vault container.
 bash tools/track-tester/ci/setup-dapr-secrets.sh  # dapr-secrets
 
-# Optional: point the suites at an existing quickstarts checkout instead of ~/quickstarts.
+# Optional: point the dapr-workflow suites at an existing quickstarts checkout instead of ~/quickstarts.
 # The suites read this env var directly (via variables/*.py); no --variable needed.
 export QUICKSTARTS_DIR="$HOME/dev/dapr/quickstarts"
 
-# Same idea for dapr-secrets, which uses its own demo checkout.
+# Same idea for dapr-101, dapr-secrets and dapr-pubsub, which use the demo repo checkout.
 export TRACKS_SRC_DIR="$HOME/dev/diagrid-labs/ai-agent-tracks-instruqt"
 ```
 
@@ -141,7 +144,7 @@ If you ran challenges into separate output dirs (as CI does, one per challenge),
 ## Local development on macOS
 
 The `ci/setup-dapr-101.sh` script is written for the **Ubuntu CI runner** — it reproduces the Instruqt
-sandbox from scratch (clone quickstarts, install the Dapr CLI, `dapr init`). On macOS it works,
+sandbox from scratch (clone the demo repo, install the Dapr CLI, `dapr init`). On macOS it works,
 but two things bite:
 
 - **`dapr init` needs the Docker daemon running** (it starts the Redis/placement/scheduler/zipkin
@@ -154,23 +157,23 @@ but two things bite:
   first on `PATH` is the one challenge 2 asserts against; `which -a dapr` shows which that is.
 
 **Recommended for local suite development: skip the setup script's installer entirely.** You almost
-certainly already have Docker and a Dapr CLI. Just point the suites at a quickstarts checkout and use
+certainly already have Docker and a Dapr CLI. Just point the suites at a demo repo checkout and use
 your existing Dapr:
 
 ```bash
 # Ensure Docker is running, then initialize Dapr once:
 dapr init
 
-# Point the suites at your quickstarts checkout (or ~/quickstarts):
-export QUICKSTARTS_DIR="$HOME/dev/dapr/quickstarts"
+# Point the suites at your demo repo checkout (or ~/ai-agent-tracks-instruqt):
+export TRACKS_SRC_DIR="$HOME/dev/diagrid-labs/ai-agent-tracks-instruqt"
 
 # Run a suite (challenges 3/4/5 don't care about the exact CLI version):
 (cd tools/track-tester && uv run robot --include python \
   ../../dapr-101/4-service-invocation-api/tests/challenge.robot)
 ```
 
-Only **challenge 2** asserts a version, and only its **MAJOR.MINOR** (`1.18.x`, taken from the pin in
-`dapr-101/_setup/sandbox-setup.sh`): any patch release passes, so neither the suite nor the pin has to
+Only **challenge 2** asserts a version, and only its **MAJOR.MINOR** (`1.18.x`, read from `DAPR_CLI_VERSION` / `DAPR_RUNTIME_VERSION`, which
+`setup-dapr-101.sh` derives from the pins in `modules/dapr-sandbox/versions.hcl` and `dapr-101/versions.hcl`): any patch release passes, so neither the suite nor the pin has to
 be touched when Dapr ships 1.18.4. If your local `dapr` is on a different *minor*, that suite reports
 a mismatch — which is a *correct* signal, not a bug: it's the same signal the nightly run gives when
 Dapr's minor moves and the assignment's expected output needs updating. Either skip it locally (run
