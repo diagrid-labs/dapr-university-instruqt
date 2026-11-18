@@ -180,8 +180,7 @@ tools/track-tester/
     setup-dapr-pubsub.sh    (reads pins via read_pin.py, clones the demo repo, inits Dapr)
     read_pin.py, validate-lab.sh, check_lab_paths.py   2.0 lab helpers; tests in ci/tests/
                          (test_read_pin, test_validate_lab, test_check_lab_paths, test_sandbox_setup,
-                         test_secrets_checks, test_pubsub_checks, test_pubsub_lib_checks,
-                         test_pubsub_pins)
+                         test_pubsub_lab_setup, test_pubsub_pins)
   results/               (gitignored) output dirs from local/CI runs
 ```
 
