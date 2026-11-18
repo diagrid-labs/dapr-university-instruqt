@@ -39,8 +39,8 @@ State Management API Round Trip
     Run And Expect RC Zero
     ...    curl -v -X DELETE -H "Content-Type: application/json" http://localhost:3500/v1.0/state/statestore/name
 
-    # Stand-in for the page's second State page step: the record is gone.
-    # Confirm the key is really gone. `Should Not Contain` is the negative assertion.
+    # Stand-in for the page's second State page step: confirm the key is really gone.
+    # `Should Not Contain` is the negative assertion.
     ${r}=    Run And Expect RC Zero    docker exec dapr_redis redis-cli KEYS '*'
     Should Not Contain    ${r.stdout}    myapp||name
 
