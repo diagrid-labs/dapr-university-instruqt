@@ -230,13 +230,9 @@ Here is what you did in this track:
 
 ## Collect your badge & provide feedback
 
-Congratulations! 🎉 You've completed the Dapr University pub/sub learning track! Click **Finish & Exit** below to finish the lab 🚀.
+Congratulations! 🎉 You've completed the Dapr University pub/sub learning track!
 
-Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmwkvuq6x0003l4085i88jbl5). You'll need a GitHub account to claim the badge.
-
-[![Dapr University Dapr Pub/Sub badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/6-swap-the-broker/images/Diagrid-Dapr-Uni-badge-pubsub_x300.png?raw=true)](https://holopin.io/collect/cmwkvuq6x0003l4085i88jbl5)
-
-## Next steps
+### Next steps
 
 We have more opportunities for you to learn and share knowledge:
 
@@ -250,5 +246,11 @@ We have more opportunities for you to learn and share knowledge:
 **Join the community**
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#agents* and language channels.
 - Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.
+
+### Collect the badge
+
+Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmwkvuq6x0003l4085i88jbl5). You'll need a GitHub account to claim the badge. Then come back to this page and click **Finish & Exit** below to finish the lab and provide feedback.
+
+[![Dapr University Dapr Pub/Sub badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/6-swap-the-broker/images/Diagrid-Dapr-Uni-badge-pubsub_x300.png?raw=true)](https://holopin.io/collect/cmwkvuq6x0003l4085i88jbl5)
 
 <instruqt-completion text="You've completed Dapr Pub/Sub!"></instruqt-completion>
