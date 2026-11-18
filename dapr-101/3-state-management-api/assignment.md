@@ -2,40 +2,69 @@
 
 The goal of this lab is to run the Dapr sidecar in self-hosted mode and use the State Management HTTP API to interact with a state store. You do this without running any application code: you make HTTP requests with cURL and send them to the Dapr process. This hands-on lab takes about 5 minutes to complete.
 
-## Before you start
-
-The terminals, and the applications running in them, stay as they are when you move between labs. Open the **Dev Dashboard** tab and look at which applications are running. If any are, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
-
 ## 1. Run a Dapr sidecar
 
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
-First a Dapr sidecar process needs to be started. Run this command in the **Dapr CLI** window:
+First a Dapr sidecar process needs to be started. Use the **Editor** tab and open `state-management/dapr.yaml`:
 
-```bash,run
-dapr run --app-id myapp --dapr-http-port 3500
+```yaml,nocopy
+version: 1
+apps:
+  - appID: myapp
+    appDirPath: .
+    daprHTTPPort: 3500
 ```
+
+This file is a Dapr *Multi-App Run* template. It describes one or more applications that the Dapr CLI starts together, each with its own Dapr sidecar, when you run `dapr run -f .` in the folder that holds it. This template describes one entry under `apps`:
+
+- `version: 1` is the version of the template format.
+- `appID: myapp` is the app ID of the sidecar. Dapr uses it to identify the application, for example to call it with service invocation or to keep its state apart from the state of other applications.
+- `appDirPath: .` is the folder of the application, relative to `dapr.yaml`. The Dapr CLI starts the application there and writes its log files to a `.dapr/logs` folder inside it.
+- `daprHTTPPort: 3500` fixes the port of the sidecar's HTTP API. Without it, the Dapr CLI picks a free port. A fixed port makes the cURL commands in this lab predictable.
+
+Two settings are missing on purpose:
+
+- There is no `command`, which is the command that starts the application. Without it, the Dapr CLI only starts the sidecar: you make the HTTP requests with cURL yourself.
+- There is no `resourcesPaths`, which lists the folders with component files. Without it, the sidecar loads the default components that `dapr init` placed in `~/.dapr/components`. One of them is the `statestore` component you'll use in this lab.
+
+For more information on Multi-App Run, see the [Dapr Docs](https://docs.dapr.io/developing-applications/local-development/multi-app-dapr-run/multi-app-overview/).
 
 > [!NOTE]
-> When you run a Dapr process, you always need to specify an `app-id` that identifies your application. In this case there is no application but you're executing cURL commands, so in a sense you are the application that uses the Dapr API.
+> Dapr always needs an app ID that identifies your application. In this case there is no application but you're executing cURL commands, so in a sense you are the application that uses the Dapr API.
 
-A lot of output will be printed by running this command. The last few lines should contain:
+Use the **Dapr CLI** window to go to the `state-management` folder:
 
-```text,nocopy
-ℹ️  Dapr sidecar is up and running.
-✅  You're up and running! Dapr logs will appear here.
+```bash,run
+cd /root/ai-agent-tracks-instruqt/dapr-101/state-management
 ```
 
-Open the **Dev Dashboard** tab and go to the **Applications** page: `myapp` is listed there, and its sidecar is ready when the **Health** column shows a green dot. Then go back to the **Editor** tab.
+Start the sidecar with the Dapr CLI:
 
-If you scroll up in the **Dapr CLI** window you'll find this info statement that tells you what type of storage Dapr is using in this demo:
-
-```text,nocopy
-INFO[0000] Component loaded: statestore (state.redis/v1)
+```bash,run
+dapr run -f .
 ```
 
-At the end of this lab you'll inspect this in more detail.
+The output should contain these lines. The gRPC port number can differ:
+
+```text,nocopy
+⚠  No application command found for app "myapp" present in dapr.yaml
+ℹ️  Started Dapr with app id "myapp". HTTP Port: 3500. gRPC Port: 50001
+ℹ️  Writing log files to directory : /root/ai-agent-tracks-instruqt/dapr-101/state-management/.dapr/logs
+```
+
+The warning is expected, since the template has no `command`. Because you started the sidecar from a run template, the Dapr CLI writes the sidecar logs to a file in the `.dapr/logs` folder instead of the terminal, and the **Dev Dashboard** shows them. A plain `dapr run` without a template only prints the logs in the terminal.
+
+Open the **Dev Dashboard** tab and go to the **Applications** page: `myapp` is listed there, and its sidecar is ready when the **Health** column shows a green dot.
+
+Now go to the **Logs** page, select `myapp` in the application drop-down, select the `daprd` source to see the sidecar logs, and type `Component loaded` in the search bar. You'll find this line, which tells you what type of storage Dapr is using in this demo:
+
+```text,nocopy
+Component loaded: statestore (state.redis/v1)
+```
+
+Then go back to the **Editor** tab. At the end of this lab you'll inspect this component in more detail.
 
 ## 2. Save state
 
@@ -94,13 +123,12 @@ Use the **Dapr CLI** window to stop the sidecar by pressing `Ctrl+C`.
 The output should be:
 
 ```text,nocopy
-terminated signal received: shutting down
-✅  Exited Dapr successfully
+ℹ️  Received signal to stop Dapr and app processes. Shutting down Dapr and app processes.
 ```
 
 ## 8. Inspect the state store component file
 
-Dapr knows to use Redis as the default state store when `statestore` is used in the State Management API endpoint because Dapr reads a component file that contains this definition. When Dapr is initialized with the CLI, several default component files are placed in the `.dapr/components` folder in the user profile.
+Dapr knows to use Redis as the default state store when `statestore` is used in the State Management API endpoint because Dapr reads a component file that contains this definition. When Dapr is initialized with the CLI, several default component files are placed in the `.dapr/components` folder in the user profile. The sidecar loaded them because the run template has no `resourcesPaths`.
 
 Use the **Dapr CLI** window to run the following command to show the content of the default `statestore.yaml` component file in the user profile:
 

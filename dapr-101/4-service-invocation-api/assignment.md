@@ -12,7 +12,7 @@ Use the **Editor** tab and open the service invocation demo folder of your langu
 
 ## 2. Inspect the content of the `dapr.yaml` file
 
-The `dapr.yaml` file is a Dapr Multi-App Run template file and contains information about the Dapr applications to run simultaneously using the Dapr CLI.
+In the previous lab, you started a single sidecar from a Multi-App Run template. The `dapr.yaml` file in this folder is a template too, but this one starts two applications, each with its own sidecar.
 
 For the .NET example the `dapr.yaml` is as follows:
 
@@ -28,10 +28,13 @@ apps:
     command: ["dotnet", "run"]
 ```
 
-You'll see two applications listed in the yaml file: `order-processor` and `checkout`. These are the respective *appIDs*, application identifiers, that Dapr requires. The `order-processor` application has an `appPort` assigned to it, this means that this is a service which can accept HTTP requests. The checkout application does not have an `appPort` and is therefore not a service, and its lifetime is limited to the execution time of the program (it's a console application).
-The `command` part in the yaml file describes how to start the applications. This will be different for other languages and runtimes.
+Compared to the template of the previous lab:
 
-For more information on Multi-App Run, see the [Dapr Docs](https://docs.dapr.io/developing-applications/local-development/multi-app-dapr-run/multi-app-overview/).
+- There are two entries under `apps`, with the app IDs `order-processor` and `checkout`. The Dapr CLI starts both, each with a sidecar.
+- Each entry has an `appDirPath` that points to the folder of that application, so each application writes its logs to its own `.dapr/logs` folder.
+- Each entry has a `command`, which starts the application. It differs per language and runtime: `dotnet run` for .NET, for example.
+- The `order-processor` entry has an `appPort`: the port the application listens on. Its sidecar forwards incoming requests to that port, so `order-processor` is a service that accepts HTTP requests. The `checkout` application has no `appPort`. It is not a service, but a console application that runs until its work is done.
+- There is no `daprHTTPPort`, so the Dapr CLI picks a free HTTP port for each sidecar. Each application gets the port of its own sidecar from the `DAPR_HTTP_PORT` environment variable.
 
 ## 3. Inspect the `checkout` application
 
