@@ -9,7 +9,7 @@ variable "dapr_runtime_version" {
 
 variable "tracks_src_ref" {
   description = "Commit of diagrid-labs/ai-agent-tracks-instruqt that the lab checks out after cloning."
-  default     = "3727c2a0856c0c218940cc1ba1b34d2ce19fbef7"
+  default     = "18d67c0010893130441b2d9494bddb137bde253e"
 }
 
 # Shared sandbox module, published as diagrid/dapr-sandbox (source: ../modules/dapr-sandbox).
