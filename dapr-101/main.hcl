@@ -14,6 +14,10 @@ resource "lab" "main" {
     Complete the track to collect the Dapr University Dapr 101 badge.
 
     ![Dapr University Dapr 101 badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-101/5-pubsub-api/Diagrid-Dapr-Uni-101_x500.png?raw=true)
+
+    While the sandbox starts, you can play with this sketch:
+
+    <iframe src="https://editor.p5js.org/marcduiker/full/b3x-IDrmh"></iframe>
   EOT
 
   settings {
