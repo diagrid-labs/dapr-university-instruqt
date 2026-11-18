@@ -183,7 +183,9 @@ tools/track-tester/
     read_pin.py, validate-lab.sh, check_lab_paths.py   2.0 lab helpers; tests in ci/tests/
                          (test_read_pin, test_validate_lab, test_check_lab_paths, test_sandbox_setup,
                          test_pubsub_lab_setup, test_pubsub_pins, test_dapr101_pages,
-                         test_dapr101_pins)
+                         test_dapr101_pins, test_dapr_init)
+    dapr-init.sh         sourced by setup-dapr-101/secrets/pubsub.sh: `dapr init`, retried in CI
+                         when a container's host port is briefly taken on the runner
   results/               (gitignored) output dirs from local/CI runs
 ```
 
