@@ -127,7 +127,7 @@ The pages use the Dev Dashboard tab (already in `layouts.hcl` and `tabs.hcl`) fo
 | Read app and sidecar logs | **Logs** page: select the app, search for a marker, and switch between the app's and the sidecar's logs | 3, 4, 5 |
 
 - **Labels.** The pages are **Applications** (with the **Health** column), **State**,
-  **Subscriptions** and **Logs**. The first three besides Subscriptions are already used by the live
+  **Subscriptions** and **Logs**. All but Subscriptions are already used by the live
   labs. The public docs (docs.diagrid.io, updated 2026-10-14) don't describe these pages, so before
   writing pages 3 to 5 the builder confirms, in the sandbox's Dev Dashboard
   (`dev_dashboard_version` in `modules/dapr-sandbox/versions.hcl`), the labels of the publish
