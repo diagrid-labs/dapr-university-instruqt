@@ -182,9 +182,9 @@ dapr run -f .
 ###
 
 > [!IMPORTANT]
-> Wait until both applications are running before continuing. The Java applications can take a little longer to start.
+> Wait until both applications have started before continuing. The Java applications can take a little longer to start.
 >
-> Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `order-processor` and `checkout` are ready when the **Health** column shows a green dot. You can also inspect the output of the **Dapr CLI** window.
+> Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `order-processor` is ready when the **Health** column shows a green dot. `checkout` is a console application that stops after it has sent its requests, so its **Health** column shows `app down`. That is expected. You can also inspect the output of the **Dapr CLI** window.
 
 The **Dapr CLI** window should show these lines when the sidecars have started. The port numbers can differ, and your applications' logs follow:
 
