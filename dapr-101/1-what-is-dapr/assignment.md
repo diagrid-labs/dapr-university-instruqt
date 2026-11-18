@@ -44,7 +44,7 @@ Dapr also provides built-in capabilities for **security**, **observability**, an
 
 ---
 
-This Dapr 101 lab covers the State Management, Service Invocation, and Pub/Sub APIs. Future labs will cover more APIs and cross-cutting concerns.
+This Dapr 101 lab covers the State Management, Service Invocation, and Pub/Sub APIs. Other University tracks cover more APIs and cross-cutting concerns.
 
 ## What's next?
 
