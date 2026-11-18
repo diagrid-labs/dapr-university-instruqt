@@ -224,4 +224,4 @@ You've now successfully used the Dapr Service Invocation API to communicate betw
 
 ## What's next?
 
-Let's try another frequently used Dapr API in the next lab, "Use the Pub/Sub API".
+Let's try another frequently used Dapr API in the next lab, the Pub/Sub API.
