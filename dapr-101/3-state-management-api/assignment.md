@@ -1,18 +1,24 @@
-The goal of this challenge is to run the Dapr sidecar in self-hosted mode and use the State Management HTTP API to interact with a state store. This is done without running any application code but by making HTTP  requests using cURL and sending these to the Dapr process. This challenge takes about 5 minutes to complete.
+# Use the State Management API
 
-> [!IMPORTANT]
+The goal of this lab is to run the Dapr sidecar in self-hosted mode and use the State Management HTTP API to interact with a state store. You do this without running any application code: you make HTTP requests with cURL and send them to the Dapr process. This hands-on lab takes about 5 minutes to complete.
+
+> [!NOTE]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
+
+## Before you start
+
+The terminals, and the applications running in them, stay as they are when you move between labs. Open the **Dev Dashboard** tab and look at which applications are running. If any are, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. Then go back to the **Editor** tab.
 
 ## 1. Run a Dapr sidecar
 
-First a Dapr sidecar process needs to be started. Run this command in the *Dapr sidecar terminal*:
+First a Dapr sidecar process needs to be started. Run this command in the **Dapr CLI** window:
 
 ```bash,run
 dapr run --app-id myapp --dapr-http-port 3500
 ```
 
->[!IMPORTANT]
->When you run a Dapr process, you always need to specify an `app-id` that identifies your application. In this case there is no application but you're executing cURL commands, so in a sense you are the application that uses the Dapr API.
+> [!NOTE]
+> When you run a Dapr process, you always need to specify an `app-id` that identifies your application. In this case there is no application but you're executing cURL commands, so in a sense you are the application that uses the Dapr API.
 
 A lot of output will be printed by running this command. The last few lines should contain:
 
@@ -21,21 +27,23 @@ A lot of output will be printed by running this command. The last few lines shou
 ✅  You're up and running! Dapr logs will appear here.
 ```
 
-If you scroll up in the *Dapr sidecar terminal* you'll find this info statement that tells you what type of storage Dapr is using in this demo:
+Open the **Dev Dashboard** tab and go to the **Applications** page: `myapp` is listed there, and its sidecar is ready when the **Health** column shows a green dot. Then go back to the **Editor** tab.
+
+If you scroll up in the **Dapr CLI** window you'll find this info statement that tells you what type of storage Dapr is using in this demo:
 
 ```text,nocopy
 INFO[0000] Component loaded: statestore (state.redis/v1)
 ```
 
-In section 6 of this challenge you'll inspect this in more detail.
+At the end of this lab you'll inspect this in more detail.
 
 ## 2. Save state
 
 You're going to make a `POST` request to the `v1.0/state/statestore` endpoint of the Dapr sidecar that is running on `localhost` and port `3500`.
 - The `/state` part of the endpoint indicates the State Management API will be used.
-- The `/statestore` part of the endpoint indicates the name of the state store component that will be used. The underlying state store component is the `dapr_redis` container that was initialized during the Dapr CLI setup. We'll have a look at the component file at the end of this challenge.
+- The `/statestore` part of the endpoint indicates the name of the state store component that will be used. The underlying state store component is the `dapr_redis` container that was initialized by `dapr init`. We'll have a look at the component file at the end of this lab.
 
-Run the following command in the *cURL terminal*:
+Run the following command in the **curl** window:
 
 ```bash,run
 curl -X POST -H "Content-Type: application/json" -d '[{ "key": "name", "value": "Bruce Wayne"}]' http://localhost:3500/v1.0/state/statestore
@@ -43,12 +51,12 @@ curl -X POST -H "Content-Type: application/json" -d '[{ "key": "name", "value": 
 
 *There will be no return value for this command.*
 
->[!IMPORTANT]
->Note that the State Management API is based on managing key/value objects. If you're looking for SQL based functionality look into [Dapr bindings](https://docs.dapr.io/developing-applications/building-blocks/bindings/bindings-overview/) in the Dapr docs.
+> [!NOTE]
+> Note that the State Management API is based on managing key/value objects. If you're looking for SQL based functionality look into [Dapr bindings](https://docs.dapr.io/developing-applications/building-blocks/bindings/bindings-overview/) in the Dapr docs.
 
 ## 3. Get state
 
-Run the following command in the *cURL terminal* to retrieve the state you just saved:
+Run the following command in the **curl** window to retrieve the state you just saved:
 
 ```bash,run
 curl http://localhost:3500/v1.0/state/statestore/name
@@ -60,48 +68,28 @@ The output should be:
 "Bruce Wayne"
 ```
 
-## 4. Inspect the state using Redis CLI
+## 4. Inspect the state on the Dev Dashboard
 
-Run the following command in the *Redis terminal* to list all the keys in the Redis container:
+Now look at how the state is stored. Open the **Dev Dashboard** tab and go to the **State** page. It lists the records in the state store: find the record with the key `name` and the app prefix `myapp`, and expand it to see its value, `"Bruce Wayne"`. Then go back to the **Editor** tab.
 
-```bash,run
- keys *
-```
-
-The output should be:
-
-```text,nocopy
-1) "myapp||name"
-```
-
->[!IMPORTANT]
-> Note that the key is prefixed with the `app-id` *myapp*. This is the default behaviour in Dapr. Every application manages their  data via the `app-id` prefix. If you want multiple applications to access the same data you can change this by configuring the state store component, see [Specifying a state prefix strategy](https://docs.dapr.io/developing-applications/building-blocks/state-management/howto-share-state/) in the Dapr Docs.
+> [!NOTE]
+> Note that the record belongs to the app `myapp`: Dapr stores the key with the `app-id` as prefix (`myapp||name`). This is the default behaviour in Dapr. Every application manages their data via the `app-id` prefix. If you want multiple applications to access the same data you can change this by configuring the state store component, see [Specifying a state prefix strategy](https://docs.dapr.io/developing-applications/building-blocks/state-management/howto-share-state/) in the Dapr Docs.
 
 ## 5. Delete state
 
-Run the following command in the *cURL terminal* to delete the key/value pair:
+Run the following command in the **curl** window to delete the key/value pair:
 
 ```bash,run
 curl -v -X DELETE -H "Content-Type: application/json" http://localhost:3500/v1.0/state/statestore/name
 ```
 
-## 6. Inspect the state using Redis CLI
+## 6. Verify the state is deleted
 
-Run the following command in the *Redis terminal* to verify the key/value pair is removed from Redis:
+Open the **Dev Dashboard** tab and go to the **State** page again. The record with the key `name` is gone. Then go back to the **Editor** tab.
 
-```bash,run
- keys *
-```
+## 7. Stop the applications
 
-The output should be:
-
-```text,nocopy
-(empty array)
-```
-
-## 7. Stop the Dapr process
-
-Stop the Dapr sidecar by activating the *Dapr sidecar terminal* and typing `CTRL+C`.
+Use the **Dapr CLI** window to stop the sidecar by pressing `Ctrl+C`.
 
 The output should be:
 
@@ -110,11 +98,11 @@ terminated signal received: shutting down
 ✅  Exited Dapr successfully
 ```
 
-## 8. Inspect the State Store  component file
+## 8. Inspect the state store component file
 
-Dapr knows to use Redis as the default state store when `statestore` is used in the State Mangement API endpoint because Dapr reads a component file that contains this definition. When Dapr is initialized with the CLI, several default component files are placed in the `.dapr/components` folder in the user profile.
+Dapr knows to use Redis as the default state store when `statestore` is used in the State Management API endpoint because Dapr reads a component file that contains this definition. When Dapr is initialized with the CLI, several default component files are placed in the `.dapr/components` folder in the user profile.
 
-Ensure that the Dapr process is stopped and use the *Dapr sidecar terminal* to run the following command to show the content of the default `statestore.yaml` component file in the user profile:
+Use the **Dapr CLI** window to run the following command to show the content of the default `statestore.yaml` component file in the user profile:
 
 ```bash,run
 cat ~/.dapr/components/statestore.yaml
@@ -139,13 +127,17 @@ spec:
     value: "true"
 ```
 
->[!IMPORTANT]
->The value of `metadata.name` is `statestore`, this is the same name that is used in the cURL commands to identify this component.
+> [!NOTE]
+> The value of `metadata.name` is `statestore`, this is the same name that is used in the cURL commands to identify this component.
 >
 > The value of `spec.type` is `state.redis`, and this indicates Redis is used as a state store.
 >
 > The `metadata` section is specific to each type of component and will have different fields.
 
+---
+
 Now you know how the Dapr State Management HTTP API can be used to manage key/value data.
 
-Normally you would write an application that uses the Dapr API and not make cURL requests yourself. So let's try running some applications that use the Dapr API in the next assignment.
+## What's next?
+
+Normally you would write an application that uses the Dapr API and not make cURL requests yourself. So in the next lab, "Use the Service Invocation API", you'll run applications that call each other through the Dapr API.

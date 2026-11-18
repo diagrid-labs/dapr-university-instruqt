@@ -1,4 +1,5 @@
 *** Settings ***
+Name              Ch3 State Management
 Documentation     Drift test for dapr-101 challenge 3 (State Management HTTP API).
 # Imports the shared custom keywords (see tools/track-tester/resources/dapr.resource).
 Resource          ../../../tools/track-tester/resources/dapr.resource
@@ -29,13 +30,16 @@ State Management API Round Trip
     Assert Command Output Contains
     ...    curl http://localhost:3500/v1.0/state/statestore/name    Bruce Wayne
 
-    # Custom keyword: run `redis-cli KEYS *` inside the Redis container and assert the key exists.
+    # The page has the learner check the record on the Dev Dashboard State page (key `name`,
+    # app prefix `myapp`). The dashboard is not testable here, so this redis-cli assertion on the
+    # Redis container stands in for it: it proves the `myapp||name` key the page describes exists.
     Assert Redis Keys Contain    myapp||name
 
     # DELETE the key via the Dapr API.
     Run And Expect RC Zero
     ...    curl -v -X DELETE -H "Content-Type: application/json" http://localhost:3500/v1.0/state/statestore/name
 
+    # Stand-in for the page's second State page step: the record is gone.
     # Confirm the key is really gone. `Should Not Contain` is the negative assertion.
     ${r}=    Run And Expect RC Zero    docker exec dapr_redis redis-cli KEYS '*'
     Should Not Contain    ${r.stdout}    myapp||name
@@ -51,9 +55,6 @@ Statestore Component File Is Redis
     Should Contain    ${r.stdout}    name: statestore
 
 # doc-sync coverage:
-#   keys *
-#   (run twice in the assignment's Redis terminal; asserted above via
-#   `docker exec dapr_redis redis-cli KEYS *` through Assert Redis Keys Contain)
 #   cat ~/.dapr/components/statestore.yaml
 #   (asserted above via `cat %{HOME}/.dapr/components/statestore.yaml`, the
 #   Robot Framework/shell-portable equivalent of the assignment's `~`)
