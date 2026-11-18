@@ -6,6 +6,7 @@
 *** Settings ***
 # Suite-level configuration. `Documentation` is free text describing the suite;
 # `...` continues the previous line (used here so the doc can span two lines).
+Name              Ch2 Dapr CLI
 Documentation     Drift test for dapr-101 challenge 2 (Dapr CLI). Assumes the Dapr CLI is
 ...               already installed and `dapr init` has run (done by ci/setup-dapr-101.sh).
 # `Resource` imports the custom keywords (Start Background Process, Run And Expect
@@ -18,11 +19,13 @@ Suite Teardown    Terminate All Processes    kill=True
 *** Variables ***
 # Scalar variables, referenced elsewhere as ${DAPR_VERSION}. Defined once here so
 # the pinned version is easy to bump in a single place. CI overrides both with
-# `robot --variable DAPR_VERSION:<x>` from the values in _setup/sandbox-setup.sh.
+# `robot --variable DAPR_VERSION:<x>`. By default they come from the DAPR_CLI_VERSION and
+# DAPR_RUNTIME_VERSION environment variables that ci/setup-dapr-101.sh exports, read from
+# the pins in modules/dapr-sandbox/versions.hcl and dapr-101/versions.hcl.
 # Only the MAJOR.MINOR part (1.19) is asserted - see the version test below - so a
 # patch release does not need a bump here.
-${DAPR_VERSION}    1.19.0
-${DAPR_RUNTIME_VERSION}    1.19.0
+${DAPR_VERSION}    %{DAPR_CLI_VERSION=1.19.1}
+${DAPR_RUNTIME_VERSION}    %{DAPR_RUNTIME_VERSION=1.19.1}
 
 *** Test Cases ***
 # Each unindented line names a test case; indented lines are the steps it runs.
@@ -38,7 +41,7 @@ Dapr Version Matches Pinned Minor Version
     # version against the labelled line in `${r.stdout}`, so a Dapr patch release
     # (1.19.0 -> 1.19.4) doesn't fail this suite. A minor/major bump still does, because
     # that IS the drift to act on: it means the assignment's expected output and the
-    # pinned versions in _setup/sandbox-setup.sh need updating.
+    # pins in modules/dapr-sandbox/versions.hcl and dapr-101/versions.hcl need updating.
     Assert Version Line Matches Minor    ${r.stdout}    CLI version    ${DAPR_VERSION}
     Assert Version Line Matches Minor    ${r.stdout}    Runtime version    ${DAPR_RUNTIME_VERSION}
 
@@ -48,7 +51,3 @@ Dapr Init Containers Are Running
     Should Contain    ${r.stdout}    dapr_scheduler
     Should Contain    ${r.stdout}    dapr_redis
     Should Contain    ${r.stdout}    dapr_zipkin
-
-# doc-sync coverage (performed by ci/setup-dapr-101.sh, asserted above):
-#   wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
-#   dapr init
