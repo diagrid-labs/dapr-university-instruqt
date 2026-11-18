@@ -63,6 +63,9 @@ State Management API Round Trip
     Wait Until Keyword Succeeds    15s    1s    Sidecar Port Is Closed
 
 Statestore Component File Is Redis
+    # The page has the learner open the `statestore` item on the Dev Dashboard Components page,
+    # which shows ~/.dapr/components/statestore.yaml. The dashboard is not testable here, so this
+    # reads the same file and checks what the page shows.
     # `%{HOME}` reads the HOME environment variable (%{...} = env var, ${...} = RF variable).
     ${r}=    Run And Expect RC Zero    cat %{HOME}/.dapr/components/statestore.yaml
     Should Contain    ${r.stdout}    type: state.redis
@@ -76,6 +79,3 @@ Sidecar Port Is Closed
 # doc-sync coverage:
 #   cd /root/ai-agent-tracks-instruqt/dapr-101/state-management
 #   (the suite runs `dapr run -f .` with cwd=${DAPR101_BASE}/${STATE_DEMO}, the same folder)
-#   cat ~/.dapr/components/statestore.yaml
-#   (asserted above via `cat %{HOME}/.dapr/components/statestore.yaml`, the
-#   Robot Framework/shell-portable equivalent of the assignment's `~`)

@@ -130,13 +130,7 @@ The output should be:
 
 Dapr knows to use Redis as the default state store when `statestore` is used in the State Management API endpoint because Dapr reads a component file that contains this definition. When Dapr is initialized with the CLI, several default component files are placed in the `.dapr/components` folder in the user profile. The sidecar loaded them because the run template has no `resourcesPaths`.
 
-Use the **Dapr CLI** window to run the following command to show the content of the default `statestore.yaml` component file in the user profile:
-
-```bash,run
-cat ~/.dapr/components/statestore.yaml
-```
-
-The output should be:
+Open the **Dev Dashboard** tab and go to the **Components** page. It lists the components in `~/.dapr/components`. Select the `statestore` item to load its YAML file:
 
 ```yaml,nocopy
 apiVersion: dapr.io/v1alpha1
@@ -161,6 +155,8 @@ spec:
 > The value of `spec.type` is `state.redis`, and this indicates Redis is used as a state store.
 >
 > The `metadata` section is specific to each type of component and will have different fields.
+
+Then go back to the **Editor** tab.
 
 ---
 
