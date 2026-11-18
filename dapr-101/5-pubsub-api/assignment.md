@@ -298,7 +298,7 @@ Use the **Dapr CLI** window to stop the applications by pressing `Ctrl+C`.
 
 ---
 
-You've now successfully used the Dapr Pub/Sub API to send and receive messages using a message broker. The demos in this lab use programmatic subscriptions, which are defined in the application code and implement a static subscription to one topic. There are other methods to subscribe to topics with Dapr. For more information read [Declarative, streaming and programmatic subscription types](https://docs.dapr.io/developing-applications/building-blocks/pubsub/subscription-methods/) in the Dapr Docs.
+You've now successfully used the Dapr Pub/Sub API to send and receive messages using a message broker. The demos in this lab use programmatic subscriptions, which are defined in the application code and implement a static subscription to one topic. There are other methods to subscribe to topics with Dapr. Run the Dapr Pub/Sub University track to explore these.
 
 Here is what you did in this track:
 
