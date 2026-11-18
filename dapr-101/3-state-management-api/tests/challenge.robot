@@ -56,13 +56,22 @@ State Management API Round Trip
 
     # Send SIGINT (like Ctrl+C) to the "sidecar" process and wait for its clean-exit log line.
     Stop Process With SIGINT    sidecar
-    Wait Until Log Contains    ${SIDECAR_LOG}    Received signal to stop Dapr and app processes    timeout=15s
+    # Check that the sidecar is really gone: port 3500 no longer answers (curl rc 7). Not the
+    # page's stop message: on Linux `dapr run -f .` moves itself into its own process group, so
+    # the group SIGINT doesn't reach the CLI and the keyword's tree-kill fallback stops it
+    # without that message. A learner's Ctrl+C in a terminal does reach it.
+    Wait Until Keyword Succeeds    15s    1s    Sidecar Port Is Closed
 
 Statestore Component File Is Redis
     # `%{HOME}` reads the HOME environment variable (%{...} = env var, ${...} = RF variable).
     ${r}=    Run And Expect RC Zero    cat %{HOME}/.dapr/components/statestore.yaml
     Should Contain    ${r.stdout}    type: state.redis
     Should Contain    ${r.stdout}    name: statestore
+
+*** Keywords ***
+Sidecar Port Is Closed
+    ${r}=    Run Process    curl -s -o /dev/null http://localhost:3500/v1.0/healthz    shell=True
+    Should Not Be Equal As Integers    ${r.rc}    0
 
 # doc-sync coverage:
 #   cd /root/ai-agent-tracks-instruqt/dapr-101/state-management
