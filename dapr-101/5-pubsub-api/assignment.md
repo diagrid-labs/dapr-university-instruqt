@@ -231,9 +231,9 @@ dapr run -f .
 ###
 
 > [!IMPORTANT]
-> Wait until both applications are running before continuing. The Java applications can take a little longer to start.
+> Wait until both applications have started before continuing. The Java applications can take a little longer to start.
 >
-> Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `order-processor-sdk` and `checkout-sdk` are ready when the **Health** column shows a green dot. You can also inspect the output of the **Dapr CLI** window.
+> Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `order-processor-sdk` is ready when the **Health** column shows a green dot. `checkout-sdk` is a console application that stops after it has published its messages, so its **Health** column shows `app down`. That is expected. You can also inspect the output of the **Dapr CLI** window.
 
 The **Dapr CLI** window should show these lines when the sidecars have started. The port numbers can differ, and your applications' logs follow:
 
@@ -298,7 +298,7 @@ Use the **Dapr CLI** window to stop the applications by pressing `Ctrl+C`.
 
 ---
 
-You've now successfully used the Dapr Pub/Sub API to send and receive messages using a message broker. The demos in this lab use programmatic subscriptions, which are defined in the application code and implement a static subscription to one topic. There are other methods to subscribe to topics with Dapr. For more information read [Declarative, streaming and programmatic subscription types](https://docs.dapr.io/developing-applications/building-blocks/pubsub/subscription-methods/) in the Dapr Docs.
+You've now successfully used the Dapr Pub/Sub API to send and receive messages using a message broker. The demos in this lab use programmatic subscriptions, which are defined in the application code and implement a static subscription to one topic. There are other methods to subscribe to topics with Dapr. Run the Dapr Pub/Sub University track to explore these.
 
 Here is what you did in this track:
 
@@ -310,13 +310,9 @@ Here is what you did in this track:
 
 ## Collect your badge & provide feedback
 
-Congratulations! 🎉 You've completed the Dapr 101 training! Click **Finish & Exit** below to finish the lab 🚀.
+Congratulations! 🎉 You've completed the Dapr 101 training!
 
-Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmcnbdz1r295807jsdm16r929). You'll need a GitHub account to claim the badge.
-
-[![Dapr University Dapr 101 badge](https://raw.githubusercontent.com/diagrid-labs/dapr-university-instruqt/refs/heads/main/dapr-101/5-pubsub-api/Diagrid-Dapr-Uni-101_x500.png)](https://holopin.io/collect/cmcnbdz1r295807jsdm16r929)
-
-## Next steps
+### Next steps
 
 We have more opportunities for you to learn and share knowledge:
 
@@ -331,5 +327,11 @@ We have more opportunities for you to learn and share knowledge:
 **Join the community**
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#agents* and language channels.
 - Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.
+
+### Collect the badge
+
+Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmcnbdz1r295807jsdm16r929). You'll need a GitHub account to claim the badge. Then come back to this page and click **Finish & Exit** below to finish the lab and provide feedback.
+
+[![Dapr University Dapr 101 badge](https://raw.githubusercontent.com/diagrid-labs/dapr-university-instruqt/refs/heads/main/dapr-101/5-pubsub-api/Diagrid-Dapr-Uni-101_x500.png)](https://holopin.io/collect/cmcnbdz1r295807jsdm16r929)
 
 <instruqt-completion text="You've completed Dapr 101!"></instruqt-completion>
