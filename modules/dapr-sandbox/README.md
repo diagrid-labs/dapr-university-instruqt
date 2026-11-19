@@ -19,7 +19,7 @@ tabs. Versions are pinned in `versions.hcl`. The module runs a shared setup firs
 | `cpu` | `4` | vCPUs |
 | `memory` | `8192` | memory in MB |
 | `dapr_runtime_version` | `""` | Dapr runtime version for `dapr init` (the lab's pin); setup fails when empty |
-| `demo_repo_url` | the `diagrid-labs/ai-agent-tracks-instruqt` URL | demo repo cloned to `/root/ai-agent-tracks-instruqt` |
+| `demo_repo_url` | the `diagrid-labs/university-labs` URL | demo repo cloned to `/root/university-labs` |
 | `demo_repo_ref` | `""` | commit SHA (or ref) to check out; setup fails when empty |
 | `editor_folder` | `""` | folder in the clone the Editor tab opens, e.g. `pubsub`; setup fails when empty |
 | `lab_startup_script` | `""` | script content run on VM boot, usually `file("scripts/setup.sh")` from the lab |
@@ -31,8 +31,8 @@ Every lab needs the same boot steps, so the module does them before the lab scri
 `HOME=/root`, logging (`/var/log/lab-setup.log`), wait for Docker, the DNS workaround (public
 resolvers when the VM's resolver does not answer; overridable with `LAB_RESOLV_CONF` and
 `LAB_DOCKER_DAEMON_JSON` for tests), an HTTPS probe of github.com, the clone of `demo_repo_url`
-at `demo_repo_ref` into `/root/ai-agent-tracks-instruqt` (only when absent), code-server on port
-8888 opened on `/root/ai-agent-tracks-instruqt/<editor_folder>`, the Dev Dashboard on port 9090,
+at `demo_repo_ref` into `/root/university-labs` (only when absent), code-server on port
+8888 opened on `/root/university-labs/<editor_folder>`, the Dev Dashboard on port 9090,
 and `dapr init --runtime-version <dapr_runtime_version>` (skipped when the Dapr containers already
 run). The script lives in the image at `/usr/local/lib/dapr-sandbox/sandbox-setup.sh` and the
 startup script exports the four inputs as `DAPR_RUNTIME_VERSION`, `DEMO_REPO_URL`,

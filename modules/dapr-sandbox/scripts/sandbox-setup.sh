@@ -148,7 +148,7 @@ log "outbound HTTPS to github.com works (${SECONDS}s since start)"
 
 # The demo repo holds the three-language apps and the scoping/Vault resources. It lives at a
 # fixed path because the track-tester suites and the assignments both refer to it.
-export TRACKS_SRC_DIR="$HOME/ai-agent-tracks-instruqt"
+export TRACKS_SRC_DIR="$HOME/university-labs"
 # The startup script runs early in boot and as root: allow git to use the clone regardless of
 # which user owns it, so a later git call cannot fail with "dubious ownership" (exit 128).
 git config --global --add safe.directory "$TRACKS_SRC_DIR"
