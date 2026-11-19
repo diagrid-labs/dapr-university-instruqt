@@ -7,7 +7,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 LAB_DIR="$REPO_ROOT/dapr-secrets"
 READ_PIN="$REPO_ROOT/tools/track-tester/ci/read_pin.py"
-TRACKS_SRC_DIR="${TRACKS_SRC_DIR:-$HOME/ai-agent-tracks-instruqt}"
+TRACKS_SRC_DIR="${TRACKS_SRC_DIR:-$HOME/university-labs}"
 
 # 0. Syntax-check the lab and module scripts. CI cannot run them (they init Dapr on the VM) and
 # runs only its own sequence below, so this is the one CI signal that a bad edit to any of them
@@ -29,7 +29,7 @@ echo "TRACKS_SRC_DIR=$TRACKS_SRC_DIR" >> "${GITHUB_ENV:-/dev/stdout}"
 # -e, not -d: in a git worktree the .git entry is a file, not a directory. Full clone: a commit
 # SHA cannot be checked out of a shallow one.
 if [ ! -e "$TRACKS_SRC_DIR/.git" ]; then
-  git clone https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git "$TRACKS_SRC_DIR"
+  git clone https://github.com/diagrid-labs/university-labs.git "$TRACKS_SRC_DIR"
   git -C "$TRACKS_SRC_DIR" checkout "$TRACKS_SRC_REF"
   # Only checked after our own clone: a pre-existing checkout (actions/checkout) is already pinned.
   if [ "$(git -C "$TRACKS_SRC_DIR" rev-parse HEAD)" != "$TRACKS_SRC_REF" ]; then
@@ -80,7 +80,7 @@ fi
 # 5. Write secrets.json from the committed template (the single owner of the secret values) and
 # start + seed Vault with the same library the lab setup uses.
 if [ ! -f "$TRACKS_SRC_DIR/secrets/secrets.example.json" ]; then
-  echo "ERROR: $TRACKS_SRC_DIR/secrets/secrets.example.json not found. Is $TRACKS_SRC_DIR a current clone of diagrid-labs/ai-agent-tracks-instruqt?" >&2
+  echo "ERROR: $TRACKS_SRC_DIR/secrets/secrets.example.json not found. Is $TRACKS_SRC_DIR a current clone of diagrid-labs/university-labs?" >&2
   exit 1
 fi
 cp "$TRACKS_SRC_DIR/secrets/secrets.example.json" "$TRACKS_SRC_DIR/secrets/secrets.json"

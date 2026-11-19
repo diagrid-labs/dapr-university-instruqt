@@ -53,7 +53,7 @@ The sandbox already stored your secrets in Vault, under the names Dapr expects (
 Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
 
 ```bash,run
-cd /root/ai-agent-tracks-instruqt/secrets
+cd /root/university-labs/secrets
 ```
 
 The application is already built, so there is nothing you need to rebuild.

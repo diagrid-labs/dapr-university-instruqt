@@ -3,7 +3,7 @@ import textwrap
 import check_doc_sync as ds
 from check_doc_sync import Command
 
-ROOT = "cd /root/ai-agent-tracks-instruqt/secrets"
+ROOT = "cd /root/university-labs/secrets"
 
 
 def test_relative_cd_without_an_anchor_is_reported():
@@ -38,7 +38,7 @@ def test_relative_cd_inside_a_chain_is_reported():
 
 def test_home_variable_and_bare_cds_count_as_absolute():
     cmds = [
-        Command(text="cd ~/ai-agent-tracks-instruqt/secrets", lang=None),
+        Command(text="cd ~/university-labs/secrets", lang=None),
         Command(text="cd $HOME/secrets", lang=None),
         Command(text="cd", lang=None),
     ]

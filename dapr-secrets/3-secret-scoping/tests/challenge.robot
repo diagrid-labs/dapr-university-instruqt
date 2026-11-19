@@ -259,7 +259,7 @@ Scoping Teardown
 
 # doc-sync coverage (the commands are run above through the Request and Start Background Process
 # keywords, which build them from the URL and the folder):
-#   cd /root/ai-agent-tracks-instruqt/secrets
+#   cd /root/university-labs/secrets
 #   cd dotnet/Demo2-Scoping
 #   cd python/demo2-scoping
 #   cd java/demo2-scoping

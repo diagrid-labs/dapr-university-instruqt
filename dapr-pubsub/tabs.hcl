@@ -25,13 +25,13 @@ resource "service" "dev_dashboard" {
 resource "terminal" "dapr_cli" {
   target            = module.sandbox.output.vm
   shell             = "/bin/bash"
-  working_directory = "/root/ai-agent-tracks-instruqt/pubsub"
+  working_directory = "/root/university-labs/pubsub"
 }
 
 resource "terminal" "curl" {
   target            = module.sandbox.output.vm
   shell             = "/bin/bash"
-  working_directory = "/root/ai-agent-tracks-instruqt/pubsub"
+  working_directory = "/root/university-labs/pubsub"
 }
 
 # The RabbitMQ management UI, which the sandbox image runs on port 15672 once page 6 starts the

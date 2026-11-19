@@ -107,7 +107,7 @@ Assert Unknown Secret Is Reported
     ...    curl -s -w ' \%{http_code}' http://localhost:5001/secret/does-not-exist    ${UNKNOWN_JSON}
 
 # doc-sync coverage (expressed via cwd above):
-#   cd /root/ai-agent-tracks-instruqt/secrets
+#   cd /root/university-labs/secrets
 #   cd dotnet/Demo1-ReadSecret
 #   cd python/demo1-read-secret
 #   cd java/demo1-read-secret

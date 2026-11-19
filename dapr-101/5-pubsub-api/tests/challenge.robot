@@ -108,7 +108,7 @@ Log Should Show Order 100 Received
     Should Match Regexp    ${content}    Subscriber received.*\\b100\\b
 
 # doc-sync coverage (the commands run above through cwd= arguments and ${dir}):
-#   cd /root/ai-agent-tracks-instruqt/dapr-101
+#   cd /root/university-labs/dapr-101
 #   cd dotnet/PubSub
 #   cd python/pub-sub
 #   cd java/pub-sub

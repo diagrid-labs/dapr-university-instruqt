@@ -103,7 +103,7 @@ In the code of `shipping`, find the order with the item `poison`. The handler an
 Use the **Dapr CLI** window to go to the `pubsub` folder first. The terminal stays in whatever folder it was in when you move between labs, so this makes sure the commands below start from the right place:
 
 ```bash,run
-cd /root/ai-agent-tracks-instruqt/pubsub
+cd /root/university-labs/pubsub
 ```
 
 > [!IMPORTANT]

@@ -37,7 +37,7 @@ For more information on Multi-App Run, see the [Dapr Docs](https://docs.dapr.io/
 Use the **Dapr CLI** window to go to the `state-management` folder:
 
 ```bash,run
-cd /root/ai-agent-tracks-instruqt/dapr-101/state-management
+cd /root/university-labs/dapr-101/state-management
 ```
 
 Start the sidecar with the Dapr CLI:
@@ -51,7 +51,7 @@ The output should contain these lines. The gRPC port number can differ:
 ```text,nocopy
 ⚠  No application command found for app "myapp" present in dapr.yaml
 ℹ️  Started Dapr with app id "myapp". HTTP Port: 3500. gRPC Port: 50001
-ℹ️  Writing log files to directory : /root/ai-agent-tracks-instruqt/dapr-101/state-management/.dapr/logs
+ℹ️  Writing log files to directory : /root/university-labs/dapr-101/state-management/.dapr/logs
 ```
 
 The warning is expected, since the template has no `command`. Because you started the sidecar from a run template, the Dapr CLI writes the sidecar logs to a file in the `.dapr/logs` folder instead of the terminal, and the **Dev Dashboard** shows them. A plain `dapr run` without a template only prints the logs in the terminal.

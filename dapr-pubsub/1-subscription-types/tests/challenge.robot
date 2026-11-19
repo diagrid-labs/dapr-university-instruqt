@@ -106,7 +106,7 @@ Walk Through Subscription Types
 
 # doc-sync coverage (the commands are run above through keywords that build them from the
 # language and the folder, or with a unique order ID instead of the assignment's o-1001):
-#   cd /root/ai-agent-tracks-instruqt/pubsub
+#   cd /root/university-labs/pubsub
 #   cd dotnet/Demo1-Subscriptions
 #   cd python/demo1-subscriptions
 #   cd java/demo1-subscriptions

@@ -383,7 +383,7 @@ Layout reminder: instructions on the left; on the right one panel on top with th
 side underneath. The Dev
 Dashboard is Diagrid's Dapr Dev Dashboard on the VM, port 9090 (`systemctl status
 dev-dashboard-lab`); it only accepts a `localhost` Host header, which its service tab sends. The Editor is code-server (VS Code in the
-browser) on the VM, port 8888, opened on `/root/ai-agent-tracks-instruqt/secrets`: a `service`
+browser) on the VM, port 8888, opened on `/root/university-labs/secrets`: a `service`
 tab, because the built-in `editor` resource showed no files for a VM target. If it doesn't load,
 check `cat /var/log/lab-setup.log` ("code-server listening on port 8888"), `systemctl status
 code-server-lab` and `curl -sI http://127.0.0.1:8888/` in a terminal.
@@ -395,7 +395,7 @@ code-server-lab` and `curl -sI http://127.0.0.1:8888/` in a terminal.
 | 3. Secret scoping: app A reads `orderdb-password`, app B is refused (403) after enabling `configFilePath`, app B still reads `payments-api-key` | [ ] | [ ] | [ ] |
 | 4. Swap the provider: the app in the swap folder (`Demo3-SwapProvider` in .NET, `demo3-swap-provider` in Python and Java) reads `orderdb-password` from Vault | [ ] | [ ] | [ ] |
 
-Also tick once per run: the Editor opens `/root/ai-agent-tracks-instruqt/secrets`; you can move
+Also tick once per run: the Editor opens `/root/university-labs/secrets`; you can move
 to the next page without doing the current one (the labs have no page checks); the feedback card
 ("How did you find the content?") on page 4 accepts a rating and a comment, and the rating shows up
 in the lab's Happiness score under Reporting; the **Finish & Exit**
@@ -633,7 +633,7 @@ to 4) and a new module version (step 6).
 
 ### Demo repo bump
 
-Each lab and its CI use the same commit of `diagrid-labs/ai-agent-tracks-instruqt`. The two labs
+Each lab and its CI use the same commit of `diagrid-labs/university-labs`. The two labs
 pin it separately (`dapr-secrets` uses `secrets/`, `dapr-pubsub` uses `pubsub/`), so a bump can
 move one lab or both.
 

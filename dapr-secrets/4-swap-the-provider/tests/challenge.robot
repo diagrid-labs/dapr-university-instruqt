@@ -382,7 +382,7 @@ Finish Vault Proof
     Delete Vault Test Secrets
 
 # doc-sync coverage (expressed via cwd, cwd-relative paths and the Request keyword above):
-#   cd /root/ai-agent-tracks-instruqt/secrets
+#   cd /root/university-labs/secrets
 #   cd dotnet/Demo3-SwapProvider
 #   cd python/demo3-swap-provider
 #   cd java/demo3-swap-provider

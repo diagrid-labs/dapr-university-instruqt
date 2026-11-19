@@ -8,7 +8,7 @@ variable "dapr_runtime_version" {
 }
 
 variable "tracks_src_ref" {
-  description = "Commit of diagrid-labs/ai-agent-tracks-instruqt that the lab checks out after cloning."
+  description = "Commit of diagrid-labs/university-labs that the lab checks out after cloning."
   default     = "37fccac6583f4d5b1854002a234b5d25e4f3f9e8"
 }
 
@@ -27,7 +27,7 @@ variable "tracks_src_ref" {
 # version X of diagrid/dapr-sandbox is not published: not found" until the next push.
 module "sandbox" {
   source  = "diagrid/dapr-sandbox"
-  version = "2.0.0"
+  version = "3.0.0"
 
   variables = {
     dapr_runtime_version = variable.dapr_runtime_version

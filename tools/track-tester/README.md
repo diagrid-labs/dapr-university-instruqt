@@ -3,7 +3,7 @@
 End-to-end drift tests for Dapr University tracks, built on [Robot Framework](https://robotframework.org/).
 The tests run the *actual* commands a learner runs and assert on their output, so that drift between a
 track's `assignment.md` files and the upstream code they depend on (e.g. `dapr/quickstarts` for `dapr-workflow`, and
-`diagrid-labs/ai-agent-tracks-instruqt` for `dapr-101`, `dapr-secrets` and `dapr-pubsub`) is caught automatically.
+`diagrid-labs/university-labs` for `dapr-101`, `dapr-secrets` and `dapr-pubsub`) is caught automatically.
 
 ## Layout
 
@@ -31,11 +31,11 @@ that in a subshell: `(cd tools/track-tester && …)`, so you can paste them from
 # One-time: reproduce the sandbox environment. dapr-workflow clones dapr/quickstarts to ~/quickstarts,
 # installs the Dapr CLI if you don't have one, and runs `dapr init` (re-inits your local Dapr).
 bash tools/track-tester/ci/setup-dapr-workflow.sh # dapr-workflow (installs Dapr CLI from master)
-# dapr-101 clones diagrid-labs/ai-agent-tracks-instruqt at `tracks_src_ref` to
-# ~/ai-agent-tracks-instruqt, installs the Dapr CLI (unpinned) and runs `dapr init`, then checks the runtime MAJOR.MINOR against the pin. Pins are read with
+# dapr-101 clones diagrid-labs/university-labs at `tracks_src_ref` to
+# ~/university-labs, installs the Dapr CLI (unpinned) and runs `dapr init`, then checks the runtime MAJOR.MINOR against the pin. Pins are read with
 # ci/read_pin.py from dapr-101/versions.hcl and modules/dapr-sandbox/versions.hcl.
 bash tools/track-tester/ci/setup-dapr-101.sh      # dapr-101
-# dapr-secrets clones diagrid-labs/ai-agent-tracks-instruqt to ~/ai-agent-tracks-instruqt,
+# dapr-secrets clones diagrid-labs/university-labs to ~/university-labs,
 # pins the Dapr CLI/runtime, and starts and seeds a HashiCorp Vault container.
 bash tools/track-tester/ci/setup-dapr-secrets.sh  # dapr-secrets
 
@@ -44,7 +44,7 @@ bash tools/track-tester/ci/setup-dapr-secrets.sh  # dapr-secrets
 export QUICKSTARTS_DIR="$HOME/dev/dapr/quickstarts"
 
 # Same idea for dapr-101, dapr-secrets and dapr-pubsub, which use the demo repo checkout.
-export TRACKS_SRC_DIR="$HOME/dev/diagrid-labs/ai-agent-tracks-instruqt"
+export TRACKS_SRC_DIR="$HOME/dev/diagrid-labs/university-labs"
 ```
 
 ### Specifying which track / challenges to run
@@ -164,8 +164,8 @@ your existing Dapr:
 # Ensure Docker is running, then initialize Dapr once:
 dapr init
 
-# Point the suites at your demo repo checkout (or ~/ai-agent-tracks-instruqt):
-export TRACKS_SRC_DIR="$HOME/dev/diagrid-labs/ai-agent-tracks-instruqt"
+# Point the suites at your demo repo checkout (or ~/university-labs):
+export TRACKS_SRC_DIR="$HOME/dev/diagrid-labs/university-labs"
 
 # Run a suite (challenges 3/4/5 don't care about the exact CLI version):
 (cd tools/track-tester && uv run robot --include python \
@@ -196,7 +196,7 @@ and run exactly like the examples above. Two per-language quirks to know:
 ### dapr-secrets: what the suites need
 
 The dapr-secrets suites share `resources/dapr.resource` + `variables/dapr_secrets.py`, and read the
-demo apps from `TRACKS_SRC_DIR` (default `~/ai-agent-tracks-instruqt`) instead of a quickstarts
+demo apps from `TRACKS_SRC_DIR` (default `~/university-labs`) instead of a quickstarts
 checkout. Beyond `dapr init` they need:
 
 - **A HashiCorp Vault container** on port 8200 (dev mode, root token `root`), seeded with the

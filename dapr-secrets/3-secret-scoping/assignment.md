@@ -27,7 +27,7 @@ Nothing in the code of either app says which secrets it may read. Remember that,
 Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
 
 ```bash,run
-cd /root/ai-agent-tracks-instruqt/secrets
+cd /root/university-labs/secrets
 ```
 
 <details>

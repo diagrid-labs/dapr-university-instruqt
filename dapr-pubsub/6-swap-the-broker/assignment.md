@@ -70,7 +70,7 @@ The `metadata` is specific to RabbitMQ. `durable`, `deletedWhenUnused` and `deli
 Use the **Dapr CLI** window to go to the `pubsub` folder first. The terminal stays in whatever folder it was in when you move between labs, so this makes sure the commands below start from the right place:
 
 ```bash,run
-cd /root/ai-agent-tracks-instruqt/pubsub
+cd /root/university-labs/pubsub
 ```
 
 > [!IMPORTANT]

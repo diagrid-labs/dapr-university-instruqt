@@ -100,7 +100,7 @@ Walk Through Streaming Subscriptions
 
 # doc-sync coverage (the commands are run above through keywords that build them from the
 # language and the folder, or with a unique order ID instead of the assignment's o-2001):
-#   cd /root/ai-agent-tracks-instruqt/pubsub
+#   cd /root/university-labs/pubsub
 #   cd dotnet/Demo2-Streaming
 #   cd python/demo2-streaming
 #   cd java/demo2-streaming
