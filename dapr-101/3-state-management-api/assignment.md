@@ -114,7 +114,7 @@ curl -v -X DELETE -H "Content-Type: application/json" http://localhost:3500/v1.0
 
 ## 6. Verify the state is deleted
 
-Open the **Dev Dashboard** tab and go to the **State** page again. The record with the key `name` is gone. Then go back to the **Editor** tab.
+Open the **Dev Dashboard** tab and go to the **State** page again. The record with the key `name` is gone.
 
 ## 7. Stop the applications
 
