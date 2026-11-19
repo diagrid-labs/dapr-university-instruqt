@@ -58,7 +58,7 @@ The warning is expected, since the template has no `command`. Because you starte
 
 Open the **Dev Dashboard** tab and go to the **Applications** page: `myapp` is listed there, and its sidecar is ready when the **Health** column shows a green dot.
 
-Now go to the **Logs** page, select `myapp` in the application drop-down, select the `daprd` source to see the sidecar logs, and type `Component loaded` in the search bar. You'll find this line, which tells you what type of storage Dapr is using in this demo:
+Now go to the **Logs** page, select `myapp` in the application drop-down, and type `Component loaded` in the search bar. The page shows the `app` and `daprd` (sidecar) logs together, and you'll find this sidecar line, which tells you what type of storage Dapr is using in this demo:
 
 ```text,nocopy
 Component loaded: statestore (state.redis/v1)
@@ -99,7 +99,7 @@ The output should be:
 
 ## 4. Inspect the state on the Dev Dashboard
 
-Now look at how the state is stored. Open the **Dev Dashboard** tab and go to the **State** page. It lists the records in the state store: find the record with the key `name` and the app prefix `myapp`, and expand it to see its value, `"Bruce Wayne"`. Then go back to the **Editor** tab.
+Now look at how the state is stored. Open the **Dev Dashboard** tab and go to the **State** page. It lists the records in the state store: find the record with the key `name` and the app prefix `myapp`. Its value, `"Bruce Wayne"`, is shown in the list. Then go back to the **Editor** tab.
 
 > [!NOTE]
 > Note that the record belongs to the app `myapp`: Dapr stores the key with the `app-id` as prefix (`myapp||name`). This is the default behaviour in Dapr. Every application manages their data via the `app-id` prefix. If you want multiple applications to access the same data you can change this by configuring the state store component, see [Specifying a state prefix strategy](https://docs.dapr.io/developing-applications/building-blocks/state-management/howto-share-state/) in the Dapr Docs.
@@ -114,7 +114,7 @@ curl -v -X DELETE -H "Content-Type: application/json" http://localhost:3500/v1.0
 
 ## 6. Verify the state is deleted
 
-Open the **Dev Dashboard** tab and go to the **State** page again. The record with the key `name` is gone. Then go back to the **Editor** tab.
+Open the **Dev Dashboard** tab and go to the **State** page again. The record with the key `name` is gone.
 
 ## 7. Stop the applications
 

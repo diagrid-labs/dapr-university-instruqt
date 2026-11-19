@@ -187,7 +187,7 @@ The command below uses the Dapr State Management API on the sidecar (port `3500`
 curl -s -X POST -H "Content-Type: application/json" -d '[{"key":"order-1","value":"queued"}]' http://localhost:3500/v1.0/state/statestore
 ```
 
-This command prints nothing when it succeeds. Now look at what was saved. Open the **Dev Dashboard** tab and go to the **State** page. It lists the records in the state store: find the record with the key `order-1` and the app prefix `order-api`, and expand it to see its value, `queued`. Then go back to the **Editor** tab.
+This command prints nothing when it succeeds. Now look at what was saved. Open the **Dev Dashboard** tab and go to the **State** page. It lists the records in the state store: find the record with the key `order-1` and the app prefix `order-api`. Its value, `queued`, is shown in the list. Then go back to the **Editor** tab.
 
 ## 5. Stop the application
 

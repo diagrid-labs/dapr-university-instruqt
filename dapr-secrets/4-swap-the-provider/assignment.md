@@ -208,7 +208,7 @@ In lab 2, the state store component got its password from `secretstore` through 
 curl -s -X POST -H "Content-Type: application/json" -d '[{"key":"order-2","value":"shipped"}]' http://localhost:3500/v1.0/state/statestore
 ```
 
-Open the **Dev Dashboard** tab and go to the **State** page. It also lists `order-1`, which you saved in lab 2. The record with the key `order-2` is the one you just saved through the Vault-backed component: expand it to see its value, `shipped`. Then go back to the **Editor** tab.
+Open the **Dev Dashboard** tab and go to the **State** page. It also lists `order-1`, which you saved in lab 2. The record with the key `order-2` is the one you just saved through the Vault-backed component, and its value, `shipped`, is shown in the list. Then go back to the **Editor** tab.
 
 Components that use `secretKeyRef` don't know which secret store provider is behind the name either.
 
@@ -250,7 +250,7 @@ We have more opportunities for you to learn and share knowledge:
 
 Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmwkvsna40001l4089b15z4w0). You'll need a GitHub account to claim the badge. Then come back to this page, rate the track below, and click **Finish & Exit** to finish the lab.
 
-[![Dapr University Dapr Secrets badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-secrets/4-swap-the-provider/images/Diagrid-Dapr-Uni-badge-secrets_x300.png?raw=true)](https://holopin.io/collect/cmwkvsna40001l4089b15z4w0)
+<a href="https://holopin.io/collect/cmwkvsna40001l4089b15z4w0"><img src="https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-secrets/4-swap-the-provider/images/Diagrid-Dapr-Uni-badge-secrets_x300.png?raw=true" alt="Dapr University Dapr Secrets badge" width="384" height="384"></a>
 
 ### Rate this track
 

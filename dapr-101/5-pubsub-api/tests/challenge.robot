@@ -26,6 +26,8 @@ DotNet Pub Sub
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Stop Apps If Started
     ${dir}=    Set Variable    ${DAPR101_BASE}/dotnet/${PUBSUB_DEMO}[dotnet]
+    # The page has no build step: the sandbox pre-builds and `dotnet run` builds. CI has no
+    # pre-build, so build here to report a build error as such.
     Run And Expect RC Zero    dotnet build checkout    ${dir}
     Run And Expect RC Zero    dotnet build order-processor    ${dir}
     Run Apps And Check Subscription    dapr run -f .    ${dir}
@@ -35,6 +37,8 @@ Python Pub Sub
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Stop Apps If Started
     ${dir}=    Set Variable    ${DAPR101_BASE}/python/${PUBSUB_DEMO}[python]
+    # The page has no install step: the sandbox pre-installs and `uv run` syncs. CI has no
+    # pre-install, so sync here to report an install error as such.
     Run And Expect RC Zero    uv sync --all-packages    ${dir}
     Run Apps And Check Subscription    uv run dapr run -f .    ${dir}
 
@@ -112,9 +116,6 @@ Log Should Show Order 100 Received
 #   cd order-processor
 #   cd ../checkout
 #   cd ..
-#   dotnet build checkout
-#   dotnet build order-processor
-#   uv sync --all-packages
 #   mvn -q -DskipTests install
 #   npm install
 #   dapr run -f .

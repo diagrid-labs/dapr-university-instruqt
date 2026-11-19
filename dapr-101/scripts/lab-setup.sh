@@ -18,8 +18,10 @@ fi
 # Pre-build the apps of the page 4 (service invocation) and page 5 (pub/sub) demos in a fully
 # detached background job (own stdin, stdout and stderr), so the sandbox reports ready without
 # waiting for the builds: page 4 first, then page 5. Folder names follow each language: PascalCase
-# for .NET, kebab-case for the others. A learner who runs `dapr run -f .` before a build has
-# finished only waits for that build. A failed build is logged and never fails the lab.
+# for .NET, kebab-case for the others. The pages have no build step for .NET and Python, since
+# `dotnet run` and `uv run` build what's missing. The Java (`java -jar`) and JavaScript (`npm start`)
+# apps can't, so their pages keep the build step as a quick check. A failed build is logged and
+# never fails the lab.
 # Progress: `tail -f /var/log/lab-prebuild.log`.
 DAPR101_BASE="$TRACKS_SRC_DIR/dapr-101"
 PREBUILD_LOG="${LAB_PREBUILD_LOG:-/var/log/lab-prebuild.log}"

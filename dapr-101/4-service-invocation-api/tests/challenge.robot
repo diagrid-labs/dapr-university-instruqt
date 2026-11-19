@@ -24,6 +24,8 @@ DotNet Service Invocation
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Stop Apps If Started
     ${dir}=    Set Variable    ${DAPR101_BASE}/dotnet/${SVC_DEMO}[dotnet]
+    # The page has no build step: the sandbox pre-builds and `dotnet run` builds. CI has no
+    # pre-build, so build here to report a build error as such.
     Run And Expect RC Zero    dotnet build checkout    ${dir}
     Run And Expect RC Zero    dotnet build order-processor    ${dir}
     Run Apps And Assert Markers    dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
@@ -33,6 +35,8 @@ Python Service Invocation
     [Setup]    Wait For The Ports To Be Free
     [Teardown]    Stop Apps If Started
     ${dir}=    Set Variable    ${DAPR101_BASE}/python/${SVC_DEMO}[python]
+    # The page has no install step: the sandbox pre-installs and `uv run` syncs. CI has no
+    # pre-install, so sync here to report an install error as such.
     Run And Expect RC Zero    uv sync --all-packages    ${dir}
     Run Apps And Assert Markers    uv run dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
 
@@ -91,9 +95,6 @@ Run Apps And Assert Markers
 #   cd order-processor
 #   cd ../checkout
 #   cd ..
-#   dotnet build checkout
-#   dotnet build order-processor
-#   uv sync --all-packages
 #   mvn -q -DskipTests install
 #   npm install
 #   dapr run -f .
