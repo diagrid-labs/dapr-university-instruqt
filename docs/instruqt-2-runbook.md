@@ -396,7 +396,9 @@ code-server-lab` and `curl -sI http://127.0.0.1:8888/` in a terminal.
 | 4. Swap the provider: the app in the swap folder (`Demo3-SwapProvider` in .NET, `demo3-swap-provider` in Python and Java) reads `orderdb-password` from Vault | [ ] | [ ] | [ ] |
 
 Also tick once per run: the Editor opens `/root/ai-agent-tracks-instruqt/secrets`; you can move
-to the next page without doing the current one (the labs have no page checks); the **Finish & Exit**
+to the next page without doing the current one (the labs have no page checks); the feedback card
+("How did you find the content?") on page 4 accepts a rating and a comment, and the rating shows up
+in the lab's Happiness score under Reporting; the **Finish & Exit**
 button on page 4 completes the lab; no page asks for a
 credential; `env | grep -i -E "pat|token|password"` in the terminal shows nothing sensitive.
 

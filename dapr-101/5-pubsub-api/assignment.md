@@ -330,8 +330,14 @@ We have more opportunities for you to learn and share knowledge:
 
 ### Collect the badge
 
-Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmcnbdz1r295807jsdm16r929). You'll need a GitHub account to claim the badge. Then come back to this page and click **Finish & Exit** below to finish the lab and provide feedback.
+Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmcnbdz1r295807jsdm16r929). You'll need a GitHub account to claim the badge. Then come back to this page, rate the track below, and click **Finish & Exit** to finish the lab.
 
 [![Dapr University Dapr 101 badge](https://raw.githubusercontent.com/diagrid-labs/dapr-university-instruqt/refs/heads/main/dapr-101/5-pubsub-api/Diagrid-Dapr-Uni-101_x500.png)](https://holopin.io/collect/cmcnbdz1r295807jsdm16r929)
+
+### Rate this track
+
+Please rate this track so we can keep improving it 🚀.
+
+<instruqt-feedback id="dapr-101-feedback"></instruqt-feedback>
 
 <instruqt-completion text="You've completed Dapr 101!"></instruqt-completion>
