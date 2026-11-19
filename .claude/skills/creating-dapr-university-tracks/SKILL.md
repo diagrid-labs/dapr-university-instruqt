@@ -66,7 +66,7 @@ config uses different words: the whole thing is a `lab` resource, which holds a 
 A 2.0 lab never has a track or page `README.md` used as config, `notes.md`, `tabs.md`, `_setup/`,
 `tasks.hcl`, `scripts/check*.sh` or `solve.sh`. Those are 1.0 files; do not create them.
 
-Demo apps are **not** in this repo. They live in `diagrid-labs/ai-agent-tracks-instruqt` under one
+Demo apps are **not** in this repo. They live in `diagrid-labs/university-labs` under one
 folder per lab (`secrets/`, `pubsub/`), and the lab pins the commit as `tracks_src_ref`.
 
 ## Workflow
@@ -77,7 +77,7 @@ folder per lab (`secrets/`, `pubsub/`), and the lab pins the commit as `tracks_s
    Demo apps and sandbox content. Use `superpowers:brainstorming` when the outline is open.
 2. **Study `dapr-pubsub`** (and `dapr-secrets` for a lab that seeds a service at boot). Copy the
    closest files and adapt them.
-3. **Demo apps**: add them to `ai-agent-tracks-instruqt`, one demo folder per page or concept, each
+3. **Demo apps**: add them to `university-labs`, one demo folder per page or concept, each
    with `dapr.yaml` and `resources/`. Pin the commit.
 4. **Root files**: `main.hcl`, `pages.hcl`, `layouts.hcl`, `tabs.hcl`, `versions.hcl`,
    `scripts/lab-setup.sh`, `website-description.md`. See reference.md → Root files and
@@ -124,7 +124,7 @@ asides. `> [!WARNING]` for a caveat such as an alpha API. Instruqt has no INFO t
 1. `[!IMPORTANT]` "When you use the *Run* button on a command, select the matching terminal from the
    dropdown that appears." at the top of the section, before the sentence that introduces the
    first command.
-2. A Run block `cd /root/ai-agent-tracks-instruqt/<folder>` before any relative `cd`. Terminals
+2. A Run block `cd /root/university-labs/<folder>` before any relative `cd`. Terminals
    keep their folder across pages, and doc-sync's `--require-anchored-cd` enforces this.
 3. `[!IMPORTANT]` "Run `dapr run -f .` from inside the demo folder of your language: …" with both
    folder spellings. On page 1 only, the `[!NOTE]` about the Editor's port popup follows it.
@@ -144,7 +144,7 @@ its open files. Learners can also skip pages, so a page may find state left over
 page, or miss state a page it assumes was done. Write every page for both:
 
 - **Folder**: `working_directory` in `tabs.hcl` only holds on page 1. Every run section starts with
-  the anchored `cd /root/ai-agent-tracks-instruqt/<folder>`, then relative paths.
+  the anchored `cd /root/university-labs/<folder>`, then relative paths.
 - **Apps and ports**: pages reuse the same ports. Each page ends with `## N. Stop the applications`
   (`Ctrl+C` in the **Dapr CLI** window), unless the next page reuses the app on purpose and its
   "What's next?" says so (`dapr-secrets` page 1). A page that starts apps opens with
@@ -172,7 +172,7 @@ test tags and CI matrix legs. A language the image lacks is a module change.
 |---|---|
 | Creating any 1.0 file (`README.md` config, `notes.md`, `tabs.md`, `_setup/`, `tasks.hcl`, check or solve scripts) | Not in a 2.0 lab. Config is HCL; tests are the Robot suites. |
 | No H1, or an H1 that differs from the `pages.hcl` title | Same text in both. |
-| A relative `cd` before the anchored `cd /root/ai-agent-tracks-instruqt/<folder>` | Anchor first; doc-sync `--require-anchored-cd` fails otherwise. |
+| A relative `cd` before the anchored `cd /root/university-labs/<folder>` | Anchor first; doc-sync `--require-anchored-cd` fails otherwise. |
 | The Run-button note missing on a page, or placed between a sentence and its block | Top of the first section with Run blocks, on every such page. |
 | `[!IMPORTANT]` for background information | Use `[!NOTE]` or `[!WARNING]`. |
 | A later page that starts apps with no `## Before you start`, or reuses an app with no "is it running" check | Pick one of the two openings. |

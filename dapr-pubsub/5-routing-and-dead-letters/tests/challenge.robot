@@ -104,7 +104,7 @@ Walk Through Routing
 
 # doc-sync coverage (the commands are run above through keywords that build them from the
 # language and the folder, or with a unique order prefix instead of the assignment's o-500x IDs):
-#   cd /root/ai-agent-tracks-instruqt/pubsub
+#   cd /root/university-labs/pubsub
 #   cd dotnet/Demo5-RoutingDeadLetter
 #   cd python/demo5-routing-dead-letter
 #   cd java/demo5-routing-dead-letter

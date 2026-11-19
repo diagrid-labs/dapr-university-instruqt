@@ -40,9 +40,9 @@ tools/
 
 | Folder | What it teaches |
 | --- | --- |
-| `dapr-101/` | Dapr fundamentals (CLI, state, service invocation, pub/sub). A 2.0 lab of 5 pages; the .NET/Python/Java/JavaScript demo apps live in `diagrid-labs/ai-agent-tracks-instruqt` under `dapr-101/`. |
-| `dapr-secrets/` | The Secrets API: reading secrets, the secret store component and its parameters, secret scoping, and swapping the local file store for HashiCorp Vault (.NET/Python/Java; demo apps live in `diagrid-labs/ai-agent-tracks-instruqt` under `secrets/`). |
-| `dapr-pubsub/` | The Pub/Sub API in depth: subscription types (declarative, programmatic), streaming subscriptions, CloudEvents, bulk publish and subscribe, routing and dead-letter topics, and swapping the broker (.NET/Python/Java; demo apps live in `diagrid-labs/ai-agent-tracks-instruqt` under `pubsub/`). A 2.0 lab of 6 pages / 45 minutes, a user-approved exception to the 30-minute default. |
+| `dapr-101/` | Dapr fundamentals (CLI, state, service invocation, pub/sub). A 2.0 lab of 5 pages; the .NET/Python/Java/JavaScript demo apps live in `diagrid-labs/university-labs` under `dapr-101/`. |
+| `dapr-secrets/` | The Secrets API: reading secrets, the secret store component and its parameters, secret scoping, and swapping the local file store for HashiCorp Vault (.NET/Python/Java; demo apps live in `diagrid-labs/university-labs` under `secrets/`). |
+| `dapr-pubsub/` | The Pub/Sub API in depth: subscription types (declarative, programmatic), streaming subscriptions, CloudEvents, bulk publish and subscribe, routing and dead-letter topics, and swapping the broker (.NET/Python/Java; demo apps live in `diagrid-labs/university-labs` under `pubsub/`). A 2.0 lab of 6 pages / 45 minutes, a user-approved exception to the 30-minute default. |
 | `dapr-workflow/` | Dapr Workflow patterns: durable execution, task chaining, fan-out/fan-in, monitor, external events, child workflows, resiliency/compensation, combined patterns, workflow management. |
 | `dapr-workflow-aspire/` | Dapr Workflow built live with .NET Aspire (no upstream repo — the app is pasted from the assignment). |
 | `dapr-dotnet-aspire/` | Dapr + .NET Aspire integration. |
@@ -138,7 +138,7 @@ the matching `tests/challenge.robot` suite too (or the doc-sync CI job will fail
 `tools/track-tester/` is an end-to-end **drift** test harness built on
 [Robot Framework](https://robotframework.org/). The runnable tracks depend on upstream code
 (`dapr-workflow` uses [`dapr/quickstarts`](https://github.com/dapr/quickstarts); `dapr-101`, `dapr-secrets` and `dapr-pubsub` use
-`diagrid-labs/ai-agent-tracks-instruqt`); when that upstream code
+`diagrid-labs/university-labs`); when that upstream code
 or the tooling around it changes, a track's `assignment.md` can silently fall out of sync
 with the commands and output a learner actually sees. The harness catches this by running
 the *actual* commands from each assignment and asserting on their real output.
@@ -281,7 +281,7 @@ WF_BASE = os.path.join(QUICKSTARTS_DIR, "tutorials", "workflow")
   scripts clone the repo.
 - No `--variable` flag is needed — the suites read the env var directly via these files.
 - `dapr-secrets` resolves a different checkout the same way: `variables/dapr_secrets.py` reads
-  `TRACKS_SRC_DIR` (falling back to `~/ai-agent-tracks-instruqt`) and derives `SECRETS_BASE`
+  `TRACKS_SRC_DIR` (falling back to `~/university-labs`) and derives `SECRETS_BASE`
   from it. That file also owns the expected denied/missing error constants, so a Dapr upgrade
   that changes the wording fails the suite instead of silently drifting from the assignment.
 
@@ -301,7 +301,7 @@ WF_BASE = os.path.join(QUICKSTARTS_DIR, "tutorials", "workflow")
   relative `cd` in a runnable block that comes before any absolute `cd` on the page. A 2.0 lab's
   terminals keep their folder and running processes across pages, so `working_directory` in
   `tabs.hcl` only holds for the first page: each page that changes folder first runs a Run block
-  that goes to the lab folder (`cd /root/ai-agent-tracks-instruqt/secrets` for dapr-secrets) and
+  that goes to the lab folder (`cd /root/university-labs/secrets` for dapr-secrets) and
   then uses relative paths.
 
 Run it:
@@ -320,7 +320,7 @@ Everything runs from **`tools/track-tester/`** via `uv` (so paths to suites are
 ```bash
 # One-time: reproduce the sandbox (installs the Dapr CLI, runs `dapr init` — this re-inits your
 # local Dapr). Needs Docker running. dapr-workflow clones dapr/quickstarts to ~/quickstarts; the
-# 2.0 labs clone the demo repo to ~/ai-agent-tracks-instruqt at their `tracks_src_ref` pin.
+# 2.0 labs clone the demo repo to ~/university-labs at their `tracks_src_ref` pin.
 bash tools/track-tester/ci/setup-dapr-101.sh        # dapr-101 (clones the demo repo, installs the Dapr CLI,
                                                     # guards the runtime MAJOR.MINOR, inits Dapr)
 bash tools/track-tester/ci/setup-dapr-workflow.sh   # dapr-workflow (Dapr CLI from master)
@@ -332,7 +332,7 @@ bash tools/track-tester/ci/setup-dapr-pubsub.sh     # dapr-pubsub (clones the de
 # Optional: point the dapr-workflow suites at an existing checkout instead of ~/quickstarts.
 export QUICKSTARTS_DIR="$HOME/dev/dapr/quickstarts"
 # The dapr-101, dapr-secrets and dapr-pubsub suites use their own checkout, with the same pattern.
-export TRACKS_SRC_DIR="$HOME/dev/diagrid-labs/ai-agent-tracks-instruqt"
+export TRACKS_SRC_DIR="$HOME/dev/diagrid-labs/university-labs"
 
 # Sync harness deps.
 (cd tools/track-tester && uv sync)

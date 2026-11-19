@@ -29,7 +29,7 @@ The tracks are not intended to be run locally — they are hosted on Instruqt an
 
 ## Testing
 
-Because the runnable tracks depend on upstream code (e.g. `dapr/quickstarts`, and `diagrid-labs/ai-agent-tracks-instruqt` for `dapr-101`, `dapr-secrets` and `dapr-pubsub`), the assignment instructions can silently drift out of sync with the commands and output learners actually see. To catch this, `tools/track-tester/` holds an end-to-end test harness built on [Robot Framework](https://robotframework.org/): it runs the *actual* commands from each challenge's `assignment.md` and asserts on their output.
+Because the runnable tracks depend on upstream code (e.g. `dapr/quickstarts`, and `diagrid-labs/university-labs` for `dapr-101`, `dapr-secrets` and `dapr-pubsub`), the assignment instructions can silently drift out of sync with the commands and output learners actually see. To catch this, `tools/track-tester/` holds an end-to-end test harness built on [Robot Framework](https://robotframework.org/): it runs the *actual* commands from each challenge's `assignment.md` and asserts on their output.
 
 Each runnable challenge has a suite next to its assignment, e.g. `dapr-workflow/3-task-chaining/tests/challenge.robot`, with tests tagged per language (`dotnet` / `java` / `python` / `javascript`). A [doc-sync](tools/track-tester/README.md) checker additionally verifies every runnable command in an `assignment.md` is covered by its suite. See [`tools/track-tester/README.md`](tools/track-tester/README.md) for how to run the suites locally.
 

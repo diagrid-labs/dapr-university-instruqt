@@ -25,11 +25,11 @@ resource "service" "dev_dashboard" {
 resource "terminal" "dapr_cli" {
   target            = module.sandbox.output.vm
   shell             = "/bin/bash"
-  working_directory = "/root/ai-agent-tracks-instruqt/secrets"
+  working_directory = "/root/university-labs/secrets"
 }
 
 resource "terminal" "curl" {
   target            = module.sandbox.output.vm
   shell             = "/bin/bash"
-  working_directory = "/root/ai-agent-tracks-instruqt/secrets"
+  working_directory = "/root/university-labs/secrets"
 }

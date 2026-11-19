@@ -104,7 +104,7 @@ Walk Through Bulk Messages
 
 # doc-sync coverage (the commands are run above through keywords that build them from the
 # language and the folder, or with a unique order prefix instead of the assignment's bulk and o-4001):
-#   cd /root/ai-agent-tracks-instruqt/pubsub
+#   cd /root/university-labs/pubsub
 #   cd dotnet/Demo4-Bulk
 #   cd python/demo4-bulk
 #   cd java/demo4-bulk

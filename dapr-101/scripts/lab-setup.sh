@@ -12,7 +12,7 @@
 : "${TRACKS_SRC_DIR:?TRACKS_SRC_DIR must be set (set by the module sandbox-setup.sh)}"
 
 if [ ! -d "$TRACKS_SRC_DIR/dapr-101" ]; then
-    die "$TRACKS_SRC_DIR/dapr-101 not found. Is $TRACKS_SRC_DIR a current clone of diagrid-labs/ai-agent-tracks-instruqt?"
+    die "$TRACKS_SRC_DIR/dapr-101 not found. Is $TRACKS_SRC_DIR a current clone of diagrid-labs/university-labs?"
 fi
 
 # Pre-build the apps of the page 4 (service invocation) and page 5 (pub/sub) demos in a fully

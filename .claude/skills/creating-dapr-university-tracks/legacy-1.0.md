@@ -9,13 +9,23 @@ The assignment annotations (SKILL.md → Assignment quick reference) and the dri
 in `track.yml` / `config.yml`. Do not create `track.yml`, `config.yml`, or extensionless lifecycle
 files (`setup`/`check`/`solve`).
 
+## Migrating a 1.0 track to 2.0
+
+When you migrate `ai-agents-maf`, `ai-agents-deepagents` or `ai-agents-supply-chain-auditor-langchain`
+to a 2.0 lab:
+
+- Use the `diagrid/dapr-sandbox` module's clone of `diagrid-labs/university-labs` (formerly
+  `ai-agent-tracks-instruqt`) and its folder; don't add a clone to a setup script.
+- Move every `ai-agent-tracks-instruqt/...` path to `/root/university-labs/...`.
+- Delete the 1.0 folder once the 2.0 lab replaces it.
+
 ## Reference tracks
 
 | Track | Languages | Source-code model | Notable conventions | Use it when |
 |---|---|---|---|---|
 | `dapr-workflow` | .NET/Java/Python | Clones `dapr/quickstarts` | 11 challenges / **50 min, do not imitate the size**. Heavy `<details>` per-language blocks, per-challenge `images/` folders, per-challenge `tests/challenge.robot` (no check/solve) | You need the `<details>` or diagram conventions. |
 | `dapr-workflow-aspire` | .NET only | Build-it-live (learner scaffolds) | 5 challenges / 30 min. `tabs.md` with Editor/Terminal/Aspire webapp tabs, custom VM image, `,copy` code blocks, a single track-level `tests/challenge.robot` that rebuilds the app from the assignments, Instruqt-hosted images. **The README outlier**: `## Name`/`## URL` and no timeout sections | The narrative is "build it from scratch" and there is no upstream repo. |
-| `ai-agents-maf` | .NET only | Clones `diagrid-labs/ai-agent-tracks-instruqt` | Requires an OpenAI key (set by learner in ch1, validated by `check.sh`), `scripts/setup.sh`, Editor+Terminal tabs. No drift tests | A track that needs a learner-supplied API key. |
+| `ai-agents-maf` | .NET only | Clones `diagrid-labs/university-labs` (formerly `ai-agent-tracks-instruqt`) | Requires an OpenAI key (set by learner in ch1, validated by `check.sh`), `scripts/setup.sh`, Editor+Terminal tabs. No drift tests | A track that needs a learner-supplied API key. |
 
 ## Sizing
 
@@ -273,7 +283,7 @@ install the rest in `sandbox-setup.sh`.
 ## Source-code models
 
 - **Clone an external repo** in `_setup/sandbox-setup.sh` (`dapr/quickstarts` for
-  `dapr-workflow`; `diagrid-labs/ai-agent-tracks-instruqt` for `ai-agents-maf`). `dapr/quickstarts`
+  `dapr-workflow`; `diagrid-labs/university-labs` (formerly `ai-agent-tracks-instruqt`) for `ai-agents-maf`). `dapr/quickstarts`
   uses a `resources/` folder for components.
 - **Build it live**: the learner scaffolds the app and pastes code from `,copy` blocks
   (`dapr-workflow-aspire`). Its suite pulls commands out of the assignment at runtime with

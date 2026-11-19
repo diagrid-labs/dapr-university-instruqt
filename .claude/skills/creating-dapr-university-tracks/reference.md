@@ -62,7 +62,7 @@ tab. Set it on that page's entry in `main.hcl`.
 ### tabs.hcl
 
 Copy `dapr-secrets/tabs.hcl` (dapr-pubsub's adds a `rabbitmq` service; drop it) and change the folder in both terminals' `working_directory`
-(`/root/ai-agent-tracks-instruqt/<folder>`). That folder only holds on page 1: terminals keep
+(`/root/university-labs/<folder>`). That folder only holds on page 1: terminals keep
 their folder across pages, which is why every run section starts with the anchored `cd` (SKILL.md →
 State carries over between pages). It defines `service "editor"` (code-server on port
 8888), `service "dev_dashboard"` (port 9090, with the `Host` and `Origin` custom request headers the
@@ -78,7 +78,7 @@ variable "dapr_runtime_version" {
 }
 
 variable "tracks_src_ref" {
-  description = "Commit of diagrid-labs/ai-agent-tracks-instruqt that the lab checks out after cloning."
+  description = "Commit of diagrid-labs/university-labs that the lab checks out after cloning."
   default     = "<commit with this lab's demo apps>"
 }
 
@@ -99,7 +99,7 @@ Copy the comments from `dapr-pubsub/versions.hcl` too. Rules (full version in `A
 each pin a plain `variable` block, because `tools/track-tester/ci/read_pin.py` parses them; each pin
 lives in exactly one file; `dapr_runtime_version` equals `prewarm_dapr_runtime_version` in
 `modules/dapr-sandbox/versions.hcl`; the module version must be published in Instruqt before a lab
-pins it. Add `demo_repo_url` only when the demo apps are not in `ai-agent-tracks-instruqt`.
+pins it. Add `demo_repo_url` only when the demo apps are not in `university-labs`.
 
 ### README.md (optional)
 
@@ -154,7 +154,7 @@ Copy `dapr-pubsub/scripts/lab-setup.sh` and keep its header comment. The contrac
    Use the **Dapr CLI** window to go to the `<folder>` folder first. The terminal stays in whatever folder it was in when you move between labs, so this makes sure the commands below start from the right place:
 
    ```bash,run
-   cd /root/ai-agent-tracks-instruqt/<folder>
+   cd /root/university-labs/<folder>
    ```
 
    > [!IMPORTANT]
@@ -282,7 +282,7 @@ spelling; two languages means two blocks. The suite tags and CI matrix legs shri
 
 ## Demo apps and sandbox content
 
-- Demo apps live in `diagrid-labs/ai-agent-tracks-instruqt` under `<folder>/`, as
+- Demo apps live in `diagrid-labs/university-labs` under `<folder>/`, as
   `dotnet/DemoN-PascalCase/`, `python/demoN-kebab-case/` and `java/demoN-kebab-case/`. Each demo
   folder has a `dapr.yaml` Multi-App Run file and a `resources/` folder. Pin the commit as
   `tracks_src_ref`. Never commit demo code to this repo.
@@ -324,14 +324,14 @@ adds, each modelled on its `dapr-pubsub` counterpart:
 
     ```robot
     # doc-sync coverage (<how the suite really runs them>):
-    #   cd /root/ai-agent-tracks-instruqt/<folder>
+    #   cd /root/university-labs/<folder>
     #   cd dotnet/Demo1-Subscriptions
     #   dapr run -f .
     ```
 
     doc-sync is a presence check over the suite text, so keep this block honest by hand.
 - **`tools/track-tester/variables/<lab_with_underscores>.py`**: `TRACKS_SRC_DIR` from the
-  environment with a `~/ai-agent-tracks-instruqt` fallback, the lab base path, and per-language
+  environment with a `~/university-labs` fallback, the lab base path, and per-language
   folder dicts.
 - **`tools/track-tester/ci/setup-<lab>.sh`**: reads the pins with `read_pin.py` (Dapr CLI from
   `modules/dapr-sandbox/versions.hcl`, runtime and `tracks_src_ref` from the lab's `versions.hcl`),

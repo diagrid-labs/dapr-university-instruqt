@@ -98,7 +98,7 @@ Walk Through CloudEvents
 
 # doc-sync coverage (the commands are run above through keywords that build them from the
 # language and the folder, or with a unique order ID instead of the assignment's o-3001 and o-3002):
-#   cd /root/ai-agent-tracks-instruqt/pubsub
+#   cd /root/university-labs/pubsub
 #   cd dotnet/Demo3-CloudEvents
 #   cd python/demo3-cloud-events
 #   cd java/demo3-cloud-events

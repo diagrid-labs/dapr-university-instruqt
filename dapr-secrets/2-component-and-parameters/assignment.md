@@ -33,7 +33,7 @@ If `order-api` is not on the **Applications** page, or the **Dapr CLI** window s
 Use the **Dapr CLI** window to go to the `secrets` folder first. The terminal stays in whatever folder it was in when you move between pages, so this makes sure the commands below start from the right place:
 
 ```bash,run
-cd /root/ai-agent-tracks-instruqt/secrets
+cd /root/university-labs/secrets
 ```
 
 <details>
@@ -200,7 +200,7 @@ The `nested-demo` folder holds a secrets file with a nested secret, `orderdb`, t
 Use the **Dapr CLI** window to go to the `secrets` folder and then to the `nested-demo` folder, and start a sidecar without an application:
 
 ```bash,run
-cd /root/ai-agent-tracks-instruqt/secrets
+cd /root/university-labs/secrets
 ```
 
 ```bash,run

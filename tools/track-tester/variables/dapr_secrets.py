@@ -2,7 +2,7 @@
 
 TRACKS_SRC_DIR resolves (in order): the TRACKS_SRC_DIR environment variable if set
 (used by CI and by local runs pointing at an existing checkout), otherwise
-~/ai-agent-tracks-instruqt expanded to an absolute path (where ci/setup-dapr-secrets.sh
+~/university-labs expanded to an absolute path (where ci/setup-dapr-secrets.sh
 and scripts/lab-setup.sh clone the demo repo).
 
 The DENIED_* / MISSING_* values are what the Secrets API returns over HTTP when scoping
@@ -14,7 +14,7 @@ here rather than silently drift from the assignment.
 """
 import os
 
-TRACKS_SRC_DIR = os.environ.get("TRACKS_SRC_DIR") or os.path.expanduser("~/ai-agent-tracks-instruqt")
+TRACKS_SRC_DIR = os.environ.get("TRACKS_SRC_DIR") or os.path.expanduser("~/university-labs")
 SECRETS_BASE = os.path.join(TRACKS_SRC_DIR, "secrets")
 # Demo folder names per language. They follow each language's own convention: PascalCase for
 # .NET (matching the .csproj), kebab-case for Python and Java (as Python and Maven projects

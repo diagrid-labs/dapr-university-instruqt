@@ -143,7 +143,7 @@ Walk Through Swap
 #       docker exec -u rabbitmq rabbitmq rabbitmq-diagnostics -q check_port_connectivity >/dev/null 2>&1 && break
 #     sleep 1
 #   done
-#   cd /root/ai-agent-tracks-instruqt/pubsub
+#   cd /root/university-labs/pubsub
 #   cd dotnet/Demo6-SwapProvider
 #   cd python/demo6-swap-provider
 #   cd java/demo6-swap-provider

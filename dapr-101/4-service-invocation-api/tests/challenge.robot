@@ -87,7 +87,7 @@ Run Apps And Assert Markers
     END
 
 # doc-sync coverage (the commands run above through cwd= arguments and ${dir}):
-#   cd /root/ai-agent-tracks-instruqt/dapr-101
+#   cd /root/university-labs/dapr-101
 #   cd dotnet/ServiceInvocation
 #   cd python/service-invocation
 #   cd java/service-invocation

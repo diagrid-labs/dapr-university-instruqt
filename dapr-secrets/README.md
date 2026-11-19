@@ -7,7 +7,7 @@ Vault without changing application code.
 
 This is the first Instruqt 2.0 lab in the repo. The lab config lives in HCL (`main.hcl` holds the title,
 description and time limits), not in this file. The demo apps are not here: they are cloned from
-`diagrid-labs/ai-agent-tracks-instruqt` at the commit pinned in `versions.hcl`.
+`diagrid-labs/university-labs` at the commit pinned in `versions.hcl`.
 
 ## File map
 

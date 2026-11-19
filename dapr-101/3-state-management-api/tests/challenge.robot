@@ -77,5 +77,5 @@ Sidecar Port Is Closed
     Should Not Be Equal As Integers    ${r.rc}    0
 
 # doc-sync coverage:
-#   cd /root/ai-agent-tracks-instruqt/dapr-101/state-management
+#   cd /root/university-labs/dapr-101/state-management
 #   (the suite runs `dapr run -f .` with cwd=${DAPR101_BASE}/${STATE_DEMO}, the same folder)

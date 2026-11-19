@@ -119,7 +119,7 @@ An editor is a resource with named `workspace` blocks; a layout tab then points 
 resource "editor" "code" {
   workspace "secrets" {
     target    = module.sandbox.output.vm
-    directory = "/root/ai-agent-tracks-instruqt/secrets"
+    directory = "/root/university-labs/secrets"
   }
 }
 ```
@@ -188,7 +188,7 @@ The lab then uses `module.sandbox.output.vm` as a `target` for a `terminal`, `ed
 resource "terminal" "cli" {
   target            = module.sandbox.output.vm
   shell             = "/bin/bash"
-  working_directory = "/root/ai-agent-tracks-instruqt/secrets"
+  working_directory = "/root/university-labs/secrets"
 }
 ```
 

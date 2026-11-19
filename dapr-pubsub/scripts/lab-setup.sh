@@ -13,7 +13,7 @@
 : "${TRACKS_SRC_DIR:?TRACKS_SRC_DIR must be set (set by the module sandbox-setup.sh)}"
 
 if [ ! -d "$TRACKS_SRC_DIR/pubsub" ]; then
-    die "$TRACKS_SRC_DIR/pubsub not found. Is $TRACKS_SRC_DIR a current clone of diagrid-labs/ai-agent-tracks-instruqt?"
+    die "$TRACKS_SRC_DIR/pubsub not found. Is $TRACKS_SRC_DIR a current clone of diagrid-labs/university-labs?"
 fi
 
 # Pre-build the apps of demos 1 to 5 in a fully detached background job (own stdin, stdout and

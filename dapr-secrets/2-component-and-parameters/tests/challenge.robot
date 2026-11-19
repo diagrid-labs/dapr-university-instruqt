@@ -320,7 +320,7 @@ Finish Value Proof
     Delete Proof Keys
 
 # doc-sync coverage (expressed via cwd and cwd-relative paths above):
-#   cd /root/ai-agent-tracks-instruqt/secrets
+#   cd /root/university-labs/secrets
 #   cd dotnet/Demo1-ReadSecret
 #   cd python/demo1-read-secret
 #   cd java/demo1-read-secret
