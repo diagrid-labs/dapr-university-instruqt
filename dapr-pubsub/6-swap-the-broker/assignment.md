@@ -251,7 +251,7 @@ We have more opportunities for you to learn and share knowledge:
 
 Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmwkvuq6x0003l4085i88jbl5). You'll need a GitHub account to claim the badge. Then come back to this page, rate the track below, and click **Finish & Exit** to finish the lab.
 
-[![Dapr University Dapr Pub/Sub badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/6-swap-the-broker/images/Diagrid-Dapr-Uni-badge-pubsub_x300.png?raw=true)](https://holopin.io/collect/cmwkvuq6x0003l4085i88jbl5)
+<a href="https://holopin.io/collect/cmwkvuq6x0003l4085i88jbl5"><img src="https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/6-swap-the-broker/images/Diagrid-Dapr-Uni-badge-pubsub_x300.png?raw=true" alt="Dapr University Dapr Pub/Sub badge" width="230" height="230"></a>
 
 ### Rate this track
 

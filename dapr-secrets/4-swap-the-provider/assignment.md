@@ -250,7 +250,7 @@ We have more opportunities for you to learn and share knowledge:
 
 Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmwkvsna40001l4089b15z4w0). You'll need a GitHub account to claim the badge. Then come back to this page, rate the track below, and click **Finish & Exit** to finish the lab.
 
-[![Dapr University Dapr Secrets badge](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-secrets/4-swap-the-provider/images/Diagrid-Dapr-Uni-badge-secrets_x300.png?raw=true)](https://holopin.io/collect/cmwkvsna40001l4089b15z4w0)
+<a href="https://holopin.io/collect/cmwkvsna40001l4089b15z4w0"><img src="https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-secrets/4-swap-the-provider/images/Diagrid-Dapr-Uni-badge-secrets_x300.png?raw=true" alt="Dapr University Dapr Secrets badge" width="230" height="230"></a>
 
 ### Rate this track
 
