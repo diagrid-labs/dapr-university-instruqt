@@ -14,8 +14,8 @@ variable "dapr_runtime_version" {
 }
 
 variable "demo_repo_url" {
-  description = "Git URL of the demo repo cloned to /root/ai-agent-tracks-instruqt"
-  default     = "https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git"
+  description = "Git URL of the demo repo cloned to /root/university-labs"
+  default     = "https://github.com/diagrid-labs/university-labs.git"
 }
 
 variable "demo_repo_ref" {

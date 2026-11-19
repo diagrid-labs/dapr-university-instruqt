@@ -89,7 +89,7 @@ def test_clones_at_ref_and_opens_editor_folder(tmp_path):
         if any(c.startswith("code-server ") for c in calls) or time.time() > deadline:
             break
         time.sleep(0.1)
-    target = f"{tmp_path}/ai-agent-tracks-instruqt"
+    target = f"{tmp_path}/university-labs"
     assert any(c.startswith("git") and " clone " in c and URL in c and c.endswith(target) for c in calls)
     assert any(c.startswith("git") and c.endswith(f"checkout --quiet {REF}") for c in calls)
     cs = [c for c in calls if c.startswith("code-server ")]
@@ -97,7 +97,7 @@ def test_clones_at_ref_and_opens_editor_folder(tmp_path):
 
 
 def test_second_run_keeps_clone_and_containers(tmp_path):
-    (tmp_path / "ai-agent-tracks-instruqt" / ".git").mkdir(parents=True)
+    (tmp_path / "university-labs" / ".git").mkdir(parents=True)
     r, calls = run_script(tmp_path, STUB_DOCKER_PS="abc123")
     assert r.returncode == 0, r.stderr
     assert not any(" clone " in c for c in calls)
@@ -114,7 +114,7 @@ def test_helpers_available_to_lab_script(tmp_path):
     assert r.returncode == 0, r.stderr
     for fn in ("log", "die", "bounded", "wait_for_docker"):
         assert fn in r.stdout
-    assert r.stdout.strip().endswith("/ai-agent-tracks-instruqt")
+    assert r.stdout.strip().endswith("/university-labs")
 
 
 def test_startup_script_order():

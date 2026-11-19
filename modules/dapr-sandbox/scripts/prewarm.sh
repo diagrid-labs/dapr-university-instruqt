@@ -36,7 +36,7 @@ fi
 # itself is thrown away because lab setup clones the repo fresh at launch.
 PREWARM_DIR="$(mktemp -d)"
 trap 'rm -rf "$PREWARM_DIR"' EXIT
-if git clone --depth 1 https://github.com/diagrid-labs/ai-agent-tracks-instruqt.git "$PREWARM_DIR/repo"; then
+if git clone --depth 1 https://github.com/diagrid-labs/university-labs.git "$PREWARM_DIR/repo"; then
     SECRETS_BASE="$PREWARM_DIR/repo/secrets"
     # The swap demo (demo 3) holds no application code (it runs the demo 1 app against another
     # secret store), so warming demo 1 and the two scoping apps covers all challenges. Folder
