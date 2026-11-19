@@ -58,7 +58,7 @@ The warning is expected, since the template has no `command`. Because you starte
 
 Open the **Dev Dashboard** tab and go to the **Applications** page: `myapp` is listed there, and its sidecar is ready when the **Health** column shows a green dot.
 
-Now go to the **Logs** page, select `myapp` in the application drop-down, select the `daprd` source to see the sidecar logs, and type `Component loaded` in the search bar. You'll find this line, which tells you what type of storage Dapr is using in this demo:
+Now go to the **Logs** page, select `myapp` in the application drop-down, and type `Component loaded` in the search bar. The page shows the `app` and `daprd` (sidecar) logs together, and you'll find this sidecar line, which tells you what type of storage Dapr is using in this demo:
 
 ```text,nocopy
 Component loaded: statestore (state.redis/v1)
