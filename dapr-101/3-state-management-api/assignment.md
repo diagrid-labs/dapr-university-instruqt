@@ -99,7 +99,7 @@ The output should be:
 
 ## 4. Inspect the state on the Dev Dashboard
 
-Now look at how the state is stored. Open the **Dev Dashboard** tab and go to the **State** page. It lists the records in the state store: find the record with the key `name` and the app prefix `myapp`, and expand it to see its value, `"Bruce Wayne"`. Then go back to the **Editor** tab.
+Now look at how the state is stored. Open the **Dev Dashboard** tab and go to the **State** page. It lists the records in the state store: find the record with the key `name` and the app prefix `myapp`. Its value, `"Bruce Wayne"`, is shown in the list. Then go back to the **Editor** tab.
 
 > [!NOTE]
 > Note that the record belongs to the app `myapp`: Dapr stores the key with the `app-id` as prefix (`myapp||name`). This is the default behaviour in Dapr. Every application manages their data via the `app-id` prefix. If you want multiple applications to access the same data you can change this by configuring the state store component, see [Specifying a state prefix strategy](https://docs.dapr.io/developing-applications/building-blocks/state-management/howto-share-state/) in the Dapr Docs.

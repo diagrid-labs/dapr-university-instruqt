@@ -208,7 +208,7 @@ In lab 2, the state store component got its password from `secretstore` through 
 curl -s -X POST -H "Content-Type: application/json" -d '[{"key":"order-2","value":"shipped"}]' http://localhost:3500/v1.0/state/statestore
 ```
 
-Open the **Dev Dashboard** tab and go to the **State** page. It also lists `order-1`, which you saved in lab 2. The record with the key `order-2` is the one you just saved through the Vault-backed component: expand it to see its value, `shipped`. Then go back to the **Editor** tab.
+Open the **Dev Dashboard** tab and go to the **State** page. It also lists `order-1`, which you saved in lab 2. The record with the key `order-2` is the one you just saved through the Vault-backed component, and its value, `shipped`, is shown in the list. Then go back to the **Editor** tab.
 
 Components that use `secretKeyRef` don't know which secret store provider is behind the name either.
 
