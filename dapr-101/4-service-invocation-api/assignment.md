@@ -81,13 +81,6 @@ Navigate to the *dotnet/ServiceInvocation* folder:
 cd dotnet/ServiceInvocation
 ```
 
-Build the applications:
-
-```bash,run
-dotnet build checkout
-dotnet build order-processor
-```
-
 Run the applications using the Dapr CLI:
 
 ```bash,run
@@ -105,12 +98,6 @@ Navigate to the *python/service-invocation* folder:
 
 ```bash,run
 cd python/service-invocation
-```
-
-Install the dependencies:
-
-```bash,run
-uv sync --all-packages
 ```
 
 Run the applications using the Dapr CLI:
@@ -132,7 +119,7 @@ Navigate to the *java/service-invocation* folder:
 cd java/service-invocation
 ```
 
-Build the applications:
+The sandbox built the applications when it started. Run this to make sure the build is complete. It's quick when the build is already done:
 
 ```bash,run
 cd order-processor
@@ -161,7 +148,7 @@ Navigate to the *javascript/service-invocation* folder:
 cd javascript/service-invocation
 ```
 
-Install the dependencies:
+The sandbox installed the dependencies when it started. Run this to make sure the install is complete. It's quick when the install is already done:
 
 ```bash,run
 cd order-processor
