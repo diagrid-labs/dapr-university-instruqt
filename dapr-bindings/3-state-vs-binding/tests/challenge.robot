@@ -97,10 +97,22 @@ Walk Through State Vs Binding
     ${state_table}=    Capture Command Output    ${PSQL} -c "\\d state"
     Should Contain    ${state_table}    key
     Should Contain    ${state_table}    jsonb
-    ${rows}=    Capture Command Output    ${PSQL} -c "SELECT key, value FROM state LIMIT 2;"
-    Should Contain    ${rows}    engineering||reading-wc-
+    ${rows}=    Capture Command Output    ${PSQL} -c "SELECT key, value FROM state ORDER BY key LIMIT 2;"
+    Should Contain    ${rows}    engineering||reading-wc-0001
     ${key}=    Capture Command Output    ${PSQL} -tAc "SELECT count(*) FROM state WHERE key = 'engineering||reading-wc-0001'"
     Should Be Equal    ${key}    1
+
+    # Review Focus 4, in every CI leg: run the demo again in the same language. The state table
+    # still holds the first run's wc-0001; the new run must overwrite it with its own reading.
+    Stop Process With SIGINT    app
+    Wait For The Ports To Be Free
+    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Wait Until App Responds    http://localhost:5201/    ${timeout}
+    Wait Until Log Contains    ${LOG}    engineering saved reading wc-0001 to statestore (key=reading-wc-0001)    ${timeout}
+    ${scan}=    Grep File    ${LOG}    engineering warp-core scan wc-0001
+    ${temps}=    Get Regexp Matches    ${scan}    coreTempK=(\\d+)    1
+    ${state_temp}=    Capture Command Output    curl -s http://localhost:5201/state/wc-0001 | jq '.coreTempK'
+    Should Be Equal    ${state_temp}    ${temps}[0]    msg=The second run's /state/wc-0001 still returns the first run's reading.
 
 # doc-sync coverage (the commands are run above through keywords that build them from the
 # language and the folder, or with psql's backslash commands escaped for Robot):
@@ -111,4 +123,4 @@ Walk Through State Vs Binding
 #   dapr run -f .
 #   docker exec bindings-postgres psql -U dapr -d dapr -c "\d state"
 #   docker exec bindings-postgres psql -U dapr -d dapr -c "\d warp_core_readings"
-#   docker exec bindings-postgres psql -U dapr -d dapr -c "SELECT key, value FROM state LIMIT 2;"
+#   docker exec bindings-postgres psql -U dapr -d dapr -c "SELECT key, value FROM state ORDER BY key LIMIT 2;"

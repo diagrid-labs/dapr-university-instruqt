@@ -44,7 +44,7 @@ This lab uses `warp_core_readings`, and the last lab uses `comms_log`.
 
 ### If the database is not running
 
-If the command above answers `No such container: bindings-postgres`, use the **curl** window to start the database again. The block removes an existing container first, so it is safe to run more than once, and it waits until the tables exist. A running demo app reconnects by itself once the database is back:
+If the command above answers `No such container: bindings-postgres`, use the **curl** window to start the database again. The block removes an existing container first, so it is safe to run more than once. It waits until the tables exist and then lists them, so you see the same two tables as above; if it prints an error instead, run it again. A running demo app reconnects by itself once the database is back:
 
 ```bash,run
 docker rm -f bindings-postgres >/dev/null 2>&1 || true
@@ -56,6 +56,7 @@ for _ in $(seq 1 60); do
   docker exec bindings-postgres psql -U dapr -d dapr -tAc 'SELECT 1 FROM comms_log' >/dev/null 2>&1 && break
   sleep 1
 done
+docker exec bindings-postgres psql -U dapr -d dapr -c "\dt"
 ```
 
 ## 2. The output binding component
@@ -280,7 +281,7 @@ Every 30 seconds the `purge-old-readings` cron binding calls the app, and the ap
 == APP - engineering == engineering purged old readings
 ```
 
-Wait a minute, then use the **curl** window to run the same `SELECT` again:
+A reading is purged at the first tick after it is a minute old, so the oldest rows go about a minute and a half after you started the app. When a `purged old readings` line appears after that, use the **curl** window to run the same `SELECT` again:
 
 ```bash,run
 docker exec bindings-postgres psql -U dapr -d dapr -c "SELECT * FROM warp_core_readings;"

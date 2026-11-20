@@ -274,7 +274,7 @@ Here is what you did in this track:
 3. **State API vs binding:** you saved each reading through both into the same database, compared the tables, and saw when to use which.
 4. **Combining bindings with service invocation:** a cron tick made one app call another by app ID and store the answer through the output binding.
 
-## Provide feedback
+## Feedback and further learning
 
 Congratulations! 🎉 You've completed the Dapr University bindings learning track!
 

@@ -82,6 +82,9 @@ Run The Restart Block
     ${block}=    Replace String    ${block}    /root/university-labs    ${TRACKS_SRC_DIR}
     ${result}=    Run Process    bash    -c    ${block}    stderr=STDOUT
     Should Be Equal As Integers    ${result.rc}    0    msg=${result.stdout}
+    # The block ends by listing the tables, so the learner sees whether it worked.
+    Should Contain    ${result.stdout}    warp_core_readings
+    Should Contain    ${result.stdout}    comms_log
 
 The Bindings Tables Exist
     ${tables}=    Capture Command Output    ${PSQL} -c "\\dt"
