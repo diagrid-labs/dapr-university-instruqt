@@ -181,3 +181,15 @@ def test_render_image_script_has_jq_rabbitmq_and_pubsub():
     assert "pubsub/java/demo4-bulk" in out
     syntax = subprocess.run(["bash", "-n"], input=out, capture_output=True, text=True)
     assert syntax.returncode == 0, syntax.stderr
+
+
+def test_render_image_script_has_postgres_and_bindings():
+    r = subprocess.run(["bash", str(RENDER)], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    out = r.stdout
+    assert '"postgres:18.7"' in out
+    assert "bindings/dotnet/Demo4-SubspaceBeacon/SubspaceBeacon" in out
+    assert "bindings/java/demo4-subspace-beacon/subspace-beacon" in out
+    assert "bindings/python/demo1-cron-trigger/engineering" in out
+    syntax = subprocess.run(["bash", "-n"], input=out, capture_output=True, text=True)
+    assert syntax.returncode == 0, syntax.stderr
