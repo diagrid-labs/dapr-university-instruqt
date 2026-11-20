@@ -66,7 +66,7 @@ Here you'll see the input and output of the workflow, and the *Execution History
 
 ---
 
-You've run the complete USS Enterprise diagnostics workflow end-to-end. Aspire orchestrates the API service containing the workflow and its Dapr sidecar. Workflow state is stored in the `dapr_redis` container and you've inspected this state with the [Diagrid Dev Dashboard](https://docs.diagrid.io/develop/local-development/dev-dashboard), an essential tool when developing Dapr workflows. This final challenge will take about 5 minutes to complete.
+You've run the complete USS Enterprise diagnostics workflow end-to-end. Aspire orchestrates the API service containing the workflow and its Dapr sidecar. Workflow state is stored in the Valkey container (`enterprise-diagnostics-state`) that Aspire runs and you've inspected this state with the [Diagrid Dev Dashboard](https://docs.diagrid.io/develop/local-development/dev-dashboard), an essential tool when developing Dapr workflows. This final challenge will take about 5 minutes to complete.
 
 ## Feedback and further learning
 
