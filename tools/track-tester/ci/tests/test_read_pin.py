@@ -119,6 +119,7 @@ REAL_PINS = {
     "dapr-secrets/versions.hcl": ["dapr_runtime_version", "tracks_src_ref"],
     "dapr-pubsub/versions.hcl": ["dapr_runtime_version", "tracks_src_ref"],
     "dapr-101/versions.hcl": ["dapr_runtime_version", "tracks_src_ref"],
+    "dapr-bindings/versions.hcl": ["dapr_runtime_version", "tracks_src_ref"],
 }
 
 
@@ -149,7 +150,7 @@ def test_render_image_script_inlines_pins():
     assert syntax.returncode == 0, syntax.stderr
 
 
-@pytest.mark.parametrize("lab", ["dapr-secrets", "dapr-pubsub", "dapr-101"])
+@pytest.mark.parametrize("lab", ["dapr-secrets", "dapr-pubsub", "dapr-101", "dapr-bindings"])
 def test_prewarm_runtime_pin_matches_lab_runtime_pin(lab):
     module_pin = read_pin(
         str(REPO / "modules" / "dapr-sandbox" / "versions.hcl"),

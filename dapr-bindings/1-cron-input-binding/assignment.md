@@ -1,0 +1,1 @@
+# Cron input binding
