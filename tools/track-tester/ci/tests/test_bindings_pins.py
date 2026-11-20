@@ -18,6 +18,7 @@ def test_postgres_tag_matches_prewarm():
     assert len(prewarm) == 1
     for path in [
         ROOT / "dapr-bindings" / "scripts" / "start-postgres.sh",
+        ROOT / "dapr-bindings" / "2-postgres-output-binding" / "assignment.md",
         ROOT / "tools" / "track-tester" / "variables" / "dapr_bindings.py",
     ]:
         assert tags_in(path) == prewarm, path
