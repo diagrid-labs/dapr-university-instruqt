@@ -104,6 +104,8 @@ that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1
 - **Required checks on `main`** are exactly `lab-validate`, `dapr-101-result`, `dapr-secrets-result`,
   `dapr-pubsub-result` and `dapr-bindings-result` (the aggregate jobs of `test-dapr-101.yml`,
   `test-dapr-secrets.yml`, `test-dapr-pubsub.yml` and `test-dapr-bindings.yml`).
+  `dapr-bindings-result` is required once the owner adds it (`docs/instruqt-2-runbook.md`,
+  "Module 3.1.0 / dapr-bindings", step 4); until then it runs but does not block a merge.
   Do not require the individual matrix legs.
 
 ## Track & challenge anatomy

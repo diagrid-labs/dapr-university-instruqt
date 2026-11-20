@@ -4,7 +4,7 @@ In this final lab, you'll run two apps: a cron binding makes `engineering` call 
 
 ## Before you start
 
-Open the **Dev Dashboard** tab and check the **Applications** page. If an application from the previous lab is still running, use the **Dapr CLI** window to stop it by pressing `Ctrl+C`. This demo uses the same ports.
+The terminals, and the applications running in them, stay as they are when you move between labs. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `engineering` from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. They use the same ports as the apps in this lab. Then go back to the **Editor** tab.
 
 This demo needs the `bindings-postgres` database container. If `docker ps` in the **curl** window doesn't list it, start it again with the block in the section *If the database is not running* of the second lab.
 
@@ -199,7 +199,7 @@ Use the **curl** window to ask `engineering` how communications are going. It re
 curl -s http://localhost:5201/comms/status | jq
 ```
 
-Right after startup the answer is:
+Right after startup the answer looks like this. The status stays `SEARCHING` for the first ticks, and your signal strength will differ:
 
 ```json,nocopy
 {

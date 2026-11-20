@@ -4,7 +4,7 @@ In this lab, you'll let an app store, query and purge rows in PostgreSQL through
 
 ## Before you start
 
-Open the **Dev Dashboard** tab and check the **Applications** page. If an application from the previous lab is still running, use the **Dapr CLI** window to stop it by pressing `Ctrl+C`. This demo uses the same ports.
+The terminals, and the applications running in them, stay as they are when you move between labs. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `engineering` from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. They use the same ports as the apps in this lab. Then go back to the **Editor** tab.
 
 ## 1. Where the database comes from
 

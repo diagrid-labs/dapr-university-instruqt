@@ -7,7 +7,7 @@ name: Test dapr-bindings track
 
 on:
   schedule:
-    - cron: '15 7 * * *'  # Daily 07:15 UTC (staggered after dapr-101 06:00, dapr-workflow 06:15, dapr-workflow-aspire 06:30, dapr-secrets 06:45, dapr-bindings 07:00)
+    - cron: '15 7 * * *'  # Daily 07:15 UTC (staggered after dapr-101 06:00, dapr-workflow 06:15, dapr-workflow-aspire 06:30, dapr-secrets 06:45, dapr-pubsub 07:00)
   workflow_dispatch:
   # No `paths` filter: docsync and languages are required checks, and a required check from a
   # workflow that never started (path filter) blocks the merge. Instead the `changes` job

@@ -156,7 +156,7 @@ Ten seconds after the app starts, and then every ten seconds, `engineering` logs
 2. Select `engineering` in the application drop-down.
 3. Type `warp-core scan` in the search bar.
 
-The lines below show only the message: in the real log, each language adds its own logger prefix after `== APP - engineering ==`. The readings and stardates in your log will differ:
+The lines below show only the message. In the real log, Python and Java put their own logger prefix in front of it, and .NET writes an `info: Program[0]` line followed by the message on a line of its own. The readings and stardates in your log will differ:
 
 ```text,nocopy
 == APP - engineering == engineering warp-core scan wc-0001 stardate=85763.0 coreTempK=859 plasmaFlow=0.76
