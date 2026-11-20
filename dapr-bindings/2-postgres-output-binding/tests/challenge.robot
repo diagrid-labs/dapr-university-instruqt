@@ -170,6 +170,6 @@ SQL Should Return
 #   -v /root/university-labs/bindings/sql:/docker-entrypoint-initdb.d:ro \
 #   postgres:18.7
 #   for _ in $(seq 1 60); do
-#   docker exec bindings-postgres psql -U dapr -d dapr -tAc 'SELECT 1 FROM comms_log' >/dev/null 2>&1 && break
+#   docker exec bindings-postgres psql -h 127.0.0.1 -U dapr -d dapr -tAc 'SELECT 1 FROM comms_log' >/dev/null 2>&1 && break
 #   sleep 1
 #   done

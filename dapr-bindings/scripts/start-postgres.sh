@@ -8,8 +8,11 @@
 #   only (the demo credentials are dapr/dapr), with <sql-dir> (university-labs/bindings/sql)
 #   mounted as the init scripts that create warp_core_readings and comms_log. Removes any existing
 #   container first, so it is safe to run again; the demos clear their own tables at startup.
-#   The init script runs after Postgres first reports ready, so this waits up to 60 seconds for the
-#   comms_log table instead of using pg_isready. The image tag must match
+#   On a first start the image runs the init script on a temporary server that listens on the
+#   Unix socket only, then shuts it down and starts the final server. A socket query can reach the
+#   temporary server just before it stops ("the database system is shutting down"), so this waits
+#   up to 60 seconds for the comms_log table over TCP (-h 127.0.0.1, trusted inside the
+#   container), which only the final server answers. The image tag must match
 #   modules/dapr-sandbox/scripts/prewarm.sh (test_bindings_pins.py).
 start_postgres() {
     local sql_dir="$1"
@@ -20,7 +23,7 @@ start_postgres() {
         postgres:18.7 >/dev/null
     local _
     for _ in $(seq 1 60); do
-        if docker exec bindings-postgres psql -U dapr -d dapr -tAc 'SELECT 1 FROM comms_log' >/dev/null 2>&1; then
+        if docker exec bindings-postgres psql -h 127.0.0.1 -U dapr -d dapr -tAc 'SELECT 1 FROM comms_log' >/dev/null 2>&1; then
             return 0
         fi
         sleep 1

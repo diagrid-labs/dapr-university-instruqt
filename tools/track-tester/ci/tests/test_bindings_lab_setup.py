@@ -88,3 +88,30 @@ def test_start_postgres_times_out(tmp_path):
 def test_start_postgres_needs_no_module_helpers(tmp_path):
     r, _ = _call_start(tmp_path, 'declare -F log die bounded >/dev/null && exit 9; start_postgres "{sql}"')
     assert r.returncode == 0, r.stderr
+
+
+def _temporary_server_stubs(tmp_path):
+    """The Postgres image's first start: a temporary server runs the init SQL on the Unix socket
+    only, then shuts down before the final server starts. Here the socket query always succeeds
+    and the TCP query never does, as if the final server never came up."""
+    bin_dir, log = _stubs(tmp_path, ready=False)
+    (bin_dir / "docker").write_text(
+        f'#!/usr/bin/env bash\necho "$*" >> "{log}"\n'
+        'case "$*" in *"-h 127.0.0.1"*SELECT*) exit 2;; *"SELECT 1 FROM comms_log"*) echo 1;; esac\nexit 0\n')
+    return bin_dir, log
+
+
+def test_start_postgres_waits_for_the_final_server(tmp_path):
+    """Tables visible on the socket are not enough: that may be the temporary init server, which
+    is about to shut down ('the database system is shutting down'). Only the final server listens
+    on TCP, so start_postgres must wait for a TCP connection."""
+    bin_dir, _ = _temporary_server_stubs(tmp_path)
+    r = subprocess.run(["bash", "-c", f"source {START} && start_postgres /sql"],
+                       env=_env(tmp_path, bin_dir, tmp_path), capture_output=True, text=True)
+    assert r.returncode == 1, r.stdout + r.stderr
+
+
+def test_page2_restart_block_waits_for_the_final_server():
+    page = (LAB / "2-postgres-output-binding" / "assignment.md").read_text()
+    assert ("docker exec bindings-postgres psql -h 127.0.0.1 -U dapr -d dapr "
+            "-tAc 'SELECT 1 FROM comms_log' >/dev/null 2>&1 && break") in page
