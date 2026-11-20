@@ -19,14 +19,16 @@ in `docs/instruqt-2-spike-checklist.md`, Part 1.
 | --- | --- | --- |
 | Dapr CLI | the value of `dapr_cli_version` | `modules/dapr-sandbox/versions.hcl` (`dapr_cli_version`) |
 | Pre-pulled Dapr runtime | the value of `prewarm_dapr_runtime_version` | `modules/dapr-sandbox/versions.hcl` (`prewarm_dapr_runtime_version`) |
-| Lab Dapr runtime | the value of `dapr_runtime_version`, once per lab, equal to the pre-pulled runtime | `dapr-secrets/versions.hcl` and `dapr-pubsub/versions.hcl` (`dapr_runtime_version`) |
-| Demo repo commit | full SHA, once per lab | `dapr-secrets/versions.hcl` and `dapr-pubsub/versions.hcl` (`tracks_src_ref`) |
-| Module version used by the lab | the value of `version`, once per lab | `dapr-secrets/versions.hcl` and `dapr-pubsub/versions.hcl` (`module "sandbox"`, `version`) |
+| Lab Dapr runtime | the value of `dapr_runtime_version`, once per lab, equal to the pre-pulled runtime | `dapr-secrets/versions.hcl`, `dapr-pubsub/versions.hcl` and `dapr-bindings/versions.hcl` (`dapr_runtime_version`) |
+| Demo repo commit | full SHA, once per lab | `dapr-secrets/versions.hcl`, `dapr-pubsub/versions.hcl` and `dapr-bindings/versions.hcl` (`tracks_src_ref`) |
+| Module version used by the lab | the value of `version`, once per lab | `dapr-secrets/versions.hcl`, `dapr-pubsub/versions.hcl` and `dapr-bindings/versions.hcl` (`module "sandbox"`, `version`) |
 | Image the VM boots from | `diagrid/<image-name>:<tag>` | `modules/dapr-sandbox/versions.hcl` (`image_ref`) |
 | RabbitMQ image (dapr-pubsub page 6) | `rabbitmq:<tag>-management` | `modules/dapr-sandbox/scripts/prewarm.sh`, `dapr-pubsub/6-swap-the-broker/assignment.md`, `tools/track-tester/variables/dapr_pubsub.py`; `test_pubsub_pins.py` fails when they differ |
+| Postgres image (dapr-bindings) | `postgres:<tag>` | `modules/dapr-sandbox/scripts/prewarm.sh`, `dapr-bindings/scripts/start-postgres.sh`, `dapr-bindings/2-postgres-output-binding/assignment.md`, `tools/track-tester/variables/dapr_bindings.py`; `test_bindings_pins.py` fails when they differ |
 
 Sections 1 to 12 set up `dapr-secrets`. "Module 2.0.0 / dapr-pubsub" and "Checkpoint B" add the
-second lab; the maintenance procedures at the end cover both labs.
+second lab, and "Module 3.1.0 / dapr-bindings" adds the bindings lab; the maintenance procedures at
+the end cover the labs.
 
 ---
 
@@ -588,6 +590,51 @@ merged, module 2.0.0 published and `dapr-secrets` live and verified on it.
    - the `docker run` on page 6 prints no pull progress (the RabbitMQ image is in the sandbox image).
 
    - Time: ______ min (language: ______, date: ______)
+
+---
+
+## Module 3.1.0 / dapr-bindings
+
+The `dapr-bindings` lab needs two things the `3.0.0` image lacks: the `postgres:18.7` image and warm
+package caches for the bindings demos (`modules/dapr-sandbox/scripts/prewarm.sh`). That is a new image
+and module version `3.1.0`, with no change to the module's inputs. Only `dapr-bindings/versions.hcl`
+pins `3.1.0`; the other labs stay on `3.0.0` until a separate bump. Postgres itself is started at
+boot by the lab's `scripts/start-postgres.sh` (inlined before `scripts/lab-setup.sh` through
+`lab_startup_script`), and CI starts it with the same function in `ci/setup-dapr-bindings.sh`.
+
+**Do not merge a change that pins `3.1.0` before step 2 is done**: the lab sync fails on an
+unpublished module version.
+
+1. **Build the image and publish the module.** Build the image from
+   `bash modules/dapr-sandbox/scripts/render-image-script.sh` as in section 2, with a new image
+   name or tag. On the feature branch set `image_ref` in `modules/dapr-sandbox/versions.hcl` to it
+   (section 3), then import and publish module version `3.1.0` from that branch (as in section 7).
+   **Expected:** on a VM from the new image, `docker images postgres:18.7` lists the image.
+2. **Confirm the publish, then merge.** Check that `3.1.0` shows as published under Building
+   blocks > Modules. Open the PR; `lab-validate`, `dapr-secrets-result`, `dapr-pubsub-result`,
+   `dapr-101-result` and the new "Test dapr-bindings track" (`dapr-bindings-result`) must be
+   green. CI has not run for `dapr-bindings` before, so run it once from the PR. Then merge.
+3. **Create the lab.** In Instruqt create a new lab `dapr-bindings` connected to the repo, branch
+   `main`, **Root directory** `dapr-bindings`. Wait for the sync.
+4. **Required checks.** In the `main` branch protection add `dapr-bindings-result` (workflow "Test
+   dapr-bindings track").
+5. **Live start.** Start the lab and, in a terminal, record
+   `grep 'done after' /var/log/lab-setup.log`; compare it with a `dapr-pubsub` start.
+   **Expected:** `docker ps` lists `bindings-postgres`, and the setup log shows no `postgres` pull.
+   If the bindings start takes more than about 15 seconds longer than `dapr-pubsub`, move
+   `start_postgres` into the background and have page 2 wait for the tables instead.
+
+   - Setup time: ______ s (dapr-pubsub: ______ s)
+6. **Timed live run.** Pick one language and play all four pages with a timer. Then start a new
+   lab, skip page 2, and play pages 3 and 4. **Expected:**
+   - total time under 30 minutes;
+   - no build or image-pull waits;
+   - pages 3 and 4 work without page 2.
+
+   - Time: ______ min (language: ______, date: ______)
+7. **Publish to Dapr University.** Add the track with the text of
+   `dapr-bindings/website-description.md`. There is no badge yet: when one exists, add the badge
+   lines to `main.hcl` and the final page the way `dapr-pubsub` has them.
 
 ---
 

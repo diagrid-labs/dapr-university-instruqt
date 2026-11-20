@@ -119,6 +119,7 @@ REAL_PINS = {
     "dapr-secrets/versions.hcl": ["dapr_runtime_version", "tracks_src_ref"],
     "dapr-pubsub/versions.hcl": ["dapr_runtime_version", "tracks_src_ref"],
     "dapr-101/versions.hcl": ["dapr_runtime_version", "tracks_src_ref"],
+    "dapr-bindings/versions.hcl": ["dapr_runtime_version", "tracks_src_ref"],
 }
 
 
@@ -149,7 +150,7 @@ def test_render_image_script_inlines_pins():
     assert syntax.returncode == 0, syntax.stderr
 
 
-@pytest.mark.parametrize("lab", ["dapr-secrets", "dapr-pubsub", "dapr-101"])
+@pytest.mark.parametrize("lab", ["dapr-secrets", "dapr-pubsub", "dapr-101", "dapr-bindings"])
 def test_prewarm_runtime_pin_matches_lab_runtime_pin(lab):
     module_pin = read_pin(
         str(REPO / "modules" / "dapr-sandbox" / "versions.hcl"),
@@ -179,5 +180,17 @@ def test_render_image_script_has_jq_rabbitmq_and_pubsub():
     assert "rabbitmq:4.4.0-management" in out
     assert "pubsub/dotnet/Demo1-Subscriptions" in out
     assert "pubsub/java/demo4-bulk" in out
+    syntax = subprocess.run(["bash", "-n"], input=out, capture_output=True, text=True)
+    assert syntax.returncode == 0, syntax.stderr
+
+
+def test_render_image_script_has_postgres_and_bindings():
+    r = subprocess.run(["bash", str(RENDER)], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    out = r.stdout
+    assert '"postgres:18.7"' in out
+    assert "bindings/dotnet/Demo4-SubspaceBeacon/SubspaceBeacon" in out
+    assert "bindings/java/demo4-subspace-beacon/subspace-beacon" in out
+    assert "bindings/python/demo1-cron-trigger/engineering" in out
     syntax = subprocess.run(["bash", "-n"], input=out, capture_output=True, text=True)
     assert syntax.returncode == 0, syntax.stderr
