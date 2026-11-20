@@ -78,19 +78,23 @@ var stateStore = builder
     .WithContainerName("enterprise-diagnostics-state")
     .WithDataVolume("enterprise-diagnostics-state-data");
 
+// The Dapr state store component from Resources/dapr/workflow-state.yaml.
+// It waits for Valkey, so the Dapr sidecar that references it starts only once Valkey is healthy.
+var workflowState = builder
+    .AddDaprStateStore("workflow-state", new DaprComponentOptions
+    {
+        LocalPath = Path.Join(executingPath, "Resources", "dapr", "workflow-state.yaml"),
+    })
+    .WaitFor(stateStore);
+
 var apiService = builder
     .AddProject<Projects.EnterpriseDiagnostics_ApiService>("apiservice")
     .WithReference(stateStore)
     .WaitFor(stateStore)
     .WithHttpEndpoint(port: 5411, name: "http")
-    .WithDaprSidecar(new DaprSidecarOptions
-    {
-        LogLevel = "debug",
-        ResourcesPaths =
-        [
-            Path.Join(executingPath, "Resources", "dapr"),
-        ],
-    });
+    .WithDaprSidecar(sidecar => sidecar
+        .WithOptions(new DaprSidecarOptions { LogLevel = "debug" })
+        .WithReference(workflowState));
 
 builder.AddExecutable("dapr-dev-dashboard", "diagrid-dev-dashboard", ".",
         "--port", "9090", "--bind", "0.0.0.0", "--no-open")
@@ -100,8 +104,9 @@ builder.Build().Run();
 ```
 
 - `.AddParameter(...)` and `.AddValkey(...)` add a Valkey container as an Aspire resource, so Aspire starts and stops the workflow state store together with the application. The container is pinned to host port `16379` and uses the `state-store-123` password, which both match the `redisHost` and `redisPassword` values in the `workflow-state.yaml` component file. `.WithDataVolume(...)` stores the Valkey data in a Docker volume, so the workflow state survives a restart of the application.
-- `.WithReference(stateStore)` and `.WaitFor(stateStore)` make the API service depend on the state store: Aspire only starts the API service, and its Dapr sidecar, once Valkey is running.
-- `.WithDaprSidecar(...)` runs a Dapr sidecar next to the API service and loads the component file from the `Resources/dapr` folder.
+- `.WithReference(stateStore)` and `.WaitFor(stateStore)` make the API service depend on the state store: Aspire only starts the API service once Valkey is running.
+- `.AddDaprStateStore(...)` adds the `workflow-state.yaml` component file as an Aspire resource, and `.WaitFor(stateStore)` makes it wait until Valkey is healthy.
+- `.WithDaprSidecar(...)` runs a Dapr sidecar next to the API service, and `.WithReference(workflowState)` loads the component file into it. The sidecar is a separate Aspire resource: the `.WaitFor(stateStore)` on the API service doesn't apply to it. Referencing the component makes the sidecar wait for it, and so for Valkey. Without this, the sidecar can start before Valkey is ready, fail to connect to the state store, and exit.
 - `.AddExecutable(...)` starts the Dapr Dev Dashboard executable, which is already installed in this sandbox. It listens on port `9090` and automatically discovers the Dapr apps that Aspire runs, so it doesn't need its own component file. You'll use it in the next challenge to inspect the workflow.
 
 ## 4. Verify

@@ -29,7 +29,7 @@ Check that Dapr is initialized by running the following command in the *Terminal
 dapr -v
 ```
 
-Only if the **Runtime version** is empty, initialize Dapr by running `dapr init`. This will install several containers that Dapr requires, including a Redis container that is used for the workflow state.
+Only if the **Runtime version** is empty, initialize Dapr by running `dapr init`. This will install several containers that Dapr requires, such as the placement and scheduler services that Dapr Workflow depends on. The workflow state itself is stored in a Valkey container that Aspire runs, which you'll set up in a later challenge.
 
 ## Install the Aspire CLI
 
