@@ -127,9 +127,10 @@ asides. `> [!WARNING]` for a caveat such as an alpha API. Instruqt has no INFO t
 2. A Run block `cd /root/university-labs/<folder>` before any relative `cd`. Terminals
    keep their folder across pages, and doc-sync's `--require-anchored-cd` enforces this.
 3. `[!IMPORTANT]` "Run `dapr run -f .` from inside the demo folder of your language: …" with both
-   folder spellings. On page 1 only, the `[!NOTE]` about the Editor's port popup follows it.
+   folder spellings.
 4. One `<details>` block per language, each naming the window and its own folder.
-5. `###`, then `[!IMPORTANT]` "Wait until … running" pointing to the **Dev Dashboard** Applications
+5. `###`, then (page 1 only) the `[!NOTE]` about the Editor's port popup, which always comes after
+   the `dapr run` commands, then `[!IMPORTANT]` "Wait until … running" pointing to the **Dev Dashboard** Applications
    page, then the expected sidecar lines as `text,nocopy`.
 
 Name the window on every command ("Use the **curl** window to…"). Read logs on the Dev Dashboard

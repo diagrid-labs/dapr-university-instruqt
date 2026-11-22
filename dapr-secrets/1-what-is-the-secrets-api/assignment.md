@@ -62,9 +62,6 @@ cd /root/university-labs/secrets
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the demo folder of your language: `Demo1-ReadSecret` for .NET, `demo1-read-secret` for Python and Java. The `secretsFile` path in the component is relative to that folder, so running the command from anywhere else means the secret store cannot find `secrets.json`.
 
-> [!NOTE]
-> When the app starts, the Editor shows a popup saying *Your application running on port `<number>` is available*. Close the popup, or click the settings gear to dismiss it. There is no UI to open, so don't click *Open in Browser*.
-
 <details>
    <summary><b>.NET</b></summary>
 
@@ -123,6 +120,9 @@ dapr run -f .
 </details>
 
 ###
+
+> [!NOTE]
+> When the app starts, the Editor shows a popup saying *Your application running on port `<number>` is available*. Close the popup, or click the settings gear to dismiss it. There is no UI to open, so don't click *Open in Browser*.
 
 > [!IMPORTANT]
 > Wait until the application is running before continuing. The Java application can take a little longer to start.

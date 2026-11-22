@@ -161,14 +161,15 @@ Copy `dapr-pubsub/scripts/lab-setup.sh` and keep its header comment. The contrac
    > Run `dapr run -f .` from inside the demo folder of your language: `<DotnetFolder>` for .NET, `<kebab-folder>` for Python and Java. <why, e.g. the resourcesPaths in dapr.yaml are relative to that folder>.
    ```
 
-   On page 1 only, directly after that callout:
+   Then the per-language `<details>` blocks (see Multi-language pattern) and a `###` line. On page 1
+   only, directly after the `###` (so after the `dapr run` commands, never before them):
 
    ```markdown
    > [!NOTE]
    > When the apps start, the Editor shows a popup saying *Your application running on port `<number>` is available*. Close the popup, or click the settings gear to dismiss it. There is no UI to open, so don't click *Open in Browser*.
    ```
 
-   Then the per-language `<details>` blocks (see Multi-language pattern), a `###` line, and:
+   Then:
 
    ```markdown
    > [!IMPORTANT]
