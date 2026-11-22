@@ -89,28 +89,36 @@ must be built by hand: there is no CLI or API to build or publish images.
    **Expected:** a build session opens with three panels: Terminal, Editor and Display. The
    session runs for at most two hours and is reclaimed after 15 minutes with no activity.
 3. Get `image.sh` into the session. Pick one:
-   - Open `image.sh` locally, copy its contents, create a file in the session's Editor panel
-     (for example `/root/image.sh`) and paste.
+   - Open `image.sh` locally, copy its contents, create a file named `image.sh` in the session's
+     Editor panel and paste.
    - Or put the file somewhere fetchable (for example a secret gist: `gh gist create image.sh`)
-     and in the session terminal run `curl -fsSL <raw-url> -o /root/image.sh`. The script
-     contains no secrets. Note `image.sh` is generated, so the raw file of the repo branch does
-     not contain it.
-4. In the session terminal, find where the file landed first. The terminal starts in `/`, and
-   the Editor may save the file in `/` rather than `/root`, under whatever name you gave it:
+     and in the session terminal run `curl -fsSL <raw-url> -o "$HOME/image.sh"`. The script
+     contains no secrets. `image.sh` is also committed at the repo root; use the raw file of your
+     branch only after you committed the freshly rendered one.
+4. In the session terminal, find the file first. Don't assume a folder: the terminal starts in `/`,
+   the Editor may save the file in `/` or in the home folder, and the session user is not
+   always `root`. This finds it in either place and keeps its path in `IMAGE_SH`:
 
    ```bash
-   ls -l /*.sh /root/*.sh 2>/dev/null
-   head -12 /root/image.sh   # use the path ls showed
+   IMAGE_SH=$(ls "$HOME/image.sh" /image.sh 2>/dev/null | head -1)
+   echo "${IMAGE_SH:-image.sh not found}"
+   head -12 "$IMAGE_SH"
    ```
+
+   If it prints `image.sh not found`, look for it with
+   `find / -xdev -name 'image.sh' 2>/dev/null` and set `IMAGE_SH` to the path it shows.
 
    **Expected:** the first lines are the shebang, `set -euo pipefail` and the `export ...` pin
    lines from step 1. If they aren't, you pasted the wrong file. For example, `install-tools.sh`
    on its own stops with "ERROR: required environment variable ... is not set".
-   Then run it by its full path and watch for errors:
+   Then run it, with the log in the home folder, and watch for errors:
 
    ```bash
-   bash /root/image.sh 2>&1 | tee /root/image-build.log
+   bash "$IMAGE_SH" 2>&1 | tee "$HOME/image-build.log"
    ```
+
+   Afterwards, `grep -n -i -E 'warning|error' "$HOME/image-build.log"` lists anything to check
+   (for example `could not clone the demo repo`, which means cold package caches).
 
    **Expected:** it finishes without error in well under the 2 hour limit (the cache pre-warm
    builds Demo1 and the two scoping apps in all three languages, so expect several minutes).
@@ -134,14 +142,16 @@ must be built by hand: there is no CLI or API to build or publish images.
    docker images
    ```
 
-   **Expected:** the list contains `daprio/dapr` with the tag from `prewarm_dapr_runtime_version` in `modules/dapr-sandbox/versions.hcl`, `redis`, `openzipkin/zipkin`
-   and `hashicorp/vault` with tag `1.20`.
+   **Expected:** the list contains every image in `PREWARM_IMAGES` in
+   `modules/dapr-sandbox/scripts/prewarm.sh`: `daprio/dapr` with the tag from
+   `prewarm_dapr_runtime_version` in `modules/dapr-sandbox/versions.hcl`, `redis`,
+   `openzipkin/zipkin`, `hashicorp/vault:1.20`, `rabbitmq:4.4.0-management` and `postgres:18.7`.
    If the images are missing: the script prints `WARNING: Docker daemon is not reachable` when the
    daemon was not up. Check `whoami` and `id` (is the session user root or in the `docker`
    group?) and `sudo docker info`. `install-tools.sh` installs Docker with `sudo sh get-docker.sh`
    and does not add the user to the `docker` group, so if the session user is not root the
    pre-pull needs `sudo docker pull <image>` (the images are daemon-wide, so that is fine). Pull
-   the four images by hand with `sudo`, then record what you needed in `docs/instruqt-2-spike-checklist.md` (Item 3 finding).
+   the missing images by hand with `sudo`, then record what you needed in `docs/instruqt-2-spike-checklist.md` (Item 3 finding).
    Do not publish an image without the pre-pull: the 1:30 start budget depends on it.
 7. Optional: in the **Checkpoints** rail click **Create**. A checkpoint only lets you roll back
    within this build session; it is not a published version.
