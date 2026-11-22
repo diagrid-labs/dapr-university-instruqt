@@ -19,14 +19,16 @@ in `docs/instruqt-2-spike-checklist.md`, Part 1.
 | --- | --- | --- |
 | Dapr CLI | the value of `dapr_cli_version` | `modules/dapr-sandbox/versions.hcl` (`dapr_cli_version`) |
 | Pre-pulled Dapr runtime | the value of `prewarm_dapr_runtime_version` | `modules/dapr-sandbox/versions.hcl` (`prewarm_dapr_runtime_version`) |
-| Lab Dapr runtime | the value of `dapr_runtime_version`, once per lab, equal to the pre-pulled runtime | `dapr-secrets/versions.hcl` and `dapr-pubsub/versions.hcl` (`dapr_runtime_version`) |
-| Demo repo commit | full SHA, once per lab | `dapr-secrets/versions.hcl` and `dapr-pubsub/versions.hcl` (`tracks_src_ref`) |
-| Module version used by the lab | the value of `version`, once per lab | `dapr-secrets/versions.hcl` and `dapr-pubsub/versions.hcl` (`module "sandbox"`, `version`) |
+| Lab Dapr runtime | the value of `dapr_runtime_version`, once per lab, equal to the pre-pulled runtime | `dapr-secrets/versions.hcl`, `dapr-pubsub/versions.hcl` and `dapr-bindings/versions.hcl` (`dapr_runtime_version`) |
+| Demo repo commit | full SHA, once per lab | `dapr-secrets/versions.hcl`, `dapr-pubsub/versions.hcl` and `dapr-bindings/versions.hcl` (`tracks_src_ref`) |
+| Module version used by the lab | the value of `version`, once per lab | `dapr-secrets/versions.hcl`, `dapr-pubsub/versions.hcl` and `dapr-bindings/versions.hcl` (`module "sandbox"`, `version`) |
 | Image the VM boots from | `diagrid/<image-name>:<tag>` | `modules/dapr-sandbox/versions.hcl` (`image_ref`) |
 | RabbitMQ image (dapr-pubsub page 6) | `rabbitmq:<tag>-management` | `modules/dapr-sandbox/scripts/prewarm.sh`, `dapr-pubsub/6-swap-the-broker/assignment.md`, `tools/track-tester/variables/dapr_pubsub.py`; `test_pubsub_pins.py` fails when they differ |
+| Postgres image (dapr-bindings) | `postgres:<tag>` | `modules/dapr-sandbox/scripts/prewarm.sh`, `dapr-bindings/scripts/start-postgres.sh`, `dapr-bindings/2-postgres-output-binding/assignment.md`, `tools/track-tester/variables/dapr_bindings.py`; `test_bindings_pins.py` fails when they differ |
 
 Sections 1 to 12 set up `dapr-secrets`. "Module 2.0.0 / dapr-pubsub" and "Checkpoint B" add the
-second lab; the maintenance procedures at the end cover both labs.
+second lab, and "Module 3.1.0 / dapr-bindings" adds the bindings lab; the maintenance procedures at
+the end cover the labs.
 
 ---
 
@@ -65,11 +67,16 @@ must be built by hand: there is no CLI or API to build or publish images.
 1. In a terminal on the feature branch (`feat/dapr-secrets-instruqt-2-lab`), from the repo root:
 
    ```bash
-   modules/dapr-sandbox/scripts/render-image-script.sh > image.sh
-   head -12 image.sh
+   modules/dapr-sandbox/scripts/render-image-script.sh
+   head -12 modules/dapr-sandbox/scripts/image.sh
    ```
 
-   **Expected:** `image.sh` starts with `#!/usr/bin/env bash`, `set -euo pipefail` and the
+   The render script writes `modules/dapr-sandbox/scripts/image.sh` (pass a path to write
+   somewhere else, or `-` to print it). That file is committed: commit the re-rendered file with
+   any change to a pin, `install-tools.sh`, `prewarm.sh` or `sandbox-setup.sh`. The harness test
+   `test_committed_image_script_is_up_to_date` fails on the PR when it is stale.
+
+   **Expected:** the script prints `Wrote modules/dapr-sandbox/scripts/image.sh`, and the file starts with `#!/usr/bin/env bash`, `set -euo pipefail` and the
    `export DOTNET_SDK_CHANNEL=10.0`, `JAVA_VERSION=17`, `NODE_MAJOR=24`,
    `DAPR_CLI_VERSION=<dapr_cli_version>`, `PREWARM_DAPR_RUNTIME_VERSION=<prewarm_dapr_runtime_version>`
    lines (values come from `modules/dapr-sandbox/versions.hcl`, for example `DAPR_CLI_VERSION=1.19.1`). If it fails, the message names the missing pin.
@@ -87,28 +94,39 @@ must be built by hand: there is no CLI or API to build or publish images.
    **Expected:** a build session opens with three panels: Terminal, Editor and Display. The
    session runs for at most two hours and is reclaimed after 15 minutes with no activity.
 3. Get `image.sh` into the session. Pick one:
-   - Open `image.sh` locally, copy its contents, create a file in the session's Editor panel
-     (for example `/root/image.sh`) and paste.
-   - Or put the file somewhere fetchable (for example a secret gist: `gh gist create image.sh`)
-     and in the session terminal run `curl -fsSL <raw-url> -o /root/image.sh`. The script
-     contains no secrets. Note `image.sh` is generated, so the raw file of the repo branch does
-     not contain it.
-4. In the session terminal, find where the file landed first. The terminal starts in `/`, and
-   the Editor may save the file in `/` rather than `/root`, under whatever name you gave it:
+   - Download it from your pushed branch in the session terminal (after you committed and pushed
+     the re-rendered file; the script contains no secrets):
+
+     ```bash
+     curl -fsSL https://raw.githubusercontent.com/diagrid-labs/dapr-university-instruqt/<branch>/modules/dapr-sandbox/scripts/image.sh -o "$HOME/image.sh"
+     ```
+
+   - Or open `modules/dapr-sandbox/scripts/image.sh` locally, copy its contents, create a file
+     named `image.sh` in the session's Editor panel and paste.
+4. In the session terminal, find the file first. Don't assume a folder: the terminal starts in `/`,
+   the Editor may save the file in `/` or in the home folder, and the session user is not
+   always `root`. This finds it in either place and keeps its path in `IMAGE_SH`:
 
    ```bash
-   ls -l /*.sh /root/*.sh 2>/dev/null
-   head -12 /root/image.sh   # use the path ls showed
+   IMAGE_SH=$(ls "$HOME/image.sh" /image.sh 2>/dev/null | head -1)
+   echo "${IMAGE_SH:-image.sh not found}"
+   head -12 "$IMAGE_SH"
    ```
+
+   If it prints `image.sh not found`, look for it with
+   `find / -xdev -name 'image.sh' 2>/dev/null` and set `IMAGE_SH` to the path it shows.
 
    **Expected:** the first lines are the shebang, `set -euo pipefail` and the `export ...` pin
    lines from step 1. If they aren't, you pasted the wrong file. For example, `install-tools.sh`
    on its own stops with "ERROR: required environment variable ... is not set".
-   Then run it by its full path and watch for errors:
+   Then run it, with the log in the home folder, and watch for errors:
 
    ```bash
-   bash /root/image.sh 2>&1 | tee /root/image-build.log
+   bash "$IMAGE_SH" 2>&1 | tee "$HOME/image-build.log"
    ```
+
+   Afterwards, `grep -n -i -E 'warning|error' "$HOME/image-build.log"` lists anything to check
+   (for example `could not clone the demo repo`, which means cold package caches).
 
    **Expected:** it finishes without error in well under the 2 hour limit (the cache pre-warm
    builds Demo1 and the two scoping apps in all three languages, so expect several minutes).
@@ -132,14 +150,16 @@ must be built by hand: there is no CLI or API to build or publish images.
    docker images
    ```
 
-   **Expected:** the list contains `daprio/dapr` with the tag from `prewarm_dapr_runtime_version` in `modules/dapr-sandbox/versions.hcl`, `redis`, `openzipkin/zipkin`
-   and `hashicorp/vault` with tag `1.20`.
+   **Expected:** the list contains every image in `PREWARM_IMAGES` in
+   `modules/dapr-sandbox/scripts/prewarm.sh`: `daprio/dapr` with the tag from
+   `prewarm_dapr_runtime_version` in `modules/dapr-sandbox/versions.hcl`, `redis`,
+   `openzipkin/zipkin`, `hashicorp/vault:1.20`, `rabbitmq:4.4.0-management` and `postgres:18.7`.
    If the images are missing: the script prints `WARNING: Docker daemon is not reachable` when the
    daemon was not up. Check `whoami` and `id` (is the session user root or in the `docker`
    group?) and `sudo docker info`. `install-tools.sh` installs Docker with `sudo sh get-docker.sh`
    and does not add the user to the `docker` group, so if the session user is not root the
    pre-pull needs `sudo docker pull <image>` (the images are daemon-wide, so that is fine). Pull
-   the four images by hand with `sudo`, then record what you needed in `docs/instruqt-2-spike-checklist.md` (Item 3 finding).
+   the missing images by hand with `sudo`, then record what you needed in `docs/instruqt-2-spike-checklist.md` (Item 3 finding).
    Do not publish an image without the pre-pull: the 1:30 start budget depends on it.
 7. Optional: in the **Checkpoints** rail click **Create**. A checkpoint only lets you roll back
    within this build session; it is not a published version.
@@ -527,8 +547,8 @@ A1 and A2 were checked on their own: cherry-picked onto `main` at `b594fb1`, the
    published module 1.0.2 is immutable, so the live `dapr-secrets` lab does not change.
 
 3. **Build the image from `main` and merge `image_ref`.**
-   1. On `main`, render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh >
-      image.sh`.
+   1. On `main`, render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh`
+      (writes `modules/dapr-sandbox/scripts/image.sh`).
    2. Build and publish the image as in section 2 (from the system `ubuntu` 24.04 base this needs a
       new image name, see "Toolchain bump" step 3).
    3. On a new branch from `main`, set `image_ref` in `modules/dapr-sandbox/versions.hcl` to the new
@@ -591,6 +611,63 @@ merged, module 2.0.0 published and `dapr-secrets` live and verified on it.
 
 ---
 
+## Module 3.1.0 / dapr-bindings
+
+The `dapr-bindings` lab needs two things the `3.0.0` image lacks: the `postgres:18.7` image and warm
+package caches for the bindings demos (`modules/dapr-sandbox/scripts/prewarm.sh`). That is a new image
+and module version `3.1.0`, with no change to the module's inputs. Only `dapr-bindings/versions.hcl`
+pins `3.1.0`; the other labs stay on `3.0.0` until a separate bump. Postgres itself is started at
+boot by the lab's `scripts/start-postgres.sh` (inlined before `scripts/lab-setup.sh` through
+`lab_startup_script`), and CI starts it with the same function in `ci/setup-dapr-bindings.sh`.
+
+**Order: merge, then publish `3.1.0`, then create the lab.** A module version can only be
+published from `main` (section 7: the import reads the default branch, there is no branch to
+pick), so the module changes must be merged first. Merging before the publish is safe here: the
+`dapr-bindings` lab does not exist in Instruqt yet, so nothing syncs the unpublished pin, and the
+other labs pin the published `3.0.0`, which is immutable. **Do not create the lab before step 3 is
+done**: its first sync would fail on the unpublished version, and a lab only re-reads its HCL on
+the next push to `main` that changes a file under `dapr-bindings/`.
+
+1. **Build the image and set `image_ref`.** On the feature branch, run
+   `modules/dapr-sandbox/scripts/render-image-script.sh` (it writes
+   `modules/dapr-sandbox/scripts/image.sh`), commit and push it, and build the image from the
+   system `ubuntu` 24.04 base as in section 2. Publish it under the next free image name with tag
+   `v1` (after `diagrid/dapr-sandbox-4:v1` that is `dapr-sandbox-5`). On the feature branch set
+   `image_ref` in `modules/dapr-sandbox/versions.hcl` to the new reference (section 3), commit
+   only that file, and push.
+   **Expected:** in the build session, `docker images` lists `postgres:18.7`.
+2. **Merge.** On the PR, `lab-validate`, `dapr-101-result`, `dapr-secrets-result`,
+   `dapr-pubsub-result` and the new "Test dapr-bindings track" (`dapr-bindings-result`) must be
+   green. Then merge.
+3. **Publish module `3.1.0`.** Building blocks > Modules > `diagrid/dapr-sandbox` > refresh, then
+   **Publish version** `3.1.0` (section 7). It now holds the merged module with the new
+   `image_ref`. **Expected:** `3.1.0` shows as published.
+4. **Create the lab.** In Instruqt create a new lab `dapr-bindings` with **Import lab** (section 9):
+   the repo, branch `main`, **Root directory** `dapr-bindings`. Wait for the sync.
+   **Expected:** the sync succeeds. If it fails with `version 3.1.0 of diagrid/dapr-sandbox is not
+   published`, publish it (step 3) and push a change under `dapr-bindings/` to sync again.
+5. **Required checks.** In the `main` branch protection add `dapr-bindings-result` (workflow "Test
+   dapr-bindings track").
+6. **Live start.** Start the lab and, in a terminal, record
+   `grep 'done after' /var/log/lab-setup.log`; compare it with a `dapr-pubsub` start.
+   **Expected:** `docker ps` lists `bindings-postgres`, and the setup log shows no `postgres` pull.
+   If the bindings start takes more than about 15 seconds longer than `dapr-pubsub`, move
+   `start_postgres` into the background and have page 2 wait for the tables instead.
+
+   - Setup time: ______ s (dapr-pubsub: ______ s)
+7. **Timed live run.** Pick one language and play all four pages with a timer. Then start a new
+   lab, skip page 2, and play pages 3 and 4. **Expected:**
+   - total time under 30 minutes;
+   - no build or image-pull waits;
+   - pages 3 and 4 work without page 2.
+
+   - Time: ______ min (language: ______, date: ______)
+8. **Publish to Dapr University.** Add the track with the text of
+   `dapr-bindings/website-description.md`. There is no badge yet: when one exists, add the badge
+   lines to `main.hcl` and the final page the way `dapr-pubsub` has them.
+
+---
+
 ## Maintenance procedures
 
 ### Toolchain bump
@@ -603,7 +680,8 @@ to 4) and a new module version (step 6).
 1. Edit the pin in `modules/dapr-sandbox/versions.hcl` (`dotnet_sdk_channel`, `java_version`,
    `node_major`, `dapr_cli_version`, `code_server_version`, `dev_dashboard_version` or
    `prewarm_dapr_runtime_version`).
-2. Render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh > image.sh`.
+2. Render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh` (writes
+   `modules/dapr-sandbox/scripts/image.sh`), and commit the re-rendered file.
 3. Rebuild the image as in section 2 (steps 2 to 9). How it publishes depends on where the build
    session started:
    - **From the system `ubuntu` 24.04 base** (recommended: the image is defined by `image.sh`

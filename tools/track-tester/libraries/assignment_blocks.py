@@ -178,3 +178,11 @@ class AssignmentBlocks:
                 if needle in cmd:
                     return cmd
         raise ValueError(f"No run command containing {needle!r} in {assignment_path}")
+
+    def get_run_block_containing(self, assignment_path, needle):
+        """The whole body of the first `bash,run` or `shell,run` block that contains needle, so a
+        suite can run a multi-line block exactly as the page shows it."""
+        for b in parse_blocks(_read(assignment_path)):
+            if b.lang in ("bash", "shell") and "run" in b.tags and needle in b.body:
+                return b.body
+        raise ValueError(f"No run block containing {needle!r} in {assignment_path}")

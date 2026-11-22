@@ -119,6 +119,7 @@ REAL_PINS = {
     "dapr-secrets/versions.hcl": ["dapr_runtime_version", "tracks_src_ref"],
     "dapr-pubsub/versions.hcl": ["dapr_runtime_version", "tracks_src_ref"],
     "dapr-101/versions.hcl": ["dapr_runtime_version", "tracks_src_ref"],
+    "dapr-bindings/versions.hcl": ["dapr_runtime_version", "tracks_src_ref"],
 }
 
 
@@ -135,7 +136,7 @@ RENDER = REPO / "modules" / "dapr-sandbox" / "scripts" / "render-image-script.sh
 
 
 def test_render_image_script_inlines_pins():
-    r = subprocess.run(["bash", str(RENDER)], capture_output=True, text=True)
+    r = subprocess.run(["bash", str(RENDER), "-"], capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
     out = r.stdout
     assert out.startswith("#!/usr/bin/env bash\n")
@@ -149,7 +150,7 @@ def test_render_image_script_inlines_pins():
     assert syntax.returncode == 0, syntax.stderr
 
 
-@pytest.mark.parametrize("lab", ["dapr-secrets", "dapr-pubsub", "dapr-101"])
+@pytest.mark.parametrize("lab", ["dapr-secrets", "dapr-pubsub", "dapr-101", "dapr-bindings"])
 def test_prewarm_runtime_pin_matches_lab_runtime_pin(lab):
     module_pin = read_pin(
         str(REPO / "modules" / "dapr-sandbox" / "versions.hcl"),
@@ -160,7 +161,7 @@ def test_prewarm_runtime_pin_matches_lab_runtime_pin(lab):
 
 
 def test_render_image_script_installs_sandbox_setup():
-    r = subprocess.run(["bash", str(RENDER)], capture_output=True, text=True)
+    r = subprocess.run(["bash", str(RENDER), "-"], capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
     out = r.stdout
     assert "/usr/local/lib/dapr-sandbox/sandbox-setup.sh" in out
@@ -172,7 +173,7 @@ def test_render_image_script_installs_sandbox_setup():
 
 
 def test_render_image_script_has_jq_rabbitmq_and_pubsub():
-    r = subprocess.run(["bash", str(RENDER)], capture_output=True, text=True)
+    r = subprocess.run(["bash", str(RENDER), "-"], capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
     out = r.stdout
     assert "export JQ_VERSION=1.8.1" in out
@@ -181,3 +182,54 @@ def test_render_image_script_has_jq_rabbitmq_and_pubsub():
     assert "pubsub/java/demo4-bulk" in out
     syntax = subprocess.run(["bash", "-n"], input=out, capture_output=True, text=True)
     assert syntax.returncode == 0, syntax.stderr
+
+
+def test_render_image_script_has_postgres_and_bindings():
+    r = subprocess.run(["bash", str(RENDER), "-"], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    out = r.stdout
+    assert '"postgres:18.7"' in out
+    assert "bindings/dotnet/Demo4-SubspaceBeacon/SubspaceBeacon" in out
+    assert "bindings/java/demo4-subspace-beacon/subspace-beacon" in out
+    assert "bindings/python/demo1-cron-trigger/engineering" in out
+    syntax = subprocess.run(["bash", "-n"], input=out, capture_output=True, text=True)
+    assert syntax.returncode == 0, syntax.stderr
+
+
+IMAGE_SH = REPO / "modules" / "dapr-sandbox" / "scripts" / "image.sh"
+
+
+def _render_stdout():
+    r = subprocess.run(["bash", str(RENDER), "-"], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    return r.stdout
+
+
+def test_render_image_script_writes_the_given_path(tmp_path):
+    out = tmp_path / "image.sh"
+    r = subprocess.run(["bash", str(RENDER), str(out)], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    assert out.read_text() == _render_stdout()
+    assert str(out) in r.stdout, "the script says where it wrote the file"
+
+
+def test_render_image_script_defaults_to_the_scripts_folder():
+    """With no argument the image script lands next to the scripts it inlines:
+    modules/dapr-sandbox/scripts/image.sh. Rewriting it is harmless when it is up to date."""
+    r = subprocess.run(["bash", str(RENDER)], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    assert "modules/dapr-sandbox/scripts/image.sh" in r.stdout
+    assert IMAGE_SH.read_text() == _render_stdout()
+
+
+def test_committed_image_script_is_up_to_date():
+    """image.sh is committed so the build session can download it from the branch. A change to a
+    pin, install-tools.sh, prewarm.sh or sandbox-setup.sh must come with a re-rendered image.sh:
+    run modules/dapr-sandbox/scripts/render-image-script.sh."""
+    assert IMAGE_SH.exists(), "run modules/dapr-sandbox/scripts/render-image-script.sh"
+    assert IMAGE_SH.read_text() == _render_stdout(), (
+        "image.sh is stale: run modules/dapr-sandbox/scripts/render-image-script.sh")
+
+
+def test_repo_root_has_no_image_script():
+    assert not (REPO / "image.sh").exists(), "image.sh lives in modules/dapr-sandbox/scripts/"

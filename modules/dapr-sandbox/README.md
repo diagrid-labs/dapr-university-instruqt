@@ -7,7 +7,9 @@ Published as `diagrid/dapr-sandbox`.
 
 A `vm` built from a custom image containing Docker Engine, .NET SDK, JDK + Maven, Python 3 + uv
 (on `/usr/local/bin`), Node.js + npm, the Dapr CLI, code-server (VS Code in the browser) and
-Diagrid's Dapr Dev Dashboard, with package caches and container images pre-pulled. code-server and
+Diagrid's Dapr Dev Dashboard, with package caches and container images pre-pulled (the `dapr init`
+images, Vault for the secrets lab, RabbitMQ for the pubsub lab and Postgres for the bindings lab;
+the list is `PREWARM_IMAGES` in `scripts/prewarm.sh`). code-server and
 the Dev Dashboard are only installed; the lab setup starts them for the Editor and Dev Dashboard
 tabs. Versions are pinned in `versions.hcl`. The module runs a shared setup first
 (`sandbox-setup.sh`, below); the lab adds its own steps through `lab_startup_script`.
@@ -80,9 +82,11 @@ image). Only `cpu`, `memory`, `dapr_runtime_version`, `demo_repo_url`, `demo_rep
 `versions.hcl` is the single source for the toolchain. To build the image:
 
 1. In the Instruqt UI, start an Image Builder session from base `ubuntu:24.04`.
-2. Run `modules/dapr-sandbox/scripts/render-image-script.sh > image.sh` locally and paste its
-   output into the session terminal. The output is self-contained and also installs
-   `sandbox-setup.sh` to `/usr/local/lib/dapr-sandbox/`.
+2. Run `modules/dapr-sandbox/scripts/render-image-script.sh` locally. It writes
+   `scripts/image.sh` (a path argument writes elsewhere, `-` prints to stdout). Commit it with any
+   change to a pin or an inlined script; a harness test fails when it is stale. Run it in the
+   session terminal. It is self-contained and also installs `sandbox-setup.sh` to
+   `/usr/local/lib/dapr-sandbox/`.
 3. Publish the image, then set `image_ref` in `versions.hcl` to `diagrid/<image-name>:<tag>`.
 
 The scripts install software and pull container images only. They never run `dapr init` or start

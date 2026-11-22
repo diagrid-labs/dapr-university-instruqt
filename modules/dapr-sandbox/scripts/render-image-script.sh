@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
-# Prints the self-contained script to paste into an Instruqt Image Builder session terminal.
+# Renders image.sh, the self-contained script to run in an Instruqt Image Builder session.
 # It exports the toolchain pins from versions.hcl, inlines install-tools.sh and prewarm.sh, then
 # installs sandbox-setup.sh to /usr/local/lib/dapr-sandbox/.
 #
-#   modules/dapr-sandbox/scripts/render-image-script.sh > image.sh
+#   modules/dapr-sandbox/scripts/render-image-script.sh            # writes scripts/image.sh
+#   modules/dapr-sandbox/scripts/render-image-script.sh <path>     # writes <path>
+#   modules/dapr-sandbox/scripts/render-image-script.sh -          # prints to stdout
+#
+# scripts/image.sh is committed, so a build session can download it from the branch; the harness
+# test test_committed_image_script_is_up_to_date fails when it is stale.
 
 set -euo pipefail
 
@@ -26,6 +31,7 @@ dev_dashboard_version="$(pin dev_dashboard_version)"
 jq_version="$(pin jq_version)"
 runtime_version="$(pin prewarm_dapr_runtime_version)"
 
+render() {
 echo '#!/usr/bin/env bash'
 echo 'set -euo pipefail'
 echo
@@ -54,3 +60,20 @@ echo "cat > /usr/local/lib/dapr-sandbox/sandbox-setup.sh <<'SANDBOX_SETUP_EOF'"
 cat "$HERE/sandbox-setup.sh"
 echo "SANDBOX_SETUP_EOF"
 echo "chmod 0755 /usr/local/lib/dapr-sandbox/sandbox-setup.sh"
+}
+
+out="${1:-$HERE/image.sh}"
+if [ "$out" = "-" ]; then
+    render
+else
+    # Render to a temp file first so a failure never leaves a half-written image.sh.
+    tmp="$(mktemp)"
+    render > "$tmp"
+    mv "$tmp" "$out"
+    chmod 0644 "$out"
+    case "$out" in
+        "$MODULE_DIR"/*) shown="modules/dapr-sandbox/${out#"$MODULE_DIR"/}" ;;
+        *) shown="$out" ;;
+    esac
+    echo "Wrote $shown"
+fi
