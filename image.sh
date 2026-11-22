@@ -151,13 +151,15 @@ set -euo pipefail
 : "${PREWARM_DAPR_RUNTIME_VERSION:?PREWARM_DAPR_RUNTIME_VERSION is not set}"
 
 # Images that `dapr init` (Dapr 1.19) pulls: the runtime image also serves placement and
-# scheduler, plus Redis and Zipkin. Vault is started by the secrets lab, RabbitMQ by the pubsub lab.
+# scheduler, plus Redis and Zipkin. Vault is started by the secrets lab, RabbitMQ by the pubsub lab,
+# Postgres by the bindings lab.
 PREWARM_IMAGES=(
     "daprio/dapr:$PREWARM_DAPR_RUNTIME_VERSION"
     "redis:6"
     "openzipkin/zipkin"
     "hashicorp/vault:1.20"
     "rabbitmq:4.4.0-management"
+    "postgres:18.7"
 )
 
 # Container images, only if a Docker daemon is up.
@@ -230,6 +232,32 @@ if git clone --depth 1 https://github.com/diagrid-labs/university-labs.git "$PRE
         pubsub/java/demo4-bulk/shipping \
         pubsub/java/demo5-routing-dead-letter/order-api \
         pubsub/java/demo5-routing-dead-letter/shipping; do
+        (cd "$REPO_DIR/$app" && mvn -q -DskipTests package)
+    done
+
+    # Bindings demos 1 to 4. Every demo has an engineering app; demo 4 adds the subspace beacon.
+    for app in \
+        bindings/dotnet/Demo1-CronTrigger/Engineering \
+        bindings/dotnet/Demo2-PostgresOutput/Engineering \
+        bindings/dotnet/Demo3-StateVsBinding/Engineering \
+        bindings/dotnet/Demo4-SubspaceBeacon/Engineering \
+        bindings/dotnet/Demo4-SubspaceBeacon/SubspaceBeacon; do
+        (cd "$REPO_DIR/$app" && dotnet build)
+    done
+    for app in \
+        bindings/python/demo1-cron-trigger/engineering \
+        bindings/python/demo2-postgres-output/engineering \
+        bindings/python/demo3-state-vs-binding/engineering \
+        bindings/python/demo4-subspace-beacon/engineering \
+        bindings/python/demo4-subspace-beacon/subspace-beacon; do
+        (cd "$REPO_DIR/$app" && uv sync)
+    done
+    for app in \
+        bindings/java/demo1-cron-trigger/engineering \
+        bindings/java/demo2-postgres-output/engineering \
+        bindings/java/demo3-state-vs-binding/engineering \
+        bindings/java/demo4-subspace-beacon/engineering \
+        bindings/java/demo4-subspace-beacon/subspace-beacon; do
         (cd "$REPO_DIR/$app" && mvn -q -DskipTests package)
     done
 else
