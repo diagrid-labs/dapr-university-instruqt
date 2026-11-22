@@ -67,11 +67,16 @@ must be built by hand: there is no CLI or API to build or publish images.
 1. In a terminal on the feature branch (`feat/dapr-secrets-instruqt-2-lab`), from the repo root:
 
    ```bash
-   modules/dapr-sandbox/scripts/render-image-script.sh > image.sh
-   head -12 image.sh
+   modules/dapr-sandbox/scripts/render-image-script.sh
+   head -12 modules/dapr-sandbox/scripts/image.sh
    ```
 
-   **Expected:** `image.sh` starts with `#!/usr/bin/env bash`, `set -euo pipefail` and the
+   The render script writes `modules/dapr-sandbox/scripts/image.sh` (pass a path to write
+   somewhere else, or `-` to print it). That file is committed: commit the re-rendered file with
+   any change to a pin, `install-tools.sh`, `prewarm.sh` or `sandbox-setup.sh`. The harness test
+   `test_committed_image_script_is_up_to_date` fails on the PR when it is stale.
+
+   **Expected:** the script prints `Wrote modules/dapr-sandbox/scripts/image.sh`, and the file starts with `#!/usr/bin/env bash`, `set -euo pipefail` and the
    `export DOTNET_SDK_CHANNEL=10.0`, `JAVA_VERSION=17`, `NODE_MAJOR=24`,
    `DAPR_CLI_VERSION=<dapr_cli_version>`, `PREWARM_DAPR_RUNTIME_VERSION=<prewarm_dapr_runtime_version>`
    lines (values come from `modules/dapr-sandbox/versions.hcl`, for example `DAPR_CLI_VERSION=1.19.1`). If it fails, the message names the missing pin.
@@ -89,12 +94,15 @@ must be built by hand: there is no CLI or API to build or publish images.
    **Expected:** a build session opens with three panels: Terminal, Editor and Display. The
    session runs for at most two hours and is reclaimed after 15 minutes with no activity.
 3. Get `image.sh` into the session. Pick one:
-   - Open `image.sh` locally, copy its contents, create a file named `image.sh` in the session's
-     Editor panel and paste.
-   - Or put the file somewhere fetchable (for example a secret gist: `gh gist create image.sh`)
-     and in the session terminal run `curl -fsSL <raw-url> -o "$HOME/image.sh"`. The script
-     contains no secrets. `image.sh` is also committed at the repo root; use the raw file of your
-     branch only after you committed the freshly rendered one.
+   - Download it from your pushed branch in the session terminal (after you committed and pushed
+     the re-rendered file; the script contains no secrets):
+
+     ```bash
+     curl -fsSL https://raw.githubusercontent.com/diagrid-labs/dapr-university-instruqt/<branch>/modules/dapr-sandbox/scripts/image.sh -o "$HOME/image.sh"
+     ```
+
+   - Or open `modules/dapr-sandbox/scripts/image.sh` locally, copy its contents, create a file
+     named `image.sh` in the session's Editor panel and paste.
 4. In the session terminal, find the file first. Don't assume a folder: the terminal starts in `/`,
    the Editor may save the file in `/` or in the home folder, and the session user is not
    always `root`. This finds it in either place and keeps its path in `IMAGE_SH`:
@@ -539,8 +547,8 @@ A1 and A2 were checked on their own: cherry-picked onto `main` at `b594fb1`, the
    published module 1.0.2 is immutable, so the live `dapr-secrets` lab does not change.
 
 3. **Build the image from `main` and merge `image_ref`.**
-   1. On `main`, render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh >
-      image.sh`.
+   1. On `main`, render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh`
+      (writes `modules/dapr-sandbox/scripts/image.sh`).
    2. Build and publish the image as in section 2 (from the system `ubuntu` 24.04 base this needs a
       new image name, see "Toolchain bump" step 3).
    3. On a new branch from `main`, set `image_ref` in `modules/dapr-sandbox/versions.hcl` to the new
@@ -620,12 +628,13 @@ other labs pin the published `3.0.0`, which is immutable. **Do not create the la
 done**: its first sync would fail on the unpublished version, and a lab only re-reads its HCL on
 the next push to `main` that changes a file under `dapr-bindings/`.
 
-1. **Build the image and set `image_ref`.** On the feature branch, render
-   `modules/dapr-sandbox/scripts/render-image-script.sh > image.sh` and build the image from the
+1. **Build the image and set `image_ref`.** On the feature branch, run
+   `modules/dapr-sandbox/scripts/render-image-script.sh` (it writes
+   `modules/dapr-sandbox/scripts/image.sh`), commit and push it, and build the image from the
    system `ubuntu` 24.04 base as in section 2. Publish it under the next free image name with tag
    `v1` (after `diagrid/dapr-sandbox-4:v1` that is `dapr-sandbox-5`). On the feature branch set
    `image_ref` in `modules/dapr-sandbox/versions.hcl` to the new reference (section 3), commit
-   only that file and the re-rendered `image.sh`, and push.
+   only that file, and push.
    **Expected:** in the build session, `docker images` lists `postgres:18.7`.
 2. **Merge.** On the PR, `lab-validate`, `dapr-101-result`, `dapr-secrets-result`,
    `dapr-pubsub-result` and the new "Test dapr-bindings track" (`dapr-bindings-result`) must be
@@ -671,7 +680,8 @@ to 4) and a new module version (step 6).
 1. Edit the pin in `modules/dapr-sandbox/versions.hcl` (`dotnet_sdk_channel`, `java_version`,
    `node_major`, `dapr_cli_version`, `code_server_version`, `dev_dashboard_version` or
    `prewarm_dapr_runtime_version`).
-2. Render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh > image.sh`.
+2. Render the image script: `modules/dapr-sandbox/scripts/render-image-script.sh` (writes
+   `modules/dapr-sandbox/scripts/image.sh`), and commit the re-rendered file.
 3. Rebuild the image as in section 2 (steps 2 to 9). How it publishes depends on where the build
    session started:
    - **From the system `ubuntu` 24.04 base** (recommended: the image is defined by `image.sh`
