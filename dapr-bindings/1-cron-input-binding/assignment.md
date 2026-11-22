@@ -75,9 +75,6 @@ cd /root/university-labs/bindings
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the demo folder of your language: `Demo1-CronTrigger` for .NET, `demo1-cron-trigger` for Python and Java. The `resourcesPaths` in `dapr.yaml` are relative to that folder.
 
-> [!NOTE]
-> When the app starts, the Editor shows a popup saying *Your application running on port `<number>` is available*. Close the popup, or click the settings gear to dismiss it. There is no UI to open, so don't click *Open in Browser*.
-
 <details>
    <summary><b>.NET</b></summary>
 
@@ -137,6 +134,9 @@ dapr run -f .
 
 ###
 
+> [!NOTE]
+> When the app starts, the Editor shows a popup saying *Your application running on port `<number>` is available*. Close the popup, or click the settings gear to dismiss it. There is no UI to open, so don't click *Open in Browser*.
+
 > [!IMPORTANT]
 > Wait until the application is running before continuing. The Java application can take a little longer to start.
 >
@@ -187,6 +187,8 @@ Expected output:
 ```
 
 The sidecar loaded one component, the cron binding, and lists it as an `INPUT_BINDING`. The `dapr.yaml` of demo 1 loads only the demo's own `resources` folder, so there is no database yet.
+
+You can also find the component in the **Dev Dashboard** tab. Go to the **Components** page: `warp-core-scan` is at the bottom of the component list, with the type `bindings.cron`.
 
 > [!NOTE]
 > A cron tick is fire and forget. If the handler answers with an error, Dapr does not retry that tick and does not move the schedule: the next tick arrives on time. The sidecar logs nothing about it at its default log level, so a failure only shows in the app's own log. That is why the handlers in the next labs log their own errors.

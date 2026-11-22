@@ -79,9 +79,6 @@ cd /root/university-labs/pubsub
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the demo folder of your language: `Demo1-Subscriptions` for .NET, `demo1-subscriptions` for Python and Java. The `resourcesPaths` in `dapr.yaml` are relative to that folder.
 
-> [!NOTE]
-> When the apps start, the Editor shows a popup saying *Your application running on port `<number>` is available*. Close the popup, or click the settings gear to dismiss it. There is no UI to open, so don't click *Open in Browser*.
-
 <details>
    <summary><b>.NET</b></summary>
 
@@ -140,6 +137,9 @@ dapr run -f .
 </details>
 
 ###
+
+> [!NOTE]
+> When the apps start, the Editor shows a popup saying *Your application running on port `<number>` is available*. Close the popup, or click the settings gear to dismiss it. There is no UI to open, so don't click *Open in Browser*.
 
 > [!IMPORTANT]
 > Wait until all three applications are running before continuing. The Java applications can take a little longer to start.

@@ -6,8 +6,6 @@ In this final lab, you'll run two apps: a cron binding makes `engineering` call 
 
 The terminals, and the applications running in them, stay as they are when you move between labs. Open the **Dev Dashboard** tab and look at which applications are running. If any are, for example `engineering` from the previous lab, use the **Dapr CLI** window to stop them by pressing `Ctrl+C`. They use the same ports as the apps in this lab. Then go back to the **Editor** tab.
 
-This demo needs the `bindings-postgres` database container. If `docker ps` in the **curl** window doesn't list it, start it again with the block in the section *If the database is not running* of the second lab.
-
 ## 1. Two apps, three building blocks
 
 Use the **Editor** tab and open the demo folder of your language: `dotnet/Demo4-SubspaceBeacon`, `python/demo4-subspace-beacon` or `java/demo4-subspace-beacon`. It holds two apps, each with its own Dapr sidecar:
@@ -281,10 +279,6 @@ Congratulations! 🎉 You've completed the Dapr University bindings learning tra
 ### Next steps
 
 We have more opportunities for you to learn and share knowledge:
-
-**Learn more about bindings**
-- Read the [Dapr bindings overview](https://docs.dapr.io/developing-applications/building-blocks/bindings/bindings-overview/), and the reference for the [cron binding](https://docs.dapr.io/reference/components-reference/supported-bindings/cron/) and the [PostgreSQL binding](https://docs.dapr.io/reference/components-reference/supported-bindings/postgresql/).
-- The `ship-db` component holds its password in plain text. The Dapr Secrets track on [Dapr University](https://www.diagrid.io/university) shows how to read it from a secret store with `secretKeyRef`.
 
 **Try another university track**
 - [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)

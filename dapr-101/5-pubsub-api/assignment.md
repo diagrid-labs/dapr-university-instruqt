@@ -114,9 +114,6 @@ cd /root/university-labs/dapr-101
 > [!IMPORTANT]
 > Run `dapr run -f .` from inside the demo folder of your language: `PubSub` for .NET, `pub-sub` for Python, Java and JavaScript. The `appDirPath` entries in `dapr.yaml` are relative to that folder.
 
-> [!NOTE]
-> When the apps start, the Editor shows a popup saying *Your application running on port `<number>` is available*. Close the popup, or click the settings gear to dismiss it. There is no UI to open, so don't click *Open in Browser*.
-
 Then use the **Dapr CLI** window to run both the `checkout` and `order-processor` applications using the Dapr CLI and the Multi-App Run file:
 
 <details>
@@ -216,6 +213,9 @@ dapr run -f .
 </details>
 
 ###
+
+> [!NOTE]
+> When the apps start, the Editor shows a popup saying *Your application running on port `<number>` is available*. Close the popup, or click the settings gear to dismiss it. There is no UI to open, so don't click *Open in Browser*.
 
 > [!IMPORTANT]
 > Wait until both applications have started before continuing. The Java applications can take a little longer to start.
