@@ -612,37 +612,48 @@ pins `3.1.0`; the other labs stay on `3.0.0` until a separate bump. Postgres its
 boot by the lab's `scripts/start-postgres.sh` (inlined before `scripts/lab-setup.sh` through
 `lab_startup_script`), and CI starts it with the same function in `ci/setup-dapr-bindings.sh`.
 
-**Do not merge a change that pins `3.1.0` before step 2 is done**: the lab sync fails on an
-unpublished module version.
+**Order: merge, then publish `3.1.0`, then create the lab.** A module version can only be
+published from `main` (section 7: the import reads the default branch, there is no branch to
+pick), so the module changes must be merged first. Merging before the publish is safe here: the
+`dapr-bindings` lab does not exist in Instruqt yet, so nothing syncs the unpublished pin, and the
+other labs pin the published `3.0.0`, which is immutable. **Do not create the lab before step 3 is
+done**: its first sync would fail on the unpublished version, and a lab only re-reads its HCL on
+the next push to `main` that changes a file under `dapr-bindings/`.
 
-1. **Build the image and publish the module.** Build the image from
-   `bash modules/dapr-sandbox/scripts/render-image-script.sh` as in section 2, with a new image
-   name or tag. On the feature branch set `image_ref` in `modules/dapr-sandbox/versions.hcl` to it
-   (section 3), then import and publish module version `3.1.0` from that branch (as in section 7).
-   **Expected:** on a VM from the new image, `docker images postgres:18.7` lists the image.
-2. **Confirm the publish, then merge.** Check that `3.1.0` shows as published under Building
-   blocks > Modules. Open the PR; `lab-validate`, `dapr-secrets-result`, `dapr-pubsub-result`,
-   `dapr-101-result` and the new "Test dapr-bindings track" (`dapr-bindings-result`) must be
-   green. CI has not run for `dapr-bindings` before, so run it once from the PR. Then merge.
-3. **Create the lab.** In Instruqt create a new lab `dapr-bindings` connected to the repo, branch
-   `main`, **Root directory** `dapr-bindings`. Wait for the sync.
-4. **Required checks.** In the `main` branch protection add `dapr-bindings-result` (workflow "Test
+1. **Build the image and set `image_ref`.** On the feature branch, render
+   `modules/dapr-sandbox/scripts/render-image-script.sh > image.sh` and build the image from the
+   system `ubuntu` 24.04 base as in section 2. Publish it under the next free image name with tag
+   `v1` (after `diagrid/dapr-sandbox-4:v1` that is `dapr-sandbox-5`). On the feature branch set
+   `image_ref` in `modules/dapr-sandbox/versions.hcl` to the new reference (section 3), commit
+   only that file and the re-rendered `image.sh`, and push.
+   **Expected:** in the build session, `docker images` lists `postgres:18.7`.
+2. **Merge.** On the PR, `lab-validate`, `dapr-101-result`, `dapr-secrets-result`,
+   `dapr-pubsub-result` and the new "Test dapr-bindings track" (`dapr-bindings-result`) must be
+   green. Then merge.
+3. **Publish module `3.1.0`.** Building blocks > Modules > `diagrid/dapr-sandbox` > refresh, then
+   **Publish version** `3.1.0` (section 7). It now holds the merged module with the new
+   `image_ref`. **Expected:** `3.1.0` shows as published.
+4. **Create the lab.** In Instruqt create a new lab `dapr-bindings` with **Import lab** (section 9):
+   the repo, branch `main`, **Root directory** `dapr-bindings`. Wait for the sync.
+   **Expected:** the sync succeeds. If it fails with `version 3.1.0 of diagrid/dapr-sandbox is not
+   published`, publish it (step 3) and push a change under `dapr-bindings/` to sync again.
+5. **Required checks.** In the `main` branch protection add `dapr-bindings-result` (workflow "Test
    dapr-bindings track").
-5. **Live start.** Start the lab and, in a terminal, record
+6. **Live start.** Start the lab and, in a terminal, record
    `grep 'done after' /var/log/lab-setup.log`; compare it with a `dapr-pubsub` start.
    **Expected:** `docker ps` lists `bindings-postgres`, and the setup log shows no `postgres` pull.
    If the bindings start takes more than about 15 seconds longer than `dapr-pubsub`, move
    `start_postgres` into the background and have page 2 wait for the tables instead.
 
    - Setup time: ______ s (dapr-pubsub: ______ s)
-6. **Timed live run.** Pick one language and play all four pages with a timer. Then start a new
+7. **Timed live run.** Pick one language and play all four pages with a timer. Then start a new
    lab, skip page 2, and play pages 3 and 4. **Expected:**
    - total time under 30 minutes;
    - no build or image-pull waits;
    - pages 3 and 4 work without page 2.
 
    - Time: ______ min (language: ______, date: ______)
-7. **Publish to Dapr University.** Add the track with the text of
+8. **Publish to Dapr University.** Add the track with the text of
    `dapr-bindings/website-description.md`. There is no badge yet: when one exists, add the badge
    lines to `main.hcl` and the final page the way `dapr-pubsub` has them.
 
