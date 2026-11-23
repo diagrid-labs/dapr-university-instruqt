@@ -1,6 +1,6 @@
 # Workflow management
 
-In this final lab, you'll manage a long jump from the outside: pause it, resume it, terminate it and purge its history, first through the app's endpoints and then with the Dapr CLI. This hands-on lab takes about 8 minutes to complete.
+In this final lab, you'll manage a long jump from the outside: pause it, resume it, terminate it and purge its history, first through the app's endpoints and then with the Dapr CLI. This hands-on lab takes about 8 minutes to complete. At the end of the lab, you can claim the Dapr University Holopin badge for this track.
 
 ## Before you start
 
@@ -647,7 +647,7 @@ Here is what you did in this track:
 5. **Human in the loop:** a workflow waited for the captain's authorization, an external event with a timeout, and handled approval, denial and no answer.
 6. **Workflow management:** you paused, resumed, terminated and purged jumps through the workflow client and with the Dapr CLI.
 
-## Feedback and further learning
+## Collect your badge & provide feedback
 
 Congratulations! 🎉 You've completed the Dapr University Dapr Workflow 101 learning track!
 
@@ -656,7 +656,8 @@ Congratulations! 🎉 You've completed the Dapr University Dapr Workflow 101 lea
 We have more opportunities for you to learn and share knowledge:
 
 **Try another university track**
-- [Dapr Workflow: durable execution for reliable distributed applications](https://www.diagrid.io/university/dapr-workflow)
+- [Build Dapr workflows in .NET with Aspire](https://www.diagrid.io/university/dapr-workflow-aspire)
+- [Dapr Agents: build LLM-powered applications with tools and workflows](https://www.diagrid.io/university/dapr-agents)
 
 **Try these Dapr tools**
 - [Dapr Dev Dashboard](https://docs.diagrid.io/dapr-open-source/dapr-dev-dashboard/), a free & OSS companion tool for local Dapr development.
@@ -666,9 +667,15 @@ We have more opportunities for you to learn and share knowledge:
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#agents* and language channels.
 - Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.
 
+### Collect the badge
+
+Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmcnbo8lt1386107js9fyxc2zu). You'll need a GitHub account to claim the badge. Then come back to this page, rate the track below, and click **Finish & Exit** to finish the lab.
+
+<a href="https://holopin.io/collect/cmcnbo8lt1386107js9fyxc2zu"><img src="https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow-101/6-management/images/Diagrid-Dapr-Uni-badge-workflow_x300.png?raw=true" alt="Dapr University Dapr Workflow badge" width="384" height="384"></a>
+
 ### Rate this track
 
-Please rate this track so we can keep improving it 🚀. Then click **Finish & Exit** to finish the lab.
+Please rate this track so we can keep improving it 🚀.
 
 <instruqt-feedback id="dapr-workflow-101-feedback"></instruqt-feedback>
 
