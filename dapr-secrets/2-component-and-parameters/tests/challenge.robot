@@ -63,30 +63,30 @@ Ports Are Free Before The Apps Start
 DotNet Reads All Secrets
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    dotnet build    ${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]
     Read All Secrets Through The App    ${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]
 
 Python Reads All Secrets
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    uv sync    ${SECRETS_BASE}/python/${DEMO1}[python]
     Read All Secrets Through The App    ${SECRETS_BASE}/python/${DEMO1}[python]
 
 Java Reads All Secrets
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    mvn -q -DskipTests package    ${SECRETS_BASE}/java/${DEMO1}[java]
     Read All Secrets Through The App    ${SECRETS_BASE}/java/${DEMO1}[java]    timeout=300s
 
 Nested Secrets Follow NestedSeparator And MultiValued
     [Tags]    component
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    nested
+    [Teardown]    Stop Process With SIGINT If Running    nested
     Start Background Process
-    ...    dapr run --app-id nested-demo --dapr-http-port 3501 --resources-path resources
+    ...    exec dapr run --app-id nested-demo --dapr-http-port 3501 --resources-path resources
     ...    ${LOG}    nested    cwd=${NESTED_DIR}
     Wait Until Command Output Contains
     ...    curl -s http://localhost:3501/v1.0/secrets/nested-default/bulk    ${NESTED_DEFAULT}    60s
@@ -114,7 +114,7 @@ A Wrong SecretKeyRef Name Is Logged By The Sidecar
     ...    grep -h "Error getting secret" .dapr/logs/order-api_daprd_*.log    ${SECRET_NOT_FOUND}    ${CONTROL_ROOT}/wrong-name
     ${log}=    Read Newest Sidecar Log    ${CONTROL_ROOT}/wrong-name
     Should Contain    ${log}    ${STATESTORE_LOADED}
-    [Teardown]    Stop Process With SIGINT    control
+    [Teardown]    Stop Process With SIGINT If Running    control
 
 A Wrong SecretStore In Auth Is Logged And The Component Does Not Load
     [Tags]    component    control
@@ -122,14 +122,14 @@ A Wrong SecretStore In Auth Is Logged And The Component Does Not Load
     Wait For Sidecar Log To Contain    wrong-store    ${STORE_NOT_LOADED}: nostore
     ${log}=    Read Newest Sidecar Log    ${CONTROL_ROOT}/wrong-store
     Should Not Contain    ${log}    ${STATESTORE_LOADED}
-    [Teardown]    Stop Process With SIGINT    control
+    [Teardown]    Stop Process With SIGINT If Running    control
 
 A Missing Auth Block Is Logged
     [Tags]    component    control
     # Drop everything from `auth:` on, leaving a secretKeyRef with no store to resolve against.
     Control Variant Starts    no-auth    ${EMPTY}    ${EMPTY}    drop_auth=${TRUE}
     Wait For Sidecar Log To Contain    no-auth    ${STORE_NOT_LOADED}:
-    [Teardown]    Stop Process With SIGINT    control
+    [Teardown]    Stop Process With SIGINT If Running    control
 
 A Missing SecretsFile Stops The Sidecar With A Fatal Log Line
     [Documentation]    The assignment says a `secretsFile` that does not exist stops the sidecar from
@@ -145,7 +145,7 @@ A Missing SecretsFile Stops The Sidecar With A Fatal Log Line
     Should Contain    ${log}    ${INIT_FAILURE}
     Should Contain    ${log}    open ./nofile.json: ${FILE_NOT_FOUND}
     Should Not Contain    ${log}    ${STATESTORE_LOADED}
-    [Teardown]    Stop Process With SIGINT    control
+    [Teardown]    Stop Process With SIGINT If Running    control
 
 A Wrong SecretKeyRef Key Is Silent With The Local File Store
     [Documentation]    Documents a blind spot instead of guarding against it: with this store a wrong
@@ -157,7 +157,7 @@ A Wrong SecretKeyRef Key Is Silent With The Local File Store
     ${log}=    Read Newest Sidecar Log    ${CONTROL_ROOT}/wrong-key
     Should Not Contain    ${log}    Error getting secret
     Should Not Contain    ${log}    ${STORE_NOT_LOADED}
-    [Teardown]    Stop Process With SIGINT    control
+    [Teardown]    Stop Process With SIGINT If Running    control
 
 A Secret Store Value Reaches The Component
     [Documentation]    The value-level proof. keyPrefix is taken from the secret store through
@@ -219,7 +219,7 @@ Wait For The Ports To Be Free
 
 Read All Secrets Through The App
     [Arguments]    ${cwd}    ${timeout}=180s
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${cwd}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${cwd}
     Wait Until App Responds    ${APP_URL}/    ${timeout}
     # The app answers before its sidecar is ready, so poll for the first secret instead of
     # asserting once. The commands in this suite are spelled out literally (no variables)
@@ -282,7 +282,7 @@ Prepare Sidecar Folder
     Create File    ${dir}/resources/statestore-with-secretref.yaml    ${statestore}
     Create File    ${dir}/dapr.yaml    ${CONTROL_APPS}
     Wait For The Ports To Be Free
-    Start Background Process    dapr run -f .    ${LOG}    control    cwd=${dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    control    cwd=${dir}
 
 Control Variant Starts
     # Start a sidecar whose state store is a copy of the real statestore-with-secretref.yaml
@@ -316,7 +316,7 @@ Delete Proof Keys
     Run Process    docker exec dapr_redis redis-cli DEL ${PROOF_KEYS}    shell=True
 
 Finish Value Proof
-    Stop Process With SIGINT    control
+    Stop Process With SIGINT If Running    control
     Delete Proof Keys
 
 # doc-sync coverage (expressed via cwd and cwd-relative paths above):

@@ -15,7 +15,7 @@ DotNet External Events
     [Tags]    dotnet
     [Teardown]    Stop Process With SIGINT    app
     Run And Expect RC Zero    dotnet build ExternalEvents    ${WF_BASE}/csharp/external-system-interaction
-    Start Workflow App    dapr run -f .    ${WF_BASE}/csharp/external-system-interaction    ${LOG}    http://localhost:5258/
+    Start Workflow App    exec dapr run -f .    ${WF_BASE}/csharp/external-system-interaction    ${LOG}    http://localhost:5258/
     Run And Expect RC Zero
     ...    curl -i --request POST --url http://localhost:5258/start --header 'content-type: application/json' --data '{"id": "${ORDER_ID}","description": "Rubber ducks","quantity": 100,"totalPrice": 500}'
     Run And Expect RC Zero
@@ -38,7 +38,7 @@ Python External Events
     [Teardown]    Stop Process With SIGINT    app
     Run And Expect RC Zero    python3 -m venv venv    ${WF_BASE}/python/external-system-interaction/external_events
     Run And Expect RC Zero    bash -c 'source venv/bin/activate && pip3 install -r requirements.txt'    ${WF_BASE}/python/external-system-interaction/external_events
-    Start Workflow App    bash -c 'source external_events/venv/bin/activate && dapr run -f .'    ${WF_BASE}/python/external-system-interaction    ${LOG}    http://localhost:5258/
+    Start Workflow App    exec bash -c 'source external_events/venv/bin/activate && exec dapr run -f .'    ${WF_BASE}/python/external-system-interaction    ${LOG}    http://localhost:5258/
     Run And Expect RC Zero
     ...    curl -i --request POST --url http://localhost:5258/start --header 'content-type: application/json' --data '{"id": "${ORDER_ID}","description": "Rubber ducks","quantity": 100,"total_price": 500}'
     Run And Expect RC Zero

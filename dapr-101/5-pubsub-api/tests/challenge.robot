@@ -30,7 +30,7 @@ DotNet Pub Sub
     # pre-build, so build here to report a build error as such.
     Run And Expect RC Zero    dotnet build checkout    ${dir}
     Run And Expect RC Zero    dotnet build order-processor    ${dir}
-    Run Apps And Check Subscription    dapr run -f .    ${dir}
+    Run Apps And Check Subscription    exec dapr run -f .    ${dir}
 
 Python Pub Sub
     [Tags]    python
@@ -40,7 +40,7 @@ Python Pub Sub
     # The page has no install step: the sandbox pre-installs and `uv run` syncs. CI has no
     # pre-install, so sync here to report an install error as such.
     Run And Expect RC Zero    uv sync --all-packages    ${dir}
-    Run Apps And Check Subscription    uv run dapr run -f .    ${dir}
+    Run Apps And Check Subscription    exec uv run dapr run -f .    ${dir}
 
 Java Pub Sub
     [Tags]    java
@@ -49,7 +49,7 @@ Java Pub Sub
     ${dir}=    Set Variable    ${DAPR101_BASE}/java/${PUBSUB_DEMO}[java]
     Run And Expect RC Zero    mvn -q -DskipTests install    ${dir}/order-processor
     Run And Expect RC Zero    mvn -q -DskipTests install    ${dir}/checkout
-    Run Apps And Check Subscription    dapr run -f .    ${dir}    timeout=300s
+    Run Apps And Check Subscription    exec dapr run -f .    ${dir}    timeout=300s
 
 JavaScript Pub Sub
     [Tags]    javascript
@@ -58,7 +58,7 @@ JavaScript Pub Sub
     ${dir}=    Set Variable    ${DAPR101_BASE}/javascript/${PUBSUB_DEMO}[javascript]
     Run And Expect RC Zero    npm install    ${dir}/order-processor
     Run And Expect RC Zero    npm install    ${dir}/checkout
-    Run Apps And Check Subscription    dapr run -f .    ${dir}
+    Run Apps And Check Subscription    exec dapr run -f .    ${dir}
 
 *** Keywords ***
 Port Should Be Free

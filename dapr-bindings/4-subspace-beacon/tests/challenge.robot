@@ -28,7 +28,7 @@ Ports Are Free Before The Apps Start
 DotNet Engineering Reaches The Beacon
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    dotnet build    ${BINDINGS_BASE}/dotnet/${DEMO4}[dotnet]/${ENGINEERING}[dotnet]
     Run And Expect RC Zero    dotnet build    ${BINDINGS_BASE}/dotnet/${DEMO4}[dotnet]/${SUBSPACE_BEACON}[dotnet]
     Walk Through Subspace Beacon    dotnet
@@ -36,7 +36,7 @@ DotNet Engineering Reaches The Beacon
 Python Engineering Reaches The Beacon
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    uv sync    ${BINDINGS_BASE}/python/${DEMO4}[python]/${ENGINEERING}[python]
     Run And Expect RC Zero    uv sync    ${BINDINGS_BASE}/python/${DEMO4}[python]/${SUBSPACE_BEACON}[python]
     Walk Through Subspace Beacon    python
@@ -44,7 +44,7 @@ Python Engineering Reaches The Beacon
 Java Engineering Reaches The Beacon
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    mvn -q -DskipTests package    ${BINDINGS_BASE}/java/${DEMO4}[java]/${ENGINEERING}[java]
     Run And Expect RC Zero    mvn -q -DskipTests package    ${BINDINGS_BASE}/java/${DEMO4}[java]/${SUBSPACE_BEACON}[java]
     Walk Through Subspace Beacon    java    timeout=300s    established=180s
@@ -68,7 +68,7 @@ Walk Through Subspace Beacon
     ${demo_dir}=    Set Variable    ${BINDINGS_BASE}/${lang}/${DEMO4}[${lang}]
 
     # 2. Run the demo: two apps, two sidecars.
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    http://localhost:5201/    ${timeout}
     Wait Until App Responds    http://localhost:5202/    ${timeout}
     Wait Until Log Contains    ${LOG}    engineering cleared comms_log for a fresh run    ${timeout}

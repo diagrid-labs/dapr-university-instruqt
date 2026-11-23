@@ -32,21 +32,21 @@ Ports Are Free Before The Apps Start
 DotNet Cron Binding Calls The App
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    dotnet build    ${BINDINGS_BASE}/dotnet/${DEMO1}[dotnet]/${ENGINEERING}[dotnet]
     Walk Through Cron Input Binding    dotnet
 
 Python Cron Binding Calls The App
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    uv sync    ${BINDINGS_BASE}/python/${DEMO1}[python]/${ENGINEERING}[python]
     Walk Through Cron Input Binding    python
 
 Java Cron Binding Calls The App
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    mvn -q -DskipTests package    ${BINDINGS_BASE}/java/${DEMO1}[java]/${ENGINEERING}[java]
     Walk Through Cron Input Binding    java    timeout=300s
 
@@ -69,7 +69,7 @@ Walk Through Cron Input Binding
     ${demo_dir}=    Set Variable    ${BINDINGS_BASE}/${lang}/${DEMO1}[${lang}]
 
     # 3. Run the demo. The cron binding waits one full interval before the first tick.
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    http://localhost:5201/    ${timeout}
     Wait Until Log Contains    ${LOG}    ${SCAN} wc-0001 stardate=    ${timeout}
     # A second scan proves the schedule repeats (10 s apart, with slack).
@@ -95,7 +95,7 @@ Walk Through Cron Input Binding
     ${text}=    Replace String    ${text}    @every 10s    @every 3s
     Create File    ${yaml}    ${text}
     File Should Contain    ${yaml}    value: "@every 3s"
-    Start Background Process    dapr run -f .    ${LOG_FAST}    app    cwd=${copy}
+    Start Background Process    exec dapr run -f .    ${LOG_FAST}    app    cwd=${copy}
     Wait Until App Responds    http://localhost:5201/    ${timeout}
     Wait Until Log Contains    ${LOG_FAST}    ${SCAN} wc-0001 stardate=    ${timeout}
     # Four scans in at most 20 s: at 10 s apart that would take 30 s.

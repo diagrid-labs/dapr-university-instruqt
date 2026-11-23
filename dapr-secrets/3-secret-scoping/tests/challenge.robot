@@ -83,7 +83,7 @@ DotNet The Deny List Direction Refuses The Same Secret
     ...    deniedSecrets: ["orderdb-password"]
     Should Contain    ${config}    deniedSecrets: ["orderdb-password"]
     Create File    ${demo_dir}/resources/config-app-b.yaml    ${config}
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until Command Output Contains
     ...    curl -s http://localhost:5003/secret/payments-api-key    ${PAYMENTS_JSON}    180s
     ${denied}=    Request    http://localhost:5003/secret/orderdb-password
@@ -107,9 +107,9 @@ DotNet The Deny List Direction Refuses The Same Secret
 Scoping Does Not Apply To A Component's SecretKeyRef Lookup
     [Tags]    control
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    control
+    [Teardown]    Stop Process With SIGINT If Running    control
     Start Background Process
-    ...    dapr run --app-id app-b --dapr-http-port 3502 --resources-path ../resources --config resources/config-app-b.yaml
+    ...    exec dapr run --app-id app-b --dapr-http-port 3502 --resources-path ../resources --config resources/config-app-b.yaml
     ...    ${LOG_CONTROL}    control    cwd=${SECRETS_BASE}/dotnet/${DEMO2}[dotnet]
     Wait Until Log Contains    ${LOG_CONTROL}    Component loaded: statestore    120s
     ${log}=    Get File    ${LOG_CONTROL}
@@ -136,7 +136,7 @@ Walk Through The Scoping Story
     Copy File    ${demo_dir}/dapr.yaml    ${demo_dir}/dapr.yaml.suite-bak
 
     # 1. Both apps, no scoping on app-b.
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until Command Output Contains
     ...    curl -s http://localhost:5002/secret/orderdb-password    ${ORDERDB_JSON}    ${timeout}
     Wait Until Command Output Contains
@@ -154,7 +154,7 @@ Walk Through The Scoping Story
     Stop Process With SIGINT    app
     Wait For The Ports To Be Free
     Remove Hash In Front Of Config File Path    ${demo_dir}/dapr.yaml
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until Command Output Contains
     ...    curl -s http://localhost:5002/secret/orderdb-password    ${ORDERDB_JSON}    ${timeout}
     Wait Until Command Output Contains

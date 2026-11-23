@@ -19,7 +19,7 @@ State Management API Round Trip
     # Remove log files from earlier runs, so the log check below only sees this run.
     Remove Directory    ${DAPR101_BASE}/${STATE_DEMO}/.dapr    recursive=True
     Start Background Process
-    ...    dapr run -f .    ${SIDECAR_LOG}    sidecar    ${DAPR101_BASE}/${STATE_DEMO}
+    ...    exec dapr run -f .    ${SIDECAR_LOG}    sidecar    ${DAPR101_BASE}/${STATE_DEMO}
     # The run template prints this when the sidecar has started.
     Wait Until Log Contains    ${SIDECAR_LOG}    Started Dapr with app id "myapp". HTTP Port: 3500    timeout=60s
     # The page tells the learner the sidecar log goes to a file (for the Dev Dashboard Logs page).
@@ -54,12 +54,12 @@ State Management API Round Trip
     ${r}=    Run And Expect RC Zero    docker exec dapr_redis redis-cli KEYS '*'
     Should Not Contain    ${r.stdout}    myapp||name
 
-    # Send SIGINT (like Ctrl+C) to the "sidecar" process and wait for its clean-exit log line.
+    # Send SIGINT (like Ctrl+C) to the "sidecar" process. It was started with `exec`, so the
+    # dapr CLI itself gets the signal, as on the learner's Ctrl+C, and prints the page's stop
+    # message rather than being stopped by the keyword's tree-kill fallback.
     Stop Process With SIGINT    sidecar
-    # Check that the sidecar is really gone: port 3500 no longer answers (curl rc 7). Not the
-    # page's stop message: on Linux `dapr run -f .` moves itself into its own process group, so
-    # the group SIGINT doesn't reach the CLI and the keyword's tree-kill fallback stops it
-    # without that message. A learner's Ctrl+C in a terminal does reach it.
+    File Should Contain    ${SIDECAR_LOG}    Received signal to stop Dapr and app processes
+    # Check that the sidecar is really gone: port 3500 no longer answers (curl rc 7).
     Wait Until Keyword Succeeds    15s    1s    Sidecar Port Is Closed
 
 Statestore Component File Is Redis

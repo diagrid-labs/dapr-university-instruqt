@@ -29,7 +29,7 @@ Ports Are Free Before The Apps Start
 DotNet Both Subscribers Receive An Order
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    dotnet build    ${PUBSUB_BASE}/dotnet/${DEMO1}[dotnet]/${ORDER_API}[dotnet]
     Run And Expect RC Zero    dotnet build    ${PUBSUB_BASE}/dotnet/${DEMO1}[dotnet]/${SHIPPING}[dotnet]
     Run And Expect RC Zero    dotnet build    ${PUBSUB_BASE}/dotnet/${DEMO1}[dotnet]/${INVOICING}[dotnet]
@@ -38,7 +38,7 @@ DotNet Both Subscribers Receive An Order
 Python Both Subscribers Receive An Order
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    uv sync    ${PUBSUB_BASE}/python/${DEMO1}[python]/${ORDER_API}[python]
     Run And Expect RC Zero    uv sync    ${PUBSUB_BASE}/python/${DEMO1}[python]/${SHIPPING}[python]
     Run And Expect RC Zero    uv sync    ${PUBSUB_BASE}/python/${DEMO1}[python]/${INVOICING}[python]
@@ -47,7 +47,7 @@ Python Both Subscribers Receive An Order
 Java Both Subscribers Receive An Order
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    mvn -q -DskipTests package    ${PUBSUB_BASE}/java/${DEMO1}[java]/${ORDER_API}[java]
     Run And Expect RC Zero    mvn -q -DskipTests package    ${PUBSUB_BASE}/java/${DEMO1}[java]/${SHIPPING}[java]
     Run And Expect RC Zero    mvn -q -DskipTests package    ${PUBSUB_BASE}/java/${DEMO1}[java]/${INVOICING}[java]
@@ -71,7 +71,7 @@ Wait For The Ports To Be Free
 Walk Through Subscription Types
     [Arguments]    ${lang}    ${timeout}=180s
     ${demo_dir}=    Set Variable    ${PUBSUB_BASE}/${lang}/${DEMO1}[${lang}]
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    http://localhost:5101/    ${timeout}
     Wait Until App Responds    http://localhost:5102/    ${timeout}
     Wait Until App Responds    http://localhost:5103/    ${timeout}

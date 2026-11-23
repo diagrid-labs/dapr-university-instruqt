@@ -13,7 +13,7 @@ DotNet Workflow Management
     [Tags]    dotnet
     [Teardown]    Stop Process With SIGINT    app
     Run And Expect RC Zero    dotnet build WorkflowManagement    ${WF_BASE}/csharp/workflow-management
-    Start Workflow App    dapr run -f .    ${WF_BASE}/csharp/workflow-management    ${LOG}    http://localhost:5262/
+    Start Workflow App    exec dapr run -f .    ${WF_BASE}/csharp/workflow-management    ${LOG}    http://localhost:5262/
     ${id}=    Capture Command Output
     ...    curl -s --request POST --url http://localhost:5262/start/0 -i | grep -i "^location:" | sed 's/^location: *//i' | tr -d '\\r\\n'
     Manage Workflow Lifecycle    http://localhost:5262    ${id}
@@ -30,7 +30,7 @@ Python Workflow Management
     [Teardown]    Stop Process With SIGINT    app
     Run And Expect RC Zero    python3 -m venv venv    ${WF_BASE}/python/workflow-management/workflow_management
     Run And Expect RC Zero    bash -c 'source venv/bin/activate && pip3 install -r requirements.txt'    ${WF_BASE}/python/workflow-management/workflow_management
-    Start Workflow App    bash -c 'source workflow_management/venv/bin/activate && dapr run -f .'    ${WF_BASE}/python/workflow-management    ${LOG}    http://localhost:5262/
+    Start Workflow App    exec bash -c 'source workflow_management/venv/bin/activate && exec dapr run -f .'    ${WF_BASE}/python/workflow-management    ${LOG}    http://localhost:5262/
     ${id}=    Capture Command Output
     ...    curl -s --request POST --url http://localhost:5262/start/0 -i | grep -o '"instance_id":"[^"]*"' | sed 's/"instance_id":"//;s/"//g' | tr -d '\\r\\n'
     Manage Workflow Lifecycle    http://localhost:5262    ${id}

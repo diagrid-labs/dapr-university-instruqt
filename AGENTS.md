@@ -225,7 +225,7 @@ DotNet Task Chaining
     [Tags]    dotnet
     [Teardown]    Stop Process With SIGINT    app
     Run And Expect RC Zero    dotnet build TaskChaining    ${WF_BASE}/csharp/task-chaining
-    Start Workflow App    dapr run -f .    ${WF_BASE}/csharp/task-chaining    ${LOG}    http://localhost:5255/
+    Start Workflow App    exec dapr run -f .    ${WF_BASE}/csharp/task-chaining    ${LOG}    http://localhost:5255/
     ${id}=    Capture Command Output    <curl … to /start, extract instance id>
     Wait Until Workflow Completed    http://localhost:3555/v1.0/workflows/dapr/${id}    ${OUTPUT}
 ```
@@ -253,7 +253,8 @@ Notes that trip people up:
 | `Start Background Process` | Launch a command non-blocking under an alias, merging stdout+stderr into a fresh log file. |
 | `Wait Until Log Contains` | Poll a log file for a substring until it appears or times out (default 60s). |
 | `File Should Contain` | Assert a file contains a substring. |
-| `Stop Process With SIGINT` | Gracefully stop a background process **and its whole tree**. Sends SIGINT to the process group; if that doesn't stop it, walks the real OS PID tree and SIGKILLs every descendant. This exists because `dapr run` / `daprd` / app processes detach into new process groups and otherwise survive as orphans squatting fixed ports — corrupting the next test. **Do not "simplify" this to a single-PID kill.** |
+| `Stop Process With SIGINT` | Gracefully stop a background process **and its whole tree**. Sends SIGINT to the tracked process's group, as a Ctrl+C would; if that doesn't stop it within the timeout (15 s), walks the real OS PID tree and SIGKILLs every descendant. The SIGINT only reaches the Dapr CLI when the CLI *is* the tracked process, so suites start it as `exec dapr run …` (a venv wrapper as `exec bash -c '… && exec dapr run …'`). Without `exec`, Linux's `/bin/sh` (dash) forks the command, `dapr run` then calls `setpgid(0,0)` and moves into its own process group, and the SIGINT only hits the shell: every stop waits out the timeout and ends in the tree-kill. macOS's `/bin/sh` (bash) execs a single command, so this only shows on Linux CI. The tree-kill stays as the safety net: `daprd` and the app run in process groups of their own and otherwise survive as orphans squatting fixed ports, corrupting the next test. **Do not "simplify" this to a single-PID kill.** |
+| `Stop Process With SIGINT If Running` | For teardowns: calls `Stop Process With SIGINT` only when the alias still runs, so a test that failed before its start (or between a stop and a restart) doesn't add a `ProcessLookupError`. |
 | `Run And Expect RC Zero` | Run a command to completion; fail unless it exits 0. Returns the result (with `.stdout`). |
 | `Assert Command Output Contains` | Run (rc 0) and assert stdout contains a substring. |
 | `Run Multi-App And Assert Markers` | Start a multi-app `dapr run -f .` and wait for each expected log marker, then stop. |
@@ -450,6 +451,11 @@ Details worth knowing when editing CI:
   relative to that directory.
 - **Never simplify `Stop Process With SIGINT`** to a single-PID kill — the tree-kill fallback
   is load-bearing on Linux CI (orphaned `daprd`/app processes squat fixed ports).
+- **Start `dapr run` with `exec`** in `Start Background Process` / `Start Workflow App`
+  (`exec dapr run -f .`, `exec uv run dapr run -f .`, `exec bash -c '… && exec dapr run -f .'`).
+  Without it, dash forks the command on Linux CI and `dapr run` moves into its own process group,
+  so the stop's SIGINT never reaches the CLI and each stop waits 15 s for the tree-kill. The page's
+  `dapr run -f .` is still a substring, so doc-sync coverage holds.
 - **Keep assignment annotations and the `# doc-sync coverage` comments in sync** with the
   suite; otherwise the doc-sync job fails.
 - **A drift-test failure is often a *correct* signal**, not a harness bug — upstream

@@ -257,7 +257,7 @@ Walk Through The Swap
     Run And Expect RC Zero    ${VAULT_CLI} kv put secret/dapr/shipping-token shipping-token=from-vault
 
     # 1. The app as labs 1 and 2 ran it: the local file store.
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${app_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${app_dir}
     Wait Until Command Output Contains
     ...    curl -s http://localhost:5001/secret/orderdb-password    ${ORDERDB_JSON}    ${timeout}
     Assert Pretty JSON Output
@@ -273,7 +273,7 @@ Walk Through The Swap
     Should Be Equal    ${between}    ${before}
 
     # 2. The same app, started from the folder whose component is Vault. Nothing was rebuilt.
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${swap_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${swap_dir}
     Wait Until Command Output Contains
     ...    curl -s http://localhost:5001/secret/orderdb-password    ${ORDERDB_JSON}    ${timeout}
     Assert Pretty JSON Output
@@ -369,7 +369,7 @@ Vault Proof Starts
     ...    "auth": {"secretStore": "secretstore"}}
     Create File    ${dir}/resources/statestore.yaml    ${state}
     Start Background Process
-    ...    dapr run --app-id vault-proof --dapr-http-port 3500 --resources-path resources -- sleep 300
+    ...    exec dapr run --app-id vault-proof --dapr-http-port 3500 --resources-path resources -- sleep 300
     ...    ${LOG}    control    cwd=${dir}
 
 Save A Proof Value Through The Sidecar

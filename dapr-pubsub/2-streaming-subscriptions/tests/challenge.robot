@@ -29,7 +29,7 @@ Ports Are Free Before The Apps Start
 DotNet Warehouse Receives Orders Over A Stream
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    dotnet build    ${PUBSUB_BASE}/dotnet/${DEMO2}[dotnet]/${ORDER_API}[dotnet]
     Run And Expect RC Zero    dotnet build    ${PUBSUB_BASE}/dotnet/${DEMO2}[dotnet]/${WAREHOUSE}[dotnet]
     Walk Through Streaming Subscriptions    dotnet
@@ -37,7 +37,7 @@ DotNet Warehouse Receives Orders Over A Stream
 Python Warehouse Receives Orders Over A Stream
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    uv sync    ${PUBSUB_BASE}/python/${DEMO2}[python]/${ORDER_API}[python]
     Run And Expect RC Zero    uv sync    ${PUBSUB_BASE}/python/${DEMO2}[python]/${WAREHOUSE}[python]
     Walk Through Streaming Subscriptions    python
@@ -45,7 +45,7 @@ Python Warehouse Receives Orders Over A Stream
 Java Warehouse Receives Orders Over A Stream
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    mvn -q -DskipTests package    ${PUBSUB_BASE}/java/${DEMO2}[java]/${ORDER_API}[java]
     Run And Expect RC Zero    mvn -q -DskipTests package    ${PUBSUB_BASE}/java/${DEMO2}[java]/${WAREHOUSE}[java]
     Walk Through Streaming Subscriptions    java    timeout=300s
@@ -68,7 +68,7 @@ Wait For The Ports To Be Free
 Walk Through Streaming Subscriptions
     [Arguments]    ${lang}    ${timeout}=180s
     ${demo_dir}=    Set Variable    ${PUBSUB_BASE}/${lang}/${DEMO2}[${lang}]
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    http://localhost:5101/    ${timeout}
     # The warehouse has no app port. Its metadata lists STREAMING once the stream is open, so
     # waiting for it means the order below cannot be published before the subscriber listens.

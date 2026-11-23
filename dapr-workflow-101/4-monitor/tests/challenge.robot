@@ -83,7 +83,7 @@ Clean Up And Stop
     # A jump that a failed test left running is terminated first, so the purge can remove it.
     Terminate Running Jumps
     Run Process    dapr workflow purge --all -a engineering    shell=True
-    Stop Process With SIGINT    app
+    Stop Process With SIGINT If Running    app
 
 Terminate Running Jumps
     # Terminate every jump that is still running, so a test that failed half-way doesn't leave one
@@ -113,7 +113,7 @@ Walk Through Monitor
     ${demo_dir}=    Set Variable    ${WF101_BASE}/${DEMO4}[${lang}]
 
     # 2. Run the demo.
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    ${APP_URL}/    ${timeout}
 
     # 3. Start a jump, wait 7 seconds and read the status, all in one block as on the page.

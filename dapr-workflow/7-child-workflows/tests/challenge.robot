@@ -15,7 +15,7 @@ DotNet Child Workflows
     [Tags]    dotnet
     [Teardown]    Stop Process With SIGINT    app
     Run And Expect RC Zero    dotnet build ChildWorkflows    ${WF_BASE}/csharp/child-workflows
-    Start Workflow App    dapr run -f .    ${WF_BASE}/csharp/child-workflows    ${LOG}    http://localhost:5259/
+    Start Workflow App    exec dapr run -f .    ${WF_BASE}/csharp/child-workflows    ${LOG}    http://localhost:5259/
     ${id}=    Capture Command Output
     ...    curl -s --request POST --url http://localhost:5259/start --header 'content-type: application/json' --data '${DATA}' -i | grep -i "^location:" | sed 's/^location: *//i' | tr -d '\\r\\n'
     Wait Until Workflow Completed    http://localhost:3559/v1.0/workflows/dapr/${id}    ${OUTPUT}
@@ -32,7 +32,7 @@ Python Child Workflows
     [Teardown]    Stop Process With SIGINT    app
     Run And Expect RC Zero    python3 -m venv venv    ${WF_BASE}/python/child-workflows/child_workflows
     Run And Expect RC Zero    bash -c 'source venv/bin/activate && pip3 install -r requirements.txt'    ${WF_BASE}/python/child-workflows/child_workflows
-    Start Workflow App    bash -c 'source child_workflows/venv/bin/activate && dapr run -f .'    ${WF_BASE}/python/child-workflows    ${LOG}    http://localhost:5259/
+    Start Workflow App    exec bash -c 'source child_workflows/venv/bin/activate && exec dapr run -f .'    ${WF_BASE}/python/child-workflows    ${LOG}    http://localhost:5259/
     ${id}=    Capture Command Output
     ...    curl -s --request POST --url http://localhost:5259/start --header 'content-type: application/json' --data '${DATA}' -i | grep -o '"instance_id":"[^"]*"' | sed 's/"instance_id":"//;s/"//g' | tr -d '\\r\\n'
     Wait Until Workflow Completed    http://localhost:3559/v1.0/workflows/dapr/${id}    ${OUTPUT}

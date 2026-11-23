@@ -44,21 +44,21 @@ The Database Lists The Bindings Tables
 DotNet Readings Go Through The Output Binding
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    dotnet build    ${BINDINGS_BASE}/dotnet/${DEMO2}[dotnet]/${ENGINEERING}[dotnet]
     Walk Through Postgres Output Binding    dotnet
 
 Python Readings Go Through The Output Binding
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    uv sync    ${BINDINGS_BASE}/python/${DEMO2}[python]/${ENGINEERING}[python]
     Walk Through Postgres Output Binding    python
 
 Java Readings Go Through The Output Binding
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    mvn -q -DskipTests package    ${BINDINGS_BASE}/java/${DEMO2}[java]/${ENGINEERING}[java]
     Walk Through Postgres Output Binding    java    timeout=300s
 
@@ -115,7 +115,7 @@ Walk Through Postgres Output Binding
     SQL Value    INSERT INTO warp_core_readings (reading_id, stardate, core_temp_k, plasma_flow) VALUES ('stale-1', 1.0, 900, 0.80) ON CONFLICT DO NOTHING
 
     # 3. Run the demo.
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    http://localhost:5201/    ${timeout}
 
     # 4. The startup clear, then a stored reading.

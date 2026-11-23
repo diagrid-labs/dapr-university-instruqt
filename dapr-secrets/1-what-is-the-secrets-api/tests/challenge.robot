@@ -30,42 +30,42 @@ Port 5001 Is Free Before The App Starts
 DotNet Reads A Secret
     [Tags]    dotnet
     [Setup]    Wait For Port 5001 To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    dotnet build    ${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]
     Read Secrets Through The App    ${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]
 
 DotNet Reports An Unknown Secret
     [Tags]    dotnet
     [Setup]    Wait For Port 5001 To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Start App And Wait Until It Serves Secrets    ${SECRETS_BASE}/dotnet/${DEMO1}[dotnet]
     Assert Unknown Secret Is Reported
 
 Python Reads A Secret
     [Tags]    python
     [Setup]    Wait For Port 5001 To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    uv sync    ${SECRETS_BASE}/python/${DEMO1}[python]
     Read Secrets Through The App    ${SECRETS_BASE}/python/${DEMO1}[python]
 
 Python Reports An Unknown Secret
     [Tags]    python
     [Setup]    Wait For Port 5001 To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Start App And Wait Until It Serves Secrets    ${SECRETS_BASE}/python/${DEMO1}[python]
     Assert Unknown Secret Is Reported
 
 Java Reads A Secret
     [Tags]    java
     [Setup]    Wait For Port 5001 To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    mvn -q -DskipTests package    ${SECRETS_BASE}/java/${DEMO1}[java]
     Read Secrets Through The App    ${SECRETS_BASE}/java/${DEMO1}[java]    timeout=300s
 
 Java Reports An Unknown Secret
     [Tags]    java
     [Setup]    Wait For Port 5001 To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Start App And Wait Until It Serves Secrets    ${SECRETS_BASE}/java/${DEMO1}[java]    timeout=300s
     Assert Unknown Secret Is Reported
 
@@ -83,7 +83,7 @@ Wait For Port 5001 To Be Free
 
 Start App And Wait Until It Serves Secrets
     [Arguments]    ${cwd}    ${timeout}=180s
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${cwd}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${cwd}
     Wait Until App Responds    ${APP_URL}/    ${timeout}
     # The app answers before its sidecar is ready, so poll for the first secret instead of
     # asserting once. The commands in this suite are spelled out literally (no variables)
