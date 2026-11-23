@@ -142,8 +142,6 @@ Open the **Dev Dashboard** tab, go to the **Workflows** page and select the `jum
 
 Expand a `TaskCompleted` event to see what the activity returned, and the `TaskScheduled` event that follows it to see the input of the next activity. The course that `PlotCourseActivity` returned, with heading `217` and distance `4.2`, is the input of `ChargeWarpCoreActivity`. The warp factor `6` that `ChargeWarpCoreActivity` returned is the input of `AlignNavArrayActivity`.
 
-The `OrchestratorStarted` and `OrchestratorCompleted` events in between mark each time the sidecar ran the workflow code to decide the next step.
-
 After about four seconds, use the **curl** window to check the jump:
 
 ```bash,run
