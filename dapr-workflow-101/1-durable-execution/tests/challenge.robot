@@ -178,7 +178,7 @@ Walk Through Durable Execution
     ...    curl -s http://localhost:5301/jumps/jump-001 | jq
     ...    ${COMPLETED_1}
 
-    # The page's fallback when the learner misses the moment: a new jump with a new ID.
+    # The page's fallback when the learner misses the moment: the same curl with a new ID.
     Assert Pretty JSON Output
     ...    curl -s -X POST http://localhost:5301/jumps -H 'Content-Type: application/json' -d '{"jumpId": "jump-002"}' | jq
     ...    ${STARTED_2}
