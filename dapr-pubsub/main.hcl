@@ -1,6 +1,8 @@
 resource "lab" "main" {
   title       = "Dapr Pub/Sub - Subscription types, CloudEvents, Bulk Publishing and Routing"
   description = <<-EOT
+    *To begin, click the **Start** button. Setting up your sandbox takes around 2 minutes. Meanwhile, click the full screen icon in the top right to give the lab more space.*
+
     In this self-paced track, you'll learn:
     - How declarative and programmatic subscriptions differ, and how an app subscribes to a topic in each
     - How a streaming subscription lets an app receive messages without exposing an HTTP endpoint

@@ -1,6 +1,8 @@
 resource "lab" "main" {
   title       = "Dapr Bindings - Input and Output Bindings with Cron and PostgreSQL"
   description = <<-EOT
+    *To begin, click the **Start** button. Setting up your sandbox takes around 2 minutes. Meanwhile, click the full screen icon in the top right to give the lab more space.*
+
     In this self-paced track, you'll learn:
     - What an input binding is, and how a cron binding calls your app on a schedule through a route named after the component, without any Dapr code in the app
     - What an output binding is, and how the PostgreSQL binding runs SQL for your app with the `exec` and `query` operations
