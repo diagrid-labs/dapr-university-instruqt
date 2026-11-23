@@ -103,9 +103,10 @@ that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1
   into `<tmp>/modules/dapr-sandbox`, rewrites the module block to a local source without a version,
   and validates that. Use it for local validation too.
 - **Required checks on `main`** are exactly `lab-validate`, `dapr-101-result`, `dapr-secrets-result`,
-  `dapr-pubsub-result` and `dapr-bindings-result` (the aggregate jobs of `test-dapr-101.yml`,
-  `test-dapr-secrets.yml`, `test-dapr-pubsub.yml` and `test-dapr-bindings.yml`), set in the
-  "No direct push to main" ruleset. Do not require the individual matrix legs.
+  `dapr-pubsub-result`, `dapr-bindings-result` and `dapr-workflow-101-result` (the aggregate jobs of
+  `test-dapr-101.yml`, `test-dapr-secrets.yml`, `test-dapr-pubsub.yml`, `test-dapr-bindings.yml` and
+  `test-dapr-workflow-101.yml`), set in the "No direct push to main" ruleset. The owner adds
+  `dapr-workflow-101-result` to the ruleset when PR 2 merges. Do not require the individual matrix legs.
 
 ## Track & challenge anatomy
 
@@ -204,7 +205,7 @@ tools/track-tester/
 
 Each runnable challenge has one suite at `<track>/<n>-<slug>/tests/challenge.robot`. A suite
 imports the shared resources/variables by **relative path** back into `tools/track-tester/`,
-and defines one test case per language, tagged `dotnet` / `java` / `python` / `javascript`.
+and defines one test case per language, tagged `dotnet` / `java` / `python` / `javascript` / `typescript`.
 
 Example (`dapr-workflow/3-task-chaining/tests/challenge.robot`, abbreviated):
 
@@ -421,7 +422,7 @@ Details worth knowing when editing CI:
   `scripts/start-postgres.sh`, the function the sandbox runs at boot, because challenges 2 to 4
   need it. The challenge 2 suite reads the page's restart Run block from the assignment and runs it,
   also while the demo runs. Pins come from `modules/dapr-sandbox/versions.hcl` and
-  `dapr-bindings/versions.hcl`; `dapr-bindings` pins module `3.1.0`.
+  `dapr-bindings/versions.hcl`; every lab pins module `3.2.0` (pre-pulls runtime 1.19.2).
 - The dapr-workflow-101 workflow has the same shape (`changes` gate, `shared` leg, aggregate
   `dapr-workflow-101-result`) plus a `typescript` leg with a Set up Node step (`node_major` from
   `modules/dapr-sandbox/versions.hcl`) that runs `npm ci` in every TypeScript demo before the timed

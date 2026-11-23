@@ -19,15 +19,15 @@ variable "tracks_src_ref" {
 # Dev Dashboard, dapr init) runs first. The lab script is start-postgres.sh (defines
 # start_postgres) followed by lab-setup.sh (starts the pre-build, then calls it); the module
 # inlines it into the VM startup script because the lab's files are not on the VM.
-# 3.1.0 adds the postgres:18.7 image and the bindings package caches to the image; this lab is
-# the only one that needs it.
+# 3.1.0 added the postgres:18.7 image and the bindings package caches (only this lab needs them);
+# 3.2.0 pre-pulls Dapr runtime 1.19.2 and must be published in Instruqt before this merges.
 # Publish the module version in Instruqt (Building blocks > Modules > Publish version) BEFORE
 # merging a change to `version` here. Every push syncs the lab and resolves this exact version; a
 # push that pins a not-yet-published version leaves the lab on "failed to read hcl files: ...
 # version X of diagrid/dapr-sandbox is not published: not found" until the next push.
 module "sandbox" {
   source  = "diagrid/dapr-sandbox"
-  version = "3.1.0"
+  version = "3.2.0"
 
   variables = {
     dapr_runtime_version = variable.dapr_runtime_version

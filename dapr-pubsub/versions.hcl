@@ -18,13 +18,14 @@ variable "tracks_src_ref" {
 # The module's shared setup (sandbox-setup.sh in the image: Docker/DNS wait, demo clone, Editor,
 # Dev Dashboard, dapr init) runs first. The lab script is lab-setup.sh (starts the pre-build); the
 # module inlines it into the VM startup script because the lab's files are not on the VM.
+# 3.2.0 pre-pulls Dapr runtime 1.19.2 and must be published in Instruqt before this merges.
 # Publish the module version in Instruqt (Building blocks > Modules > Publish version) BEFORE
 # merging a change to `version` here. Every push syncs the lab and resolves this exact version; a
 # push that pins a not-yet-published version leaves the lab on "failed to read hcl files: ...
 # version X of diagrid/dapr-sandbox is not published: not found" until the next push.
 module "sandbox" {
   source  = "diagrid/dapr-sandbox"
-  version = "3.0.0"
+  version = "3.2.0"
 
   variables = {
     dapr_runtime_version = variable.dapr_runtime_version

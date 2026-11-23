@@ -20,7 +20,7 @@ variable "tracks_src_ref" {
 # in the background); the module inlines it into the VM startup script because the lab's files
 # are not on the VM. The demos need no service of their own: workflow state lives in the Redis
 # container that `dapr init` starts.
-# 3.2.0 pre-pulls the Dapr 1.19.2 images (prewarm_dapr_runtime_version) into the image.
+# 3.2.0 pre-pulls Dapr runtime 1.19.2 and must be published in Instruqt before this merges.
 # Publish the module version in Instruqt (Building blocks > Modules > Publish version) BEFORE
 # merging a change to `version` here. Every push syncs the lab and resolves this exact version; a
 # push that pins a not-yet-published version leaves the lab on "failed to read hcl files: ...

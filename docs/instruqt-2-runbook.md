@@ -616,7 +616,7 @@ merged, module 2.0.0 published and `dapr-secrets` live and verified on it.
 The `dapr-bindings` lab needs two things the `3.0.0` image lacks: the `postgres:18.7` image and warm
 package caches for the bindings demos (`modules/dapr-sandbox/scripts/prewarm.sh`). That is a new image
 and module version `3.1.0`, with no change to the module's inputs. Only `dapr-bindings/versions.hcl`
-pins `3.1.0`; the other labs stay on `3.0.0` until a separate bump. Postgres itself is started at
+pinned `3.1.0` when it was added; all labs now pin `3.2.0` (see "Module 3.2.0" below). Postgres itself is started at
 boot by the lab's `scripts/start-postgres.sh` (inlined before `scripts/lab-setup.sh` through
 `lab_startup_script`), and CI starts it with the same function in `ci/setup-dapr-bindings.sh`.
 
@@ -665,6 +665,14 @@ the next push to `main` that changes a file under `dapr-bindings/`.
 8. **Publish to Dapr University.** Add the track with the text of
    `dapr-bindings/website-description.md`. There is no badge yet: when one exists, add the badge
    lines to `main.hcl` and the final page the way `dapr-pubsub` has them.
+
+---
+
+## Module 3.2.0 / all labs
+
+Module `3.2.0` pre-pulls Dapr runtime 1.19.2 (`prewarm_dapr_runtime_version`) and is pinned by every
+2.0 lab, including `dapr-workflow-101`. It needs the image from `modules/dapr-sandbox/scripts/image.sh`
+(see "Toolchain bump") and must be published in Instruqt before the PR that pins it merges.
 
 ---
 
