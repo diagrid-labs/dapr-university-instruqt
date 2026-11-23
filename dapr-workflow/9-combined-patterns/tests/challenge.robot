@@ -17,7 +17,7 @@ DotNet Combined Patterns
     [Teardown]    Stop Process With SIGINT    app
     Run And Expect RC Zero    dotnet build ShippingApp    ${WF_BASE}/csharp/combined-patterns
     Run And Expect RC Zero    dotnet build WorkflowApp    ${WF_BASE}/csharp/combined-patterns
-    Start Workflow App    dapr run -f .    ${WF_BASE}/csharp/combined-patterns    ${LOG}    http://localhost:5260/
+    Start Workflow App    exec dapr run -f .    ${WF_BASE}/csharp/combined-patterns    ${LOG}    http://localhost:5260/
     # Wait until the shipping app (:5261) is ready too. The workflow's first
     # activity (CheckShippingDestination) service-invokes the shipping app, so
     # POSTing /start before it is up returns 500 and the workflow fails immediately.
@@ -47,7 +47,7 @@ Python Combined Patterns
     Run And Expect RC Zero    python3 -m venv venv    ${WF_BASE}/python/combined-patterns
     Run And Expect RC Zero    bash -c 'source ../venv/bin/activate && pip3 install -r requirements.txt'    ${WF_BASE}/python/combined-patterns/workflow_app
     Run And Expect RC Zero    bash -c 'source ../venv/bin/activate && pip3 install -r requirements.txt'    ${WF_BASE}/python/combined-patterns/shipping_app
-    Start Workflow App    bash -c 'source venv/bin/activate && dapr run -f .'    ${WF_BASE}/python/combined-patterns    ${LOG}    http://localhost:5260/
+    Start Workflow App    exec bash -c 'source venv/bin/activate && exec dapr run -f .'    ${WF_BASE}/python/combined-patterns    ${LOG}    http://localhost:5260/
     # Wait until the shipping app (:5261) is ready too. The workflow's first
     # activity (CheckShippingDestination) service-invokes the shipping app, so
     # POSTing /start before it is up returns 500 and the workflow fails immediately.

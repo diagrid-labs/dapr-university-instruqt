@@ -109,10 +109,8 @@ Clean Up And Stop
     Terminate Running Jumps
     Run Process    dapr workflow purge jump-001 -a engineering    shell=True
     Run Process    dapr workflow purge jump-002 -a engineering    shell=True
-    # A test that failed after the first stop and before the restart has no app left to stop;
-    # signalling it would fail with ProcessLookupError.
-    ${running}=    Run Keyword And Return Status    Process Should Be Running    app
-    IF    ${running}    Stop Process With SIGINT    app
+    # A test that failed after the first stop and before the restart has no app left to stop.
+    Stop Process With SIGINT If Running    app
 
 Terminate Running Jumps
     # Terminate every jump that is still running, so a test that failed half-way doesn't leave one

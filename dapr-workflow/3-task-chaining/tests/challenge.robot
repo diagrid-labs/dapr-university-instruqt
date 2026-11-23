@@ -17,7 +17,7 @@ DotNet Task Chaining
     [Tags]    dotnet
     [Teardown]    Stop Process With SIGINT    app
     Run And Expect RC Zero    dotnet build TaskChaining    ${WF_BASE}/csharp/task-chaining
-    Start Workflow App    dapr run -f .    ${WF_BASE}/csharp/task-chaining    ${LOG}    http://localhost:5255/
+    Start Workflow App    exec dapr run -f .    ${WF_BASE}/csharp/task-chaining    ${LOG}    http://localhost:5255/
     ${id}=    Capture Command Output
     ...    curl -s --request POST --url http://localhost:5255/start -i | grep -i "^location:" | sed 's/^location: *//i' | tr -d '\\r\\n'
     Wait Until Workflow Completed    http://localhost:3555/v1.0/workflows/dapr/${id}    ${OUTPUT}
@@ -34,7 +34,7 @@ Python Task Chaining
     [Teardown]    Stop Process With SIGINT    app
     Run And Expect RC Zero    python3 -m venv venv    ${WF_BASE}/python/task-chaining/task_chaining
     Run And Expect RC Zero    bash -c 'source venv/bin/activate && pip3 install -r requirements.txt'    ${WF_BASE}/python/task-chaining/task_chaining
-    Start Workflow App    bash -c 'source task_chaining/venv/bin/activate && dapr run -f .'    ${WF_BASE}/python/task-chaining    ${LOG}    http://localhost:5255/
+    Start Workflow App    exec bash -c 'source task_chaining/venv/bin/activate && exec dapr run -f .'    ${WF_BASE}/python/task-chaining    ${LOG}    http://localhost:5255/
     ${id}=    Capture Command Output
     ...    curl -s --request POST --url http://localhost:5255/start -i | grep -o '"instance_id":"[^"]*"' | sed 's/"instance_id":"//;s/"//g' | tr -d '\\r\\n'
     Wait Until Workflow Completed    http://localhost:3555/v1.0/workflows/dapr/${id}    ${OUTPUT}

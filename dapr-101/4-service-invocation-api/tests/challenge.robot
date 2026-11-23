@@ -28,7 +28,7 @@ DotNet Service Invocation
     # pre-build, so build here to report a build error as such.
     Run And Expect RC Zero    dotnet build checkout    ${dir}
     Run And Expect RC Zero    dotnet build order-processor    ${dir}
-    Run Apps And Assert Markers    dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
+    Run Apps And Assert Markers    exec dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
 
 Python Service Invocation
     [Tags]    python
@@ -38,7 +38,7 @@ Python Service Invocation
     # The page has no install step: the sandbox pre-installs and `uv run` syncs. CI has no
     # pre-install, so sync here to report an install error as such.
     Run And Expect RC Zero    uv sync --all-packages    ${dir}
-    Run Apps And Assert Markers    uv run dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
+    Run Apps And Assert Markers    exec uv run dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
 
 Java Service Invocation
     [Tags]    java
@@ -47,7 +47,7 @@ Java Service Invocation
     ${dir}=    Set Variable    ${DAPR101_BASE}/java/${SVC_DEMO}[java]
     Run And Expect RC Zero    mvn -q -DskipTests install    ${dir}/order-processor
     Run And Expect RC Zero    mvn -q -DskipTests install    ${dir}/checkout
-    Run Apps And Assert Markers    dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}    timeout=300s
+    Run Apps And Assert Markers    exec dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}    timeout=300s
 
 JavaScript Service Invocation
     [Tags]    javascript
@@ -56,7 +56,7 @@ JavaScript Service Invocation
     ${dir}=    Set Variable    ${DAPR101_BASE}/javascript/${SVC_DEMO}[javascript]
     Run And Expect RC Zero    npm install    ${dir}/order-processor
     Run And Expect RC Zero    npm install    ${dir}/checkout
-    Run Apps And Assert Markers    dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
+    Run Apps And Assert Markers    exec dapr run -f .    ${dir}    ${LOG}    ${SVC_MARKERS}
 
 *** Keywords ***
 Port Should Be Free

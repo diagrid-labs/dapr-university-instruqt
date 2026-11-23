@@ -35,21 +35,21 @@ The Binding Table Has The Schema From init.sql
 DotNet Reading Is Saved Through Both APIs
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    dotnet build    ${BINDINGS_BASE}/dotnet/${DEMO3}[dotnet]/${ENGINEERING}[dotnet]
     Walk Through State Vs Binding    dotnet
 
 Python Reading Is Saved Through Both APIs
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    uv sync    ${BINDINGS_BASE}/python/${DEMO3}[python]/${ENGINEERING}[python]
     Walk Through State Vs Binding    python
 
 Java Reading Is Saved Through Both APIs
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    mvn -q -DskipTests package    ${BINDINGS_BASE}/java/${DEMO3}[java]/${ENGINEERING}[java]
     Walk Through State Vs Binding    java    timeout=300s
 
@@ -72,7 +72,7 @@ Walk Through State Vs Binding
     ${demo_dir}=    Set Variable    ${BINDINGS_BASE}/${lang}/${DEMO3}[${lang}]
 
     # 2. Run the demo. Wait for both writes of wc-0001 by this run.
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    http://localhost:5201/    ${timeout}
     Wait Until Log Contains    ${LOG}    engineering saved reading wc-0001 to statestore (key=reading-wc-0001)    ${timeout}
     Wait Until Log Contains    ${LOG}    engineering stored reading wc-0001 in warp_core_readings    60s
@@ -106,7 +106,7 @@ Walk Through State Vs Binding
     # still holds the first run's wc-0001; the new run must overwrite it with its own reading.
     Stop Process With SIGINT    app
     Wait For The Ports To Be Free
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    http://localhost:5201/    ${timeout}
     Wait Until Log Contains    ${LOG}    engineering saved reading wc-0001 to statestore (key=reading-wc-0001)    ${timeout}
     ${scan}=    Grep File    ${LOG}    engineering warp-core scan wc-0001

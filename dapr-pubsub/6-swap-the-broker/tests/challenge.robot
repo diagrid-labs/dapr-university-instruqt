@@ -37,7 +37,7 @@ RabbitMQ Block Is Safe To Run Twice
 DotNet Demo 6 Runs Demo 5 On RabbitMQ
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Run Keywords    Stop Process With SIGINT    app
+    [Teardown]    Run Keywords    Stop Process With SIGINT If Running    app
     ...    AND    Run Keyword If Test Failed    Log File    ${LOG}
     Run And Expect RC Zero    dotnet build    ${PUBSUB_BASE}/dotnet/${DEMO5}[dotnet]/${ORDER_API}[dotnet]
     Run And Expect RC Zero    dotnet build    ${PUBSUB_BASE}/dotnet/${DEMO5}[dotnet]/${SHIPPING}[dotnet]
@@ -46,7 +46,7 @@ DotNet Demo 6 Runs Demo 5 On RabbitMQ
 Python Demo 6 Runs Demo 5 On RabbitMQ
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Run Keywords    Stop Process With SIGINT    app
+    [Teardown]    Run Keywords    Stop Process With SIGINT If Running    app
     ...    AND    Run Keyword If Test Failed    Log File    ${LOG}
     Run And Expect RC Zero    uv sync    ${PUBSUB_BASE}/python/${DEMO5}[python]/${ORDER_API}[python]
     Run And Expect RC Zero    uv sync    ${PUBSUB_BASE}/python/${DEMO5}[python]/${SHIPPING}[python]
@@ -55,7 +55,7 @@ Python Demo 6 Runs Demo 5 On RabbitMQ
 Java Demo 6 Runs Demo 5 On RabbitMQ
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Run Keywords    Stop Process With SIGINT    app
+    [Teardown]    Run Keywords    Stop Process With SIGINT If Running    app
     ...    AND    Run Keyword If Test Failed    Log File    ${LOG}
     Run And Expect RC Zero    mvn -q -DskipTests package    ${PUBSUB_BASE}/java/${DEMO5}[java]/${ORDER_API}[java]
     Run And Expect RC Zero    mvn -q -DskipTests package    ${PUBSUB_BASE}/java/${DEMO5}[java]/${SHIPPING}[java]
@@ -91,7 +91,7 @@ Walk Through Swap
     # 1. RabbitMQ runs (started by the second test, restarted here so this test stands alone).
     Start RabbitMQ From The Assignment
     # 3. Demo 6 starts. Shipping's sidecar lists the express route once it has loaded the YAML.
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    http://localhost:5101/    ${timeout}
     Wait Until App Responds    http://localhost:5102/    ${timeout}
     Wait Until Command Output Contains    curl -s http://localhost:3511/v1.0/metadata    /orders/express    ${timeout}

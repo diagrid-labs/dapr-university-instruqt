@@ -26,6 +26,10 @@ Start Background Process
     Create File    ${logfile}    ${EMPTY}
     # Launch without blocking. shell=True runs via the shell; alias lets callers refer
     # to this process by name later; stderr=STDOUT merges both streams into the logfile.
+    # Start `dapr run` as `exec dapr run …` (and a wrapper as `exec bash -c '… && exec dapr run …'`)
+    # so the shell becomes the CLI. Linux's /bin/sh (dash) forks a plain command instead, `dapr run`
+    # then moves itself into a new process group, and the SIGINT from Stop Process With SIGINT
+    # never reaches it (see that keyword).
     ${handle}=    Start Process    ${command}    shell=True    alias=${alias}
     ...    cwd=${cwd}    stdout=${logfile}    stderr=STDOUT
     # `RETURN` hands the process handle back to the caller.
@@ -47,11 +51,13 @@ File Should Contain
 Stop Process With SIGINT
     [Arguments]    ${alias}    ${timeout}=15s
     # Referenced by the alias set in Start Background Process.
-    # group=True signals the whole process group (like Ctrl+C), so the dapr CLI
-    # AND its child daprd both receive SIGINT and shut down gracefully. Signaling
-    # only the single PID leaves daprd unsignaled on Linux, so dapr never exits
-    # (it worked on macOS but hung on the Linux CI runner). Robot starts processes
-    # in their own session/group, so this targets only our process, not the runner.
+    # group=True signals the tracked process's whole group (like Ctrl+C). Robot starts
+    # each process in its own session/group, so this targets only our process, not the
+    # runner. For the SIGINT to reach the dapr CLI, the CLI must BE the tracked process:
+    # start it with `exec dapr run …`. Without `exec`, Linux's /bin/sh (dash) forks the
+    # command, `dapr run` calls setpgid(0,0) at startup and moves into a new group, and
+    # the group SIGINT only hits the shell, which ignores it. macOS's /bin/sh (bash)
+    # execs a single command, so there it worked either way.
     Send Signal To Process    SIGINT    ${alias}    group=True
     # Block until the process exits; if it overruns the timeout, do NOT rely on
     # Robot's built-in on_timeout=kill, since that only force-kills the single
@@ -61,23 +67,27 @@ Stop Process With SIGINT
     # killing, and if it's still not done, force-kill the whole tree.
     ${result}=    Wait For Process    ${alias}    timeout=${timeout}    on_timeout=continue
     IF    $result is None
-        # SIGINT didn't stop the tree in time. `Send Signal To Process ... group=True`
-        # is NOT enough here: `dapr run -f .` (and even the app process it launches)
-        # each detach themselves into a NEW process group at startup, independent of
-        # the tracked alias's own group - confirmed empirically (macOS): when the
-        # tracked alias is itself a `bash -c '... && dapr run -f .'` wrapper (needed
-        # to activate a venv before running dapr), `dapr run`, daprd and the app end
-        # up in one or more process groups the wrapper's own group signal can never
-        # reach, so they survive as orphans (reparented to init) even after a
-        # group-targeted SIGKILL. The only reliable fallback is to walk the real
-        # OS parent/child PID tree (not process groups) from the tracked PID, any
-        # depth, and SIGKILL every descendant directly.
+        # SIGINT didn't stop the tree in time: the safety net. A group signal can't
+        # reach everything here: a `dapr run` that a shell forked (no `exec`) sits in
+        # its own group, and daprd and the app are each started in their own group
+        # too. Left alone they survive as orphans (reparented to init) squatting the
+        # fixed ports, even after a group-targeted SIGKILL. So walk the real OS
+        # parent/child PID tree (not process groups) from the tracked PID, any depth,
+        # and SIGKILL every descendant directly.
         ${pid}=    Get Process Id    ${alias}
         Run Process    bash    -c
         ...    kill_tree() { for c in $(pgrep -P "$1" 2>/dev/null); do kill_tree "$c"; done; kill -9 "$1" 2>/dev/null; }; kill_tree ${pid}
         ${result}=    Wait For Process    ${alias}    timeout=10s    on_timeout=kill
     END
     RETURN    ${result}
+
+Stop Process With SIGINT If Running
+    # For teardowns: stop ${alias} only when it still runs. A test that failed before its start,
+    # or between a stop and a restart, has no running process under the alias; signalling the
+    # already-reaped process would fail with ProcessLookupError and hide the real failure.
+    [Arguments]    ${alias}    ${timeout}=15s
+    ${running}=    Run Keyword And Return Status    Process Should Be Running    ${alias}
+    IF    ${running}    Stop Process With SIGINT    ${alias}    ${timeout}
 
 Run And Expect RC Zero
     # Run a command to completion (blocking) and fail the test unless it exits 0.

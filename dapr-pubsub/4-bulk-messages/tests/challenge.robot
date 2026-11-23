@@ -29,7 +29,7 @@ Ports Are Free Before The Apps Start
 DotNet Shipping Receives Batches And Answers Per Entry
     [Tags]    dotnet
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    dotnet build    ${PUBSUB_BASE}/dotnet/${DEMO4}[dotnet]/${ORDER_API}[dotnet]
     Run And Expect RC Zero    dotnet build    ${PUBSUB_BASE}/dotnet/${DEMO4}[dotnet]/${SHIPPING}[dotnet]
     Walk Through Bulk Messages    dotnet
@@ -37,7 +37,7 @@ DotNet Shipping Receives Batches And Answers Per Entry
 Python Shipping Receives Batches And Answers Per Entry
     [Tags]    python
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    uv sync    ${PUBSUB_BASE}/python/${DEMO4}[python]/${ORDER_API}[python]
     Run And Expect RC Zero    uv sync    ${PUBSUB_BASE}/python/${DEMO4}[python]/${SHIPPING}[python]
     Walk Through Bulk Messages    python
@@ -45,7 +45,7 @@ Python Shipping Receives Batches And Answers Per Entry
 Java Shipping Receives Batches And Answers Per Entry
     [Tags]    java
     [Setup]    Wait For The Ports To Be Free
-    [Teardown]    Stop Process With SIGINT    app
+    [Teardown]    Stop Process With SIGINT If Running    app
     Run And Expect RC Zero    mvn -q -DskipTests package    ${PUBSUB_BASE}/java/${DEMO4}[java]/${ORDER_API}[java]
     Run And Expect RC Zero    mvn -q -DskipTests package    ${PUBSUB_BASE}/java/${DEMO4}[java]/${SHIPPING}[java]
     Walk Through Bulk Messages    java    timeout=300s
@@ -68,7 +68,7 @@ Wait For The Ports To Be Free
 Walk Through Bulk Messages
     [Arguments]    ${lang}    ${timeout}=180s
     ${demo_dir}=    Set Variable    ${PUBSUB_BASE}/${lang}/${DEMO4}[${lang}]
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    http://localhost:5101/    ${timeout}
     Wait Until App Responds    http://localhost:5102/    ${timeout}
     # Shipping's sidecar lists the bulk route once it has loaded the subscription YAML.

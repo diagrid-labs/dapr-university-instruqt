@@ -129,7 +129,7 @@ Clean Up And Stop
     IF    ${purge.rc} != 0
         Log    Clean-up: purge failed (rc=${purge.rc}): ${purge.stdout}    WARN
     END
-    Stop Process With SIGINT    app
+    Stop Process With SIGINT If Running    app
 
 Unfinished Jump IDs
     # `dapr workflow list` can't combine a status filter with `-o ids`, so read the JSON list and
@@ -230,7 +230,7 @@ Walk Through Management
     ${not_found}=    Pretty Json    ${NOT_FOUND}
 
     # 2. Run the demo.
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    exec dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    ${APP_URL}/    ${timeout}
 
     # 3. Start jump-001, wait 8 seconds, pause it, wait 2 seconds and read the status, in one block
