@@ -272,33 +272,27 @@ The `arrivedAt` value is now `Calder Station`.
 
 ## 6. Reuse a jump ID
 
-The `jumpId` you send becomes the workflow's instance ID, and an ID can be used by only one running workflow at a time. Start `jump-003`, and start it again right away, while it is still running:
+The `jumpId` you send becomes the workflow's instance ID, and an ID can be used by only one running workflow at a time. Start `jump-003` and start it again right away, while it is still running. Both commands are in one block, so they run back to back:
 
 ```bash,run
 curl -s -X POST http://localhost:5301/jumps -H 'Content-Type: application/json' -d '{"jumpId": "jump-003"}' | jq
-```
-
-```bash,run
 curl -s -X POST http://localhost:5301/jumps -H 'Content-Type: application/json' -d '{"jumpId": "jump-003"}' | jq
 ```
 
-Expected output of the first command:
+Expected output: the first start is accepted, the second one fails.
 
 ```json,nocopy
 {
   "jumpId": "jump-003"
 }
-```
-
-Expected output of the second command:
-
-```json,nocopy
 {
   "error": "WORKFLOW_ERROR"
 }
 ```
 
 The Dapr sidecar refused the second start. On the **Logs** page, the app logs a line that starts with `engineering workflow call failed:` and ends with the reason: an active workflow with ID `jump-003` already exists.
+
+If you see `jump-003` twice instead, the first jump had already finished when the second start arrived, so the second start was accepted. That is the case below: the jump simply started over. Run the block again right after it to see the error.
 
 Once `jump-003` has completed, the same call works again: the jump starts over, the chain runs again and the old result is replaced. Use a new ID, or leave out `jumpId` and let the app generate one.
 
