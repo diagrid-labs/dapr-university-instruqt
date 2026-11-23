@@ -129,15 +129,7 @@ dapr run -f .
 >
 > Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `engineering` is ready when the **Health** column shows a green dot. You can also inspect the output of the **Dapr CLI** window.
 
-The **Dapr CLI** window should show this line when the sidecar has started, and your application's logs follow:
-
-```text,nocopy
-ℹ️  Started Dapr with app id "engineering". HTTP Port: 3530. gRPC Port: 50330
-```
-
 ## 3. Approve a jump
-
-Open the **Dev Dashboard** tab, go to the **Logs** page, select `engineering` and search for `engineering jump`. The same lines also appear in the **Dapr CLI** window.
 
 Use the **curl** window to start `jump-001`, wait 3 seconds and check the status. The three commands are in one block, so they run back to back:
 
@@ -160,13 +152,13 @@ Expected output:
 }
 ```
 
-The course is plotted, and `engineering` logs that the jump waits for the captain:
+Open the **Dev Dashboard** tab, go to the **Workflows** page and select the `jump-001` instance of `AuthorizedJumpWorkflow`. Its **Event history** shows how far the jump got:
 
-```text,nocopy
-== APP - engineering == engineering jump-001 awaiting captain's authorization
-```
+- An `ExecutionStarted` event.
+- A `TaskScheduled` and a `TaskCompleted` event for `PlotCourseActivity`: the course is plotted.
+- A `TimerCreated` event for the 60-second timeout of the wait.
 
-The jump is `RUNNING`, but nothing runs in the app while it waits: no thread and no timer in memory. Dapr stores the wait, and the workflow only continues when the event arrives or the 60 seconds have passed.
+Nothing comes after that: the workflow waits for the captain. The jump is `RUNNING`, but nothing runs in the app while it waits: no thread and no timer in memory. Dapr stores the wait, and the workflow only continues when the event arrives or the 60 seconds have passed.
 
 Use the **curl** window to approve the jump as the captain, wait 3 seconds and check the status:
 
@@ -196,11 +188,7 @@ If the status is still `RUNNING`, wait a moment and run the status command again
 curl -s http://localhost:5301/jumps/jump-001 | jq
 ```
 
-The event carried the captain's answer into the workflow, which engaged the jump. `engineering` logs:
-
-```text,nocopy
-== APP - engineering == engineering jump complete, arrived at Vesper Reach
-```
+Look at the **Event history** of `jump-001` again. After the `TimerCreated` event there is now an `EventRaised` event named `jump-authorized`. Expand it to see the captain's answer: the body you sent to the authorize endpoint. The event carried that answer into the workflow, which engaged the jump: a `TaskScheduled` and a `TaskCompleted` event for `EngageJumpActivity` follow, and then an `ExecutionCompleted` event with the output.
 
 ## 4. Deny a jump
 
@@ -231,13 +219,7 @@ Expected output:
 }
 ```
 
-The workflow doesn't engage, and `engineering` logs:
-
-```text,nocopy
-== APP - engineering == engineering jump-002 jump denied by Captain Ilsa Varn
-```
-
-The log lines on this page show only the message. In the real log, Python and Java put their own logger prefix in front of it, .NET writes an `info:` line followed by the message on a line of its own, and the TypeScript SDK adds a few lines of its own for every workflow step.
+The workflow doesn't engage. Select the `jump-002` instance on the **Workflows** page: its `EventRaised` event has `"approved": false`, and the `ExecutionCompleted` event follows straight after it. There is no `EngageJumpActivity` in this history.
 
 > [!NOTE]
 > Send the request bodies exactly as shown on this page. The endpoint doesn't check the body, and what happens with a missing or malformed body differs per language.
@@ -258,7 +240,7 @@ Expected output:
 }
 ```
 
-`engineering` logs `engineering jump-003 awaiting captain's authorization`, and the wait ends after 60 seconds. Read the workflow code in the next step while you wait.
+On the **Workflows** page, the history of `jump-003` stops at the `TimerCreated` event, like `jump-001` did before you approved it. The wait ends after 60 seconds. Read the workflow code in the next step while you wait.
 
 ## 6. Look at the workflow code
 
@@ -398,7 +380,7 @@ The wait and its timeout are stored by Dapr, not by the app. If you stopped the 
 
 ## 7. Check the timed-out jump
 
-When `engineering` logs `engineering jump-003 jump aborted, no authorization`, use the **curl** window to check the status. If it's still `RUNNING`, the 60 seconds haven't passed yet. Wait a few seconds and run the command again:
+Select the `jump-003` instance on the **Workflows** page. When the 60 seconds have passed, its **Event history** shows a `TimerFired` event, where the other two jumps had an `EventRaised` event, followed by an `ExecutionCompleted` event. Then use the **curl** window to check the status. If it's still `RUNNING`, the 60 seconds haven't passed yet. Wait a few seconds and run the command again:
 
 ```bash,run
 curl -s http://localhost:5301/jumps/jump-003 | jq
@@ -433,7 +415,7 @@ Expected output:
 409
 ```
 
-The jump has finished, so the app answers `409` and doesn't raise the event. The output of `jump-003` stays as it was.
+The jump has finished, so the app answers `409` and doesn't raise the event. The output of `jump-003` stays as it was, and its history has no `EventRaised` event.
 
 ## 8. Clean up
 

@@ -124,15 +124,7 @@ dapr run -f .
 >
 > Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `engineering` is ready when the **Health** column shows a green dot. You can also inspect the output of the **Dapr CLI** window.
 
-The **Dapr CLI** window should show this line when the sidecar has started, and your application's logs follow:
-
-```text,nocopy
-ℹ️  Started Dapr with app id "engineering". HTTP Port: 3530. gRPC Port: 50330
-```
-
 ## 3. Start a jump
-
-Open the **Dev Dashboard** tab, go to the **Logs** page, select `engineering` and search for `sensor`. The same lines also appear in the **Dapr CLI** window.
 
 Use the **curl** window to start `jump-001`, wait 5 seconds and check the result. The three commands are in one block, so they run back to back:
 
@@ -164,22 +156,16 @@ If the status is still `RUNNING`, wait a moment and run the status command again
 curl -s http://localhost:5301/jumps/jump-001 | jq
 ```
 
-`engineering` logged all five scans at about the same moment, after about two seconds. The order can differ from the one below:
+Open the **Dev Dashboard** tab, go to the **Workflows** page and select the `jump-001` instance of `RouteScanWorkflow`. Look at the times of the events in its **Event history**:
 
-```text,nocopy
-== APP - engineering == engineering sensor array beta scanned hazard=7
-== APP - engineering == engineering sensor array alpha scanned hazard=12
-== APP - engineering == engineering sensor array gamma scanned hazard=31
-== APP - engineering == engineering sensor array epsilon scanned hazard=18
-== APP - engineering == engineering sensor array delta scanned hazard=4
-```
-
-The lines above show only the message. In the real log, Python and Java put their own logger prefix in front of it, and .NET writes an `info:` line followed by the message on a line of its own.
+- Five `TaskScheduled` events for `ScanSectorActivity`, all at about the same moment. Expand one to see which sensor array it scans.
+- Five `TaskCompleted` events, about two seconds later. Expand one to see the hazard score of its array. The order of these events can differ from the order of the `TaskScheduled` events.
+- An `ExecutionCompleted` event with the workflow's output.
 
 Two things to notice:
 
-1. **The whole scan takes about 2 seconds, not 10.** Five scans of 2 seconds in a row would take 10 seconds, but the status was already `COMPLETED` after 5. The runtime runs the five activities in parallel, and the workflow continues as soon as the slowest one is done.
-2. **The log order changes from run to run.** Whichever scan finishes first logs first. The output doesn't change, because the workflow computes it from all five results: the highest score (`gamma`, 31) and the verdict.
+1. **The whole scan takes about 2 seconds, not 10.** All five scans are scheduled before any of them completes. Five scans of 2 seconds in a row would take 10 seconds, but the status was already `COMPLETED` after 5. The runtime runs the five activities in parallel, and the workflow continues as soon as the slowest one is done.
+2. **The order of the `TaskCompleted` events changes from run to run.** Whichever scan finishes first is recorded first. The output doesn't change, because the workflow computes it from all five results: the highest score (`gamma`, 31) and the verdict.
 
 ## 4. Look at the workflow code
 
@@ -282,7 +268,7 @@ Expected output: the same as for `jump-001`, with the new ID.
 }
 ```
 
-Compare the order of the five log lines on the **Logs** page with the first run. They are likely in a different order, and the result is the same.
+Select the `jump-002` instance on the **Workflows** page and compare the order of its five `TaskCompleted` events with the first run. They are likely in a different order, and the result is the same.
 
 ## 6. Clean up
 
