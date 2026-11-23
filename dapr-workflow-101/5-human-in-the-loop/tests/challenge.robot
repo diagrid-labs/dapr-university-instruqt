@@ -93,13 +93,49 @@ Wait For The Ports To Be Free
 
 Clean Up And Stop
     # The page's clean-up, run while the app still runs: terminate every jump that is still
-    # waiting, then purge. The test body already ran it and checked it; this repeat only matters
-    # when the test failed before that point, so its result is ignored.
-    Run Process
-    ...    for id in $(dapr workflow list -a engineering -s RUNNING -o ids); do dapr workflow terminate $id -a engineering; done
-    ...    shell=True
-    Run Process    dapr workflow purge --all -a engineering    shell=True
+    # waiting, then purge. The test body already ran it and checked it; this repeat matters when
+    # the test failed before that point and left a jump waiting in the shared Redis. A failure here
+    # doesn't fail the teardown, but it is logged as a warning so it shows in the report.
+    Terminate Running Jumps
+    ${purge}=    Run Process    dapr workflow purge --all -a engineering    shell=True    stderr=STDOUT
+    IF    ${purge.rc} != 0
+        Log    Clean-up: purge failed (rc=${purge.rc}): ${purge.stdout}    WARN
+    END
     Stop Process With SIGINT    app
+
+Terminate Running Jumps
+    # `dapr workflow list` can't combine a status filter with `-o ids`, so read the JSON list and
+    # pick the jumps whose runtimeStatus is RUNNING or SUSPENDED. With no workflows at all, the CLI
+    # prints a "No workflow found" message instead of JSON, and there is nothing to terminate.
+    ${list}=    Run Process    dapr workflow list -a engineering -o json    shell=True    stderr=STDOUT
+    IF    ${list.rc} != 0
+        Log    Clean-up: dapr workflow list failed (rc=${list.rc}): ${list.stdout}    WARN
+        RETURN
+    END
+    IF    not $list.stdout.strip().startswith('[')
+        Log    Clean-up: no workflows to terminate: ${list.stdout}
+        RETURN
+    END
+    ${ids}=    Evaluate
+    ...    [w['instanceID'] for w in json.loads($list.stdout) if w['runtimeStatus'] in ('RUNNING', 'SUSPENDED')]
+    ...    modules=json
+    FOR    ${id}    IN    @{ids}
+        ${r}=    Run Process    dapr workflow terminate ${id} -a engineering    shell=True    stderr=STDOUT
+        IF    ${r.rc} != 0
+            Log    Clean-up: terminate ${id} failed (rc=${r.rc}): ${r.stdout}    WARN
+        ELSE
+            Log    Clean-up: terminated ${id}
+        END
+    END
+    # Terminate is asynchronous and purge only removes finished jumps, so wait until none runs.
+    IF    ${ids}
+        Run Keyword And Warn On Failure
+        ...    Wait Until Keyword Succeeds    20s    2s    No Jump Should Be Running
+    END
+
+No Jump Should Be Running
+    ${list}=    Run Process    dapr workflow list -a engineering -s RUNNING    shell=True    stderr=STDOUT
+    Should Not Contain    ${list.stdout}    AuthorizedJumpWorkflow
 
 Walk Through Human In The Loop
     [Arguments]    ${lang}    ${timeout}=180s
