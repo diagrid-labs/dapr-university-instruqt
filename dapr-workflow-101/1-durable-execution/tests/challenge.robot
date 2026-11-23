@@ -19,6 +19,15 @@ Suite Teardown    Terminate All Processes    kill=True
 *** Variables ***
 ${LOG}              ${TEMPDIR}/dapr-workflow-101-ch1.log
 ${RESTART_LOG}      ${TEMPDIR}/dapr-workflow-101-ch1-restart.log
+# `exec` makes the shell that Robot starts become `dapr run` itself, as the learner's terminal runs
+# it in the foreground process group that Ctrl+C reaches. Without it, Linux's /bin/sh (dash) forks
+# `dapr run` as a child, `dapr run -f` moves itself into a new process group at startup, and the
+# SIGINT that `Stop Process With SIGINT` sends to the shell's group never reaches it: the app keeps
+# running until the tree-kill fallback 15 s later and finishes stages 3 to 5 before the "crash".
+# macOS's /bin/sh (bash) already execs a single command, which is why this only failed in CI.
+${DAPR_RUN}         exec dapr run -f .
+# What the dapr CLI prints when it gets the SIGINT, i.e. the learner's Ctrl+C path.
+${STOPPING}         Received signal to stop Dapr and app processes
 # The workflow's replay-safe log line (ChargeWarpCoreWorkflow in every language).
 ${STARTED}          engineering jump-001 charge sequence started
 # The page's expected outputs, as compact JSON; jq prints them formatted.
@@ -100,7 +109,10 @@ Clean Up And Stop
     Terminate Running Jumps
     Run Process    dapr workflow purge jump-001 -a engineering    shell=True
     Run Process    dapr workflow purge jump-002 -a engineering    shell=True
-    Stop Process With SIGINT    app
+    # A test that failed after the first stop and before the restart has no app left to stop;
+    # signalling it would fail with ProcessLookupError.
+    ${running}=    Run Keyword And Return Status    Process Should Be Running    app
+    IF    ${running}    Stop Process With SIGINT    app
 
 Terminate Running Jumps
     # Terminate every jump that is still running, so a test that failed half-way doesn't leave one
@@ -130,7 +142,7 @@ Walk Through Durable Execution
     ${demo_dir}=    Set Variable    ${WF101_BASE}/${DEMO1}[${lang}]
 
     # 3. Run the demo.
-    Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
+    Start Background Process    ${DAPR_RUN}    ${LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    ${APP_URL}/    ${timeout}
 
     # 4. Start jump-001 and crash the ship right after stage 2. The log is polled quickly so the
@@ -146,13 +158,16 @@ Walk Through Durable Execution
     ...    File Should Contain    ${LOG}    engineering charge stage 2/5 complete for jump-001
     Sleep    1s
     Stop Process With SIGINT    app
+    # The dapr CLI got the SIGINT and stopped the app itself, as on a Ctrl+C, rather than the
+    # keyword's tree-kill fallback stopping it after its 15 s timeout.
+    File Should Contain    ${LOG}    ${STOPPING}
     Count In File Should Be    ${LOG}    engineering charge stage 1/5 complete for jump-001    1
     Count In File Should Be    ${LOG}    engineering charge stage 4/5 complete for jump-001    0
     Count In File Should Be    ${LOG}    engineering charge stage 5/5 complete for jump-001    0
     Wait For The Ports To Be Free
 
     # 5. Start the demo again, with no new curl: the workflow carries on by itself.
-    Start Background Process    dapr run -f .    ${RESTART_LOG}    app    cwd=${demo_dir}
+    Start Background Process    ${DAPR_RUN}    ${RESTART_LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    ${APP_URL}/    ${timeout}
     Wait Until Log Contains    ${RESTART_LOG}    engineering charge stage 5/5 complete for jump-001    120s
     File Should Contain    ${RESTART_LOG}    engineering charge stage 3/5 complete for jump-001
