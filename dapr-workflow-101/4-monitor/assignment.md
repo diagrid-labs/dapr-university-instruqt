@@ -196,7 +196,7 @@ Two things to notice:
 
 ## 4. Look at the workflow code
 
-The workflow has three parts to look at: the check, the durable timer and the continue-as-new call. Expand the language-specific instructions to see them.
+The workflow has four parts to look at: the check, the guard, the durable timer and the continue-as-new call. Expand the language-specific instructions to see them.
 
 <details>
    <summary><b>.NET</b></summary>
@@ -211,6 +211,12 @@ if (coreTempK <= 1000)
     return new CoreStability(true, jump.Check, coreTempK);
 }
 
+// The guard every monitor needs: give up after 10 checks.
+if (jump.Check == 10)
+{
+    return new CoreStability(false, jump.Check, coreTempK);
+}
+
 // A durable timer is stored by Dapr, not held in memory. Stop the app during the wait and
 // the timer keeps running; the workflow continues when the app is back.
 await context.CreateTimer(TimeSpan.FromSeconds(5));
@@ -218,6 +224,7 @@ await context.CreateTimer(TimeSpan.FromSeconds(5));
 // Continue-as-new restarts the workflow with new input and an empty history. A loop inside
 // one run would grow the history with every check.
 context.ContinueAsNew(new Jump(jump.JumpId, jump.Check + 1));
+return null;
 ```
 
 </details>
@@ -232,6 +239,10 @@ core_temp_k = yield ctx.call_activity(read_core_temp_activity, input=check)
 
 if core_temp_k <= 1000:
     return {"stable": True, "checks": check, "coreTempK": core_temp_k}
+
+# The guard every monitor needs: give up after 10 checks.
+if check == 10:
+    return {"stable": False, "checks": check, "coreTempK": core_temp_k}
 
 # A durable timer is stored by Dapr, not held in memory. Stop the app during the wait and
 # the timer keeps running; the workflow continues when the app is back.
@@ -257,6 +268,12 @@ if (coreTempK <= 1000) {
     return;
 }
 
+// The guard every monitor needs: give up after 10 checks.
+if (check == 10) {
+    ctx.complete(new CoreStability(false, check, coreTempK));
+    return;
+}
+
 // A durable timer is stored by Dapr, not held in memory. Stop the app during the wait
 // and the timer keeps running; the workflow continues when the app is back.
 ctx.createTimer(Duration.ofSeconds(5)).await();
@@ -279,6 +296,12 @@ const coreTempK: number = yield ctx.callActivity("ReadCoreTempActivity", check);
 if (coreTempK <= 1000) {
   const stable: CoreStability = { stable: true, checks: check, coreTempK };
   return stable;
+}
+
+// The guard every monitor needs: give up after 10 checks.
+if (check === 10) {
+  const unstable: CoreStability = { stable: false, checks: check, coreTempK };
+  return unstable;
 }
 
 // A durable timer is stored by Dapr, not held in memory. Stop the app during the wait and
