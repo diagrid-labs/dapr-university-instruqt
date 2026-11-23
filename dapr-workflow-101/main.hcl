@@ -15,6 +15,10 @@ resource "lab" "main" {
 
     The sandbox is available for 45 minutes in total, and you can extend that time by 10 minutes. If you are inactive for 10 minutes, the sandbox times out. After a timeout, you need to restart the track.
 
+    Complete the track to collect the Dapr University Dapr Workflow badge.
+
+    <img src="https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow-101/6-management/images/Diagrid-Dapr-Uni-badge-workflow_x300.png?raw=true" alt="Dapr University Dapr Workflow badge" width="192" height="192">
+
     Enjoy some cellular automata art while the sandbox is being prepared.
 
     <iframe src="https://www.diagrid.io/demos/sketches/dapr-university.html" width="500" height="500"></iframe>
