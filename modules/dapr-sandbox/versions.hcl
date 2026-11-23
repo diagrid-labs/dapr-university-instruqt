@@ -39,7 +39,7 @@ variable "dev_dashboard_version" {
 
 variable "prewarm_dapr_runtime_version" {
   description = "Dapr runtime version whose container images are pre-pulled into the image. Must match the lab's dapr_runtime_version for the pre-pull to help."
-  default     = "1.19.1"
+  default     = "1.19.2"
 }
 
 variable "jq_version" {
