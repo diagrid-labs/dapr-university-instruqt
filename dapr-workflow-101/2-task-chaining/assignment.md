@@ -293,6 +293,9 @@ The workflow history stays in Redis after the app stops, and every demo in this 
 dapr workflow purge --all -a engineering
 ```
 
+> [!TIP]
+> You can also purge workflows from the Dapr Dev Dashboard instead of the CLI. On the **Workflows** page of the **Dev Dashboard** tab, select the checkbox of each run you want to remove and click **Purge via Dapr API**. Like the CLI, the dashboard purges through the app's sidecar, so do this before you stop the app.
+
 ## 8. Stop the applications
 
 Use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
