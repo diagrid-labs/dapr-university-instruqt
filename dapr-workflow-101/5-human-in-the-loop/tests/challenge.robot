@@ -34,6 +34,7 @@ ${JUMPED_1}         {"jumpId":"jump-001","status":"COMPLETED","output":{"status"
 ${DENIED_2}         {"jumpId":"jump-002","status":"COMPLETED","output":{"status":"DENIED","authorizedBy":"Captain Ilsa Varn"}}
 ${ABORTED_3}        {"jumpId":"jump-003","status":"COMPLETED","output":{"status":"ABORTED_NO_AUTHORIZATION"}}
 ${FINISHED}         {"error":"JUMP_FINISHED"}
+${STATUS_1}         curl -s http://localhost:5301/jumps/jump-001 | jq
 ${STATUS_3}         curl -s http://localhost:5301/jumps/jump-003 | jq
 ${APPROVE_1}        curl -s -w ' \%{http_code}\\n' -X POST http://localhost:5301/jumps/jump-001/authorize -H 'Content-Type: application/json' -d '{"approved": true, "officer": "Captain Ilsa Varn"}' | jq
 ${DENY_2}           curl -s -w ' \%{http_code}\\n' -X POST http://localhost:5301/jumps/jump-002/authorize -H 'Content-Type: application/json' -d '{"approved": false, "officer": "Captain Ilsa Varn"}' | jq
@@ -154,10 +155,13 @@ Walk Through Human In The Loop
     Should Be Equal    ${out}    ${started}\n${waiting}
     Wait Until Log Contains    ${LOG}    engineering jump-001 awaiting captain's authorization    10s
 
-    # 4. Approve jump-001, wait 3 seconds and read the status, in one block as on the page.
-    ${out}=    Capture Command Output    ${APPROVE_1}; sleep 3; curl -s http://localhost:5301/jumps/jump-001 | jq
+    # 4. Approve jump-001, wait 3 seconds and read the status, in one block as on the page. On a
+    # slow run the status can still be the waiting one; the page then has the learner run the
+    # status command again, which the polled wait does here.
+    ${out}=    Capture Command Output    ${APPROVE_1}; sleep 3; ${STATUS_1}
     ${jumped}=    Pretty Json    ${JUMPED_1}
-    Should Be Equal    ${out}    202\n${jumped}
+    Block Should Show New Or Old Status    ${out}    202\n    ${jumped}    ${waiting}
+    Wait Until Keyword Succeeds    20s    2s    Status Should Be    ${STATUS_1}    ${jumped}
     Wait Until Log Contains    ${LOG}    engineering jump complete, arrived at Vesper Reach    10s
 
     # 5. Start jump-002, deny it and read the status, in one block as on the page.
@@ -218,6 +222,14 @@ Status Should Be
     [Arguments]    ${command}    ${expected}
     ${out}=    Capture Command Output    ${command}
     Should Be Equal    ${out}    ${expected}
+
+Block Should Show New Or Old Status
+    # A block that ends with a status read after an asynchronous call: the head of the output is
+    # fixed, the status at the end is the new one or, on a slow run, still the old one.
+    [Arguments]    ${out}    ${head}    ${new}    ${old}
+    Should Start With    ${out}    ${head}
+    ${status}=    Get Substring    ${out}    ${{len($head)}}
+    Should Be True    $status in ($new, $old)    msg=Unexpected status at the end of the block:\n${status}
 
 Count In File Should Be
     [Arguments]    ${file}    ${text}    ${expected}

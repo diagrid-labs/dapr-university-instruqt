@@ -190,6 +190,12 @@ Expected output, with the HTTP status code of the authorize call on the first li
 }
 ```
 
+If the status is still `RUNNING`, wait a moment and run the status command again:
+
+```bash,run
+curl -s http://localhost:5301/jumps/jump-001 | jq
+```
+
 The event carried the captain's answer into the workflow, which engaged the jump. `engineering` logs:
 
 ```text,nocopy
