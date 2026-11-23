@@ -134,11 +134,11 @@ The **Dapr CLI** window should show this line when the sidecar has started, and 
 
 Open the **Dev Dashboard** tab, go to the **Logs** page, select `engineering` and search for `sensor`. The same lines also appear in the **Dapr CLI** window.
 
-Use the **curl** window to start `jump-001`, wait 4 seconds and check the result. The three commands are in one block, so they run back to back:
+Use the **curl** window to start `jump-001`, wait 5 seconds and check the result. The three commands are in one block, so they run back to back:
 
 ```bash,run
 curl -s -X POST http://localhost:5301/jumps -H 'Content-Type: application/json' -d '{"jumpId": "jump-001"}' | jq
-sleep 4
+sleep 5
 curl -s http://localhost:5301/jumps/jump-001 | jq
 ```
 
@@ -158,6 +158,12 @@ Expected output:
 }
 ```
 
+If the status is still `RUNNING`, wait a moment and run the status command again:
+
+```bash,run
+curl -s http://localhost:5301/jumps/jump-001 | jq
+```
+
 `engineering` logged all five scans at about the same moment, after about two seconds. The order can differ from the one below:
 
 ```text,nocopy
@@ -172,7 +178,7 @@ The lines above show only the message. In the real log, Python and Java put thei
 
 Two things to notice:
 
-1. **The whole scan takes about 2 seconds, not 10.** Five scans of 2 seconds in a row would take 10 seconds, but the status was already `COMPLETED` after 4. The runtime runs the five activities in parallel, and the workflow continues as soon as the slowest one is done.
+1. **The whole scan takes about 2 seconds, not 10.** Five scans of 2 seconds in a row would take 10 seconds, but the status was already `COMPLETED` after 5. The runtime runs the five activities in parallel, and the workflow continues as soon as the slowest one is done.
 2. **The log order changes from run to run.** Whichever scan finishes first logs first. The output doesn't change, because the workflow computes it from all five results: the highest score (`gamma`, 31) and the verdict.
 
 ## 4. Look at the workflow code
@@ -252,11 +258,11 @@ The results keep the order in which the scans were scheduled, not the order in w
 
 ## 5. Start a second jump
 
-Use the **curl** window to start `jump-002` and check it after 4 seconds:
+Use the **curl** window to start `jump-002` and check it after 5 seconds:
 
 ```bash,run
 curl -s -X POST http://localhost:5301/jumps -H 'Content-Type: application/json' -d '{"jumpId": "jump-002"}' | jq
-sleep 4
+sleep 5
 curl -s http://localhost:5301/jumps/jump-002 | jq
 ```
 

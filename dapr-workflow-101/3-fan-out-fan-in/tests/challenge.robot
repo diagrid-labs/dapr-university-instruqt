@@ -8,8 +8,8 @@ Documentation     Drift test for dapr-workflow-101 page 3: demo 3 runs `engineer
 ...
 ...               The scans finish in a different order from run to run, so the suite asserts that all
 ...               five lines are logged and never their order. The page's start-sleep-status block
-...               checks the jump after 4 seconds: five scans in a row take 10, so a COMPLETED
-...               status after 4 shows they ran in parallel.
+...               checks the jump after 5 seconds: five scans in a row take 10, so a COMPLETED
+...               status after 5 shows they ran in parallel.
 ...
 ...               Log lines are read from the `dapr run` output, which has the prefix
 ...               `== APP - engineering ==` and, in .NET, Python and Java, a logger prefix too, so only
@@ -94,11 +94,11 @@ Walk Through Fan Out Fan In
     Start Background Process    dapr run -f .    ${LOG}    app    cwd=${demo_dir}
     Wait Until App Responds    ${APP_URL}/    ${timeout}
 
-    # 3. Start a jump, wait 4 seconds and read the status, all in one block as on the page.
-    # Five scans of 2 seconds in a row would take 10 seconds, so COMPLETED after 4 shows that
+    # 3. Start a jump, wait 5 seconds and read the status, all in one block as on the page.
+    # Five scans of 2 seconds in a row would take 10 seconds, so COMPLETED after 5 shows that
     # they ran at the same time.
     ${out}=    Capture Command Output
-    ...    curl -s -X POST http://localhost:5301/jumps -H 'Content-Type: application/json' -d '{"jumpId": "jump-001"}' | jq; sleep 4; curl -s http://localhost:5301/jumps/jump-001 | jq
+    ...    curl -s -X POST http://localhost:5301/jumps -H 'Content-Type: application/json' -d '{"jumpId": "jump-001"}' | jq; sleep 5; curl -s http://localhost:5301/jumps/jump-001 | jq
     ${started}=    Pretty Json    ${STARTED_1}
     ${completed}=    Pretty Json    ${COMPLETED_1}
     Should Be Equal    ${out}    ${started}\n${completed}
@@ -106,7 +106,7 @@ Walk Through Fan Out Fan In
 
     # 4. A second jump: the log order may differ, the result doesn't.
     ${out}=    Capture Command Output
-    ...    curl -s -X POST http://localhost:5301/jumps -H 'Content-Type: application/json' -d '{"jumpId": "jump-002"}' | jq; sleep 4; curl -s http://localhost:5301/jumps/jump-002 | jq
+    ...    curl -s -X POST http://localhost:5301/jumps -H 'Content-Type: application/json' -d '{"jumpId": "jump-002"}' | jq; sleep 5; curl -s http://localhost:5301/jumps/jump-002 | jq
     ${started}=    Pretty Json    ${STARTED_2}
     ${completed}=    Pretty Json    ${COMPLETED_2}
     Should Be Equal    ${out}    ${started}\n${completed}
@@ -140,8 +140,8 @@ Count In File Should Be
 #   cd typescript/demo3-fan-out-fan-in
 #   dapr run -f .
 #   curl -s -X POST http://localhost:5301/jumps -H 'Content-Type: application/json' -d '{"jumpId": "jump-001"}' | jq
-#   sleep 4
+#   sleep 5
 #   curl -s http://localhost:5301/jumps/jump-001 | jq
 #   curl -s -X POST http://localhost:5301/jumps -H 'Content-Type: application/json' -d '{"jumpId": "jump-002"}' | jq
-#   sleep 4
+#   sleep 5
 #   curl -s http://localhost:5301/jumps/jump-002 | jq
