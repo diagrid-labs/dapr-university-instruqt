@@ -315,6 +315,9 @@ dapr workflow purge jump-001 -a engineering
 
 If you started a jump with another ID, run the same command with that ID.
 
+> [!TIP]
+> You can also purge workflows from the Dapr Dev Dashboard instead of the CLI. On the **Workflows** page of the **Dev Dashboard** tab, select the checkbox of each run you want to remove and click **Purge via Dapr API**. Like the CLI, the dashboard purges through the app's sidecar, so do this before you stop the app.
+
 ## 7. Stop the applications
 
 Use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
