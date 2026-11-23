@@ -154,7 +154,7 @@ The lines above show only the message. In the real log, Python and Java put thei
 > [!IMPORTANT]
 > Right after the `charge stage 2/5 complete` line appears, press `Ctrl+C` in the **Dapr CLI** window.
 
-That stops the app and its sidecar while stage 3 is running. In Python you may still see `charge stage 3/5 complete` while the app shuts down: the activity finished, but its result never reached the sidecar.
+That stops the app and its sidecar while stage 3 is running. In Python you may still see `charge stage 3/5 complete` while the app shuts down: the activity finished, but its result never reached the sidecar. In .NET the app prints `fail:` and `crit:` lines with an `RpcException` stack trace while it shuts down. That's expected: the sidecar stopped first. You'll see the same lines whenever you stop a .NET app in this track.
 
 If you were a little late and stage 3 or 4 also completed before the crash, that's fine. Fewer stages are left after the restart, and the rest of the lab works the same way.
 
