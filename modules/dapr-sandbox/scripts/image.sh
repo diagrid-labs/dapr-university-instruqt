@@ -137,7 +137,7 @@ code-server --version | grep -m1 -E '^[0-9]+\.'
 diagrid-dev-dashboard --version
 
 # ---- prewarm.sh ----
-# Warms caches inside the sandbox image: package caches (~/.nuget, ~/.m2, uv's cache) and the
+# Warms caches inside the sandbox image: package caches (~/.nuget, ~/.m2, uv's cache, ~/.npm) and the
 # container images `dapr init` and the secrets labs pull. Runs after install-tools.sh in the
 # Image Builder session. Never runs `dapr init` or starts a container: the Image Builder saves
 # the state of running services into the image.
@@ -259,6 +259,24 @@ if git clone --depth 1 https://github.com/diagrid-labs/university-labs.git "$PRE
         bindings/java/demo4-subspace-beacon/engineering \
         bindings/java/demo4-subspace-beacon/subspace-beacon; do
         (cd "$REPO_DIR/$app" && mvn -q -DskipTests package)
+    done
+
+    # Workflow demos 1 to 6. Each demo has one engineering app, in all four languages: PascalCase
+    # for .NET, kebab-case for Python, Java and TypeScript. `npm ci` fills npm's cache (~/.npm), so
+    # the lab's own `npm ci` at launch installs from it.
+    for spec in \
+        Demo1-DurableExecution:demo1-durable-execution \
+        Demo2-TaskChaining:demo2-task-chaining \
+        Demo3-FanOutFanIn:demo3-fan-out-fan-in \
+        Demo4-Monitor:demo4-monitor \
+        Demo5-HumanInTheLoop:demo5-human-in-the-loop \
+        Demo6-Management:demo6-management; do
+        dotnet_demo="${spec%%:*}"
+        demo="${spec#*:}"
+        (cd "$REPO_DIR/workflow/dotnet/$dotnet_demo/Engineering" && dotnet build)
+        (cd "$REPO_DIR/workflow/python/$demo/engineering" && uv sync)
+        (cd "$REPO_DIR/workflow/java/$demo/engineering" && mvn -q -DskipTests package)
+        (cd "$REPO_DIR/workflow/typescript/$demo/engineering" && npm ci)
     done
 else
     echo "WARNING: could not clone the demo repo, so the package caches are cold. The sandbox" >&2

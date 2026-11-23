@@ -7,7 +7,8 @@ Published as `diagrid/dapr-sandbox`.
 
 A `vm` built from a custom image containing Docker Engine, .NET SDK, JDK + Maven, Python 3 + uv
 (on `/usr/local/bin`), Node.js + npm, the Dapr CLI, code-server (VS Code in the browser) and
-Diagrid's Dapr Dev Dashboard, with package caches and container images pre-pulled (the `dapr init`
+Diagrid's Dapr Dev Dashboard, with package caches (NuGet, Maven, uv and npm, filled from the
+secrets, pubsub, bindings and workflow demos) and container images pre-pulled (the `dapr init`
 images, Vault for the secrets lab, RabbitMQ for the pubsub lab and Postgres for the bindings lab;
 the list is `PREWARM_IMAGES` in `scripts/prewarm.sh`). code-server and
 the Dev Dashboard are only installed; the lab setup starts them for the Editor and Dev Dashboard
