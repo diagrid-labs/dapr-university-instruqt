@@ -103,6 +103,8 @@ Run the application using the Dapr CLI:
 dapr run -f .
 ```
 
+If the app fails because `tsx` or a package is not found, the sandbox is still installing the packages. Wait a few seconds and run `dapr run -f .` again.
+
 </details>
 
 ###

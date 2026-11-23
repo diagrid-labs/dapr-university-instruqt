@@ -21,7 +21,11 @@ fi
 # stdout and stderr), so the sandbox reports ready without waiting for the builds: demo 1 first
 # (page 1), then demos 2 to 6 in page order. Folder names follow each language: PascalCase for
 # .NET, kebab-case for Python, Java and TypeScript. A learner who runs `dapr run -f .` before a
-# build has finished only waits for that build. A failed build is logged and never fails the lab.
+# build has finished only waits for that build, except in TypeScript: `npm ci` deletes
+# node_modules before it installs, so `npm start` fails because `tsx` is not found until it is
+# done (page 1 says to run the app again). The image's npm cache keeps that window short, and
+# `npm ci` is skipped where node_modules already exists, so a re-run never deletes it. A failed
+# build is logged and never fails the lab.
 # Progress: `tail -f /var/log/lab-prebuild.log`.
 WF101_BASE="$TRACKS_SRC_DIR/workflow"
 PREBUILD_LOG="${LAB_PREBUILD_LOG:-/var/log/lab-prebuild.log}"
@@ -47,7 +51,9 @@ for spec in \
     build "$base/dotnet/$dn/Engineering" dotnet build
     build "$base/python/$dk/engineering" uv sync
     build "$base/java/$dk/engineering" mvn -q -DskipTests package
-    build "$base/typescript/$dk/engineering" npm ci
+    if [ ! -d "$base/typescript/$dk/engineering/node_modules" ]; then
+        build "$base/typescript/$dk/engineering" npm ci
+    fi
 done
 echo "$(date -u +%H:%M:%S) == prebuild done"
 PREBUILD
