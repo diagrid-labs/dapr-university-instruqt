@@ -18,6 +18,7 @@ The tracks are not intended to be run locally — they are hosted on Instruqt an
 - `dapr-secrets/` — Dapr Secrets track: read a secret through the Secrets API, configure the secret store component, scope secrets per application, and swap the local file store for HashiCorp Vault without changing application code.
 - `dapr-pubsub/` — Dapr Pub/Sub track: subscription types, streaming subscriptions, CloudEvents, bulk messages, routing and dead letters, and swapping the broker without changing application code.
 - `dapr-bindings/` — Dapr Bindings track: a cron input binding, a PostgreSQL output binding, the State API compared with a binding, and bindings combined with service invocation.
+- `dapr-workflow-101/` — Dapr Workflow 101 track: durable execution, task chaining, fan-out/fan-in, monitor, human in the loop, and workflow management, with .NET, Python, Java and TypeScript demos.
 - `dapr-workflow/` — Dapr Workflow track (durable execution, task chaining, fan-out/fan-in, monitor, external events, child workflows, resiliency, workflow management).
 - `dapr-workflow-aspire/` — Dapr Workflow with .NET Aspire track.
 - `dapr-dotnet-aspire/` — Dapr + .NET Aspire integration track.
@@ -30,13 +31,13 @@ The tracks are not intended to be run locally — they are hosted on Instruqt an
 
 ## Testing
 
-Because the runnable tracks depend on upstream code (e.g. `dapr/quickstarts`, and `diagrid-labs/university-labs` for `dapr-101`, `dapr-secrets`, `dapr-pubsub` and `dapr-bindings`), the assignment instructions can silently drift out of sync with the commands and output learners actually see. To catch this, `tools/track-tester/` holds an end-to-end test harness built on [Robot Framework](https://robotframework.org/): it runs the *actual* commands from each challenge's `assignment.md` and asserts on their output.
+Because the runnable tracks depend on upstream code (e.g. `dapr/quickstarts`, and `diagrid-labs/university-labs` for `dapr-101`, `dapr-secrets`, `dapr-pubsub`, `dapr-bindings` and `dapr-workflow-101`), the assignment instructions can silently drift out of sync with the commands and output learners actually see. To catch this, `tools/track-tester/` holds an end-to-end test harness built on [Robot Framework](https://robotframework.org/): it runs the *actual* commands from each challenge's `assignment.md` and asserts on their output.
 
-Each runnable challenge has a suite next to its assignment, e.g. `dapr-workflow/3-task-chaining/tests/challenge.robot`, with tests tagged per language (`dotnet` / `java` / `python` / `javascript`). A [doc-sync](tools/track-tester/README.md) checker additionally verifies every runnable command in an `assignment.md` is covered by its suite. See [`tools/track-tester/README.md`](tools/track-tester/README.md) for how to run the suites locally.
+Each runnable challenge has a suite next to its assignment, e.g. `dapr-workflow/3-task-chaining/tests/challenge.robot`, with tests tagged per language (`dotnet` / `java` / `python` / `javascript` / `typescript`). A [doc-sync](tools/track-tester/README.md) checker additionally verifies every runnable command in an `assignment.md` is covered by its suite. See [`tools/track-tester/README.md`](tools/track-tester/README.md) for how to run the suites locally.
 
 ### GitHub workflows
 
-Five workflows in [`.github/workflows/`](.github/workflows/) run the suites automatically. Each triggers on a daily schedule, on `workflow_dispatch`, and on pull requests that touch the track, the harness, or the workflow file. When a run fails, the `report` job opens (or updates) a `drift-report` issue linking the failing run and the downloadable Robot report.
+Seven workflows in [`.github/workflows/`](.github/workflows/) run the suites automatically. Each triggers on a daily schedule, on `workflow_dispatch`, and on pull requests that touch the track, the harness, or the workflow file. When a run fails, the `report` job opens (or updates) a `drift-report` issue linking the failing run and the downloadable Robot report.
 
 | Workflow | Track | Schedule (UTC) | Languages / notes |
 | --- | --- | --- | --- |
@@ -46,6 +47,7 @@ Five workflows in [`.github/workflows/`](.github/workflows/) run the suites auto
 | [`test-dapr-secrets.yml`](.github/workflows/test-dapr-secrets.yml) | `dapr-secrets` | 06:45 daily | dotnet, java, python + a language-agnostic `shared` leg (doc-sync + per-language matrix, HashiCorp Vault) |
 | [`test-dapr-pubsub.yml`](.github/workflows/test-dapr-pubsub.yml) | `dapr-pubsub` | 07:00 daily | dotnet, java, python + a language-agnostic `shared` leg (doc-sync + per-language matrix, RabbitMQ in challenge 6) |
 | [`test-dapr-bindings.yml`](.github/workflows/test-dapr-bindings.yml) | `dapr-bindings` | 07:15 daily | dotnet, java, python + a language-agnostic `shared` leg (doc-sync + per-language matrix, Postgres started by the setup script) |
+| [`test-dapr-workflow-101.yml`](.github/workflows/test-dapr-workflow-101.yml) | `dapr-workflow-101` | 07:30 daily | dotnet, java, python, typescript + a language-agnostic `shared` leg (doc-sync + per-language matrix) |
 
 ## Contributing
 

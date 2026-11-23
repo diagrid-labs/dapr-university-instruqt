@@ -73,6 +73,20 @@ npm start
     assert cmds == [Command(text="npm start", lang="javascript")]
 
 
+def test_typescript_summary_maps_to_typescript():
+    md = """
+<details>
+   <summary><b>TypeScript</b></summary>
+
+```bash,run
+cd typescript/demo1-durable-execution
+```
+</details>
+"""
+    cmds = extract_run_commands(md)
+    assert cmds == [Command(text="cd typescript/demo1-durable-execution", lang="typescript")]
+
+
 def test_comment_lines_inside_run_fence_are_skipped():
     md = """
 ```bash,run
