@@ -10,6 +10,7 @@ LANG_BY_SUMMARY = {
     "Python": "python",
     "Java": "java",
     "JavaScript": "javascript",
+    "TypeScript": "typescript",
 }
 
 _FENCE_RE = re.compile(r"^```([^\n`]*)$")

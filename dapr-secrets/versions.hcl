@@ -21,13 +21,14 @@ variable "tracks_src_ref" {
 # shared setup because the lab's files are not on the VM.
 # 2.0.0 is breaking against 1.x: new required inputs (dapr_runtime_version, demo_repo_ref,
 # editor_folder) and a new image (jq, RabbitMQ image, pubsub caches).
+# 3.2.0 pre-pulls Dapr runtime 1.19.2 and must be published in Instruqt before this merges.
 # Publish a new module version in Instruqt (Building blocks > Modules > Publish version) BEFORE
 # merging a change to `version` here. Every push syncs the lab and resolves this exact version; a
 # push that pins a not-yet-published version leaves the lab on "failed to read hcl files: ...
 # version X of diagrid/dapr-sandbox is not published: not found" until the next push.
 module "sandbox" {
   source  = "diagrid/dapr-sandbox"
-  version = "3.0.0"
+  version = "3.2.0"
 
   variables = {
     dapr_runtime_version = variable.dapr_runtime_version
