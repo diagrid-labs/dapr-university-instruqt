@@ -1,7 +1,7 @@
 resource "lab" "main" {
   title       = "Dapr Secrets - Safely use secrets in your applications"
   description = <<-EOT
-    *To begin, click the **Start** button. Setting up your sandbox takes around 2 minutes. Meanwhile, click the full screen icon in the top right to give the lab more space.*
+    *To begin, click the **Start** button. Setting up your sandbox takes around 2-3 minutes. Meanwhile, click the full screen icon in the top right to give the lab more space.*
 
     In this self-paced track, you'll learn:
     - Why a secret store beats a config file or an environment variable, and how an app reads a secret through the Dapr Secrets API

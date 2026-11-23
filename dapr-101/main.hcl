@@ -1,7 +1,7 @@
 resource "lab" "main" {
   title       = "Dapr 101 - State Management, Service Invocation, and Pub/Sub APIs"
   description = <<-EOT
-    *To begin, click the **Start** button. Setting up your sandbox takes around 2 minutes. Meanwhile, click the full screen icon in the top right to give the lab more space.*
+    *To begin, click the **Start** button. Setting up your sandbox takes around 2-3 minutes. Meanwhile, click the full screen icon in the top right to give the lab more space.*
 
     In this self-paced track, you'll learn:
     - Why organizations use Dapr to build distributed applications
