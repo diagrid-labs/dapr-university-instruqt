@@ -96,9 +96,34 @@ Count In File Should Be
 Clean Up And Stop
     # The page's clean-up, run while the app still runs. The test body already ran it and checked
     # it; this repeat only matters when the test failed before that point, so its result is ignored.
+    # A jump that a failed test left running is terminated first, so the purge can remove it.
+    Terminate Running Jumps
     Run Process    dapr workflow purge jump-001 -a engineering    shell=True
     Run Process    dapr workflow purge jump-002 -a engineering    shell=True
     Stop Process With SIGINT    app
+
+Terminate Running Jumps
+    # Terminate every jump that is still running, so a test that failed half-way doesn't leave one
+    # in the shared Redis for the next suite. `dapr workflow list` can't combine `-s` with `-o ids`,
+    # so read the JSON list; with no workflows at all it prints a message instead of JSON.
+    ${list}=    Run Process    dapr workflow list -a engineering -o json    shell=True    stderr=STDOUT
+    IF    ${list.rc} != 0 or not $list.stdout.strip().startswith('[')    RETURN
+    ${ids}=    Evaluate
+    ...    [w['instanceID'] for w in json.loads($list.stdout) if w['runtimeStatus'] in ('RUNNING', 'SUSPENDED')]
+    ...    modules=json
+    FOR    ${id}    IN    @{ids}
+        Log    Clean-up: terminating ${id}    WARN
+        Run Process    dapr workflow terminate ${id} -a engineering    shell=True
+    END
+    # Terminate is asynchronous and purge only removes finished jumps, so wait until none runs.
+    IF    ${ids}
+        Run Keyword And Warn On Failure
+        ...    Wait Until Keyword Succeeds    20s    2s    No Jump Should Be Running
+    END
+
+No Jump Should Be Running
+    ${list}=    Run Process    dapr workflow list -a engineering -s RUNNING    shell=True    stderr=STDOUT
+    Should Contain    ${list.stdout}    No workflow found
 
 Walk Through Durable Execution
     [Arguments]    ${lang}    ${timeout}=180s
