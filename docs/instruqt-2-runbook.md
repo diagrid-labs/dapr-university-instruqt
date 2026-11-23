@@ -19,16 +19,17 @@ in `docs/instruqt-2-spike-checklist.md`, Part 1.
 | --- | --- | --- |
 | Dapr CLI | the value of `dapr_cli_version` | `modules/dapr-sandbox/versions.hcl` (`dapr_cli_version`) |
 | Pre-pulled Dapr runtime | the value of `prewarm_dapr_runtime_version` | `modules/dapr-sandbox/versions.hcl` (`prewarm_dapr_runtime_version`) |
-| Lab Dapr runtime | the value of `dapr_runtime_version`, once per lab, equal to the pre-pulled runtime | `dapr-secrets/versions.hcl`, `dapr-pubsub/versions.hcl` and `dapr-bindings/versions.hcl` (`dapr_runtime_version`) |
-| Demo repo commit | full SHA, once per lab | `dapr-secrets/versions.hcl`, `dapr-pubsub/versions.hcl` and `dapr-bindings/versions.hcl` (`tracks_src_ref`) |
-| Module version used by the lab | the value of `version`, once per lab | `dapr-secrets/versions.hcl`, `dapr-pubsub/versions.hcl` and `dapr-bindings/versions.hcl` (`module "sandbox"`, `version`) |
+| Lab Dapr runtime | the value of `dapr_runtime_version`, once per lab, equal to the pre-pulled runtime | every 2.0 lab's `versions.hcl`: `dapr-101/`, `dapr-secrets/`, `dapr-pubsub/`, `dapr-bindings/` and `dapr-workflow-101/` (`dapr_runtime_version`) |
+| Demo repo commit | full SHA, once per lab | every 2.0 lab's `versions.hcl`: `dapr-101/`, `dapr-secrets/`, `dapr-pubsub/`, `dapr-bindings/` and `dapr-workflow-101/` (`tracks_src_ref`) |
+| Module version used by the lab | the value of `version`, once per lab | every 2.0 lab's `versions.hcl`: `dapr-101/`, `dapr-secrets/`, `dapr-pubsub/`, `dapr-bindings/` and `dapr-workflow-101/` (`module "sandbox"`, `version`) |
 | Image the VM boots from | `diagrid/<image-name>:<tag>` | `modules/dapr-sandbox/versions.hcl` (`image_ref`) |
 | RabbitMQ image (dapr-pubsub page 6) | `rabbitmq:<tag>-management` | `modules/dapr-sandbox/scripts/prewarm.sh`, `dapr-pubsub/6-swap-the-broker/assignment.md`, `tools/track-tester/variables/dapr_pubsub.py`; `test_pubsub_pins.py` fails when they differ |
 | Postgres image (dapr-bindings) | `postgres:<tag>` | `modules/dapr-sandbox/scripts/prewarm.sh`, `dapr-bindings/scripts/start-postgres.sh`, `dapr-bindings/2-postgres-output-binding/assignment.md`, `tools/track-tester/variables/dapr_bindings.py`; `test_bindings_pins.py` fails when they differ |
 
 Sections 1 to 12 set up `dapr-secrets`. "Module 2.0.0 / dapr-pubsub" and "Checkpoint B" add the
-second lab, and "Module 3.1.0 / dapr-bindings" adds the bindings lab; the maintenance procedures at
-the end cover the labs.
+second lab, "Module 3.1.0 / dapr-bindings" adds the bindings lab, and "Module 3.2.0 /
+dapr-workflow-101" moves every lab to runtime 1.19.2 and adds the workflow lab; the maintenance
+procedures at the end cover the labs.
 
 ---
 
@@ -616,7 +617,7 @@ merged, module 2.0.0 published and `dapr-secrets` live and verified on it.
 The `dapr-bindings` lab needs two things the `3.0.0` image lacks: the `postgres:18.7` image and warm
 package caches for the bindings demos (`modules/dapr-sandbox/scripts/prewarm.sh`). That is a new image
 and module version `3.1.0`, with no change to the module's inputs. Only `dapr-bindings/versions.hcl`
-pinned `3.1.0` when it was added; all labs now pin `3.2.0` (see "Module 3.2.0" below). Postgres itself is started at
+pinned `3.1.0` when it was added; all labs now pin `3.2.0` (see "Module 3.2.0 / dapr-workflow-101" below). Postgres itself is started at
 boot by the lab's `scripts/start-postgres.sh` (inlined before `scripts/lab-setup.sh` through
 `lab_startup_script`), and CI starts it with the same function in `ci/setup-dapr-bindings.sh`.
 
@@ -668,11 +669,73 @@ the next push to `main` that changes a file under `dapr-bindings/`.
 
 ---
 
-## Module 3.2.0 / all labs
+## Module 3.2.0 / dapr-workflow-101
 
-Module `3.2.0` pre-pulls Dapr runtime 1.19.2 (`prewarm_dapr_runtime_version`) and is pinned by every
-2.0 lab, including `dapr-workflow-101`. It needs the image from `modules/dapr-sandbox/scripts/image.sh`
-(see "Toolchain bump") and must be published in Instruqt before the PR that pins it merges.
+Module `3.2.0` is a new image with no change to the module's inputs. The image pre-pulls Dapr
+runtime 1.19.2 (`prewarm_dapr_runtime_version`) and warms the package caches for the workflow demos
+(NuGet, Maven, uv and npm; `modules/dapr-sandbox/scripts/prewarm.sh`). Every 2.0 lab pins `3.2.0`,
+including the new `dapr-workflow-101` lab.
+
+The work is in two PRs, merged in this order:
+
+| PR | Branch | What it changes | Merge when |
+| --- | --- | --- | --- |
+| **#212** | `dev-887-runtime-1-19-2` | runtime 1.19.2 in the module and the four existing labs, the workflow cache pre-warm, the re-rendered `image.sh` | first; safe, because the four labs still pin the published `3.1.0`, which pulls 1.19.2 at boot |
+| **PR 2** | `dev-887-dapr-workflow-101` | the `dapr-workflow-101` lab, its suites and CI, and `version = "3.2.0"` in all five labs | only after `3.2.0` is published (step 4) |
+
+**Do not merge PR 2 or import the lab before step 4 is done.** PR 2 changes the `versions.hcl` of
+`dapr-101`, `dapr-secrets`, `dapr-pubsub` and `dapr-bindings`, so its merge syncs all four live
+labs. A sync that pins an unpublished version fails with `version 3.2.0 of diagrid/dapr-sandbox is
+not published: not found`, and publishing afterwards does not clear it: a lab only re-reads its HCL
+on the next push to `main` that changes a file under its own folder.
+
+1. **Merge PR #212.** `lab-validate` and the `*-result` checks must be green. The published
+   `3.1.0` is immutable, so the live labs only move to runtime 1.19.2 (a pin they already pull at
+   boot).
+2. **Build the image from `main`.** On an up-to-date `main`, the committed
+   `modules/dapr-sandbox/scripts/image.sh` is current (the harness test
+   `test_committed_image_script_is_up_to_date` checks it). Build the image from the system `ubuntu`
+   24.04 base as in section 2 and publish it under the next free image name with tag `v1` (after
+   `diagrid/dapr-sandbox-5:v1` that is `dapr-sandbox-6`; see "Toolchain bump" step 3).
+   **Expected:** in the build session, `docker images` lists `daprio/dapr:1.19.2`, and
+   `ls ~/.npm/_cacache` shows npm's cache.
+3. **Merge the `image_ref` PR.** On a new branch from `main`, set `image_ref` in
+   `modules/dapr-sandbox/versions.hcl` to the new reference (section 3), commit only that file,
+   open a PR and merge it once `lab-validate` is green. No lab pins an unpublished version yet, so
+   this changes nothing live.
+4. **Publish module `3.2.0`.** Building blocks > Modules > `diagrid/dapr-sandbox` > refresh, then
+   **Publish version** `3.2.0` (section 7). It now holds the module from `main` with the new
+   `image_ref`. **Expected:** `3.2.0` shows as published.
+5. **Merge PR 2.** Rebase it onto `main` first, so its diff is only the lab and the `3.2.0` pins.
+   `lab-validate`, `dapr-101-result`, `dapr-secrets-result`, `dapr-pubsub-result`,
+   `dapr-bindings-result` and `dapr-workflow-101-result` must be green. Then merge.
+6. **Check the four existing labs synced.** In Instruqt, open `dapr-101`, `dapr-secrets`,
+   `dapr-pubsub` and `dapr-bindings` and confirm each sync after the merge succeeded and the lab
+   pins `3.2.0`. Start one of them and run `grep 'done after' /var/log/lab-setup.log`.
+   **Expected:** no sync error, and the start is not slower than before.
+7. **Create the lab.** In Instruqt create a new lab `dapr-workflow-101` with **Import lab**
+   (section 9): the repo, branch `main`, **Root directory** `dapr-workflow-101`. Wait for the sync.
+   **Expected:** the sync succeeds. If it fails with `version 3.2.0 of diagrid/dapr-sandbox is not
+   published`, publish it (step 4) and push a change under `dapr-workflow-101/` to sync again.
+8. **Required checks.** In the `main` branch protection add `dapr-workflow-101-result` (workflow
+   "Test dapr-workflow-101 track").
+9. **Timed live run.** Start the lab, record `grep 'done after' /var/log/lab-setup.log`, and play
+   all six pages in one language with a timer. Then start the lab three more times and run only
+   page 1's first `dapr run -f .` in each of the other languages, right after the sandbox is ready.
+   The pre-build log is `/var/log/lab-prebuild.log`. **Expected:**
+   - total time under 45 minutes (the pages say around 40);
+   - in every language the first `dapr run -f .` starts without a long build or package download,
+     and TypeScript does not fail because `tsx` is not found;
+   - the **Workflows** page of the **Dev Dashboard** shows the jumps and their history as pages 1
+     and 6 describe. If it differs, fix the pages' wording.
+
+   - Setup time: ______ s
+   - Time: ______ min (language: ______, date: ______)
+   - First `dapr run -f .` until ready: .NET ______ s, Python ______ s, Java ______ s,
+     TypeScript ______ s
+10. **Publish to Dapr University.** Add the track with the text of
+    `dapr-workflow-101/website-description.md`. There is no badge yet: when one exists, add the
+    badge lines to `main.hcl` and the final page the way `dapr-pubsub` has them.
 
 ---
 
