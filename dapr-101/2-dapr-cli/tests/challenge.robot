@@ -24,7 +24,7 @@ Suite Teardown    Terminate All Processes    kill=True
 # Only the MAJOR.MINOR part (1.19) is asserted - see the version test below - so a
 # patch release does not need a bump here.
 ${DAPR_VERSION}    %{DAPR_CLI_VERSION=1.19.1}
-${DAPR_RUNTIME_VERSION}    %{DAPR_RUNTIME_VERSION=1.19.1}
+${DAPR_RUNTIME_VERSION}    %{DAPR_RUNTIME_VERSION=1.19.2}
 
 *** Test Cases ***
 # Each unindented line names a test case; indented lines are the steps it runs.

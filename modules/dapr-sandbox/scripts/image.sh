@@ -8,7 +8,7 @@ export DAPR_CLI_VERSION=1.19.1
 export CODE_SERVER_VERSION=4.145.2
 export DEV_DASHBOARD_VERSION=0.0.27
 export JQ_VERSION=1.8.1
-export PREWARM_DAPR_RUNTIME_VERSION=1.19.1
+export PREWARM_DAPR_RUNTIME_VERSION=1.19.2
 
 # ---- install-tools.sh ----
 # Installs the sandbox toolchain on Ubuntu 24.04 (x86_64). Run inside an Instruqt Image Builder

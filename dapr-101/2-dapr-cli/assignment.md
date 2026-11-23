@@ -66,7 +66,7 @@ The expected output should be:
 
 ```text,nocopy
 CLI version: 1.19.1
-Runtime version: 1.19.1
+Runtime version: 1.19.2
 ```
 
 ## 4. Verify the containers
