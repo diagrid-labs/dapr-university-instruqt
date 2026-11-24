@@ -21,7 +21,7 @@ This is what you'll have at the end of the track:
 - The `statestore` component points the sidecar at the Redis container `dapr_redis`, which `dapr init` started in this sandbox. The sidecar saves the workflow history there.
 - You look at the running app in two places: the **Aspire** tab shows the resources and their logs, and the **Dev Dashboard** tab shows the workflows and their history. Both tabs stay empty until you start the app in lab 3.
 
-This track focuses on Aspire. If workflows and activities are new to you, take the [Dapr Workflow 101](https://www.diagrid.io/university) track first: it covers the concepts, such as durable execution and replay, in more depth.
+This track focuses on Aspire. If workflows and activities are new to you, take the [Dapr Workflow 101](https://www.diagrid.io/university/dapr-workflow) track first: it covers the concepts, such as durable execution and replay, in more depth.
 
 ## 2. Create the Aspire solution
 
