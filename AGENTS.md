@@ -64,7 +64,7 @@ branch with `node diagrams/set-image-ref.mjs <branch>`, and back with `... main`
 | `dapr-bindings/` | Dapr bindings: a cron input binding (the component name is the route, no Dapr code in the app), the PostgreSQL output binding with `exec` and `query`, the State API compared with a binding on the same database, and bindings combined with service invocation (.NET/Python/Java; demo apps live in `diagrid-labs/university-labs` under `bindings/`). A 2.0 lab of 4 pages / 30 minutes; PostgreSQL starts at boot. |
 | `dapr-workflow-101/` | Dapr Workflow 101: durable execution (a workflow that survives a crash), task chaining, fan-out/fan-in, monitor, human in the loop (an external event with a timeout), and workflow management (pause, resume, terminate, purge) (.NET/Python/Java/TypeScript; demo apps live in `diagrid-labs/university-labs` under `workflow/`). A 2.0 lab of 6 pages / 45 minutes, a user-approved exception to the 30-minute default. |
 | `dapr-workflow/` | Dapr Workflow patterns: durable execution, task chaining, fan-out/fan-in, monitor, external events, child workflows, resiliency/compensation, combined patterns, workflow management. |
-| `dapr-workflow-aspire/` | Dapr Workflow built live with .NET Aspire (no upstream repo — the app is pasted from the assignment). |
+| `dapr-workflow-aspire/` | Dapr Workflow with .NET Aspire: the learner builds one app from scratch with Aspire 17 (`aspire new`, a single-file `apphost.cs`), writes the workflow and its activities, runs it with `aspire run` (Dapr sidecar, a Redis state store component on `dapr_redis`, the Dev Dashboard as a resource) and restarts it mid-run (.NET only; the workspace is `workflow-aspire/` in `diagrid-labs/university-labs`, nearly empty). A 2.0 lab of 4 pages / 30 minutes, and the one 2.0 lab with page checks. |
 | `dapr-dotnet-aspire/` | Dapr + .NET Aspire integration. |
 | `dapr-agents/` | Dapr Agents fundamentals. |
 | `dapr-agents-web-context/` | Dapr Agents Advanced: a Chainlit-powered agent using a `before_llm_call` hook to inject Tavily web-search results. |
@@ -72,7 +72,7 @@ branch with `node diagrams/set-image-ref.mjs <branch>`, and back with `... main`
 | `ai-agents-maf/` | Making Microsoft Agent Framework (MAF) agents reliable with Dapr Workflow (.NET Aspire). |
 | `catalyst-101/` | Introductory Diagrid track. |
 
-`dapr-101`, `dapr-secrets`, `dapr-pubsub`, `dapr-bindings` and `dapr-workflow-101` are **Instruqt 2.0 labs** (HCL config, shared sandbox module); every
+`dapr-101`, `dapr-secrets`, `dapr-pubsub`, `dapr-bindings`, `dapr-workflow-101` and `dapr-workflow-aspire` are **Instruqt 2.0 labs** (HCL config, shared sandbox module); every
 other track is a legacy 1.0 track. See "Instruqt 2.0 labs" below.
 
 Only `dapr-101`, `dapr-workflow`, `dapr-workflow-aspire`, `dapr-secrets`, `dapr-pubsub`,
@@ -83,13 +83,16 @@ Only `dapr-101`, `dapr-workflow`, `dapr-workflow-aspire`, `dapr-secrets`, `dapr-
 New tracks are 2.0 labs; `dapr-101`, `dapr-secrets` and `dapr-pubsub` are the references. The legacy sections
 that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1.0 tracks.
 
-- **Lab layout.** A lab root (`dapr-101/`, `dapr-secrets/`, `dapr-pubsub/`, `dapr-bindings/`, `dapr-workflow-101/`) holds HCL instead of README config:
+- **Lab layout.** A lab root (`dapr-101/`, `dapr-secrets/`, `dapr-pubsub/`, `dapr-bindings/`, `dapr-workflow-101/`, `dapr-workflow-aspire/`) holds HCL instead of README config:
   `main.hcl` (the `lab` resource: title, description, timeouts, chapters/pages), `versions.hcl`,
   `layouts.hcl`, `tabs.hcl`, `pages.hcl`, plus `scripts/` (`lab-setup.sh` with the lab's own steps
   only, and helpers such as `seed-vault.sh`) and `<n>-<slug>/` challenge folders with
   `assignment.md` and `tests/challenge.robot`. The labs have no tasks (no `tasks.hcl`, no check or
   solve scripts): a learner can move to the next page at any time. Don't add page checks to a
-  2.0 lab; the drift tests cover what a check would.
+  2.0 lab; the drift tests cover what a check would. `dapr-workflow-aspire` is the one 2.0 lab with
+  page checks (no solve): it builds one app from scratch, so each page must start from a working
+  solution. Its `tasks.hcl` has one task per page, and each check is a read-only
+  `<page>/scripts/check-*.sh`.
 - **`modules/dapr-sandbox/`** is the shared Instruqt module (published as `diagrid/dapr-sandbox`):
   one VM from a pre-built image with the toolchain installed. It owns the shared boot setup
   (`scripts/sandbox-setup.sh`, installed in the image: Docker/DNS wait, demo clone, Editor, Dev
@@ -97,7 +100,7 @@ that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1
   inputs `dapr_runtime_version`, `demo_repo_ref`, `editor_folder` (and `demo_repo_url`). It then
   inlines the lab's `lab_startup_script` into the VM startup (the lab's own files are not on the
   VM). A lab's `lab-setup.sh` holds only its own steps (Vault seeding for `dapr-secrets`, the demo
-  pre-build for `dapr-pubsub`, `dapr-101` and `dapr-workflow-101`, the pre-build and starting PostgreSQL for `dapr-bindings`) and can use the helpers `log`, `die`, `bounded`, `wait_for_docker`
+  pre-build for `dapr-pubsub`, `dapr-101` and `dapr-workflow-101`, the pre-build and starting PostgreSQL for `dapr-bindings`, stopping the module's Dev Dashboard, installing the Aspire CLI and a background warm-up for `dapr-workflow-aspire`) and can use the helpers `log`, `die`, `bounded`, `wait_for_docker`
   and `TRACKS_SRC_DIR`. The module owns the ready marker
   `/var/lib/lab-setup/ready`. Instruqt waits for the
   startup script to finish before the sandbox is ready; the module has no VM health check. A change
@@ -106,11 +109,13 @@ that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1
 - **Two `versions.hcl` files, one pin each.** Toolchain, `image_ref` and
   `prewarm_dapr_runtime_version` live in `modules/dapr-sandbox/versions.hcl`. The lab pins
   (`dapr_runtime_version`, `tracks_src_ref`) and the exact module version live in each lab's
-  `versions.hcl` (`dapr-101/`, `dapr-secrets/`, `dapr-pubsub/`, `dapr-bindings/`, `dapr-workflow-101/`). No pin appears in a second file. CI and scripts
+  `versions.hcl` (`dapr-101/`, `dapr-secrets/`, `dapr-pubsub/`, `dapr-bindings/`, `dapr-workflow-101/`, `dapr-workflow-aspire/`). No pin appears in a second file.
+  `dapr-workflow-aspire/versions.hcl` also pins `aspire_cli_version`, which reaches its `lab-setup.sh`
+  as `$LAB_ASPIRE_CLI_VERSION` through the module's `lab_environment` input. CI and scripts
   read pins with `tools/track-tester/ci/read_pin.py <file.hcl> <name>`, so keep each pin a plain
   `variable "<name>" { default = "<value>" }` block.
 - **Deploy = merge to `main`.** The Instruqt lab is connected to branch `main`, root directory the
-  lab's folder (`dapr-101`, `dapr-secrets`, `dapr-pubsub`, `dapr-bindings` or `dapr-workflow-101`, one Instruqt lab each). There is no CLI publish.
+  lab's folder (`dapr-101`, `dapr-secrets`, `dapr-pubsub`, `dapr-bindings`, `dapr-workflow-101` or `dapr-workflow-aspire`, one Instruqt lab each). There is no CLI publish.
   The module is imported and versioned in the Instruqt UI. The owner steps are in
   `docs/instruqt-2-runbook.md`; schema facts are in `docs/instruqt-2-spike-checklist.md`.
 - **`lab-validate` job** (`.github/workflows/lab-validate.yml`, every PR, no path filter): HCL
@@ -124,22 +129,24 @@ that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1
   `dapr-pubsub-result`, `dapr-bindings-result` and `dapr-workflow-101-result` (the aggregate jobs of
   `test-dapr-101.yml`, `test-dapr-secrets.yml`, `test-dapr-pubsub.yml`, `test-dapr-bindings.yml` and
   `test-dapr-workflow-101.yml`), set in the "No direct push to main" ruleset. The owner adds
-  `dapr-workflow-101-result` to the ruleset when PR 2 merges. Do not require the individual matrix legs.
+  `dapr-workflow-101-result` to the ruleset when PR 2 merges, and `dapr-workflow-aspire-result`
+  (`test-dapr-workflow-aspire.yml`) once the 2.0 `dapr-workflow-aspire` lab merges. Do not require
+  the individual matrix legs.
 
 ### The ISV Meridian story
 
-New 2.0 tracks share one sci-fi story, so a learner who moves from one track to the next stays in the same world. `dapr-bindings` and `dapr-workflow-101` use it, and the planned 2.0 version of `dapr-workflow-aspire` will too. `dapr-101`, `dapr-secrets` and `dapr-pubsub` came before the story and don't use it. Use it for every new 2.0 track.
+New 2.0 tracks share one sci-fi story, so a learner who moves from one track to the next stays in the same world. `dapr-bindings` and `dapr-workflow-101` use it, and so does the 2.0 version of `dapr-workflow-aspire`. `dapr-101`, `dapr-secrets` and `dapr-pubsub` came before the story and don't use it. Use it for every new 2.0 track.
 
 **The ship.** The starship *ISV Meridian*. The bridge gives the orders, and the ship's systems carry them out. Each demo app is one of those systems, and its Dapr app ID is the system's name.
 
-**The crew.** Only Captain Ilsa Varn appears in a lab so far. The others are free for new tracks; keep their ranks and roles when you use them.
+**The crew.** All four appear in `dapr-workflow-aspire`, as the officers `NotifyBridgeActivity` picks from. Keep their ranks and roles when you use them.
 
 | Crew member | Role | Where |
 | --- | --- | --- |
-| Captain Ilsa Varn | Commanding officer. Authorizes warp jumps. | `dapr-workflow-101` page 5 (`"officer": "Captain Ilsa Varn"` in the authorize request) |
-| Commander Anja Lindqvist | First officer, on the bridge. | Not used yet |
-| Lieutenant Commander Dayo Okafor | Chief engineer. Runs the engineering console. | Not used yet |
-| Ensign Mira Varga | Navigation officer. Plots courses. | Not used yet |
+| Captain Ilsa Varn | Commanding officer. Authorizes warp jumps. | `dapr-workflow-101` page 5 (`"officer": "Captain Ilsa Varn"` in the authorize request); `dapr-workflow-aspire` page 2 (`NotifyBridgeActivity`) |
+| Commander Anja Lindqvist | First officer, on the bridge. | `dapr-workflow-aspire` page 2 (`NotifyBridgeActivity`) |
+| Lieutenant Commander Dayo Okafor | Chief engineer. Runs the engineering console. | `dapr-workflow-aspire` page 2 (`NotifyBridgeActivity`) |
+| Ensign Mira Varga | Navigation officer. Plots courses. | `dapr-workflow-aspire` page 2 (`NotifyBridgeActivity`) |
 
 **The ship systems.**
 
@@ -151,7 +158,7 @@ New 2.0 tracks share one sci-fi story, so a learner who moves from one track to 
 | Subspace beacon (`subspace-beacon`) | Opens a communications channel. A plain HTTP app that answers `GET /ping` with a signal strength. | `dapr-bindings` page 4 |
 | Nav array | Aligned to the warp factor before the jump. | `AlignNavArrayActivity` (`dapr-workflow-101`) |
 | Sensor arrays `alpha` to `epsilon` | Scan the route in parallel and return hazard scores. | `ScanSectorActivity` (`dapr-workflow-101` page 3) |
-| Life support and shields | Checked with the warp core in the pre-jump diagnostics. | Planned for the 2.0 `dapr-workflow-aspire` track |
+| Life support and shields | Checked with the warp core in the pre-jump diagnostics. | `DiagnoseSubsystemActivity` with `WarpCore`, `LifeSupport` and `Shields` (`dapr-workflow-aspire` page 2) |
 
 **Places.** Vesper Reach is the default jump destination. Calder Station is the second destination used in the examples.
 
@@ -197,8 +204,8 @@ the matching `tests/challenge.robot` suite too (or the doc-sync CI job will fail
 
 `tools/track-tester/` is an end-to-end **drift** test harness built on
 [Robot Framework](https://robotframework.org/). The runnable tracks depend on upstream code
-(`dapr-workflow` uses [`dapr/quickstarts`](https://github.com/dapr/quickstarts); `dapr-101`, `dapr-secrets`, `dapr-pubsub`, `dapr-bindings` and
-`dapr-workflow-101` use `diagrid-labs/university-labs`); when that upstream code
+(`dapr-workflow` uses [`dapr/quickstarts`](https://github.com/dapr/quickstarts); `dapr-101`, `dapr-secrets`, `dapr-pubsub`, `dapr-bindings`,
+`dapr-workflow-101` and `dapr-workflow-aspire` use `diagrid-labs/university-labs`); when that upstream code
 or the tooling around it changes, a track's `assignment.md` can silently fall out of sync
 with the commands and output a learner actually sees. The harness catches this by running
 the *actual* commands from each assignment and asserting on their real output.
@@ -217,12 +224,15 @@ tools/track-tester/
   resources/             shared, track-agnostic Robot keywords (the "standard library")
     dapr.resource        generic Dapr process lifecycle + assertions
     workflow.resource    workflow-specific keywords (imports dapr.resource)
+    aspire.resource      `aspire run` lifecycle and resource queries (imports dapr.resource)
     tests/smoke.robot    a smoke suite for the resources themselves
   variables/             shared Python-valued variables imported by suites
     dapr_101.py          TRACKS_SRC_DIR + DAPR101_BASE (demo repo's dapr-101/ folder), demo folder
                          names and log markers for dapr-101
     dapr_workflow.py     QUICKSTARTS_DIR + WF_BASE (tutorials/workflow) for dapr-workflow
-    dapr_workflow_aspire.py
+    dapr_workflow_aspire.py TRACKS_SRC_DIR + WORKSPACE (the demo repo's workflow-aspire/ folder),
+                         SOLUTION_DIR, APP_URL, DEV_DASHBOARD_URL, ASPIRE_CLI_VERSION (read from
+                         versions.hcl) and MANIFEST_PAGE2 for dapr-workflow-aspire
     dapr_secrets.py      TRACKS_SRC_DIR + SECRETS_BASE, demo folder names and the
                          denied/missing error constants for dapr-secrets
     dapr_pubsub.py       TRACKS_SRC_DIR + PUBSUB_BASE and the demo folder names for dapr-pubsub
@@ -231,9 +241,9 @@ tools/track-tester/
     dapr_workflow_101.py TRACKS_SRC_DIR + WF101_BASE, APP_URL, DAPR_HTTP_PORT and the per-language
                          demo folders (DEMO1 to DEMO6) for dapr-workflow-101
   libraries/             Python keyword libraries
-    assignment_blocks.py parses ,copy/,run fenced blocks (used by the aspire track,
-                         which has no upstream repo and builds the app from the assignment, and by
-                         dapr-bindings page 2, which runs its restart Run block verbatim)
+    assignment_blocks.py parses ,copy/,run fenced blocks (used by dapr-workflow-aspire,
+                         which builds the app from the assignments, and by dapr-bindings page 2,
+                         which runs its restart Run block verbatim); a heredoc is one command
     tests/               pytest unit tests for the library
   docsync/
     check_doc_sync.py    the doc-sync presence checker (a standalone Python script)
@@ -242,7 +252,8 @@ tools/track-tester/
     setup-dapr-101.sh       (reads pins via read_pin.py, clones the demo repo, inits Dapr; writes
                             DAPR_CLI_VERSION/DAPR_RUNTIME_VERSION to GITHUB_ENV for the ch2 suite)
     setup-dapr-workflow.sh
-    setup-dapr-workflow-aspire.sh
+    setup-dapr-workflow-aspire.sh (as setup-dapr-workflow-101.sh, plus the Aspire CLI at the lab's
+                            pin and the Dev Dashboard binary at the module's pin)
     setup-dapr-secrets.sh   (reads pins via read_pin.py, sources dapr-secrets/scripts/seed-vault.sh)
     setup-dapr-pubsub.sh    (reads pins via read_pin.py, clones the demo repo, inits Dapr)
     setup-dapr-bindings.sh  (as setup-dapr-pubsub.sh, then sources dapr-bindings/scripts/start-postgres.sh)
@@ -251,8 +262,9 @@ tools/track-tester/
                          (test_read_pin, test_validate_lab, test_check_lab_paths, test_sandbox_setup,
                          test_pubsub_lab_setup, test_pubsub_pins, test_dapr101_pages,
                          test_dapr101_pins, test_dapr_init, test_bindings_lab_setup,
-                         test_bindings_pins)
-    dapr-init.sh         sourced by setup-dapr-101/secrets/pubsub/bindings/workflow-101/workflow.sh: `dapr init`, retried in CI
+                         test_bindings_pins, test_workflow_aspire_lab_setup,
+                         test_workflow_aspire_pins)
+    dapr-init.sh         sourced by setup-dapr-101/secrets/pubsub/bindings/workflow-101/workflow/workflow-aspire.sh: `dapr init`, retried in CI
                          when a container's host port is briefly taken on the runner
   results/               (gitignored) output dirs from local/CI runs
 ```
@@ -328,13 +340,27 @@ Notes that trip people up:
 | `Enable Testcontainers Reuse` | Idempotently set `testcontainers.reuse.enable=true` so the two Java apps in the combined-patterns challenge can share one container. |
 | `Wait Until Workflow Completed` | Poll the Dapr workflow status endpoint until `"runtimeStatus":"COMPLETED"`, then optionally assert the output contains an expected substring. |
 
+### `resources/aspire.resource` — `aspire run` (imports `dapr.resource`)
+
+| Keyword | Purpose |
+| --- | --- |
+| `Start Aspire Run` | Start a page's `aspire run` command in the background as `exec aspire run …`, so a group SIGINT stops the AppHost and every resource like `Ctrl+C`. |
+| `Wait Until Loopback Host Answers` | Poll a URL with a loopback `Host` header (the Dev Dashboard bound to `0.0.0.0` rejects any other) until it answers with a 2xx status. |
+| `Aspire Resources` | The display names of the running AppHost's resources from `aspire describe --format Json`, the default-visible ones or, with `hidden=${True}`, all of them. |
+| `Aspire Resource Pid` | The process ID of one resource, to assert it did not restart. |
+| `Capture Aspire Logs And Stop App` | For teardowns: save `aspire logs` and `aspire export` next to the report while the AppHost runs, stop `aspire run`, and wait until the given ports are free for the next suite. |
+
 ### `libraries/assignment_blocks.py`
 
-A Python keyword library used by the **aspire** track, which has no upstream repo: every file
-the learner creates comes from a `,copy` fenced block and every command from a `shell,run`
-block. This module parses those blocks so the suite can reconstruct the app exactly as the
-assignment describes — catching drift in the tooling (Aspire CLI, templates) the assignment
-depends on.
+A Python keyword library used by **dapr-workflow-aspire**, whose learner builds the app from an
+empty folder: the two files the learner pastes come from `,copy` fenced blocks (mapped to their
+destination by a manifest), every other file is written by a `bash,run` block with a quoted heredoc,
+and every command is a `bash,run` (or `shell,run`) block. This module parses those blocks so the
+suite can reconstruct the app exactly as the assignments describe, catching drift in the tooling
+(Aspire CLI, NuGet packages) the pages depend on. A heredoc (`cat > <file> <<'EOF'` … `EOF`) is
+one command with its body kept verbatim, including blank lines and `#:package` lines.
+`Apply Challenge` takes `rewrite_from=/root/university-labs rewrite_to=${TRACKS_SRC_DIR}`, so the
+pages' anchored `cd` runs in the suite's checkout.
 
 ## Variable resolution (where the code under test comes from)
 
@@ -366,6 +392,9 @@ WF_BASE = os.path.join(QUICKSTARTS_DIR, "tutorials", "workflow")
   wins over "Java").
 - Commands performed via `cwd=`/`bash -c` in the suite are covered by the trailing
   `# doc-sync coverage` comment lines in the suite.
+- A heredoc in a Run block (`cat > <file> <<'EOF'` … `EOF`) is one command, body included. It is
+  covered when its whole text is in the suite, also as a `# doc-sync coverage` block with one `#`
+  in front of each line; a changed body line makes it uncovered.
 - `--require-anchored-cd` (used for 2.0 labs, e.g. in `test-dapr-secrets.yml`) also fails on a
   relative `cd` in a runnable block that comes before any absolute `cd` on the page. A 2.0 lab's
   terminals keep their folder and running processes across pages, so `working_directory` in
@@ -400,10 +429,13 @@ bash tools/track-tester/ci/setup-dapr-pubsub.sh     # dapr-pubsub (clones the de
 bash tools/track-tester/ci/setup-dapr-bindings.sh   # dapr-bindings (as dapr-pubsub, then starts
                                                     # the bindings-postgres container)
 bash tools/track-tester/ci/setup-dapr-workflow-101.sh  # dapr-workflow-101 (as dapr-pubsub)
+bash tools/track-tester/ci/setup-dapr-workflow-aspire.sh  # dapr-workflow-aspire (as dapr-pubsub, plus the
+                                                    # Aspire CLI and the Dev Dashboard in ~/.aspire-lab/bin;
+                                                    # put that folder first on PATH)
 
 # Optional: point the dapr-workflow suites at an existing checkout instead of ~/quickstarts.
 export QUICKSTARTS_DIR="$HOME/dev/dapr/quickstarts"
-# The dapr-101, dapr-secrets, dapr-pubsub, dapr-bindings and dapr-workflow-101 suites use their own checkout, with the same pattern.
+# The dapr-101, dapr-secrets, dapr-pubsub, dapr-bindings, dapr-workflow-101 and dapr-workflow-aspire suites use their own checkout, with the same pattern.
 export TRACKS_SRC_DIR="$HOME/dev/diagrid-labs/university-labs"
 
 # Sync harness deps.
@@ -447,7 +479,7 @@ gives `gh run download` commands for the Robot reports.
 | --- | --- | --- | --- |
 | `test-dapr-101.yml` | `dapr-101` | 06:00 daily | `changes` (path filter); gated doc-sync and per-language matrix: dotnet, java, python, javascript, shared; aggregate `dapr-101-result` |
 | `test-dapr-workflow.yml` | `dapr-workflow` | 06:15 daily | doc-sync (all challenges); per-language matrix: dotnet, java, python |
-| `test-dapr-workflow-aspire.yml` | `dapr-workflow-aspire` | 06:30 daily | harness unit tests (pytest); build-and-run (.NET 10 + Aspire CLI) |
+| `test-dapr-workflow-aspire.yml` | `dapr-workflow-aspire` | 06:30 daily | `changes` (path filter); gated doc-sync and one `build-and-run` leg (.NET 10, Aspire CLI, Dev Dashboard; the page suites in order); aggregate `dapr-workflow-aspire-result` |
 | `test-dapr-secrets.yml` | `dapr-secrets` | 06:45 daily | `changes` (path filter); gated doc-sync and per-language matrix: dotnet, java, python, shared; aggregate `dapr-secrets-result` |
 | `test-dapr-pubsub.yml` | `dapr-pubsub` | 07:00 daily | `changes` (path filter); gated doc-sync and per-language matrix: dotnet, java, python, shared; aggregate `dapr-pubsub-result` |
 | `test-dapr-bindings.yml` | `dapr-bindings` | 07:15 daily | `changes` (path filter); gated doc-sync and per-language matrix: dotnet, java, python, shared; aggregate `dapr-bindings-result` |
@@ -493,10 +525,14 @@ Details worth knowing when editing CI:
   `dapr-101/java`. `ci/setup-dapr-101.sh` writes `DAPR_CLI_VERSION` and `DAPR_RUNTIME_VERSION` to
   `GITHUB_ENV` for the challenge 2 suite. Pins come from `modules/dapr-sandbox/versions.hcl` and
   `dapr-101/versions.hcl`.
-- The aspire workflow does **not** install the Aspire project templates itself: the suite's
-  first checkpoint runs the pinned `dotnet new install Aspire.ProjectTemplates@<ver>` command
-  extracted from the assignment, keeping the pinned version a single source of truth (and
-  catching drift in it).
+- The dapr-workflow-aspire workflow has the 2.0 shape (`changes` gate, doc-sync, aggregate
+  `dapr-workflow-aspire-result`) with one `build-and-run` leg instead of a language matrix: the lab
+  is .NET only and the pages build one app, so the page suites run in page order in one job (each
+  leaves the solution in its page's end state, and rebuilds the earlier pages from their
+  assignments when it runs alone). `ci/setup-dapr-workflow-aspire.sh` installs the Aspire CLI at
+  `aspire_cli_version` (read with `read_pin.py`) and the Dev Dashboard binary at the module's
+  `dev_dashboard_version` into `~/.aspire-lab/bin`, first on PATH. The job collects
+  `~/.aspire/logs` into the artifact.
 - Each per-language leg runs **every** challenge even if an earlier one fails (the `if !`
   guard is exempt from `set -e`), writes a `failed-<leg>.txt` summary, merges per-challenge
   results with `rebot`, and uploads a `robot-<lang>` artifact.
@@ -517,8 +553,10 @@ Details worth knowing when editing CI:
 - **A drift-test failure is often a *correct* signal**, not a harness bug — upstream
   quickstarts changed, or an assignment's expected output no longer matches. Read the failing
   Robot `report.html`/`log.html` before assuming the test is wrong.
-- **`dapr-workflow-aspire` ch1 is not pure-reading**: its suite runs the pinned
-  `Aspire.ProjectTemplates` install; that version pin matters (a known-bad range breaks the
-  `0.0.0.0` binding).
+- **The Aspire 17 pin in `dapr-workflow-aspire`** lives only in its `versions.hcl`
+  (`aspire_cli_version`). The pages repeat it (`aspire new --version`, the `#:package` lines of
+  `apphost.cs`) and the suites fail when they differ; `lab-setup.sh`, CI and the harness variables
+  read it. `ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL` in `apphost.run.json` must stay a loopback URL, or
+  the AppHost crashes.
 - Only edit tracks in place and push to the relevant Instruqt track — there is no local
   "run the track" path for learners.

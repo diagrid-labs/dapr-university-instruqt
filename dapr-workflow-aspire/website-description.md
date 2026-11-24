@@ -1,24 +1,7 @@
-# Build Dapr workflows in .NET with Aspire
+A workflow app is more than the workflow: it needs a Dapr sidecar, a state store, a dashboard, and a way to start them all together. Aspire describes that whole app in one C# file and runs it with one command.
 
-Learn how to build a code-first, fault-tolerant Dapr Workflow application that runs end-to-end under .NET Aspire. In this hands-on track you'll scaffold a fresh Aspire solution, wire up Dapr Workflow as an Aspire resource, and use the Diagrid Dev Dashboard to inspect every step of your workflow as it runs locally.
+In this 30-minute self-paced track you'll build a Dapr Workflow app with Aspire 17 in .NET, from an empty folder. Before each warp jump, the engineering console of the *ISV Meridian* checks the warp core, life support and shields in parallel, ranks the findings, and alerts the bridge when it is urgent. You'll create the solution with the Aspire CLI and write that workflow and its activities yourself.
 
-## What you'll build
+Next you'll describe the app in a single-file AppHost: the engineering app with its Dapr sidecar, a Redis state store, and the Dapr Dev Dashboard. You'll start it all with `aspire run`, run the diagnostics, and stop the app halfway through a run to watch the workflow carry on from its last completed step.
 
-The **USS Enterprise Diagnostics** application — a Dapr Workflow application that fans out to three subsystem activities in parallel, aggregates the results into a prioritized report, and conditionally notifies the bridge when the situation is urgent. Everything starts with a single `aspire run`.
-
-## What you'll learn
-
-- How Dapr and .NET Aspire complement each other when building distributed applications.
-- How to scaffold a new Aspire solution and add the NuGet packages required for Dapr Workflow.
-- How to define a Dapr Workflow that uses the fan-out / fan-in pattern, with multiple parallel activities and conditional follow-up.
-- How to configure Dapr state store components so workflow state is persisted across runs.
-- How to register Dapr Workflow as an Aspire resource alongside the API service and its Dapr sidecar.
-- How to trigger workflows via HTTP and inspect their state, execution history, and activity inputs/outputs in the Diagrid Dev Dashboard.
-
-## Supported language
-
-.NET
-
-## Prerequisites
-
-Familiarity with C# and basic .NET tooling is recommended. The sandbox comes preconfigured with Docker, the .NET 10 SDK, and Dapr — you'll install the Aspire CLI during the first challenge.
+You'll finish knowing how an Aspire AppHost wires up a Dapr app, how a workflow and its activities fit together, and what makes a workflow durable. Complete the track to collect the Dapr University Workflow Aspire badge.

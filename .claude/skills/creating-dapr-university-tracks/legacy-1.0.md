@@ -1,6 +1,6 @@
 # Legacy Instruqt 1.0 tracks
 
-Only for editing the legacy tracks: dapr-workflow, dapr-workflow-aspire, dapr-dotnet-aspire, dapr-agents, dapr-agents-web-context, ai-agents-deepagents, ai-agents-maf, catalyst-101. New tracks are 2.0 labs: see SKILL.md.
+Only for editing the legacy tracks: dapr-workflow, dapr-dotnet-aspire, dapr-agents, dapr-agents-web-context, ai-agents-deepagents, ai-agents-maf, catalyst-101. New tracks are 2.0 labs: see SKILL.md.
 
 The assignment annotations (SKILL.md → Assignment quick reference) and the drift-test conventions
 (reference.md → Drift tests and CI) apply to 1.0 tracks too. Everything else that differs is below.
@@ -24,7 +24,6 @@ to a 2.0 lab:
 | Track | Languages | Source-code model | Notable conventions | Use it when |
 |---|---|---|---|---|
 | `dapr-workflow` | .NET/Java/Python | Clones `dapr/quickstarts` | 11 challenges / **50 min, do not imitate the size**. Heavy `<details>` per-language blocks, per-challenge `images/` folders, per-challenge `tests/challenge.robot` (no check/solve) | You need the `<details>` or diagram conventions. |
-| `dapr-workflow-aspire` | .NET only | Build-it-live (learner scaffolds) | 5 challenges / 30 min. `tabs.md` with Editor/Terminal/Aspire webapp tabs, custom VM image, `,copy` code blocks, a single track-level `tests/challenge.robot` that rebuilds the app from the assignments, Instruqt-hosted images. **The README outlier**: `## Name`/`## URL` and no timeout sections | The narrative is "build it from scratch" and there is no upstream repo. |
 | `ai-agents-maf` | .NET only | Clones `diagrid-labs/university-labs` (formerly `ai-agent-tracks-instruqt`) | Requires an OpenAI key (set by learner in ch1, validated by `check.sh`), `scripts/setup.sh`, Editor+Terminal tabs. No drift tests | A track that needs a learner-supplied API key. |
 
 ## Sizing
@@ -98,8 +97,7 @@ If your session is idle for more than 10 minutes the session will stop and you'l
 10
 ```
 
-`### Time out idle users (minutes)` and `### Extra time (minutes)` are required. `dapr-workflow-aspire/README.md`
-omits both and uses `## Name` / `## URL`: it is the outlier, not the model.
+`### Time out idle users (minutes)` and `### Extra time (minutes)` are required.
 
 ## Challenge README.md template
 
@@ -117,8 +115,8 @@ omits both and uses `## Name` / `## URL`: it is the outlier, not the model.
 <One sentence describing what the learner does in this challenge.>
 ```
 
-`# Name` is an H1, `## Url` an H2, `### Description` an H3. `dapr-workflow` and `dapr-workflow-aspire`
-have no challenge `README.md` files; their challenge config lives in the Instruqt UI.
+`# Name` is an H1, `## Url` an H2, `### Description` an H3. `dapr-workflow` has no challenge
+`README.md` files; its challenge config lives in the Instruqt UI.
 
 ## notes.md templates
 
@@ -199,21 +197,21 @@ Defines the IDE tabs. Omit it for a single-terminal track. Each tab is a `## <Ta
 ## Editor
 
 type: code editor
-host: dotnet-10-aspire
-path: dapr-workflow-aspire/EnterpriseDiagnostics
+host: <sandbox-host>
+path: <track-folder>/<App>
 
 ## Terminal
 
 type: terminal
-host: dotnet-10-aspire
-path: dapr-workflow-aspire/EnterpriseDiagnostics
+host: <sandbox-host>
+path: <track-folder>/<App>
 
-## Aspire
+## Web app
 
 type: service/webapp
-host: dotnet-10-aspire
+host: <sandbox-host>
 path: (empty)
-port: 17000
+port: <port>
 protocol: http
 ```
 
@@ -223,8 +221,8 @@ terminals after what runs in them, and on a multi-terminal track put the Run-but
 
 ## Images
 
-Prefer a per-challenge `images/` folder with a raw-GitHub URL (as `dapr-workflow` does). `dapr-workflow-aspire`
-uses Instruqt-hosted assets, which are not in the repo. Avoid the last one.
+Prefer a per-challenge `images/` folder with a raw-GitHub URL (as `dapr-workflow` does). Avoid
+Instruqt-hosted assets: they are not in the repo.
 
 ## _setup/sandbox-setup.sh
 
@@ -285,9 +283,6 @@ install the rest in `sandbox-setup.sh`.
 - **Clone an external repo** in `_setup/sandbox-setup.sh` (`dapr/quickstarts` for
   `dapr-workflow`; `diagrid-labs/university-labs` (formerly `ai-agent-tracks-instruqt`) for `ai-agents-maf`). `dapr/quickstarts`
   uses a `resources/` folder for components.
-- **Build it live**: the learner scaffolds the app and pastes code from `,copy` blocks
-  (`dapr-workflow-aspire`). Its suite pulls commands out of the assignment at runtime with
-  `libraries/assignment_blocks.py`, and its CI has no doc-sync job.
 
 ## Secrets
 
