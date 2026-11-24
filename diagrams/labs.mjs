@@ -12,6 +12,7 @@ export const PAGES = {
   'bindings-2-output': { page: 'dapr-bindings/2-postgres-output-binding', file: 'output.png' },
   'bindings-3-two-components': { page: 'dapr-bindings/3-state-vs-binding', file: 'two-components.png' },
   'bindings-4-subspace-beacon': { page: 'dapr-bindings/4-subspace-beacon', file: 'subspace-beacon.png' },
+  'pubsub-1-pattern': { page: 'dapr-pubsub/1-subscription-types', file: 'pubsub-pattern.png' },
   'workflow-101-1-architecture': { page: 'dapr-workflow-101/1-durable-execution', file: 'architecture.png' },
   'workflow-101-1-replay': { page: 'dapr-workflow-101/1-durable-execution', file: 'replay.png' },
   'workflow-101-2-chain': { page: 'dapr-workflow-101/2-task-chaining', file: 'chain.png' },
