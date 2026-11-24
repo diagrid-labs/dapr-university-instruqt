@@ -45,7 +45,10 @@
 // 3 output binding: engineering's sidecar -> ship-db -> comms_log (the app calls
 //   its sidecar with the binding name; the sidecar runs the INSERT).
 // Every arrow of a step carries that step's number in a step mark. The app ->
-// sidecar arrow is numbered 2 only: the brief starts step 3 at the sidecar.
+// sidecar arrow carries steps 2 and 3: the app calls its own sidecar both for the
+// invocation and for the ship-db insert (`shipDb.ExecAsync` via DaprClient in
+// .NET, `invoke_binding("ship-db", "exec", ...)` in Python), so two discs, 2
+// above 3, stand beside it.
 // No reply arrows: the beacon's answer comes back on step 2's call, and the
 // picture is the calls going out, as in bindings-1 to 3.
 //
@@ -129,8 +132,9 @@ export default {
     + 'engineering under its sidecar, and a blue hexagon labelled subspace-beacon under its sidecar. '
     + 'Step 1: an arrow from the clock to engineering\'s sidecar and from that sidecar down to '
     + 'engineering. Step 2: an arrow from engineering up to its sidecar, across to the beacon\'s '
-    + 'sidecar, and down to subspace-beacon, labelled GET /ping. Step 3: an arrow labelled ship-db '
-    + 'from engineering\'s sidecar to the comms_log table.',
+    + 'sidecar, and down to subspace-beacon, labelled GET /ping. Step 3: engineering calls its own '
+    + 'sidecar again (the same arrow carries steps 2 and 3), and an arrow labelled ship-db goes from '
+    + 'that sidecar to the comms_log table.',
 
   build() {
     const clock = { x: X1, y: Y1, w: MARK, h: MARK };
@@ -169,7 +173,8 @@ export default {
       arrow({ from: [X2 + V_DX, appHigh(V_DX)], to: [X2 + V_DX, sideLow(V_DX)] }),
       arrow({ from: side, to: beaconSide }),
       arrow({ from: beaconSide, to: beacon }),
-      stepMark({ x: X2 + V_DX + STEP_GAP + STEP, y: vMid, step: 2, r: STEP, size: TEXT }),
+      stepMark({ x: X2 + V_DX + STEP_GAP + STEP, y: vMid - STEP - 2, step: 2, r: STEP, size: TEXT }),
+      stepMark({ x: X2 + V_DX + STEP_GAP + STEP, y: vMid + STEP + 2, step: 3, r: STEP, size: TEXT }),
       stepMark({ x: (X2 + X3) / 2, y: Y1 - STEP - STEP_GAP, step: 2, r: STEP, size: TEXT }),
       stepMark({ x: X3 - STEP_GAP - STEP, y: bMid, step: 2, r: STEP, size: TEXT }),
       label({ x: X3 + ROUTE_DX, y: bMid, text: 'GET /ping', size: TEXT, anchor: 'start' }),
