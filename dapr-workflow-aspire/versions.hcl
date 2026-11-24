@@ -7,12 +7,11 @@ variable "dapr_runtime_version" {
   default     = "1.19.2"
 }
 
-# The head of diagrid-labs/university-labs PR #17, which adds the workflow-aspire/ workspace folder
-# (a README and a .gitignore; the learner creates the solution there). Re-pin to the merge commit
-# once that PR merges.
+# The merge commit of diagrid-labs/university-labs PR #17, which adds the workflow-aspire/ workspace
+# folder (a README and a .gitignore; the learner creates the solution there).
 variable "tracks_src_ref" {
   description = "Commit of diagrid-labs/university-labs that the lab checks out after cloning."
-  default     = "ac7d8d8c88fb4f4e98224d6da593f3717502d990"
+  default     = "2fa0659512acb9ad9202e8d48ee949034d2e6b32"
 }
 
 # The pages repeat this version (`aspire new --version`, the `#:package` lines of apphost.cs); the
