@@ -252,7 +252,7 @@ tools/track-tester/
                          test_pubsub_lab_setup, test_pubsub_pins, test_dapr101_pages,
                          test_dapr101_pins, test_dapr_init, test_bindings_lab_setup,
                          test_bindings_pins)
-    dapr-init.sh         sourced by setup-dapr-101/secrets/pubsub/bindings/workflow-101.sh: `dapr init`, retried in CI
+    dapr-init.sh         sourced by setup-dapr-101/secrets/pubsub/bindings/workflow-101/workflow.sh: `dapr init`, retried in CI
                          when a container's host port is briefly taken on the runner
   results/               (gitignored) output dirs from local/CI runs
 ```

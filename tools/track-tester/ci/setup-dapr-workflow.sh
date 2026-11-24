@@ -6,6 +6,7 @@
 # setup-dotnet/setup-java steps, not by this script.
 set -euo pipefail
 
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 QUICKSTARTS_DIR="${QUICKSTARTS_DIR:-$HOME/quickstarts}"
 
 # 1. Clone the quickstarts repo (drift source of truth).
@@ -27,6 +28,9 @@ if ! command -v dapr >/dev/null 2>&1; then
   curl -fsSL https://raw.githubusercontent.com/dapr/cli/master/install/install.sh | /bin/bash
 fi
 dapr uninstall --all >/dev/null || true
-dapr init
+# Retries in CI when a container's host port is briefly taken on the runner (see dapr-init.sh).
+# shellcheck source=dapr-init.sh
+source "$REPO_ROOT/tools/track-tester/ci/dapr-init.sh"
+dapr_init_with_retry
 
 echo "Setup complete. QUICKSTARTS_DIR=$QUICKSTARTS_DIR"

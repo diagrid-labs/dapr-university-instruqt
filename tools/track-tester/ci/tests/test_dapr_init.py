@@ -7,7 +7,7 @@ import pytest
 
 REPO = Path(__file__).resolve().parents[4]
 HELPER = REPO / "tools" / "track-tester" / "ci" / "dapr-init.sh"
-SETUP_SCRIPTS = ["setup-dapr-101.sh", "setup-dapr-secrets.sh", "setup-dapr-pubsub.sh"]
+SETUP_SCRIPTS = ["setup-dapr-101.sh", "setup-dapr-secrets.sh", "setup-dapr-pubsub.sh", "setup-dapr-workflow.sh"]
 
 
 def run(tmp_path, init_failures, ci=True, attempts=3):
