@@ -1,5 +1,6 @@
 import bindings1Cron from './bindings-1-cron.mjs';
 import bindings1Directions from './bindings-1-directions.mjs';
+import bindings2Output from './bindings-2-output.mjs';
 import workflow1011Architecture from './workflow-101-1-architecture.mjs';
 import workflow1011Replay from './workflow-101-1-replay.mjs';
 import workflow1012Chain from './workflow-101-2-chain.mjs';
@@ -11,6 +12,7 @@ import workflow1016Lifecycle from './workflow-101-6-lifecycle.mjs';
 export const scenes = {
   'bindings-1-cron': bindings1Cron,
   'bindings-1-directions': bindings1Directions,
+  'bindings-2-output': bindings2Output,
   'workflow-101-1-architecture': workflow1011Architecture,
   'workflow-101-1-replay': workflow1011Replay,
   'workflow-101-2-chain': workflow1012Chain,
