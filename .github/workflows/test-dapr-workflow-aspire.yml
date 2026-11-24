@@ -228,22 +228,6 @@ jobs:
             echo "::error::Failed pages:$failed"
             exit 1
           fi
-      - name: TEMP diagnostic (build output location)
-        if: always()
-        shell: bash
-        run: |
-          cd "$TRACKS_SRC_DIR/workflow-aspire"
-          dotnet --info | head -30 || true
-          env | grep -i -E 'dotnet|msbuild|nuget|artifacts|configuration' || true
-          find "$TRACKS_SRC_DIR/workflow-aspire" -name 'Engineering.dll' | head -40
-          ls -la MeridianDiagnostics MeridianDiagnostics/Engineering MeridianDiagnostics/Engineering/bin 2>&1 || true
-          dotnet msbuild MeridianDiagnostics/Engineering -getProperty:OutputPath -getProperty:OutDir \
-            -getProperty:UseArtifactsOutput -getProperty:ArtifactsPath -getProperty:DirectoryBuildPropsPath \
-            -getProperty:DirectoryBuildTargetsPath -getProperty:RuntimeIdentifier -getProperty:BaseOutputPath \
-            -getProperty:Configuration -getProperty:MSBuildProjectDirectory || true
-          for d in "$TRACKS_SRC_DIR" "$GITHUB_WORKSPACE" /home/runner/work/dapr-university-instruqt /home/runner/work /home/runner /home /; do
-            ls -a "$d" | grep -i -E 'Directory\.|global\.json|nuget' | sed "s|^|$d: |" || true
-          done
       # The run step is the one that hits the job timeout, and `Record pre-test failure` above has
       # already been evaluated (and skipped) by then. Do not overwrite a record the run step wrote.
       - name: Record timeout
