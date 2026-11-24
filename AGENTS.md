@@ -46,6 +46,7 @@ each scene to its page and image file). Never edit `diagrams/_engine/`. Export w
 into the page `images/` folders with `node diagrams/copy-to-labs.mjs`, preview a scene on the assignment
 background with `node diagrams/preview.mjs <name>`, and test with `node --test "diagrams/*.test.mjs"`
 (quote the glob; Node 24 treats a bare `diagrams/` as a module path). `out/` and `bbox.json` are committed.
+On a fresh clone, run `npm ci` in `diagrams/`, then `npx playwright install chromium` (from `diagrams/`), before exporting or previewing.
 Column constraints: canvas width 440 to 500 units, width / height at least 1.33, labels 13 units
 (`TEXT = 13`) or larger, at most three shapes in a row, short labels. The assignment uses
 `<name>-dark.png` only (transparent, 2x), shown on `#16181d` in a 424 px column. Image URLs use the

@@ -18,6 +18,8 @@
 //   right, captioned "max hazard," and "CLEAR below 50".
 // - The workflow input (jump) is ignored by the demo, so no arrow for it.
 //
+// The two RouteScanWorkflow boxes are neutral grey on navy (not the teal of activities).
+//
 // Connections: RouteScanWorkflow -> each of the five scans -> join.
 // Horizontal arrows: the left and right boxes are as tall as the stack of scans.
 //
@@ -30,6 +32,7 @@
 //   for "ScanSectorActivity" is wider than the column of boxes).
 // - Canvas 476 wide for the 424 px lab column (not 16:9 at 1100+ units).
 import { arrow, box, label } from '../_engine/shapes.mjs';
+import { C } from '../_engine/engine.mjs';
 import { FLOW } from '../_engine/flow.mjs';
 
 const TEXT = 13;
@@ -57,13 +60,14 @@ const SCANS = [['alpha', 12], ['beta', 7], ['gamma', 31], ['delta', 4], ['epsilo
 const rowY = (i) => TOP + SCAN_H / 2 + i * (SCAN_H + SCAN_GAP);
 
 const STEP = { ...FLOW.step, size: TEXT };
+const WORKFLOW = { stroke: C.caption, fill: C.navyFill, size: TEXT }; // not an activity: neutral, not teal
 
 export default {
   width: W,
   height: H,
   title: 'RouteScanWorkflow fans out to five scans and fans in',
   desc:
-    'Three columns. A fan-out box under the heading RouteScanWorkflow has five arrows to five boxes under the '
+    'Three columns. A grey fan-out box under the heading RouteScanWorkflow has five arrows to five boxes under the '
     + 'heading ScanSectorActivity: alpha 12, beta 7, gamma 31, delta 4 and epsilon 18. Five arrows lead to a '
     + 'fan-in box, also under the heading RouteScanWorkflow, that holds routeRisk and verdict, captioned '
     + 'max hazard, and CLEAR below 50.',
@@ -82,8 +86,8 @@ export default {
     SCANS.forEach(([array, hazard], i) => {
       out.push(box({ x: MIDX, y: rowY(i), w: SCAN_W, h: SCAN_H, label: `${array} \u00b7 ${hazard}`, ...STEP }));
     });
-    out.push(box({ ...LEFT, label: 'fan-out', ...STEP }));
-    out.push(box({ ...RIGHT, label: 'fan-in\nrouteRisk / verdict', ...STEP }));
+    out.push(box({ ...LEFT, label: 'fan-out', ...WORKFLOW }));
+    out.push(box({ ...RIGHT, label: 'fan-in\nrouteRisk / verdict', ...WORKFLOW }));
     out.push(label({ x: RIGHT.x, y: BOTTOM + CAPTION_GAP, text: 'max hazard,\nCLEAR below 50', size: TEXT }));
     return out;
   },

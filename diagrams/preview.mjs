@@ -1,12 +1,11 @@
 // Usage: node diagrams/preview.mjs <name>
 // Renders out/<name>-dark.png at 424 CSS px on #16181d (the Instruqt column) into preview/<name>.png.
 import { readFileSync, mkdirSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { chromium } from '@playwright/test';
 
 const dir = dirname(fileURLToPath(import.meta.url));
-const { chromium } = createRequire(join(dir, 'package.json'))('playwright');
 
 const name = process.argv[2];
 if (!name) {
