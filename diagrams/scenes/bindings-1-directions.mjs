@@ -32,8 +32,9 @@
 // Departures from the skill, on purpose:
 // - The sidecar stands apart from the app instead of overlapping it
 //   (appSidecar()), because the point of the picture is the hop between the
-//   app and its sidecar, which needs a visible arrow. The sidecar keeps the
-//   house size relation to the app (0.75 of the radius).
+//   app and its sidecar, which needs a visible arrow. App and sidecar are the
+//   same size as on the rest of the lab (app radius 56, sidecar 0.75 of it,
+//   42), so they match bindings-1-cron on the same page.
 // - Canvas 480 wide for the 424 px lab column (not 16:9 at 1100+ units).
 import { APP, C } from '../_engine/engine.mjs';
 import { arrow, captionPad, captionReach, group, hex, hexHalfWidth, label, region } from '../_engine/shapes.mjs';
@@ -45,7 +46,7 @@ const W = 480;
 const M = 12; // canvas margin
 
 // Shapes in a row, sized against the app.
-const APP_R = 44; // the house app radius (42.5 to 60), a little up for "app" at 13
+const APP_R = 56; // the house app radius, as in bindings-1-cron, -2, -3 and -4 (the whole lab uses one app size)
 const SIDE_R = 0.75 * APP_R; // the house sidecar size relation (SIDECAR_R)
 const MARK = 44; // the external system's mark, fitted by its ink (its height)
 const MARK_W = MARK * 12 / 20; // the server glyph's ink is 12 x 20 (_engine/icons/ink.json), so arrows stop at its drawn side
@@ -71,9 +72,9 @@ const APP_X = SIDE_X + SIDE_TO_APP;
 const REACH = captionReach();
 const GROUP_T = APP_R;
 const GROUP_B = NAME_DY + GLYPH;
-const PAD_Y = 14; // between the group and the pill's lower edge, and the region's bottom
+const PAD_Y = 8; // between the group and the pill's lower edge, and the region's bottom: 8 is what keeps the canvas at 1.33 or wider with the house-size app (14 gave 1.24); the hexagon's top is a point, so 8 reads open there
 const ROW_H = REACH + PAD_Y + GROUP_T + GROUP_B + PAD_Y;
-const ROW_GAP = 16 + REACH; // clear space between the rows, plus the lower pill's reach
+const ROW_GAP = 12 + REACH; // clear space between the rows (12, a little under the 16 of the first draft to hold the aspect), plus the lower pill's reach
 const ROW_X = M;
 const ROW_W = W - 2 * M;
 

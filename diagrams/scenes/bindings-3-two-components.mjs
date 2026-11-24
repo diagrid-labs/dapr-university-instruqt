@@ -34,10 +34,10 @@
 // calls the State API first and the binding second, but the picture is the two
 // paths, so the arrows carry no order.
 //
-// Label placement: each two-line block sits ABOVE its own arrow, 7.5 units
-// clear of it, and the ship-db block is 18.5 units clear of the statestore
-// arrow above it, so each block is plainly nearest its own arrow and no two
-// blocks share a row. "Dapr sidecar" and "PostgreSQL" sit below everything.
+// Label placement: each two-line block sits ABOVE its own arrow, its lower
+// line centred LABEL_GAP (14) above it, and the ship-db block clears the
+// statestore arrow above it by a wider margin than it clears its own,
+// so each block is plainly nearest its own arrow and no two blocks share a row. "Dapr sidecar" and "PostgreSQL" sit below everything.
 //
 // Departures from the skill, on purpose: canvas 500 wide for the 424 px lab
 // column; the sidecar stands apart from the app (as in bindings-2-output); the

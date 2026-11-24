@@ -134,7 +134,7 @@ export default {
     + 'engineering. Step 2: an arrow from engineering up to its sidecar, across to the beacon\'s '
     + 'sidecar, and down to subspace-beacon, labelled GET /ping. Step 3: engineering calls its own '
     + 'sidecar again (the same arrow carries steps 2 and 3), and an arrow labelled ship-db goes from '
-    + 'that sidecar to the comms_log table.',
+    + 'that sidecar to the PostgreSQL store that holds the comms_log table.',
 
   build() {
     const clock = { x: X1, y: Y1, w: MARK, h: MARK };
