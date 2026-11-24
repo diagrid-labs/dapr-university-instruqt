@@ -30,11 +30,28 @@ Learners never run anything locally. The only things executed locally or in CI a
 modules/
   dapr-sandbox/              shared Instruqt 2.0 sandbox module (published as diagrid/dapr-sandbox)
 docs/                        Instruqt 2.0 runbook and spike checklist
+diagrams/                    concept diagrams for lab assignments (create-diagram scenes, exporter output, copy tooling)
 tools/
   track-tester/              the Robot Framework drift-testing harness (see below)
   github-collector/          helper tooling (data collection)
 .github/workflows/           CI workflows that run the track-tester suites
 ```
+
+### Diagrams
+
+`diagrams/` holds the concept diagrams shown in lab assignments, drawn with the `create-diagram` skill
+(one scene per diagram in `diagrams/scenes/`, registered in `scenes/index.mjs`; `diagrams/labs.mjs` maps
+each scene to its page and image file). Never edit `diagrams/_engine/`. Export with
+`node diagrams/_engine/export.mjs` (`--only <name>` for one scene, `--check` to verify), copy the dark PNGs
+into the page `images/` folders with `node diagrams/copy-to-labs.mjs`, preview a scene on the assignment
+background with `node diagrams/preview.mjs <name>`, and test with `node --test "diagrams/*.test.mjs"`
+(quote the glob; Node 24 treats a bare `diagrams/` as a module path). `out/` and `bbox.json` are committed.
+Column constraints: canvas width 440 to 500 units, width / height at least 1.33, labels 13 units
+(`TEXT = 13`) or larger, at most three shapes in a row, short labels. The assignment uses
+`<name>-dark.png` only (transparent, 2x), shown on `#16181d` in a 424 px column. Image URLs use the
+`blob/main/<lab>/<page>/images/<file>.png?raw=true` form; while a PR is open you can point them at the
+branch with `node diagrams/set-image-ref.mjs <branch>`, and back with `... main` before merging (the test
+`refs point at main` fails otherwise, unless `ALLOW_BRANCH_REFS=1`).
 
 ### Tracks
 
