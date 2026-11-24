@@ -9,6 +9,7 @@ export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const PAGES = {
   '101-2-dapr-init': { page: 'dapr-101/2-dapr-cli', file: 'dapr-init.png' },
   '101-3-state': { page: 'dapr-101/3-state-management-api', file: 'state.png' },
+  '101-4-invocation': { page: 'dapr-101/4-service-invocation-api', file: 'invocation.png' },
   'bindings-1-cron': { page: 'dapr-bindings/1-cron-input-binding', file: 'cron.png' },
   'bindings-1-directions': { page: 'dapr-bindings/1-cron-input-binding', file: 'directions.png' },
   'bindings-2-output': { page: 'dapr-bindings/2-postgres-output-binding', file: 'output.png' },
