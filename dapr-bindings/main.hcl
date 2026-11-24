@@ -13,6 +13,10 @@ resource "lab" "main" {
 
     The sandbox is available for 30 minutes in total, and you can extend that time by 10 minutes. If you are inactive for 10 minutes, the sandbox times out. After a timeout, you need to restart the track.
 
+    Complete the track to collect the Dapr University Dapr Bindings badge.
+
+    <img src="https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-bindings/4-subspace-beacon/images/Diagrid-Dapr-Uni-badge-bindings_x300.png?raw=true" alt="Dapr University Dapr Bindings badge" width="192" height="192">
+
     Enjoy some cellular automata art while the sandbox is being prepared.
 
     <iframe src="https://www.diagrid.io/demos/sketches/dapr-university.html" width="500" height="500"></iframe>
