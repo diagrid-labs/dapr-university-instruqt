@@ -8,6 +8,7 @@
     "mono": "\"Geist Mono\", ui-monospace, \"Cascadia Mono\", Consolas, monospace"
   },
   "scenes": {
+    "101-2-dapr-init": "3d8dff55dc6bb5030889938aa96d768589381f2c5d1828bc7b5a4a20316e75d5",
     "bindings-1-cron": "fe8f8a7d71c04a6fa0a2b285476f5f033edfb16d5e62fad47e85537ced779cc1",
     "bindings-1-directions": "d8b7257ff1aed34a9acf6c4135884c787027267c3e95a3cc178e8f3148842af6",
     "bindings-2-output": "932b77b82d626558d2256179e25d32513d5022a3e315f30a9f4f7587ac7d712d",

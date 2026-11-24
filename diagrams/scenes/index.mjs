@@ -1,3 +1,4 @@
+import dapr1012DaprInit from './101-2-dapr-init.mjs';
 import bindings1Cron from './bindings-1-cron.mjs';
 import bindings1Directions from './bindings-1-directions.mjs';
 import bindings2Output from './bindings-2-output.mjs';
@@ -22,6 +23,7 @@ import workflow1015Approval from './workflow-101-5-approval.mjs';
 import workflow1016Lifecycle from './workflow-101-6-lifecycle.mjs';
 
 export const scenes = {
+  '101-2-dapr-init': dapr1012DaprInit,
   'bindings-1-cron': bindings1Cron,
   'bindings-1-directions': bindings1Directions,
   'bindings-2-output': bindings2Output,
