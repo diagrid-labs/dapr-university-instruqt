@@ -122,15 +122,7 @@ dapr run -f .
 >
 > Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `engineering` is ready when the **Health** column shows a green dot. You can also inspect the output of the **Dapr CLI** window.
 
-The **Dapr CLI** window should show this line when the sidecar has started, and your application's logs follow:
-
-```text,nocopy
-ℹ️  Started Dapr with app id "engineering". HTTP Port: 3530. gRPC Port: 50330
-```
-
 ## 3. Pause a jump
-
-Open the **Dev Dashboard** tab, go to the **Logs** page, select `engineering` and search for `engineering jump`. The same lines also appear in the **Dapr CLI** window.
 
 Use the **curl** window to start `jump-001`, wait 8 seconds, pause it, wait 2 seconds and check the status. The commands are in one block, so they run back to back:
 
@@ -162,16 +154,9 @@ The pause takes effect a moment after the `202`. If the status is still `RUNNING
 curl -s http://localhost:5301/jumps/jump-001 | jq
 ```
 
-Before the pause, the jump logged one or two legs, for example:
+Open the **Dev Dashboard** tab, go to the **Workflows** page and select the `jump-001` instance of `LongRangeJumpWorkflow`. In its **Event history**, each leg is a `TaskScheduled` and a `TaskCompleted` event for `EngageLegActivity`, followed by a `TimerCreated` and a `TimerFired` event for the 5-second wait. Expand a `TaskScheduled` event to see the leg number in its input. Before the pause, the jump completed one or two legs.
 
-```text,nocopy
-== APP - engineering == engineering jump-001 leg 1/10 complete
-== APP - engineering == engineering jump-001 leg 2/10 complete
-```
-
-Keep an eye on the log for a while: no new leg line appears. The timer of the current leg still fires, because Dapr stores it, but the workflow only continues after it is resumed.
-
-The log lines on this page show only the message. In the real log, Python and Java put their own logger prefix in front of it, .NET writes an `info:` line followed by the message on a line of its own, and the TypeScript SDK adds a few lines of its own for every workflow step.
+The pause added an `ExecutionSuspended` event. Look at the history again after a while: no new `TaskScheduled` event appears. The timer of the current leg still fires, because Dapr stores it, but the workflow only continues after it is resumed.
 
 ## 4. Try to purge a paused jump
 
@@ -190,7 +175,7 @@ Expected output:
 500
 ```
 
-Dapr refused the purge, and `engineering` logs a warning that starts with `engineering workflow call failed:` and contains `orchestration has not yet completed`. Use the **curl** window to check that the jump is still paused:
+Dapr refused the purge. A refused call doesn't change the workflow, so it isn't in the event history. The reason is in the app's log: go to the **Logs** page of the **Dev Dashboard** tab, select `engineering` and search for `workflow call failed`. The warning contains `orchestration has not yet completed`. Use the **curl** window to check that the jump is still paused:
 
 ```bash,run
 curl -s http://localhost:5301/jumps/jump-001 | jq
@@ -233,7 +218,7 @@ If the status is still `SUSPENDED`, run the status command again:
 curl -s http://localhost:5301/jumps/jump-001 | jq
 ```
 
-The log shows the legs continue with the next one, for example `engineering jump-001 leg 3/10 complete`. The jump doesn't start over from leg 1: the workflow picks up from its stored history. It finishes in about 40 seconds, and you'll check its result in step 7.
+Look at the **Event history** of `jump-001` on the **Workflows** page. An `ExecutionResumed` event follows the `ExecutionSuspended` event, and after it new `TaskScheduled` events for `EngageLegActivity` appear. Expand the first one: it's the next leg, for example leg 3. The jump doesn't start over from leg 1: the workflow picks up from its stored history. It finishes in about 40 seconds, and you'll check its result in step 7.
 
 ## 6. Terminate a jump
 
@@ -267,7 +252,7 @@ If the status is still `RUNNING`, run the status command again:
 curl -s http://localhost:5301/jumps/jump-002 | jq
 ```
 
-A terminated jump has finished for good: no more legs are logged for `jump-002`, and it has no output. Unlike a paused jump, it can't be resumed.
+Select the `jump-002` instance on the **Workflows** page. Its **Event history** has an `ExecutionTerminated` event, and no new legs follow it. A terminated jump has finished for good, and it has no output. Unlike a paused jump, it can't be resumed.
 
 Use the **curl** window to try to pause `jump-002`:
 
@@ -339,7 +324,7 @@ Expected output:
 }
 ```
 
-The pause made the jump take longer, but it lost nothing: every leg ran once, and the jump arrived.
+The pause made the jump take longer, but it lost nothing: every leg ran once, and the jump arrived. The **Event history** of `jump-001` shows a `TaskScheduled` event for each of the 10 legs, with the `ExecutionSuspended` and `ExecutionResumed` events in between, and ends with an `ExecutionCompleted` event.
 
 ## 8. Look at the endpoint code
 
@@ -629,6 +614,9 @@ Then purge the history of the finished jumps:
 ```bash,run
 dapr workflow purge --all -a engineering
 ```
+
+> [!TIP]
+> You can also purge workflows from the Dapr Dev Dashboard instead of the CLI. On the **Workflows** page of the **Dev Dashboard** tab, select the checkbox of each run you want to remove and click **Purge via Dapr API**. A run that is still running or suspended is terminated first and then purged, so you don't need a separate terminate. Like the CLI, the dashboard does this through the app's sidecar, so do it before you stop the app.
 
 ## 11. Stop the applications
 

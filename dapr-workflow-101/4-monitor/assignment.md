@@ -126,15 +126,7 @@ dapr run -f .
 >
 > Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `engineering` is ready when the **Health** column shows a green dot. You can also inspect the output of the **Dapr CLI** window.
 
-The **Dapr CLI** window should show this line when the sidecar has started, and your application's logs follow:
-
-```text,nocopy
-ℹ️  Started Dapr with app id "engineering". HTTP Port: 3530. gRPC Port: 50330
-```
-
 ## 3. Start a jump
-
-Open the **Dev Dashboard** tab, go to the **Logs** page, select `engineering` and search for `core temperature`. The same lines also appear in the **Dapr CLI** window.
 
 Use the **curl** window to start `jump-001`, wait 7 seconds and check the status. The three commands are in one block, so they run back to back:
 
@@ -157,19 +149,17 @@ Expected output:
 }
 ```
 
-The monitor needs about 20 seconds in total. While it runs, the status is `RUNNING`, also in the moments between two checks. `engineering` logs one line about every 5 seconds:
+The monitor needs about 20 seconds in total. While it runs, the status is `RUNNING`, also in the moments between two checks.
 
-```text,nocopy
-== APP - engineering == engineering core temperature check 1: 1240K
-== APP - engineering == engineering core temperature check 2: 1180K
-== APP - engineering == engineering core temperature check 3: 1120K
-== APP - engineering == engineering core temperature check 4: 1060K
-== APP - engineering == engineering core temperature check 5: 1000K
-```
+Open the **Dev Dashboard** tab, go to the **Workflows** page and select the `jump-001` instance of `CoreStabilityWorkflow`. Its **Event history** shows one check:
 
-The lines above show only the message. In the real log, Python and Java put their own logger prefix in front of it, and .NET writes an `info:` line followed by the message on a line of its own.
+- An `ExecutionStarted` event. Its input has the jump ID and the check number.
+- A `TaskScheduled` and a `TaskCompleted` event for `ReadCoreTempActivity`. Expand the `TaskCompleted` event to see the temperature of this check.
+- A `TimerCreated` event for the 5-second wait, and a `TimerFired` event when the wait is over.
 
-When check 5 is logged, use the **curl** window to check the status again. If it's still `RUNNING`, run the command again:
+After the timer fires, the workflow continues as new. The history of this check ends, and a new history starts with an `ExecutionStarted` event that has the next check number in its input. The detail page shows the history of the current check only. Look at it again every few seconds: the check number goes up, and the earlier checks are no longer in the history.
+
+When the input of the `ExecutionStarted` event has check 5, the history ends with an `ExecutionCompleted` event instead of a timer. Use the **curl** window to check the status again. If it's still `RUNNING`, run the command again:
 
 ```bash,run
 curl -s http://localhost:5301/jumps/jump-001 | jq
@@ -315,7 +305,7 @@ ctx.continueAsNew({ jumpId: jump.jumpId, check: check + 1 } satisfies Jump);
 
 </details>
 
-Why continue-as-new? Every step a workflow takes is added to its history, and Dapr replays that history whenever the workflow continues. A monitor that loops inside one run would add to its history with every check, and the history would grow the longer the monitor runs. With continue-as-new, each check starts with an empty history, so the history stays small however long the monitor runs.
+Why continue-as-new? Every step a workflow takes is added to its history, and Dapr replays that history whenever the workflow continues. A monitor that loops inside one run would add to its history with every check, and the history would grow the longer the monitor runs. With continue-as-new, each check starts with an empty history, so the history stays small however long the monitor runs. That's what you saw on the **Workflows** page: the event history never held more than one check.
 
 The timer is **durable** for the same reason the rest of the workflow is: Dapr stores it. It doesn't live in the app's memory, so a restart of the app during the 5 seconds doesn't lose it. A `sleep` or `Task.Delay` in the workflow code wouldn't give you that, and it isn't deterministic either.
 
@@ -326,6 +316,9 @@ The workflow history stays in Redis after the app stops, and every demo in this 
 ```bash,run
 dapr workflow purge --all -a engineering
 ```
+
+> [!TIP]
+> You can also purge workflows from the Dapr Dev Dashboard instead of the CLI. On the **Workflows** page of the **Dev Dashboard** tab, select the checkbox of each run you want to remove and click **Purge via Dapr API**. Like the CLI, the dashboard purges through the app's sidecar, so do this before you stop the app.
 
 ## 6. Stop the applications
 

@@ -11,9 +11,16 @@ Every workflow app has two building blocks:
 - **The workflow** decides what happens in which order. It doesn't do the work itself.
 - **An activity** does the work: it can be slow, call other services or write to a database.
 
-A workflow is ordinary code in your app. The Dapr sidecar runs it: it schedules each activity, saves the workflow's history in a state store, and replays the code from that history when the app comes back after a crash. In this track the state store is the Redis container that `dapr init` started.
+A workflow is ordinary code in your app. The Dapr sidecar manages it: it schedules each activity, saves the workflow's history in a state store, and replays the code from that history when the app comes back after a crash. In this track the state store is the Redis container that `dapr init` started.
 
-Use the **Editor** tab to open the demo folder of your language: `dotnet/Demo1-DurableExecution`, `python/demo1-durable-execution`, `java/demo1-durable-execution` or `typescript/demo1-durable-execution`. The `engineering` app has two endpoints: `POST /jumps` starts a workflow, and the `jumpId` you send becomes the workflow's instance ID. `GET /jumps/{jumpId}` returns its status and result.
+Use the **Editor** tab to open the demo folder of your language:
+
+- .NET: `dotnet/Demo1-DurableExecution`
+- Python: `python/demo1-durable-execution`
+- Java: `java/demo1-durable-execution`
+- TypeScript: `typescript/demo1-durable-execution`
+
+The `engineering` app has two endpoints: `POST /jumps` starts a workflow, and the `jumpId` you send becomes the workflow's instance ID. `GET /jumps/{jumpId}` returns its status and result.
 
 ## 2. Run the demo
 
@@ -117,15 +124,17 @@ If the app fails because `tsx` or a package is not found, the sandbox is still i
 >
 > Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `engineering` is ready when the **Health** column shows a green dot. You can also inspect the output of the **Dapr CLI** window.
 
-The **Dapr CLI** window should show this line when the sidecar has started, and your application's logs follow:
+## 3. Start a jump and crash the ship
 
-```text,nocopy
-ℹ️  Started Dapr with app id "engineering". HTTP Port: 3530. gRPC Port: 50330
-```
+In this step you start a jump, and you stop the app while the workflow is still running. You'll use three windows:
 
-## 3. Start a jump
+- The **Logs** page of the **Dev Dashboard** tab, where you watch the charge stages complete.
+- The **curl** window, where you start the jump.
+- The **Dapr CLI** window, where you stop the app with `Ctrl+C`.
 
-The next step needs quick hands, so get ready first. On the **Logs** page of the **Dev Dashboard** tab, select `engineering` and search for `jump-001`. The same lines also appear in the **Dapr CLI** window.
+Timing matters here, so set everything up first and keep your eyes on the **Logs** page once the jump has started.
+
+Open the **Dev Dashboard** tab, go to the **Logs** page and select `engineering`. Type `jump-001` in the search box. No lines match yet, but every new log line that contains `jump-001` will show up here as soon as the app writes it.
 
 Use the **curl** window to start a jump with the ID `jump-001`:
 
@@ -133,44 +142,22 @@ Use the **curl** window to start a jump with the ID `jump-001`:
 curl -s -X POST http://localhost:5301/jumps -H 'Content-Type: application/json' -d '{"jumpId": "jump-001"}' | jq
 ```
 
-Expected output:
-
-```json,nocopy
-{
-  "jumpId": "jump-001"
-}
-```
-
-Then click in the **Dapr CLI** window, so it is ready for the next step. `engineering` logs one line when the workflow starts and one line every three seconds after that:
-
-```text,nocopy
-== APP - engineering == engineering jump-001 charge sequence started
-== APP - engineering == engineering charge stage 1/5 complete for jump-001
-== APP - engineering == engineering charge stage 2/5 complete for jump-001
-```
-
-The lines above show only the message. In the real log, Python and Java put their own logger prefix in front of it, .NET writes an `info:` line followed by the message on a line of its own, and the TypeScript SDK logs a few lines of its own between them.
-
-## 4. Crash the ship
+Then click in the **Dapr CLI** window, so it's ready for `Ctrl+C`, and watch the **Logs** page. A line appears when the charge sequence starts, and then one line every three seconds when a stage completes.
 
 > [!IMPORTANT]
-> Right after the `charge stage 2/5 complete` line appears, press `Ctrl+C` in the **Dapr CLI** window.
+> Right after the `charge stage 2/5 complete for jump-001` line appears, press `Ctrl+C` in the **Dapr CLI** window.
 
-That stops the app and its sidecar while stage 3 is running. In Python you may still see `charge stage 3/5 complete` while the app shuts down: the activity finished, but its result never reached the sidecar. In .NET the app prints `fail:` and `crit:` lines with an `RpcException` stack trace while it shuts down. That's expected: the sidecar stopped first. You'll see the same lines whenever you stop a .NET app in this track.
+That stops the app and its sidecar while stage 3 is running. In Python you may still see `charge stage 3/5 complete` while the app shuts down: the activity finished, but its result never reached the sidecar. In .NET the **Dapr CLI** window shows `fail:` and `crit:` lines with an `RpcException` stack trace while the app shuts down. That's expected: the sidecar stopped first. You'll see the same lines whenever you stop a .NET app in this track.
 
 If you were a little late and stage 3 or 4 also completed before the crash, that's fine. Fewer stages are left after the restart, and the rest of the lab works the same way.
 
+Now look at what the workflow has recorded so far. On the **Workflows** page of the **Dev Dashboard** tab, select the `jump-001` instance of `ChargeWarpCoreWorkflow`. It's still marked as running, because it never finished. Look at its **Event history**: there is a `TaskScheduled` and a `TaskCompleted` event for each stage that completed, but no `ExecutionCompleted` event at the end, because the app crashed first.
+
 ### If the jump finished before the crash
 
-If `charge stage 5/5 complete` appeared before you pressed `Ctrl+C`, there was nothing left to recover. Start the app again with `dapr run -f .` in the **Dapr CLI** window and wait until it is running. Then use the **curl** window to start a new jump with a new ID:
+If `charge stage 5/5 complete` appeared before you pressed `Ctrl+C`, there was nothing left to recover. Start the app again with `dapr run -f .` in the **Dapr CLI** window and wait until it is running. Then copy the `curl` command above into the **curl** window, change the `jumpId` to a new value, such as `jump-002`, and run it. Search for the new ID on the **Logs** page, and press `Ctrl+C` in the **Dapr CLI** window right after stage 2 of the new jump completes. Use the new ID instead of `jump-001` in the rest of this lab.
 
-```bash,run
-curl -s -X POST http://localhost:5301/jumps -H 'Content-Type: application/json' -d '{"jumpId": "jump-002"}' | jq
-```
-
-Press `Ctrl+C` in the **Dapr CLI** window right after `charge stage 2/5 complete for jump-002`, and read `jump-002` for `jump-001` in the rest of this lab.
-
-## 5. Start the app again
+## 4. Start the app again
 
 Use the **Dapr CLI** window to start the app again, from the same folder:
 
@@ -178,17 +165,11 @@ Use the **Dapr CLI** window to start the app again, from the same folder:
 dapr run -f .
 ```
 
-Don't send another `curl`. Within a few seconds of the app being ready, the log carries on where the workflow stopped:
+Don't send another `curl`. Within a few seconds of the app being ready, the **Logs** page shows the workflow carrying on where it stopped: stages 3, 4 and 5 complete. Stages 1 and 2 don't appear again, and neither does `charge sequence started`.
 
-```text,nocopy
-== APP - engineering == engineering charge stage 3/5 complete for jump-001
-== APP - engineering == engineering charge stage 4/5 complete for jump-001
-== APP - engineering == engineering charge stage 5/5 complete for jump-001
-```
+Go back to the `jump-001` details on the **Workflows** page and look at the **Event history** again. There is now a `TaskScheduled` and a `TaskCompleted` event for all five stages, followed by an `ExecutionCompleted` event. The workflow has finished, and its output shows `"coreCharged": true`. The dashboard reads all of this from the same Redis state store that the sidecar writes to.
 
-Stages 1 and 2 are not in the new log, and neither is `charge sequence started`.
-
-Use the **curl** window to check the jump:
+You can also check the jump from the **curl** window:
 
 ```bash,run
 curl -s http://localhost:5301/jumps/jump-001 | jq
@@ -207,15 +188,7 @@ Expected output. If the status is still `RUNNING`, wait a few seconds and run th
 }
 ```
 
-If you used `jump-002`, check that one instead:
-
-```bash,run
-curl -s http://localhost:5301/jumps/jump-002 | jq
-```
-
-Now open the **Dev Dashboard** tab and go to the **Workflows** page. It lists the `ChargeWarpCoreWorkflow` run with the ID `jump-001` and its status. Select it to see its event history, its input and its output. The dashboard reads them from the same Redis state store that the sidecar writes to.
-
-## 6. What happened
+## 5. What happened
 
 - **Completed stages didn't run again.** Every time an activity finishes, the sidecar records its result in the workflow's history in the state store. Each `await` (or `yield` in Python and TypeScript) on an activity is a checkpoint. Stages 1 and 2 were in the history before the crash, so they were not repeated.
 - **The stage that was running did run again.** Stage 3 had not reported back when the app stopped, so after the restart the sidecar sent it to the app again. Activities run at least once, so they should be safe to repeat.
@@ -330,7 +303,7 @@ Because the workflow code is replayed, it must be **deterministic**: every repla
 
 The app also has no database code. The state store component is only used by the sidecar, which saves and loads the workflow history.
 
-## 7. Clean up
+## 6. Clean up
 
 The workflow history stays in Redis after the app stops, and every demo in this track uses the same app ID, `engineering`. The `dapr workflow` commands of the Dapr CLI talk to the running sidecar, so clean up before you stop the app.
 
@@ -340,13 +313,12 @@ Use the **curl** window to purge the history of `jump-001`, which has finished:
 dapr workflow purge jump-001 -a engineering
 ```
 
-If you used `jump-002`, purge it too:
+If you started a jump with another ID, run the same command with that ID.
 
-```bash,run
-dapr workflow purge jump-002 -a engineering
-```
+> [!TIP]
+> You can also purge workflows from the Dapr Dev Dashboard instead of the CLI. On the **Workflows** page of the **Dev Dashboard** tab, select the checkbox of each run you want to remove and click **Purge via Dapr API**. Like the CLI, the dashboard purges through the app's sidecar, so do this before you stop the app.
 
-## 8. Stop the applications
+## 7. Stop the applications
 
 Use the **Dapr CLI** window to stop the application by pressing `Ctrl+C`.
 

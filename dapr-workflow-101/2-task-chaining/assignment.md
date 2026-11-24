@@ -118,15 +118,7 @@ dapr run -f .
 >
 > Open the **Dev Dashboard** tab and check the application health on the **Applications** page: `engineering` is ready when the **Health** column shows a green dot. You can also inspect the output of the **Dapr CLI** window.
 
-The **Dapr CLI** window should show this line when the sidecar has started, and your application's logs follow:
-
-```text,nocopy
-ℹ️  Started Dapr with app id "engineering". HTTP Port: 3530. gRPC Port: 50330
-```
-
 ## 3. Start a jump
-
-Open the **Dev Dashboard** tab, go to the **Logs** page, select `engineering` and search for `jump`. The same lines also appear in the **Dapr CLI** window.
 
 Use the **curl** window to start a jump with the ID `jump-001` to *Vesper Reach*:
 
@@ -142,16 +134,13 @@ Expected output:
 }
 ```
 
-`engineering` logs one line for each step, about a second apart:
+Open the **Dev Dashboard** tab, go to the **Workflows** page and select the `jump-001` instance of `JumpWorkflow`. Its **Event history** shows the chain, one step at a time:
 
-```text,nocopy
-== APP - engineering == engineering course plotted to Vesper Reach heading=217 distanceLy=4.2
-== APP - engineering == engineering warp core charged to warp 6
-== APP - engineering == engineering nav array aligned
-== APP - engineering == engineering jump complete, arrived at Vesper Reach
-```
+- An `ExecutionStarted` event. Its input has the jump ID and the destination.
+- For each activity, a `TaskScheduled` event with the activity's name, followed about a second later by a `TaskCompleted` event. The four activities appear in the order of the table above. Each one is scheduled only after the one before it has completed.
+- An `ExecutionCompleted` event at the end, with the workflow's output.
 
-The lines above show only the message. In the real log, Python and Java put their own logger prefix in front of it, .NET writes an `info:` line followed by the message on a line of its own, and the TypeScript SDK logs a few lines of its own between them.
+Expand a `TaskCompleted` event to see what the activity returned, and the `TaskScheduled` event that follows it to see the input of the next activity. The course that `PlotCourseActivity` returned, with heading `217` and distance `4.2`, is the input of `ChargeWarpCoreActivity`. The warp factor `6` that `ChargeWarpCoreActivity` returned is the input of `AlignNavArrayActivity`.
 
 After about four seconds, use the **curl** window to check the jump:
 
@@ -172,7 +161,7 @@ Expected output. If the status is still `RUNNING`, wait a moment and run the com
 }
 ```
 
-The output is the result of the last activity. Your `stardate` will differ: `EngageJumpActivity` computes it from the clock. A whole number can show without the `.0`, depending on the language. The heading, the distance and the warp factor are fixed values, so every run and every language logs the same lines.
+The output is the result of the last activity. Your `stardate` will differ: `EngageJumpActivity` computes it from the clock. A whole number can show without the `.0`, depending on the language. The heading, the distance and the warp factor are fixed values, so every run and every language shows the same values in the event history.
 
 ## 4. Look at the workflow code
 
@@ -262,7 +251,7 @@ Expected output:
 }
 ```
 
-Watch the **Logs** page: the destination travels down the chain, from the first log line to the last. Then check the result:
+Select the `jump-002` instance on the **Workflows** page and look at its **Event history**. The destination travels down the chain: it's in the input of the `ExecutionStarted` event, in the course that `PlotCourseActivity` returned, and in the output of the last `TaskCompleted` event. Then check the result:
 
 ```bash,run
 curl -s http://localhost:5301/jumps/jump-002 | jq
@@ -290,7 +279,7 @@ Expected output: the first start is accepted, the second one fails.
 }
 ```
 
-The Dapr sidecar refused the second start. On the **Logs** page, the app logs a line that starts with `engineering workflow call failed:` and ends with the reason: an active workflow with ID `jump-003` already exists.
+The Dapr sidecar refused the second start, so it never became part of the workflow's history. On the **Workflows** page, `jump-003` has a single `ExecutionStarted` event, from the first start. The reason for the refusal is only in the app's log. Go to the **Logs** page of the **Dev Dashboard** tab, select `engineering` and search for `workflow call failed`. The line ends with the reason: an active workflow with ID `jump-003` already exists.
 
 If you see `jump-003` twice instead, the first jump had already finished when the second start arrived, so the second start was accepted. That is the case below: the jump simply started over. Run the block again right after it to see the error.
 
@@ -303,6 +292,9 @@ The workflow history stays in Redis after the app stops, and every demo in this 
 ```bash,run
 dapr workflow purge --all -a engineering
 ```
+
+> [!TIP]
+> You can also purge workflows from the Dapr Dev Dashboard instead of the CLI. On the **Workflows** page of the **Dev Dashboard** tab, select the checkbox of each run you want to remove and click **Purge via Dapr API**. Like the CLI, the dashboard purges through the app's sidecar, so do this before you stop the app.
 
 ## 8. Stop the applications
 
