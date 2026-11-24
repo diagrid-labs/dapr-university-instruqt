@@ -11,7 +11,7 @@ A binding works in one of two directions:
 - An **input binding** lets the outside system call your app. Something happens out there, such as a timer firing or a message arriving, and the sidecar sends an HTTP request to your app.
 - An **output binding** lets your app call the outside system. The app sends a request to its sidecar, such as "run this SQL", and the sidecar passes it on.
 
-![An input binding lets an external system call the app through its sidecar; an output binding lets the app call an external system through its sidecar.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-906-bindings-diagrams/dapr-bindings/1-cron-input-binding/images/directions.png?raw=true)
+![An input binding lets an external system call the app through its sidecar; an output binding lets the app call an external system through its sidecar.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-bindings/1-cron-input-binding/images/directions.png?raw=true)
 
 The demos in this track tell one story. A starship's **engineering** console logs warp-core readings on a schedule, stores them in a PostgreSQL database and, in the last lab, pings a **subspace beacon** to open a communications channel. In this lab you'll build the first part: a cron input binding that makes the console take a reading every 10 seconds.
 
@@ -38,7 +38,7 @@ spec:
 
 The component is a binding of type `bindings.cron` with a schedule of every 10 seconds. `direction: input` says that Dapr calls the app, not the other way around. On every tick the sidecar sends a `POST` request to the app, and the route of that request is the name of the component: `/warp-core-scan`.
 
-![Every 10 seconds the warp-core-scan cron binding makes the sidecar send POST /warp-core-scan to the engineering app.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-906-bindings-diagrams/dapr-bindings/1-cron-input-binding/images/cron.png?raw=true)
+![Every 10 seconds the warp-core-scan cron binding makes the sidecar send POST /warp-core-scan to the engineering app.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-bindings/1-cron-input-binding/images/cron.png?raw=true)
 
 Now open the handler for your language.
 
