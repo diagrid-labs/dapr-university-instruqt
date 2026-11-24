@@ -1,19 +1,21 @@
 // dapr-workflow-101 page 3 (fan-out/fan-in): RouteScanWorkflow starts five
-// ScanSectorActivity calls at once and joins them into routeRisk and verdict.
+// ScanSectorActivity calls at once, then itself fans in: it computes routeRisk and verdict.
 //
 // Elements, with each name and number as it appears in the assignment and the demo
 // (diagrid-labs/university-labs at 44ccac8, folder workflow/, Demo3-FanOutFanIn):
 // - RouteScanWorkflow: the workflow (dotnet RouteScanWorkflow.cs, python workflow.py,
 //   java RouteScanWorkflow.java, typescript workflow.ts all name it that way).
 // - alpha, beta, gamma, delta, epsilon: the five arrays, in this order in all four
-//   languages; each is the input of one ScanSectorActivity call (the lane caption).
+//   languages; each is the input of one ScanSectorActivity call (the heading over the stack).
 // - Hazard 12, 7, 31, 4, 18: the fixed scores in ScanSectorActivity (python
 //   scan_sector_activity, typescript hazards; the assignment table). Each scan returns
 //   its score ({array, hazard}), so the arrows into the join carry them.
-// - Join step: after Task.WhenAll / when_all / allOf / whenAll the workflow computes
-//   routeRisk = max hazard and verdict = CLEAR when routeRisk < 50, else HAZARDOUS
-//   (same expression in all four languages). Drawn as a tall box named routeRisk and
-//   verdict, with a caption "max hazard" and "CLEAR below 50".
+// - Fan-in: no activity runs it. After Task.WhenAll / when_all / allOf / whenAll the same
+//   RouteScanWorkflow function computes routeRisk = max hazard and verdict = CLEAR when
+//   routeRisk < 50, else HAZARDOUS (same expression in all four languages). So the left
+//   and right boxes both sit under a RouteScanWorkflow heading (like the ScanSectorActivity
+//   heading over the middle column): "fan-out" left, "fan-in" with routeRisk / verdict
+//   right, captioned "max hazard," and "CLEAR below 50".
 // - The workflow input (jump) is ignored by the demo, so no arrow for it.
 //
 // Connections: RouteScanWorkflow -> each of the five scans -> join.
@@ -21,6 +23,8 @@
 //
 // Departures from the skill, on purpose:
 // - Every label is TEXT (13), the column minimum; label() instead of note().
+// - The three column headings (13) replace lanes; the side boxes are 124 wide so a
+//   RouteScanWorkflow heading (about 120 units) clears the canvas edge.
 // - The five scan boxes are 100 x 30 (shorter than FLOW.H); three columns across.
 //   The activity name is a label over the stack rather than a lane (a lane's pill
 //   for "ScanSectorActivity" is wider than the column of boxes).
@@ -34,8 +38,8 @@ const M = 12;
 const SCAN_W = 100;
 const SCAN_H = 30;
 const SCAN_GAP = 10;
-const SIDE_W = 100; // RouteScanWorkflow and the join box
-const TOP = 40; // room for the ScanSectorActivity label above the stack
+const SIDE_W = 124; // fan-out and fan-in boxes
+const TOP = 40; // room for the column headings above the stack
 const N = 5;
 const STACK_H = N * SCAN_H + (N - 1) * SCAN_GAP; // 190
 const BOTTOM = TOP + STACK_H;
@@ -57,11 +61,12 @@ const STEP = { ...FLOW.step, size: TEXT };
 export default {
   width: W,
   height: H,
-  title: 'RouteScanWorkflow fans out to five scans and joins them',
+  title: 'RouteScanWorkflow fans out to five scans and fans in',
   desc:
-    'Three columns. RouteScanWorkflow on the left has five arrows to five boxes under the heading '
-    + 'ScanSectorActivity: alpha 12, beta 7, gamma 31, delta 4 and epsilon 18. Five arrows join them in a box '
-    + 'named routeRisk and verdict, captioned max hazard and CLEAR below 50.',
+    'Three columns. A fan-out box under the heading RouteScanWorkflow has five arrows to five boxes under the '
+    + 'heading ScanSectorActivity: alpha 12, beta 7, gamma 31, delta 4 and epsilon 18. Five arrows lead to a '
+    + 'fan-in box, also under the heading RouteScanWorkflow, that holds routeRisk and verdict, captioned '
+    + 'max hazard, and CLEAR below 50.',
 
   build() {
     const out = [];
@@ -72,12 +77,14 @@ export default {
       out.push(arrow({ from: mid, to: [RIGHT.x - SIDE_W / 2 - GAP, y] }));
     });
     out.push(label({ x: MIDX, y: TOP - 20, text: 'ScanSectorActivity', size: TEXT }));
+    out.push(label({ x: LEFT.x, y: TOP - 20, text: 'RouteScanWorkflow', size: TEXT }));
+    out.push(label({ x: RIGHT.x, y: TOP - 20, text: 'RouteScanWorkflow', size: TEXT }));
     SCANS.forEach(([array, hazard], i) => {
       out.push(box({ x: MIDX, y: rowY(i), w: SCAN_W, h: SCAN_H, label: `${array} \u00b7 ${hazard}`, ...STEP }));
     });
-    out.push(box({ ...LEFT, label: 'RouteScan\nWorkflow', ...STEP }));
-    out.push(box({ ...RIGHT, label: 'routeRisk\nverdict', ...STEP }));
-    out.push(label({ x: RIGHT.x, y: BOTTOM + CAPTION_GAP, text: 'max hazard\nCLEAR below 50', size: TEXT }));
+    out.push(box({ ...LEFT, label: 'fan-out', ...STEP }));
+    out.push(box({ ...RIGHT, label: 'fan-in\nrouteRisk / verdict', ...STEP }));
+    out.push(label({ x: RIGHT.x, y: BOTTOM + CAPTION_GAP, text: 'max hazard,\nCLEAR below 50', size: TEXT }));
     return out;
   },
 };
