@@ -10,13 +10,15 @@ In this final lab, you'll start diagnostics runs with curl, follow them in the D
 > [!IMPORTANT]
 > When you use the *Run* button on a command, select the matching terminal from the dropdown that appears.
 
-Open the **Aspire** tab and check that `engineering`, `engineering-dapr-cli` and `dev-dashboard` are `Running`. If the **Aspire CLI** window shows a prompt instead of `aspire run`, start the app again. Use the **Aspire CLI** window to go to the `workflow-aspire` folder:
+Open the **Aspire** tab and check that `engineering`, `engineering-dapr-cli` and `dev-dashboard` are `Running`. If they are, `aspire run` is still running in the **Aspire CLI** window. Skip the two commands below and go on to the **curl** window. Don't run anything in the **Aspire CLI** window, because it would type into the running `aspire run`.
+
+**Only if `aspire run` is no longer running**, and the **Aspire CLI** window shows a prompt, start the app again. Use the **Aspire CLI** window to go to the `workflow-aspire` folder:
 
 ```bash,run
 cd /root/university-labs/workflow-aspire
 ```
 
-Then use the **Aspire CLI** window to start the AppHost, and leave it running:
+Then, still only if it wasn't running, use the **Aspire CLI** window to start the AppHost, and leave it running:
 
 ```bash,run
 aspire run --apphost MeridianDiagnostics/apphost.cs
@@ -145,8 +147,8 @@ Go back to `jump-002` on the **Workflows** page of the **Dev Dashboard** tab and
 ![The engineering app stops while the workflow waits on its timer. The three diagnoses were already saved in the history in dapr_redis. After the restart the workflow replays from that history, the three diagnoses return their saved results, and prioritize runs for the first time.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow-aspire/4-run-and-inspect/images/resume.png?raw=true)
 
 - **The history survived the stop.** The sidecar saved each step of `jump-002` in the `statestore` component, the `dapr_redis` container, as it happened. Stopping `engineering` stopped only the app's process. The history, and the sidecar, stayed.
-- **The timer is durable.** `context.CreateTimer` doesn't sleep inside the app. The sidecar saved the timer and the time it's due as the `TimerCreated` event, and fired it once the app was back.
-- **The workflow replayed, the activities didn't run again.** After the restart the sidecar ran `DiagnosticsWorkflow` again from the top to rebuild where it was. The three `DiagnoseSubsystemActivity` calls returned their saved results instead of running again, so the readings didn't change. Then `PrioritizeDiagnosticsActivity` ran for the first time. The replay-safe logger didn't write `Starting diagnostics` a second time, even though that line of code ran again.
+- **The timer is durable.** `context.CreateTimer` doesn't sleep inside the app. The sidecar saved the timer and the time it's due as the `TimerCreated` event. The timer became due in the sidecar, whether the app was running or not. The workflow processed `TimerFired` once the app had reconnected to its sidecar.
+- **The workflow replayed, the activities didn't run again.** After the restart the `Dapr.Workflow` worker in `engineering` reconnected to the sidecar, and the sidecar sent it the history of `jump-002`. The worker ran the `DiagnosticsWorkflow` code again from the top against that history to rebuild where it was. This replay isn't special to a restart: the worker replays the workflow after every step, in `jump-001` too. The three `DiagnoseSubsystemActivity` calls returned their saved results instead of running again, so the readings didn't change. Then `PrioritizeDiagnosticsActivity` ran for the first time. The replay-safe logger didn't write `Starting diagnostics` a second time, even though that line of code ran again.
 
 ## 6. Check your work
 
