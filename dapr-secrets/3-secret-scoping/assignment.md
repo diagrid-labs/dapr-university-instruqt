@@ -162,6 +162,8 @@ The file does nothing yet, because no sidecar has been told to use it. Open `dap
 
 Only `app-b` has this line, so the rule applies to App B's sidecar and to nothing else. Save the file.
 
+![App A and App B use the same secret store, but App B's sidecar loads a configuration that denies orderdb-password, so only App A can read it.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-secrets/3-secret-scoping/images/scoping.png?raw=true)
+
 A sidecar reads its configuration when it starts, so restart the applications. Use the **Dapr CLI** window: press `Ctrl+C`, wait for the applications to stop, and then run:
 
 ```bash,run
