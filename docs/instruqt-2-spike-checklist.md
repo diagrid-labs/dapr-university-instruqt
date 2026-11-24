@@ -436,7 +436,7 @@ Where a step needs a throwaway lab, create it in the Instruqt UI (Labs, Create l
   2. Push a new branch with a trivial title change. In the lab editor open the branch selector (top bar) and look for it under Branches.
   3. Select the branch and click Play. Also try the same with an embed's Lab version field.
 - **Expected result:** the pushed branch appears in the branch selector and can be played and previewed independently of the live version. Record the delay between push and appearing, and whether a branch of a lab imported at a sub-directory root (not `/`) is listed.
-- **Finding:**
+- **Finding:** 2026-11-24, with `dapr-workflow-101` (imported at a sub-directory root): the branch `dev-905-workflow-101-diagrams` of [PR #218](https://github.com/diagrid-labs/dapr-university-instruqt/pull/218) was listed in the branch selector and played on its own. Images linked to that branch rendered in the assignments, and a follow-up push showed up on reload. The delay between push and appearing and the embed's Lab version field were not measured.
 
 ### Item 10: A launch with the custom image plus lab setup finishes within 1:30
 
