@@ -11,6 +11,8 @@ A binding works in one of two directions:
 - An **input binding** lets the outside system call your app. Something happens out there, such as a timer firing or a message arriving, and the sidecar sends an HTTP request to your app.
 - An **output binding** lets your app call the outside system. The app sends a request to its sidecar, such as "run this SQL", and the sidecar passes it on.
 
+![An input binding lets an external system call the app through its sidecar; an output binding lets the app call an external system through its sidecar.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-bindings/1-cron-input-binding/images/directions.png?raw=true)
+
 The demos in this track tell one story. A starship's **engineering** console logs warp-core readings on a schedule, stores them in a PostgreSQL database and, in the last lab, pings a **subspace beacon** to open a communications channel. In this lab you'll build the first part: a cron input binding that makes the console take a reading every 10 seconds.
 
 ## 2. The component and the handler
