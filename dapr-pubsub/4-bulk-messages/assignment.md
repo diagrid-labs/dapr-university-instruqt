@@ -62,6 +62,8 @@ scopes:
 
 With `bulkSubscribe`, Dapr holds messages back and sends them as one request. A batch goes out when it holds `maxMessagesCount` messages (10 here) or when `maxAwaitDurationMs` (1000 ms) has passed since the batch started filling, whichever comes first. As in the earlier labs, `scopes` sits beside `spec`, so only `shipping` loads the subscription.
 
+![order-api publishes 25 orders in one call, and Dapr delivers them to shipping in batches of at most 10; shipping answers with a status for each entry.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/4-bulk-messages/images/bulk.png?raw=true)
+
 ## 2. Run the demo
 
 > [!IMPORTANT]

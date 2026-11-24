@@ -65,6 +65,8 @@ Open `OrderController.java` in the `java/demo1-subscriptions/invoicing/src/main/
 
 When the sidecar of `invoicing` starts, it asks the app on `/dapr/subscribe` which topics it wants. The sidecar of `shipping` reads the YAML file instead, and the `shipping` app has no Dapr code at all. It reads each message with the open CloudEvents SDK, because Dapr delivers every message as a standard CloudEvent. You'll look at that envelope in a later lab.
 
+![order-api publishes to the orders topic; shipping's sidecar subscribes from a YAML file, and invoicing's sidecar asks the app on /dapr/subscribe.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/1-subscription-types/images/demo.png?raw=true)
+
 ## 3. Run the demo
 
 > [!IMPORTANT]

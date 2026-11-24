@@ -19,6 +19,34 @@
     -0.01,
     -1.8
   ],
+  "pubsub-1-components": [
+    0,
+    -0.3
+  ],
+  "pubsub-1-demo": [
+    0,
+    0
+  ],
+  "pubsub-1-pattern": [
+    4.75,
+    0
+  ],
+  "pubsub-2-streaming": [
+    0,
+    3.91
+  ],
+  "pubsub-3-envelope": [
+    -27,
+    3.01
+  ],
+  "pubsub-4-bulk": [
+    0,
+    -0.09
+  ],
+  "pubsub-5-routing": [
+    1.16,
+    0
+  ],
   "workflow-101-1-architecture": [
     -1,
     -1.41
