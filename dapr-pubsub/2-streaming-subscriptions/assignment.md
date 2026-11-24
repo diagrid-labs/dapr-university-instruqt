@@ -10,7 +10,7 @@ The terminals, and the applications running in them, stay as they are when you m
 
 In the previous lab, Dapr called the subscriber: the sidecar read the subscription and then sent each message to an HTTP endpoint of the app. A **streaming** subscription turns that around. The app opens a stream to its own sidecar and pulls the messages in, so the app needs no HTTP server, no port, no `/dapr/subscribe` endpoint and no `Subscription` file.
 
-![The warehouse app has no port: it opens a stream to its sidecar and receives the orders over it.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/2-streaming-subscriptions/images/streaming.png?raw=true)
+![The warehouse app has no port: it opens a stream to its sidecar and receives the orders over it.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-907-pubsub-diagrams/dapr-pubsub/2-streaming-subscriptions/images/streaming.png?raw=true)
 
 > [!WARNING]
 > Streaming subscriptions are an alpha API in Dapr 1.19. The SDK calls and their names can still change in a later release.

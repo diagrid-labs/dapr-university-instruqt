@@ -95,7 +95,7 @@ The policy is a constant 1 second between tries, with at most 3 retries. The tar
 
 In the code of `shipping`, find the order with the item `poison`. The handler answers `500` with `{"status": "RETRY"}` for it. A `RETRY` answer asks Dapr to deliver the message again. The demo does not use `DROP` here, because `DROP` tells Dapr to give up at once and skips the retries, and the retries are what this lab is about.
 
-![Express orders go to /orders/express and the rest to /orders/standard; an order that still fails after three retries goes to the orders-dead topic and /orders/dead.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/5-routing-and-dead-letters/images/routing.png?raw=true)
+![Express orders go to /orders/express and the rest to /orders/standard; an order that still fails after three retries goes to the orders-dead topic and /orders/dead.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-907-pubsub-diagrams/dapr-pubsub/5-routing-and-dead-letters/images/routing.png?raw=true)
 
 ## 3. Run the demo
 
