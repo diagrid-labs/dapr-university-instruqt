@@ -27,6 +27,8 @@ Each run of the workflow is one check:
 3. Then it calls **continue-as-new** with the next check number. That restarts the workflow with new input and an empty history.
 4. The guard every monitor needs: at check 10 the workflow gives up and returns `{"stable": false, ...}`. With this fixed sequence it never triggers.
 
+![The monitor workflow reads the core temperature, stops when it is stable, and otherwise waits on a durable timer and continues as new.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow-101/4-monitor/images/monitor.png?raw=true)
+
 Use the **Editor** tab to open the demo folder of your language: `dotnet/Demo4-Monitor`, `python/demo4-monitor`, `java/demo4-monitor` or `typescript/demo4-monitor`. The `engineering` app has the same two endpoints as before. This demo accepts a `destination` like the other demos, but ignores it.
 
 ## 2. Run the demo
