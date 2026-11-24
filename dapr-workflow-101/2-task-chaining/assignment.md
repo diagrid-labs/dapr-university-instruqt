@@ -17,6 +17,8 @@ Before the *ISV Meridian* can jump, the **engineering** console has to run four 
 | 3 | `AlignNavArrayActivity` | the warp factor | whether the nav array is aligned |
 | 4 | `EngageJumpActivity` | the course and the warp factor | where the ship arrived, and the stardate |
 
+![The jump workflow runs four activities in order, and each one passes its result to the next.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow-101/2-task-chaining/images/chain.png?raw=true)
+
 Each activity takes about a second, so you can watch the chain progress. The workflow's output is the result of the last step.
 
 Use the **Editor** tab to open the demo folder of your language: `dotnet/Demo2-TaskChaining`, `python/demo2-task-chaining`, `java/demo2-task-chaining` or `typescript/demo2-task-chaining`. The `engineering` app has the same two endpoints as in the previous lab: `POST /jumps` starts a workflow, and `GET /jumps/{jumpId}` returns its status and result. This time you can also send a `destination` in the body of the request.
