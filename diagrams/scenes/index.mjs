@@ -7,6 +7,7 @@ import pubsub1Components from './pubsub-1-components.mjs';
 import pubsub1Demo from './pubsub-1-demo.mjs';
 import pubsub1Pattern from './pubsub-1-pattern.mjs';
 import pubsub2Streaming from './pubsub-2-streaming.mjs';
+import pubsub3Envelope from './pubsub-3-envelope.mjs';
 import workflow1011Architecture from './workflow-101-1-architecture.mjs';
 import workflow1011Replay from './workflow-101-1-replay.mjs';
 import workflow1012Chain from './workflow-101-2-chain.mjs';
@@ -25,6 +26,7 @@ export const scenes = {
   'pubsub-1-demo': pubsub1Demo,
   'pubsub-1-pattern': pubsub1Pattern,
   'pubsub-2-streaming': pubsub2Streaming,
+  'pubsub-3-envelope': pubsub3Envelope,
   'workflow-101-1-architecture': workflow1011Architecture,
   'workflow-101-1-replay': workflow1011Replay,
   'workflow-101-2-chain': workflow1012Chain,
