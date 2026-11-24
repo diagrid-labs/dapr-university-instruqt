@@ -13,6 +13,8 @@ Every workflow app has two building blocks:
 
 A workflow is ordinary code in your app. The Dapr sidecar manages it: it schedules each activity, saves the workflow's history in a state store, and replays the code from that history when the app comes back after a crash. In this track the state store is the Redis container that `dapr init` started.
 
+![The engineering app holds the workflow and its activity; its Dapr sidecar schedules the activity and saves the workflow history in the Redis state store.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow-101/1-durable-execution/images/architecture.png?raw=true)
+
 Use the **Editor** tab to open the demo folder of your language:
 
 - .NET: `dotnet/Demo1-DurableExecution`

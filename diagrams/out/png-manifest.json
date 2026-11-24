@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "scale": 2,
+    "margin": 12,
+    "schemes": "light,dark",
+    "generator": 1,
+    "body": "Inter, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+    "mono": "\"Geist Mono\", ui-monospace, \"Cascadia Mono\", Consolas, monospace"
+  },
+  "scenes": {
+    "workflow-101-1-architecture": "dbf37ada1f1b2caff776f6f50eaaa26119cf09f2b7d79ea8b99eed59a04b3f41"
+  }
+}
