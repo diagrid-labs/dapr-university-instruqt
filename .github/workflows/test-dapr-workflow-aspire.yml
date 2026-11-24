@@ -126,11 +126,31 @@ jobs:
           ref: ${{ steps.pin.outputs.ref }}
           path: university-labs
       - uses: astral-sh/setup-uv@v5
+      # The runner image ships newer .NET SDKs in /usr/share/dotnet (11.0 on ubuntu-latest), and
+      # without a global.json the dotnet muxer picks the highest one, so `dotnet new web` would target
+      # net11.0 and build to bin/Debug/net11.0. The VM has only dotnet-sdk-<channel> (the module's
+      # dotnet_sdk_channel). DOTNET_INSTALL_DIR puts the pinned SDK in its own root, which
+      # setup-dotnet makes DOTNET_ROOT and puts first on PATH, so the muxer sees that SDK only.
       - name: Set up .NET
         id: dotnet
         uses: actions/setup-dotnet@v4
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/dotnet
         with:
           dotnet-version: '${{ steps.toolchain.outputs.dotnet }}.x'
+      - name: Check the .NET SDK is the pinned channel
+        id: dotnetpin
+        shell: bash
+        env:
+          CHANNEL: ${{ steps.toolchain.outputs.dotnet }}
+        run: |
+          echo "dotnet: $(command -v dotnet), DOTNET_ROOT=$DOTNET_ROOT"
+          dotnet --list-sdks
+          v="$(dotnet --version)"
+          case "$v" in
+            "$CHANNEL".*) echo "dotnet --version: $v (channel $CHANNEL)" ;;
+            *) echo "ERROR: dotnet --version is $v, not the pinned channel $CHANNEL"; exit 1 ;;
+          esac
       # Installs the Aspire CLI at the lab's pin (aspire_cli_version, read with read_pin.py) and the
       # Dev Dashboard binary at the module's pin (dev_dashboard_version), puts both first on PATH,
       # runs a full `dapr init` (Docker is preinstalled on ubuntu-latest), then fails if the runtime
@@ -155,6 +175,7 @@ jobs:
         env:
           OUTCOMES: >-
             Set-up-.NET=${{ steps.dotnet.outcome }}
+            Check-the-.NET-SDK-is-the-pinned-channel=${{ steps.dotnetpin.outcome }}
             Setup-Dapr-and-Aspire-sandbox=${{ steps.setup.outcome }}
             Sync-harness=${{ steps.sync.outcome }}
         run: |
