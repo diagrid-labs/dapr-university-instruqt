@@ -1,4 +1,24 @@
 {
+  "bindings-1-cron": [
+    -0.29,
+    1.47
+  ],
+  "bindings-1-directions": [
+    0,
+    0
+  ],
+  "bindings-2-output": [
+    -0.17,
+    1.47
+  ],
+  "bindings-3-two-components": [
+    0,
+    1.44
+  ],
+  "bindings-4-subspace-beacon": [
+    -0.01,
+    -1.8
+  ],
   "workflow-101-1-architecture": [
     -1,
     -1.41

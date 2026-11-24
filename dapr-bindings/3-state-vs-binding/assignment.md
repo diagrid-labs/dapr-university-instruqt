@@ -52,6 +52,8 @@ Open `ReadingController.java` in the `java/demo3-state-vs-binding/engineering/sr
 
 The State API call holds no SQL at all, only a store name, a key and a value. The binding call holds the SQL of the `INSERT`.
 
+![The engineering app saves each reading twice, through the statestore component and through the ship-db binding, into two tables of the same PostgreSQL database.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-906-bindings-diagrams/dapr-bindings/3-state-vs-binding/images/two-components.png?raw=true)
+
 ## 2. Run the demo
 
 > [!IMPORTANT]

@@ -78,6 +78,8 @@ spec:
     value: output
 ```
 
+![The engineering app sends SQL to its sidecar, and the ship-db output binding runs it against the warp_core_readings table in PostgreSQL.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-906-bindings-diagrams/dapr-bindings/2-postgres-output-binding/images/output.png?raw=true)
+
 The component is a binding of type `bindings.postgresql` named `ship-db`, with `direction: output`: the app calls Dapr, and Dapr calls the database. The PostgreSQL binding only works in this direction, which is why the schedule still comes from a cron binding.
 
 > [!NOTE]

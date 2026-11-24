@@ -7,6 +7,11 @@ export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 /** @type {Record<string, { page: string, file: string }>} */
 export const PAGES = {
+  'bindings-1-cron': { page: 'dapr-bindings/1-cron-input-binding', file: 'cron.png' },
+  'bindings-1-directions': { page: 'dapr-bindings/1-cron-input-binding', file: 'directions.png' },
+  'bindings-2-output': { page: 'dapr-bindings/2-postgres-output-binding', file: 'output.png' },
+  'bindings-3-two-components': { page: 'dapr-bindings/3-state-vs-binding', file: 'two-components.png' },
+  'bindings-4-subspace-beacon': { page: 'dapr-bindings/4-subspace-beacon', file: 'subspace-beacon.png' },
   'workflow-101-1-architecture': { page: 'dapr-workflow-101/1-durable-execution', file: 'architecture.png' },
   'workflow-101-1-replay': { page: 'dapr-workflow-101/1-durable-execution', file: 'replay.png' },
   'workflow-101-2-chain': { page: 'dapr-workflow-101/2-task-chaining', file: 'chain.png' },
