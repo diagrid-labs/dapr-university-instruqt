@@ -62,13 +62,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
+      # The quickstarts' .NET workflow tutorials target net10.0. Use the same SDK channel as the
+      # sandbox image (the module's dotnet_sdk_channel). The runner image also ships newer SDKs
+      # (11.x) in /usr/share/dotnet, and without a global.json the dotnet muxer picks the highest
+      # one, so DOTNET_INSTALL_DIR puts the pinned SDK in its own root (setup-dotnet makes it
+      # DOTNET_ROOT and puts it first on PATH).
+      - name: Read toolchain pins
+        id: toolchain
+        if: matrix.lang == 'dotnet'
+        run: echo "dotnet=$(python3 tools/track-tester/ci/read_pin.py modules/dapr-sandbox/versions.hcl dotnet_sdk_channel)" >> "$GITHUB_OUTPUT"
       - name: Set up .NET
         if: matrix.lang == 'dotnet'
         uses: actions/setup-dotnet@v4
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/dotnet
         with:
-          dotnet-version: |
-            8.0.x
-            9.0.x
+          dotnet-version: '${{ steps.toolchain.outputs.dotnet }}.x'
+      - name: Check the .NET SDK is the pinned channel
+        if: matrix.lang == 'dotnet'
+        shell: bash
+        env:
+          CHANNEL: ${{ steps.toolchain.outputs.dotnet }}
+        run: |
+          v="$(dotnet --version)"
+          case "$v" in
+            "$CHANNEL".*) echo "dotnet --version: $v (channel $CHANNEL)" ;;
+            *) echo "ERROR: dotnet --version is $v, not the pinned channel $CHANNEL"; dotnet --list-sdks; exit 1 ;;
+          esac
       - name: Set up Java
         if: matrix.lang == 'java'
         uses: actions/setup-java@v4
