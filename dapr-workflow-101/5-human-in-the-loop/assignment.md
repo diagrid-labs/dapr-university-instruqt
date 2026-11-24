@@ -30,6 +30,8 @@ The `engineering` app has the same two endpoints as before, and one more that ra
 |---|---|
 | `POST /jumps/{jumpId}/authorize` | Raises the `jump-authorized` event. Body: `{"approved": true, "officer": "Captain Ilsa Varn"}`. Answers `202`. An unknown jump answers `404` with `JUMP_NOT_FOUND`. A jump that has finished answers `409` with `JUMP_FINISHED`, and the event isn't raised. |
 
+![The workflow plots the course and waits up to 60 seconds for the jump-authorized event, raised by the authorize endpoint; it then jumps, stops on a denial, or aborts when no answer comes.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow-101/5-human-in-the-loop/images/approval.png?raw=true)
+
 Use the **Editor** tab to open the demo folder of your language: `dotnet/Demo5-HumanInTheLoop`, `python/demo5-human-in-the-loop`, `java/demo5-human-in-the-loop` or `typescript/demo5-human-in-the-loop`.
 
 ## 2. Run the demo

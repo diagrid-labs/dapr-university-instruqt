@@ -1,0 +1,30 @@
+{
+  "workflow-101-1-architecture": [
+    -1,
+    -1.41
+  ],
+  "workflow-101-1-replay": [
+    0,
+    0
+  ],
+  "workflow-101-2-chain": [
+    0,
+    -1.21
+  ],
+  "workflow-101-3-fan-out": [
+    0,
+    -1.31
+  ],
+  "workflow-101-4-monitor": [
+    0,
+    -6.5
+  ],
+  "workflow-101-5-approval": [
+    0,
+    0
+  ],
+  "workflow-101-6-lifecycle": [
+    11.55,
+    -2.07
+  ]
+}

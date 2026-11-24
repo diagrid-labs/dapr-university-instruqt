@@ -21,6 +21,8 @@ The `engineering` app has the same two endpoints as before, and four more. Each 
 | `POST /jumps/{jumpId}/terminate` | Terminates the workflow. Answers `202`. |
 | `DELETE /jumps/{jumpId}` | Purges the workflow's history from the state store. Answers `204`. |
 
+![A running jump can be paused and resumed, and a running or suspended jump can be terminated; only a completed or terminated jump can be purged.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow-101/6-management/images/lifecycle.png?raw=true)
+
 An unknown jump answers `404` with `JUMP_NOT_FOUND` on all four. Pause, resume and terminate on a jump that has finished answer `409` with `JUMP_FINISHED`.
 
 Use the **Editor** tab to open the demo folder of your language: `dotnet/Demo6-Management`, `python/demo6-management`, `java/demo6-management` or `typescript/demo6-management`.

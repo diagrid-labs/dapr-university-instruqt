@@ -1,0 +1,19 @@
+{
+  "settings": {
+    "scale": 2,
+    "margin": 12,
+    "schemes": "light,dark",
+    "generator": 1,
+    "body": "Inter, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+    "mono": "\"Geist Mono\", ui-monospace, \"Cascadia Mono\", Consolas, monospace"
+  },
+  "scenes": {
+    "workflow-101-1-architecture": "3cce3ebefb23c17acd1691ddb29284b70de83cb09917a92d28e6ae9b44bcd07e",
+    "workflow-101-1-replay": "45074fa838abf093a8a7997491985b9bda2bb36d000dfb295aaf66fb065926e4",
+    "workflow-101-2-chain": "70f9f32fc477d5210f6e6c1f72455df473d453d89303a55fe4bf39b2f1b4340d",
+    "workflow-101-3-fan-out": "2ceb6fd787e4b7dfb363da1920e75898f33f2fdff0467068905bde32861767ba",
+    "workflow-101-4-monitor": "40a57606c398d27855325cfd051ac6e2f9d053dd06eec3d9b6703e815e70c4ed",
+    "workflow-101-5-approval": "ca682671c85ea0cafaf475c1b0236878784829b1322a15542a07642a56d848de",
+    "workflow-101-6-lifecycle": "fd86a5f74014823903f9e6e3c5539ee31e00e3f46695f61dc320bcfb96ac4639"
+  }
+}
