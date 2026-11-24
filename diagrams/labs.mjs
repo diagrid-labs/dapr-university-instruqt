@@ -18,6 +18,7 @@ export const PAGES = {
   'pubsub-2-streaming': { page: 'dapr-pubsub/2-streaming-subscriptions', file: 'streaming.png' },
   'pubsub-3-envelope': { page: 'dapr-pubsub/3-cloudevents', file: 'envelope.png' },
   'pubsub-4-bulk': { page: 'dapr-pubsub/4-bulk-messages', file: 'bulk.png' },
+  'pubsub-5-routing': { page: 'dapr-pubsub/5-routing-and-dead-letters', file: 'routing.png' },
   'workflow-101-1-architecture': { page: 'dapr-workflow-101/1-durable-execution', file: 'architecture.png' },
   'workflow-101-1-replay': { page: 'dapr-workflow-101/1-durable-execution', file: 'replay.png' },
   'workflow-101-2-chain': { page: 'dapr-workflow-101/2-task-chaining', file: 'chain.png' },
