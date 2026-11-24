@@ -230,8 +230,8 @@ Here is what happened:
 
 - `o-5001` has the priority `standard`, matches no rule and goes to the default route `/orders/standard`.
 - `o-5002` has the priority `express`, matches the rule and goes to `/orders/express`.
-- `o-5003` is routed to `/orders/standard`, where `shipping` rejects it with `500` and `RETRY`. Dapr delivered it 4 times: the first try plus the 3 retries from `resiliency.yaml`, one second apart.
-- After the last retry, Dapr republished `o-5003` to `orders-dead`. `shipping` received it there on `/orders/dead`.
+- (1) `o-5003` is routed to `/orders/standard`, where `shipping` rejects it with `500` and `RETRY`. Dapr delivered it 4 times: the first try plus the 3 retries from `resiliency.yaml`, one second apart.
+- (2) After the last retry, Dapr republished `o-5003` to `orders-dead`. (3) `shipping` received it there on `/orders/dead`.
 
 The good orders were never dead-lettered. The order of the lines can differ a little from this list, because the three orders are delivered independently.
 
