@@ -117,8 +117,8 @@ const H = Math.ceil(Y2 + BEACON_R + M);
 // The clock's name block above it, its upper line level with "Dapr sidecar"
 // (the lower line then sits 12 clear of the mark).
 const CRON_NAME_DY = SIDE_NAME_DY - LINE;
-const D3 = STEP + STEP_GAP + 2; // step 3's mark off the diagonal's centre line
-const T3 = 0.62; // step 3's mark along the centre line: about the middle of the drawn run, which starts at the sidecar's edge
+const D3 = STEP + 4; // step 3's mark off the diagonal's centre line, close enough that it and ship-db read as the arrow's labels
+const T3 = 0.5; // step 3's mark along the centre line, measured from the sidecar's centre: nearer the sidecar keeps ship-db close to the arrow
 const V_DX = 12; // the two vertical arrows between engineering and its sidecar, either side of the centre line
 
 export default {
