@@ -13,6 +13,7 @@ export const PAGES = {
   'workflow-101-3-fan-out': { page: 'dapr-workflow-101/3-fan-out-fan-in', file: 'fan-out.png' },
   'workflow-101-4-monitor': { page: 'dapr-workflow-101/4-monitor', file: 'monitor.png' },
   'workflow-101-5-approval': { page: 'dapr-workflow-101/5-human-in-the-loop', file: 'approval.png' },
+  'workflow-101-6-lifecycle': { page: 'dapr-workflow-101/6-management', file: 'lifecycle.png' },
 };
 
 const BASE = 'https://github.com/diagrid-labs/dapr-university-instruqt/blob';
