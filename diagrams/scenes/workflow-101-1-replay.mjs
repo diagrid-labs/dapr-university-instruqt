@@ -84,7 +84,7 @@ const GAP_MID = TOP + LANE_H + GAP_ROW / 2; // the horizontal line between the r
 // The crash mark: a red flash and the word, centred together over stage 3, in
 // the band between the lane's pill and the box.
 const FLASH = 18;
-const CRASH_TEXT_W = 36; // measured "crash"
+const CRASH_TEXT_W = 47; // measured "crashed" (46.6) with measure-labels
 const CRASH_GAP = 5;
 const CRASH_Y = TOP + (REACH + (BOX_DY - BOX_H / 2)) / 2;
 const CRASH_X0 = S3.x - (FLASH + CRASH_GAP + CRASH_TEXT_W) / 2;
@@ -100,7 +100,7 @@ export default {
     'Five boxes for the stages of ChargeWarpCoreWorkflow, in two rows. A green start circle '
     + 'named replay has an arrow labelled from the top up to stage 1. Stages 1 and 2 are grey, '
     + 'in a lane named from history. An arrow runs on to stage 3, in a lane named runs again, '
-    + 'marked with a red flash and the word crash. An arrow drops to the second row, to '
+    + 'marked with a red flash and the word crashed. An arrow drops to the second row, to '
     + 'stages 4 and 5 in a lane named first run.',
 
   build() {
@@ -128,7 +128,7 @@ export default {
       box({ ...S5, label: 'stage 5', ...RUNS }),
 
       icon({ name: 'fluent-flash', x: CRASH_X0 + FLASH / 2, y: CRASH_Y, size: FLASH, color: C.red, fit: 'ink' }),
-      label({ x: CRASH_X0 + FLASH + CRASH_GAP, y: CRASH_Y, text: 'crash', size: TEXT, anchor: 'start' }),
+      label({ x: CRASH_X0 + FLASH + CRASH_GAP, y: CRASH_Y, text: 'crashed', size: TEXT, anchor: 'start' }),
     ];
   },
 };
