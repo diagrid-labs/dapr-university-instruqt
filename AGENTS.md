@@ -224,6 +224,7 @@ tools/track-tester/
   resources/             shared, track-agnostic Robot keywords (the "standard library")
     dapr.resource        generic Dapr process lifecycle + assertions
     workflow.resource    workflow-specific keywords (imports dapr.resource)
+    aspire.resource      `aspire run` lifecycle and resource queries (imports dapr.resource)
     tests/smoke.robot    a smoke suite for the resources themselves
   variables/             shared Python-valued variables imported by suites
     dapr_101.py          TRACKS_SRC_DIR + DAPR101_BASE (demo repo's dapr-101/ folder), demo folder
@@ -338,6 +339,16 @@ Notes that trip people up:
 | `Start Workflow App` | Start the app in the background, then wait until it responds. |
 | `Enable Testcontainers Reuse` | Idempotently set `testcontainers.reuse.enable=true` so the two Java apps in the combined-patterns challenge can share one container. |
 | `Wait Until Workflow Completed` | Poll the Dapr workflow status endpoint until `"runtimeStatus":"COMPLETED"`, then optionally assert the output contains an expected substring. |
+
+### `resources/aspire.resource` — `aspire run` (imports `dapr.resource`)
+
+| Keyword | Purpose |
+| --- | --- |
+| `Start Aspire Run` | Start a page's `aspire run` command in the background as `exec aspire run …`, so a group SIGINT stops the AppHost and every resource like `Ctrl+C`. |
+| `Wait Until Loopback Host Answers` | Poll a URL with a loopback `Host` header (the Dev Dashboard bound to `0.0.0.0` rejects any other) until it answers with a 2xx status. |
+| `Aspire Resources` | The display names of the running AppHost's resources from `aspire describe --format Json`, the default-visible ones or, with `hidden=${True}`, all of them. |
+| `Aspire Resource Pid` | The process ID of one resource, to assert it did not restart. |
+| `Capture Aspire Logs And Stop App` | For teardowns: save `aspire logs` and `aspire export` next to the report while the AppHost runs, stop `aspire run`, and wait until the given ports are free for the next suite. |
 
 ### `libraries/assignment_blocks.py`
 

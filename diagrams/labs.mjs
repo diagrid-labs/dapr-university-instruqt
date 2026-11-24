@@ -31,6 +31,7 @@ export const PAGES = {
   'workflow-101-6-lifecycle': { page: 'dapr-workflow-101/6-management', file: 'lifecycle.png' },
   'workflow-aspire-1-architecture': { page: 'dapr-workflow-aspire/1-create-the-solution', file: 'architecture.png' },
   'workflow-aspire-2-workflow': { page: 'dapr-workflow-aspire/2-write-the-workflow', file: 'workflow.png' },
+  'workflow-aspire-3-apphost': { page: 'dapr-workflow-aspire/3-orchestrate-with-aspire', file: 'apphost.png' },
 };
 
 const BASE = 'https://github.com/diagrid-labs/dapr-university-instruqt/blob';

@@ -354,3 +354,231 @@ def test_page2_lists_its_task():
     assert md.count(tag) == 1
     assert md.index(tag) < md.rindex("\n---\n")
     assert "## " not in md[md.index(tag):md.rindex("\n---\n")]
+
+
+# ---- Page 3: orchestrate with Aspire -----------------------------------------------------------
+P3 = LAB / "3-orchestrate-with-aspire" / "scripts"
+P3_CHECKS = ("apphost", "api", "dev-dashboard")
+
+APPHOST_CS = """#:package Aspire.Hosting.AppHost@17.0.0
+#:package Aspire.Hosting.Dotnet@17.0.0
+#:package CommunityToolkit.Aspire.Hosting.Dapr@13.0.0
+
+using CommunityToolkit.Aspire.Hosting.Dapr;
+
+var builder = DistributedApplication.CreateBuilder(args);
+
+var stateStore = builder.AddDaprComponent("statestore", "state.redis")
+    .WithMetadata("redisHost", "localhost:6379")
+    .WithMetadata("actorStateStore", "true");
+
+builder.AddDotnetProject("engineering", "./Engineering/Engineering.csproj")
+    .WithHttpEndpoint(port: 5411, name: "api")
+    .WithDaprSidecar(sidecar => sidecar.WithReference(stateStore));
+
+builder.AddExecutable("dev-dashboard", "diagrid-dev-dashboard", ".",
+        "--port", "9090", "--bind", "0.0.0.0", "--no-open", "--mode", "aspire")
+    .WithHttpEndpoint(port: 9090, isProxied: false);
+
+builder.Build().Run();
+"""
+# The AppHost as `aspire new aspire-empty` creates it (page 1).
+TEMPLATE_APPHOST_CS = """#:package Aspire.Hosting.AppHost@17.0.0
+#:package Aspire.Hosting.Dotnet@17.0.0
+
+var builder = DistributedApplication.CreateBuilder(args);
+
+builder.Build().Run();
+"""
+
+
+def page3_workspace(root, apphost=APPHOST_CS):
+    sol = root / "MeridianDiagnostics"
+    sol.mkdir(parents=True)
+    if apphost is not None:
+        (sol / "apphost.cs").write_text(apphost)
+    return root
+
+
+class _Server:
+    """A local HTTP server that answers every GET with `code` and records the Host header and path."""
+
+    def __init__(self, code):
+        import http.server
+        import threading
+
+        self.code, self.requests = code, []
+        server = self
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):  # noqa: N802
+                server.requests.append((self.path, self.headers.get("Host")))
+                self.send_response(server.code)
+                self.end_headers()
+                self.wfile.write(b"{}")
+
+            def log_message(self, *args):
+                pass
+
+        self.httpd = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        self.url = f"http://127.0.0.1:{self.httpd.server_address[1]}"
+        self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
+        self.thread.start()
+
+    def close(self):
+        self.httpd.shutdown()
+        self.httpd.server_close()
+
+
+@pytest.fixture
+def http_server():
+    servers = []
+
+    def make(code=200):
+        s = _Server(code)
+        servers.append(s)
+        return s
+
+    yield make
+    for s in servers:
+        s.close()
+
+
+def _closed_port_url():
+    import socket
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        port = s.getsockname()[1]
+    return f"http://127.0.0.1:{port}"
+
+
+def p3(name, workspace, **env):
+    r = subprocess.run(["bash", str(P3 / f"check-{name}.sh")],
+                       env={**os.environ, "WORKSPACE": str(workspace), **env},
+                       capture_output=True, text=True, timeout=60)
+    return r.returncode, r.stdout + r.stderr
+
+
+def test_page3_all_checks_pass(tmp_path, http_server):
+    ws = page3_workspace(tmp_path / "ws")
+    api, dd = http_server(404), http_server(200)
+    before = snapshot(ws)
+    env = {"ENGINEERING_URL": api.url, "DEV_DASHBOARD_URL": dd.url}
+    for name in P3_CHECKS:
+        rc, out = p3(name, ws, **env)
+        assert rc == 0, f"{name}: {out}"
+    assert snapshot(ws) == before, "a page 3 check changed the workspace"
+
+
+def test_page3_checks_default_to_the_lab_ports():
+    for name, url in (("api", "http://localhost:5411"), ("dev-dashboard", "http://localhost:9090")):
+        text = (P3 / f"check-{name}.sh").read_text()
+        assert url in text, name
+        assert "/root/university-labs/workflow-aspire" in (P3 / "check-apphost.sh").read_text()
+
+
+def test_page3_apphost_fails_without_the_file(tmp_path):
+    rc, out = p3("apphost", page3_workspace(tmp_path, apphost=None))
+    assert rc != 0
+    assert "apphost.cs" in out
+
+
+def test_page3_apphost_fails_on_the_template(tmp_path):
+    rc, out = p3("apphost", page3_workspace(tmp_path, apphost=TEMPLATE_APPHOST_CS))
+    assert rc != 0
+    for part in ("CommunityToolkit.Aspire.Hosting.Dapr", "statestore", "engineering", "dev-dashboard"):
+        assert part in out, part
+
+
+@pytest.mark.parametrize("drop, named", [
+    ("#:package CommunityToolkit.Aspire.Hosting.Dapr@13.0.0\n", "CommunityToolkit.Aspire.Hosting.Dapr"),
+    ('builder.AddDaprComponent("statestore", "state.redis")', "statestore"),
+    ('builder.AddDotnetProject("engineering", "./Engineering/Engineering.csproj")', "engineering"),
+    (".WithDaprSidecar(sidecar => sidecar.WithReference(stateStore))", "WithDaprSidecar"),
+    ('builder.AddExecutable("dev-dashboard", "diagrid-dev-dashboard", ".",', "dev-dashboard"),
+])
+def test_page3_apphost_names_each_missing_part(tmp_path, drop, named):
+    assert drop in APPHOST_CS
+    rc, out = p3("apphost", page3_workspace(tmp_path, apphost=APPHOST_CS.replace(drop, "")))
+    assert rc != 0
+    assert named in out
+
+
+def test_page3_empty_workspace_fails_the_apphost_check(tmp_path):
+    assert p3("apphost", tmp_path)[0] != 0
+
+
+def test_page3_api_fails_when_nothing_answers(tmp_path):
+    rc, out = p3("api", tmp_path, ENGINEERING_URL=_closed_port_url())
+    assert rc != 0
+    assert "does not answer" in out
+
+
+@pytest.mark.parametrize("code", [200, 404])
+def test_page3_api_passes_when_the_status_endpoint_answers(tmp_path, http_server, code):
+    api = http_server(code)
+    rc, out = p3("api", tmp_path, ENGINEERING_URL=api.url)
+    assert rc == 0, out
+    assert api.requests and api.requests[0][0].startswith("/status/")
+
+
+def test_page3_api_fails_on_a_server_error(tmp_path, http_server):
+    # The app runs but its status endpoint fails, for example when the sidecar is not there.
+    rc, out = p3("api", tmp_path, ENGINEERING_URL=http_server(500).url)
+    assert rc != 0
+    assert "500" in out
+
+
+def test_page3_dev_dashboard_sends_a_loopback_host(tmp_path, http_server):
+    # The Dev Dashboard rejects a non-loopback Host header when it binds 0.0.0.0.
+    dd = http_server(200)
+    rc, out = p3("dev-dashboard", tmp_path, DEV_DASHBOARD_URL=dd.url)
+    assert rc == 0, out
+    assert dd.requests and all(host == "localhost:9090" for _, host in dd.requests)
+
+
+def test_page3_dev_dashboard_fails_when_nothing_answers(tmp_path):
+    rc, out = p3("dev-dashboard", tmp_path, DEV_DASHBOARD_URL=_closed_port_url())
+    assert rc != 0
+    assert "does not answer" in out
+
+
+def test_page3_dev_dashboard_fails_on_a_rejected_host(tmp_path, http_server):
+    rc, out = p3("dev-dashboard", tmp_path, DEV_DASHBOARD_URL=http_server(403).url)
+    assert rc != 0
+    assert "403" in out
+
+
+def test_page3_task_runs_every_check_with_its_own_message():
+    conds = conditions("orchestrate")
+    assert [c[0] for c in conds] == ["apphost", "api", "dev_dashboard"]
+    assert [c[1] for c in conds] == [f"3-orchestrate-with-aspire/scripts/check-{n}.sh" for n in P3_CHECKS]
+    for _, script, message in conds:
+        assert (LAB / script).is_file(), script
+        assert re.search(r"section [1-4]", message), message
+    assert len({c[2] for c in conds}) == len(conds), "two conditions share a failure_message"
+    # The API check tells the learner where to start the app.
+    api_message = conds[1][2]
+    assert "aspire run" in api_message and "Aspire CLI" in api_message
+    block = task_block("orchestrate")
+    assert "solve" not in block
+    assert 'timeout           = "30s"' in block
+
+
+def test_page3_lists_its_task():
+    pages = (LAB / "pages.hcl").read_text()
+    page = re.search(r'resource "page" "orchestrate_with_aspire" \{(.*?)\n\}', pages, re.S).group(1)
+    assert "orchestrate = resource.task.orchestrate" in page
+    md = (LAB / "3-orchestrate-with-aspire" / "assignment.md").read_text()
+    tag = '<instruqt-task id="orchestrate"></instruqt-task>'
+    assert md.count(tag) == 1
+    assert md.index(tag) < md.rindex("\n---\n")
+    assert "## " not in md[md.index(tag):md.rindex("\n---\n")]
+
+
+def test_page3_apphost_fixture_is_the_page_apphost():
+    # The fixture above is the AppHost the page writes, so the pass test covers the real file.
+    md = (LAB / "3-orchestrate-with-aspire" / "assignment.md").read_text()
+    assert "cat > MeridianDiagnostics/apphost.cs <<'EOF'\n" + APPHOST_CS.replace(
+        "\nvar stateStore", "\n// The workflow state store: the Redis container that `dapr init` started.\nvar stateStore"
+    ) + "EOF\n" in md

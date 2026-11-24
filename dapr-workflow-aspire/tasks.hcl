@@ -3,9 +3,9 @@
 # that page's `activities` in pages.hcl and shown with `<instruqt-task id="...">` as the page's last
 # section. Each check is a read-only script in `<page>/scripts/check-*.sh` that names the step to
 # redo in its `failure_message`. Task IDs: create_solution, write_workflow, orchestrate, run_inspect.
-# A task without conditions is not listed by any page yet: the build plan's Tasks 6 and 7 add each
-# page's conditions (one per check, with its failure_message), its `activities` entry in pages.hcl
-# and the page's `<instruqt-task id="...">`.
+# A task without conditions is not listed by any page yet: the build plan's Task 7 adds page 4's
+# conditions (one per check, with its failure_message), its `activities` entry in pages.hcl and the
+# page's `<instruqt-task id="...">`.
 
 resource "task" "create_solution" {
   description = "Check that the solution, the Engineering project and apphost.run.json are in place"
@@ -107,6 +107,33 @@ resource "task" "orchestrate" {
     target            = module.sandbox.output.vm
     working_directory = "/root/university-labs/workflow-aspire"
     timeout           = "30s"
+  }
+
+  condition "apphost" {
+    description = "apphost.cs adds the statestore, engineering and dev-dashboard resources"
+
+    check {
+      script          = "3-orchestrate-with-aspire/scripts/check-apphost.sh"
+      failure_message = "MeridianDiagnostics/apphost.cs does not describe the app: the Dapr package or a resource is missing. Redo section 1, Describe the app in the AppHost: run the command that writes apphost.cs in the Aspire CLI window, then stop aspire run with Ctrl+C and start it again (section 3)."
+    }
+  }
+
+  condition "api" {
+    description = "The engineering app answers on port 5411"
+
+    check {
+      script          = "3-orchestrate-with-aspire/scripts/check-api.sh"
+      failure_message = "The engineering app does not answer on http://localhost:5411. Redo section 3, Start the app: run the cd command and then aspire run in the Aspire CLI window, and leave it running. If aspire run is already running, check in the Aspire tab that engineering is Running, and select Start in its actions menu if it is stopped."
+    }
+  }
+
+  condition "dev_dashboard" {
+    description = "The Dev Dashboard answers on port 9090"
+
+    check {
+      script          = "3-orchestrate-with-aspire/scripts/check-dev-dashboard.sh"
+      failure_message = "The Dev Dashboard does not answer on port 9090. Check in the Aspire tab (section 4) that the dev-dashboard resource is Running. If aspire run is not running, redo section 3, Start the app, in the Aspire CLI window."
+    }
   }
 }
 

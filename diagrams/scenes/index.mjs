@@ -22,6 +22,7 @@ import workflow1015Approval from './workflow-101-5-approval.mjs';
 import workflow1016Lifecycle from './workflow-101-6-lifecycle.mjs';
 import workflowAspire1Architecture from './workflow-aspire-1-architecture.mjs';
 import workflowAspire2Workflow from './workflow-aspire-2-workflow.mjs';
+import workflowAspire3Apphost from './workflow-aspire-3-apphost.mjs';
 
 export const scenes = {
   'bindings-1-cron': bindings1Cron,
@@ -48,4 +49,5 @@ export const scenes = {
   'workflow-101-6-lifecycle': workflow1016Lifecycle,
   'workflow-aspire-1-architecture': workflowAspire1Architecture,
   'workflow-aspire-2-workflow': workflowAspire2Workflow,
+  'workflow-aspire-3-apphost': workflowAspire3Apphost,
 };

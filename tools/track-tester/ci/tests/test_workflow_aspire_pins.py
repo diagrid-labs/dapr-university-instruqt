@@ -75,14 +75,18 @@ def test_variables_read_the_aspire_pin():
 # Where each version appears on the pages, as (what, regex with one group for the version, the page
 # folders that must show it). lab-setup.sh's warm-up caches the same packages, so its version must
 # equal the pages'. A page that adds a versioned line adds its folder here (page 3: the apphost.cs
-# `#:package` lines).
+# `#:package` line of the Dapr integration).
 PAGE_VERSIONS = [
     ("Dapr.Workflow", r"Dapr\.Workflow --version (\S+)", ["1-create-the-solution"]),
-    ("CommunityToolkit.Aspire.Hosting.Dapr", r"CommunityToolkit\.Aspire\.Hosting\.Dapr@([0-9][^\s\"]*)", []),
+    ("CommunityToolkit.Aspire.Hosting.Dapr", r"CommunityToolkit\.Aspire\.Hosting\.Dapr@([0-9][^\s\"]*)",
+     ["3-orchestrate-with-aspire"]),
 ]
 # The pages that show the Aspire pin, as (regex with the pin in {pin}, page folders).
 PAGE_ASPIRE_PIN = [
     (r"aspire new aspire-empty --version {pin} ", ["1-create-the-solution"]),
+    # Page 3's apphost.cs: both Aspire packages at the pin, the same as the CLI.
+    (r"#:package Aspire\.Hosting\.AppHost@{pin}\n", ["1-create-the-solution", "3-orchestrate-with-aspire"]),
+    (r"#:package Aspire\.Hosting\.Dotnet@{pin}\n", ["1-create-the-solution", "3-orchestrate-with-aspire"]),
 ]
 
 
@@ -99,6 +103,8 @@ def test_aspire_pin_matches_assignments():
             # No other Aspire version on the page.
             for v in re.findall(r"--version (\d+\.\d+\.\d+)\b", md):
                 assert v == pin or v in _package_versions(md), f"{folder}: --version {v} is not the pin {pin}"
+            for v in re.findall(r"#:package Aspire\.Hosting\.[A-Za-z.]+@(\S+)", md):
+                assert v == pin, f"{folder}: an Aspire.Hosting package at {v}, not the pin {pin}"
     setup = (LAB / "scripts" / "lab-setup.sh").read_text()
     assert 'new aspire-empty --version "$version"' in setup, "the warm-up must use the pin it is given"
 

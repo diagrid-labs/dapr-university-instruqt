@@ -94,5 +94,9 @@
   "workflow-aspire-2-workflow": [
     0,
     0.09
+  ],
+  "workflow-aspire-3-apphost": [
+    0,
+    -0.2
   ]
 }
