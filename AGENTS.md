@@ -471,9 +471,11 @@ Homebrew-vs-`/usr/local/bin` Dapr shadowing, per-language runtime notes), and li
 Eight workflows in `.github/workflows/` run the suites automatically (the seven track workflows
 below, plus `lab-validate.yml`, which runs on every PR; see "Instruqt 2.0 labs"). Each triggers on a
 **daily schedule**, on **`workflow_dispatch`**, and on **pull requests** touching the track,
-the harness (`tools/track-tester/**`), or the workflow file. On failure, a `report` job
-opens or updates a single **`drift-report`** GitHub issue that names the failing legs and
-gives `gh run download` commands for the Robot reports.
+the harness (`tools/track-tester/**`), or the workflow file. On a failed schedule or manual run
+(never a PR run), a `report` job opens or updates a single **`drift-report`** GitHub issue that
+names the failing legs and gives `gh run download` commands for the Robot reports. After a passing
+run on `main` (not a PR), a `close-report` job closes that track's open issue, matching the exact
+titles its `report` job uses, so every track workflow closes its own issue once it is green again.
 
 | Workflow | Track | Schedule (UTC) | Jobs / matrix |
 | --- | --- | --- | --- |
