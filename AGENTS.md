@@ -126,6 +126,44 @@ that follow (README.md config, `_setup/`, `tabs.md`) describe the other, still-1
   `test-dapr-workflow-101.yml`), set in the "No direct push to main" ruleset. The owner adds
   `dapr-workflow-101-result` to the ruleset when PR 2 merges. Do not require the individual matrix legs.
 
+### The ISV Meridian story
+
+New 2.0 tracks share one sci-fi story, so a learner who moves from one track to the next stays in the same world. `dapr-bindings` and `dapr-workflow-101` use it, and the planned 2.0 version of `dapr-workflow-aspire` will too. `dapr-101`, `dapr-secrets` and `dapr-pubsub` came before the story and don't use it. Use it for every new 2.0 track.
+
+**The ship.** The starship *ISV Meridian*. The bridge gives the orders, and the ship's systems carry them out. Each demo app is one of those systems, and its Dapr app ID is the system's name.
+
+**The crew.** Only Captain Ilsa Varn appears in a lab so far. The others are free for new tracks; keep their ranks and roles when you use them.
+
+| Crew member | Role | Where |
+| --- | --- | --- |
+| Captain Ilsa Varn | Commanding officer. Authorizes warp jumps. | `dapr-workflow-101` page 5 (`"officer": "Captain Ilsa Varn"` in the authorize request) |
+| Commander Anja Lindqvist | First officer, on the bridge. | Not used yet |
+| Lieutenant Commander Dayo Okafor | Chief engineer. Runs the engineering console. | Not used yet |
+| Ensign Mira Varga | Navigation officer. Plots courses. | Not used yet |
+
+**The ship systems.**
+
+| System | What it does | Where |
+| --- | --- | --- |
+| Engineering console (`engineering`) | The main app in every themed track. Logs warp-core readings, runs pre-jump checks and prepares each warp jump. Log lines start with `engineering`, for example `engineering jump-001 leg 4/10 complete`. | `dapr-bindings`, `dapr-workflow-101` |
+| Warp core | Charged in stages before a jump, read on a schedule, and watched until its temperature is stable. | `warp-core-scan` cron binding and `warp_core_readings` table (`dapr-bindings`); `ChargeWarpCoreActivity`, `ReadCoreTempActivity` (`dapr-workflow-101`) |
+| Ship database (`ship-db`) | PostgreSQL behind an output binding, with the tables `warp_core_readings` and `comms_log`. | `dapr-bindings` |
+| Subspace beacon (`subspace-beacon`) | Opens a communications channel. A plain HTTP app that answers `GET /ping` with a signal strength. | `dapr-bindings` page 4 |
+| Nav array | Aligned to the warp factor before the jump. | `AlignNavArrayActivity` (`dapr-workflow-101`) |
+| Sensor arrays `alpha` to `epsilon` | Scan the route in parallel and return hazard scores. | `ScanSectorActivity` (`dapr-workflow-101` page 3) |
+| Life support and shields | Checked with the warp core in the pre-jump diagnostics. | Planned for the 2.0 `dapr-workflow-aspire` track |
+
+**Places.** Vesper Reach is the default jump destination. Calder Station is the second destination used in the examples.
+
+**Naming rules.**
+
+- Make up every name. Use no names, ships, organizations, places or characters from an existing sci-fi franchise, so no "Enterprise", "Starfleet" or "USS". The ship prefix is `ISV`.
+- Generic genre words are fine: *starship*, *stardate*, *bridge*, *warp core*, *warp jump*, *warp factor*, *sensor array*, *nav array*, *subspace*.
+- Keep the story light. It names the apps, activities and log lines; the Dapr concept on the page stays the focus.
+- Use the same names in every language. Workflows, activities, endpoints, log lines and outputs match across .NET, Python, Java and TypeScript, so the track-tester suites and the assignment text work for all of them.
+- Use fixed values (hazard scores, temperatures, signal strengths) so every run and every language prints the same output, which the suites assert on.
+- Add any new crew member, system or place to the tables above in the same PR.
+
 ## Track & challenge anatomy
 
 *(Legacy 1.0 tracks. For a 2.0 lab see above.)*

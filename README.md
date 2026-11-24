@@ -29,6 +29,10 @@ The tracks are not intended to be run locally — they are hosted on Instruqt an
 - `catalyst-101/` — Introductory Diagrid track.
 - `tools/track-tester/` — Robot Framework harness that drift-tests the tracks (see below).
 
+## The story of the 2.0 tracks
+
+The newer Instruqt 2.0 tracks share one sci-fi story. Learners work on board the starship *ISV Meridian*, and the demo apps are its ship systems. The `engineering` console logs warp-core readings and pings a subspace beacon in `dapr-bindings`, and it prepares every warp jump as a workflow in `dapr-workflow-101`. Captain Ilsa Varn authorizes the jumps, and the default destination is Vesper Reach. See [AGENTS.md](AGENTS.md#the-isv-meridian-story) for the crew, the ship systems and the naming rules.
+
 ## Testing
 
 Because the runnable tracks depend on upstream code (e.g. `dapr/quickstarts`, and `diagrid-labs/university-labs` for `dapr-101`, `dapr-secrets`, `dapr-pubsub`, `dapr-bindings` and `dapr-workflow-101`), the assignment instructions can silently drift out of sync with the commands and output learners actually see. To catch this, `tools/track-tester/` holds an end-to-end test harness built on [Robot Framework](https://robotframework.org/): it runs the *actual* commands from each challenge's `assignment.md` and asserts on their output.
