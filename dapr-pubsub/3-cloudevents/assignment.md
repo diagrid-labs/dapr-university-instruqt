@@ -10,7 +10,7 @@ The terminals, and the applications running in them, stay as they are when you m
 
 Dapr does not hand a subscriber the bare message. Every message published through Dapr is wrapped in a **CloudEvent**: a standard JSON envelope, defined by the CloudEvents specification, that carries the message in its `data` field next to attributes such as the event `id`, the `source` and the `type`.
 
-![A CloudEvent wraps the order in its data field next to attributes such as id, source and type; a raw payload is the order alone.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-907-pubsub-diagrams/dapr-pubsub/3-cloudevents/images/envelope.png?raw=true)
+![A CloudEvent wraps the order in its data field next to attributes such as id, source and type; a raw payload is the order alone.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-pubsub/3-cloudevents/images/envelope.png?raw=true)
 
 Use the **Editor** tab and open the demo folder of your language: `dotnet/Demo3-CloudEvents`, `python/demo3-cloud-events` or `java/demo3-cloud-events`. It holds two apps, each with its own Dapr sidecar:
 
