@@ -16,13 +16,14 @@ this skill describes them.
 
 A 2.0 lab has **no page checks**: no `tasks.hcl`, no check or solve scripts. A learner can move to
 the next page at any time, and the Robot Framework drift suites test each page instead.
+`dapr-workflow-aspire` is the one 2.0 lab with page checks (no solve): it builds one app from
+scratch, so each page must start from a working solution.
 
 Rules owned elsewhere, not repeated here: pins, required checks and `lab-validate` in `AGENTS.md`
 ("Instruqt 2.0 labs"); the owner's Instruqt UI steps in `docs/instruqt-2-runbook.md`; schema facts
 in `docs/instruqt-2-spike-checklist.md`; the module in `modules/dapr-sandbox/README.md`.
 
-Editing one of the older tracks (`dapr-workflow`, `dapr-workflow-aspire`, the agent and
-AI tracks, `catalyst-101`)? Those are legacy 1.0 tracks: follow `legacy-1.0.md` in this folder.
+Editing one of the older tracks (`dapr-workflow`, the agent and AI tracks, `catalyst-101`)? Those are legacy 1.0 tracks: follow `legacy-1.0.md` in this folder.
 
 Detail and templates for everything below: **reference.md** in this folder.
 
@@ -64,7 +65,9 @@ config uses different words: the whole thing is a `lab` resource, which holds a 
 ```
 
 A 2.0 lab never has a track or page `README.md` used as config, `notes.md`, `tabs.md`, `_setup/`,
-`tasks.hcl`, `scripts/check*.sh` or `solve.sh`. Those are 1.0 files; do not create them.
+`tasks.hcl`, `scripts/check*.sh` or `solve.sh`. Those are 1.0 files; do not create them. The one
+exception is `dapr-workflow-aspire` (see Overview): `tasks.hcl` and read-only
+`<page>/scripts/check-*.sh`, never a solve script.
 
 Demo apps are **not** in this repo. They live in `diagrid-labs/university-labs` under one
 folder per lab (`secrets/`, `pubsub/`), and the lab pins the commit as `tracks_src_ref`.

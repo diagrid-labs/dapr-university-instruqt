@@ -46,6 +46,12 @@ resource "page" "subscription_types" {
 
 The `title` is the same text as the page's H1.
 
+`dapr-workflow-aspire` is the one 2.0 lab with page checks (no solve): it builds one app from
+scratch, so each page must start from a working solution. Its pages list their `task` (from
+`tasks.hcl`) in `activities`, and each assignment ends with the matching `<instruqt-task id="...">`
+tag; `instruqt lab validate` fails on an activity without its tag. The checks are read-only scripts
+in `<page>/scripts/check-*.sh`. No other lab gets page checks.
+
 ### layouts.hcl
 
 Copy `dapr-secrets/layouts.hcl`, which has only the `main` layout. (`dapr-pubsub/layouts.hcl` also
@@ -126,6 +132,11 @@ Copy `dapr-pubsub/scripts/lab-setup.sh` and keep its header comment. The contrac
   page 1's demo first, and never fails the lab.
 - A service every page needs from the start is started and seeded here (Vault in `dapr-secrets`).
   A service only a later page needs is started from that page's Run block instead.
+- A lab pin the script needs goes through the module's `lab_environment` input, which becomes the
+  VM environment the script sees: `dapr-workflow-aspire` passes
+  `lab_environment = { LAB_ASPIRE_CLI_VERSION = variable.aspire_cli_version }`, so the pin stays in its
+  `versions.hcl`. Learners can read these values; pass versions only, never credentials. Pick a
+  name the tools don't read: the Aspire CLI treats `ASPIRE_CLI_VERSION` as an identity override.
 - The lab's files are not on the VM. A helper script is concatenated in front:
   `lab_startup_script = "${file("scripts/seed-vault.sh")}\n${file("scripts/lab-setup.sh")}"`
   (`dapr-secrets`), and `lab-setup.sh` falls back to sourcing it from its own folder for local runs.

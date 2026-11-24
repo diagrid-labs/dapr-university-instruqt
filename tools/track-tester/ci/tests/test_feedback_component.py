@@ -16,6 +16,7 @@ FINAL_PAGES = {
     "dapr-101": "5-pubsub-api",
     "dapr-secrets": "4-swap-the-provider",
     "dapr-pubsub": "6-swap-the-broker",
+    "dapr-workflow-aspire": "4-run-and-inspect",
 }
 
 FEEDBACK = re.compile(r'<instruqt-feedback id="([a-z0-9-]+)"></instruqt-feedback>')

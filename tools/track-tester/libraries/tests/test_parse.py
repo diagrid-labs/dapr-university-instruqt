@@ -14,11 +14,11 @@ MD = """
 Intro.
 
 ```shell,run
-dotnet new aspire-starter -n EnterpriseDiagnostics -o EnterpriseDiagnostics
+dotnet new aspire-starter -n MeridianDiagnostics -o MeridianDiagnostics
 ```
 
 ```shell,run,copy
-cd EnterpriseDiagnostics
+cd MeridianDiagnostics
 ```
 
 ```json,copy
@@ -39,7 +39,7 @@ def test_parse_captures_lang_tags_body():
         ("json", ("copy",)),
         ("text", ("nocopy",)),
     ]
-    assert blocks[0].body == "dotnet new aspire-starter -n EnterpriseDiagnostics -o EnterpriseDiagnostics"
+    assert blocks[0].body == "dotnet new aspire-starter -n MeridianDiagnostics -o MeridianDiagnostics"
 
 
 def test_classification():
