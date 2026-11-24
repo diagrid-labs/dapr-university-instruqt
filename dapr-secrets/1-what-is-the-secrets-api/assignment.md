@@ -8,7 +8,7 @@ The `order-api` application in this lab needs a password store. It could read it
 
 With the Dapr Secrets API the application only asks the Dapr sidecar for a secret *by name*.
 
-![The application asks the Dapr sidecar for a secret, and the sidecar reads it from a secret store such as AWS Secrets Manager, Azure Key Vault, Google Key Management or HashiCorp Vault](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-secrets/1-what-is-the-secrets-api/images/secrets-cloud-stores.png?raw=true)
+![The application asks the Dapr sidecar for a secret, and the sidecar reads it from a secret store such as AWS Secrets Manager, Azure Key Vault, Google Key Management or HashiCorp Vault](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-908-secrets-diagrams/dapr-secrets/1-what-is-the-secrets-api/images/secrets-cloud-stores.png?raw=true)
 
 Where that secret really lives is configured in a Dapr component. In this lab the component is the simplest one: a local file store that reads a `secrets.json` file.
 
