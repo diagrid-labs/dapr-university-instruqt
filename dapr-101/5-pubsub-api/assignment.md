@@ -59,7 +59,7 @@ spec:
 The value of the `metadata.name` attribute is `orderpubsub`. This component name will be present in the application code as well. You'll see this in the next section. The component type is `pubsub.redis`, this means that Redis Streams is used as the message broker.
 The `spec.metadata` contains connection details, in this case, Dapr connects to the default Redis instance that is installed during the initialization of Dapr in self-hosted mode.
 
-![checkout-sdk publishes orders through its sidecar to the orders topic in Redis, and order-processor-sdk's sidecar delivers them to its /orders endpoint.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-909-dapr-101-diagrams/dapr-101/5-pubsub-api/images/pubsub.png?raw=true)
+![checkout-sdk publishes orders through its sidecar to the orders topic in Redis, and order-processor-sdk's sidecar delivers them to its /orders endpoint.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-101/5-pubsub-api/images/pubsub.png?raw=true)
 
 ## 4. Inspect the `checkout` application
 

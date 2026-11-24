@@ -45,7 +45,7 @@ Let's take a look at the `checkout` application that will make an HTTP request t
 - The `dapr-app-id` header is set to `order-processor` and this instructs Dapr where to send the request to. Dapr uses a name resolution component for service discovery that is based on Dapr application IDs, there is no need to use IP addresses.  When running in self-hosted mode, Dapr name resolution is based on mDNS by default.
 - Finally, when the POST request is made, the `/orders` endpoint, that exists in the `order-processor` application is added to the URL.
 
-![checkout calls its own sidecar with the app ID order-processor; the sidecar finds order-processor's sidecar, which passes POST /orders to the app.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-909-dapr-101-diagrams/dapr-101/4-service-invocation-api/images/invocation.png?raw=true)
+![checkout calls its own sidecar with the app ID order-processor; the sidecar finds order-processor's sidecar, which passes POST /orders to the app.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-101/4-service-invocation-api/images/invocation.png?raw=true)
 
 ## 4. Inspect the `order-processor` application
 
