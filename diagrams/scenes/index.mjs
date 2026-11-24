@@ -10,6 +10,7 @@ import pubsub2Streaming from './pubsub-2-streaming.mjs';
 import pubsub3Envelope from './pubsub-3-envelope.mjs';
 import pubsub4Bulk from './pubsub-4-bulk.mjs';
 import pubsub5Routing from './pubsub-5-routing.mjs';
+import secrets1CloudStores from './secrets-1-cloud-stores.mjs';
 import workflow1011Architecture from './workflow-101-1-architecture.mjs';
 import workflow1011Replay from './workflow-101-1-replay.mjs';
 import workflow1012Chain from './workflow-101-2-chain.mjs';
@@ -31,6 +32,7 @@ export const scenes = {
   'pubsub-3-envelope': pubsub3Envelope,
   'pubsub-4-bulk': pubsub4Bulk,
   'pubsub-5-routing': pubsub5Routing,
+  'secrets-1-cloud-stores': secrets1CloudStores,
   'workflow-101-1-architecture': workflow1011Architecture,
   'workflow-101-1-replay': workflow1011Replay,
   'workflow-101-2-chain': workflow1012Chain,

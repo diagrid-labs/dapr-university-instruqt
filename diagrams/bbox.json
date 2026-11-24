@@ -47,6 +47,10 @@
     1.16,
     0
   ],
+  "secrets-1-cloud-stores": [
+    1,
+    -0.4
+  ],
   "workflow-101-1-architecture": [
     -1,
     -1.41
