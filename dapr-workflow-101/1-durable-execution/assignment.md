@@ -13,7 +13,7 @@ Every workflow app has two building blocks:
 
 A workflow is ordinary code in your app. The Dapr sidecar manages it: it schedules each activity, saves the workflow's history in a state store, and replays the code from that history when the app comes back after a crash. In this track the state store is the Redis container that `dapr init` started.
 
-![The engineering app holds the workflow and its activity; its Dapr sidecar schedules the activity and saves the workflow history in the Redis state store.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow-101/1-durable-execution/images/architecture.png?raw=true)
+![The engineering app holds the workflow and its activity; its Dapr sidecar schedules the activity and saves the workflow history in the Redis state store.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-905-workflow-101-diagrams/dapr-workflow-101/1-durable-execution/images/architecture.png?raw=true)
 
 Use the **Editor** tab to open the demo folder of your language:
 
@@ -192,7 +192,7 @@ Expected output. If the status is still `RUNNING`, wait a few seconds and run th
 
 ## 5. What happened
 
-![After the restart, stages 1 and 2 return their stored results from the history, stage 3 runs again, and stages 4 and 5 run for the first time.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow-101/1-durable-execution/images/replay.png?raw=true)
+![After the restart, stages 1 and 2 return their stored results from the history, stage 3 runs again, and stages 4 and 5 run for the first time.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-905-workflow-101-diagrams/dapr-workflow-101/1-durable-execution/images/replay.png?raw=true)
 
 - **Completed stages didn't run again.** Every time an activity finishes, the sidecar records its result in the workflow's history in the state store. Each `await` (or `yield` in Python and TypeScript) on an activity is a checkpoint. Stages 1 and 2 were in the history before the crash, so they were not repeated.
 - **The stage that was running did run again.** Stage 3 had not reported back when the app stopped, so after the restart the sidecar sent it to the app again. Activities run at least once, so they should be safe to repeat.

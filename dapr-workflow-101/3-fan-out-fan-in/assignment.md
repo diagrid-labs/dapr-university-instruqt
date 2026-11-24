@@ -13,7 +13,7 @@ Before the jump, the **engineering** console scans the route with five sensor ar
 - **Fan-out:** the workflow schedules all five activity calls without waiting for each one in turn.
 - **Fan-in:** it then waits for all of them at once, and works out `routeRisk`, the highest hazard score, and a `verdict`: `CLEAR` below 50, otherwise `HAZARDOUS`.
 
-![The route scan workflow starts five scans at once, waits for all of them, and combines their hazard scores into a route risk and a verdict.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow-101/3-fan-out-fan-in/images/fan-out.png?raw=true)
+![The route scan workflow starts five scans at once, waits for all of them, and combines their hazard scores into a route risk and a verdict.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-905-workflow-101-diagrams/dapr-workflow-101/3-fan-out-fan-in/images/fan-out.png?raw=true)
 
 `ScanSectorActivity` takes the name of an array, scans for 2 seconds and returns a hazard score:
 
