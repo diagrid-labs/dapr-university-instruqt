@@ -2,6 +2,7 @@ import bindings1Cron from './bindings-1-cron.mjs';
 import bindings1Directions from './bindings-1-directions.mjs';
 import bindings2Output from './bindings-2-output.mjs';
 import bindings3TwoComponents from './bindings-3-two-components.mjs';
+import bindings4SubspaceBeacon from './bindings-4-subspace-beacon.mjs';
 import workflow1011Architecture from './workflow-101-1-architecture.mjs';
 import workflow1011Replay from './workflow-101-1-replay.mjs';
 import workflow1012Chain from './workflow-101-2-chain.mjs';
@@ -15,6 +16,7 @@ export const scenes = {
   'bindings-1-directions': bindings1Directions,
   'bindings-2-output': bindings2Output,
   'bindings-3-two-components': bindings3TwoComponents,
+  'bindings-4-subspace-beacon': bindings4SubspaceBeacon,
   'workflow-101-1-architecture': workflow1011Architecture,
   'workflow-101-1-replay': workflow1011Replay,
   'workflow-101-2-chain': workflow1012Chain,

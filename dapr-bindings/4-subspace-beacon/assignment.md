@@ -59,6 +59,8 @@ Open `PingController.java` in the `java/demo4-subspace-beacon/engineering/src/ma
 
 Each tick runs three steps: an **input binding** triggers the handler, **service invocation** reaches the beacon by its app ID, and an **output binding** stores the answer. The code holds no host or port for the beacon and no connection to the database. Both sidecars find what they need from the app ID and the component names.
 
+![On each tick the beacon-ping cron binding triggers engineering, which calls subspace-beacon through service invocation and stores the answer in comms_log through the ship-db binding.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-bindings/4-subspace-beacon/images/subspace-beacon.png?raw=true)
+
 ## 2. Run the demo
 
 > [!IMPORTANT]
