@@ -15,6 +15,8 @@ LANG_BY_SUMMARY = {
 
 _FENCE_RE = re.compile(r"^```([^\n`]*)$")
 _SUMMARY_RE = re.compile(r"<summary>(.*?)</summary>", re.IGNORECASE | re.DOTALL)
+# A heredoc opener (`<<EOF`, `<<'EOF'`, `<<"EOF"`, `<<-EOF`), not a here-string (`<<<`).
+_HEREDOC_RE = re.compile(r"(?<!<)<<(?!<)(-?)\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\2")
 
 
 @dataclass(frozen=True)
@@ -44,8 +46,23 @@ def extract_run_commands(md_text: str) -> list[Command]:
     current_lang: str | None = None
     in_fence = False
     fence_is_run = False
+    # An open heredoc in a Run block: (terminator, strip leading tabs, lines so far). The whole
+    # heredoc, opener to terminator, is ONE command with its body kept verbatim (blank lines and
+    # `#` lines such as `#:package ...` included), so its body is never matched line by line.
+    heredoc: tuple[str, bool, list[str]] | None = None
     for line in md_text.splitlines():
         stripped = line.strip()
+        if heredoc is not None and _FENCE_RE.match(stripped) is not None:
+            # A heredoc without its terminator ends with its block.
+            commands.append(Command(text="\n".join(heredoc[2]), lang=current_lang))
+            heredoc = None
+        if heredoc is not None:
+            tag, strip_tabs, parts = heredoc
+            parts.append(line)
+            if (line.lstrip("\t") if strip_tabs else line) == tag:
+                commands.append(Command(text="\n".join(parts), lang=current_lang))
+                heredoc = None
+            continue
         fence = _FENCE_RE.match(stripped)
         if fence is not None:
             if not in_fence:
@@ -57,7 +74,11 @@ def extract_run_commands(md_text: str) -> list[Command]:
             continue
         if in_fence:
             if fence_is_run and stripped and not stripped.startswith("#"):
-                commands.append(Command(text=stripped, lang=current_lang))
+                m = _HEREDOC_RE.search(stripped)
+                if m is not None:
+                    heredoc = (m.group(3), m.group(1) == "-", [stripped])
+                else:
+                    commands.append(Command(text=stripped, lang=current_lang))
             continue
         # Outside fences: track <details> language scope.
         lang = _lang_from_summary(line)
@@ -72,9 +93,29 @@ def normalize(text: str) -> str:
     return " ".join(text.split())
 
 
+def uncomment(text: str) -> str:
+    """Each line without one leading `#`, so a multi-line command listed in a suite's
+    `# doc-sync coverage` comment block (`#   <line>` per line) reads as the command again."""
+    return "\n".join(re.sub(r"^\s*#", "", line, count=1) for line in text.splitlines())
+
+
 def find_uncovered(commands: list[Command], haystack: str) -> list[Command]:
     normalized_haystack = normalize(haystack)
-    return [c for c in commands if normalize(c.text) not in normalized_haystack]
+    uncommented_haystack: str | None = None
+    uncovered = []
+    for c in commands:
+        text = normalize(c.text)
+        if text in normalized_haystack:
+            continue
+        # Only a multi-line command (a heredoc) may match the uncommented suite: single-line
+        # commands keep the plain substring check they always had.
+        if "\n" in c.text:
+            if uncommented_haystack is None:
+                uncommented_haystack = normalize(uncomment(haystack))
+            if text in uncommented_haystack:
+                continue
+        uncovered.append(c)
+    return uncovered
 
 
 # A `cd` at the start of a command or after `&&`, `||` or `;`, and its target.

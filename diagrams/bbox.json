@@ -102,5 +102,21 @@
   "workflow-101-6-lifecycle": [
     11.55,
     -2.07
+  ],
+  "workflow-aspire-1-architecture": [
+    -12,
+    -0.2
+  ],
+  "workflow-aspire-2-workflow": [
+    0,
+    0.09
+  ],
+  "workflow-aspire-3-apphost": [
+    0,
+    -0.2
+  ],
+  "workflow-aspire-4-resume": [
+    0,
+    -0.09
   ]
 }

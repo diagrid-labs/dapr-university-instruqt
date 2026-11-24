@@ -20,7 +20,7 @@ The tracks are not intended to be run locally — they are hosted on Instruqt an
 - `dapr-bindings/` — Dapr Bindings track: a cron input binding, a PostgreSQL output binding, the State API compared with a binding, and bindings combined with service invocation.
 - `dapr-workflow-101/` — Dapr Workflow 101 track: durable execution, task chaining, fan-out/fan-in, monitor, human in the loop, and workflow management, with .NET, Python, Java and TypeScript demos.
 - `dapr-workflow/` — Dapr Workflow track (durable execution, task chaining, fan-out/fan-in, monitor, external events, child workflows, resiliency, workflow management).
-- `dapr-workflow-aspire/` — Dapr Workflow with .NET Aspire track.
+- `dapr-workflow-aspire/` — Dapr Workflow with .NET Aspire track: build a Dapr Workflow app from scratch with Aspire 17, a single-file AppHost, a Redis state store and the Dev Dashboard (.NET).
 - `dapr-dotnet-aspire/` — Dapr + .NET Aspire integration track.
 - `dapr-agents/` — Dapr Agents track.
 - `dapr-agents-web-context/` — Dapr Agents Advanced track: build a Chainlit-powered expert agent that uses a `before_llm_call` hook to inject fresh Tavily web-search results into every prompt.
@@ -35,7 +35,7 @@ The newer Instruqt 2.0 tracks share one sci-fi story. Learners work on board the
 
 ## Testing
 
-Because the runnable tracks depend on upstream code (e.g. `dapr/quickstarts`, and `diagrid-labs/university-labs` for `dapr-101`, `dapr-secrets`, `dapr-pubsub`, `dapr-bindings` and `dapr-workflow-101`), the assignment instructions can silently drift out of sync with the commands and output learners actually see. To catch this, `tools/track-tester/` holds an end-to-end test harness built on [Robot Framework](https://robotframework.org/): it runs the *actual* commands from each challenge's `assignment.md` and asserts on their output.
+Because the runnable tracks depend on upstream code (e.g. `dapr/quickstarts`, and `diagrid-labs/university-labs` for `dapr-101`, `dapr-secrets`, `dapr-pubsub`, `dapr-bindings`, `dapr-workflow-101` and `dapr-workflow-aspire`), the assignment instructions can silently drift out of sync with the commands and output learners actually see. To catch this, `tools/track-tester/` holds an end-to-end test harness built on [Robot Framework](https://robotframework.org/): it runs the *actual* commands from each challenge's `assignment.md` and asserts on their output.
 
 Each runnable challenge has a suite next to its assignment, e.g. `dapr-workflow/3-task-chaining/tests/challenge.robot`, with tests tagged per language (`dotnet` / `java` / `python` / `javascript` / `typescript`). A [doc-sync](tools/track-tester/README.md) checker additionally verifies every runnable command in an `assignment.md` is covered by its suite. See [`tools/track-tester/README.md`](tools/track-tester/README.md) for how to run the suites locally.
 
@@ -47,7 +47,7 @@ Seven workflows in [`.github/workflows/`](.github/workflows/) run the suites aut
 | --- | --- | --- | --- |
 | [`test-dapr-101.yml`](.github/workflows/test-dapr-101.yml) | `dapr-101` | 06:00 daily | dotnet, java, python, javascript + a language-agnostic `shared` leg (doc-sync + per-language matrix) |
 | [`test-dapr-workflow.yml`](.github/workflows/test-dapr-workflow.yml) | `dapr-workflow` | 06:15 daily | dotnet, java, python (doc-sync + per-language matrix) |
-| [`test-dapr-workflow-aspire.yml`](.github/workflows/test-dapr-workflow-aspire.yml) | `dapr-workflow-aspire` | 06:30 daily | .NET 10 + Aspire CLI (harness unit tests + build-and-run) |
+| [`test-dapr-workflow-aspire.yml`](.github/workflows/test-dapr-workflow-aspire.yml) | `dapr-workflow-aspire` | 06:30 daily | doc-sync + one `build-and-run` leg (.NET 10, Aspire CLI, Dev Dashboard) that runs the pages in order |
 | [`test-dapr-secrets.yml`](.github/workflows/test-dapr-secrets.yml) | `dapr-secrets` | 06:45 daily | dotnet, java, python + a language-agnostic `shared` leg (doc-sync + per-language matrix, HashiCorp Vault) |
 | [`test-dapr-pubsub.yml`](.github/workflows/test-dapr-pubsub.yml) | `dapr-pubsub` | 07:00 daily | dotnet, java, python + a language-agnostic `shared` leg (doc-sync + per-language matrix, RabbitMQ in challenge 6) |
 | [`test-dapr-bindings.yml`](.github/workflows/test-dapr-bindings.yml) | `dapr-bindings` | 07:15 daily | dotnet, java, python + a language-agnostic `shared` leg (doc-sync + per-language matrix, Postgres started by the setup script) |

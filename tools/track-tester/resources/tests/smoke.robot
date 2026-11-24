@@ -2,6 +2,7 @@
 Resource    ../dapr.resource
 Variables   ../../variables/dapr_101.py
 Resource    ../workflow.resource
+Resource    ../aspire.resource
 
 *** Test Cases ***
 Keywords Resolve
@@ -21,3 +22,11 @@ Workflow Keywords Resolve
     Capture Command Output    echo hi
     Wait Until Command Output Contains    echo hi    hi
     Wait Until Workflow Completed    http://localhost:1/    someoutput
+
+Aspire Keywords Resolve
+    [Documentation]    Dry-run only: verifies the aspire.resource keywords resolve.
+    Start Aspire Run    aspire run    ${EMPTY}    /tmp/aspire.log    aspiresmoke
+    Wait Until Loopback Host Answers    http://localhost:1/    localhost:1    1s
+    Aspire Resources    /tmp/apphost.cs    hidden=${True}
+    Aspire Resource Pid    /tmp/apphost.cs    engineering
+    Capture Aspire Logs And Stop App    /tmp/apphost.cs    aspiresmoke    ports=${{ [1] }}
