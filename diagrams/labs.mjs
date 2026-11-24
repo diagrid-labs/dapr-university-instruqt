@@ -10,6 +10,7 @@ export const PAGES = {
   'workflow-101-1-architecture': { page: 'dapr-workflow-101/1-durable-execution', file: 'architecture.png' },
   'workflow-101-1-replay': { page: 'dapr-workflow-101/1-durable-execution', file: 'replay.png' },
   'workflow-101-2-chain': { page: 'dapr-workflow-101/2-task-chaining', file: 'chain.png' },
+  'workflow-101-3-fan-out': { page: 'dapr-workflow-101/3-fan-out-fan-in', file: 'fan-out.png' },
 };
 
 const BASE = 'https://github.com/diagrid-labs/dapr-university-instruqt/blob';
