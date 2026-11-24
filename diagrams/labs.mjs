@@ -29,6 +29,7 @@ export const PAGES = {
   'workflow-101-4-monitor': { page: 'dapr-workflow-101/4-monitor', file: 'monitor.png' },
   'workflow-101-5-approval': { page: 'dapr-workflow-101/5-human-in-the-loop', file: 'approval.png' },
   'workflow-101-6-lifecycle': { page: 'dapr-workflow-101/6-management', file: 'lifecycle.png' },
+  'workflow-aspire-1-architecture': { page: 'dapr-workflow-aspire/1-create-the-solution', file: 'architecture.png' },
 };
 
 const BASE = 'https://github.com/diagrid-labs/dapr-university-instruqt/blob';

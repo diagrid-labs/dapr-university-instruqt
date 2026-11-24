@@ -1,10 +1,14 @@
 # Each page ends with a task (tasks.hcl) that checks what the page built, so the next page starts
-# from a working solution. The build plan's Tasks 4 to 7 add each page's task to its `activities`
-# together with the page's `<instruqt-task id="...">` tag (validate fails on an activity without
-# its tag).
+# from a working solution. A page lists its task in `activities` together with the page's
+# `<instruqt-task id="...">` tag (validate fails on an activity without its tag); the build plan's
+# Tasks 5 to 7 add pages 2 to 4.
 resource "page" "create_the_solution" {
   title = "Create the solution"
   file  = "1-create-the-solution/assignment.md"
+
+  activities = {
+    create_solution = resource.task.create_solution
+  }
 }
 
 resource "page" "write_the_workflow" {

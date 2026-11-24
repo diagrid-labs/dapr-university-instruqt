@@ -3,9 +3,9 @@
 # that page's `activities` in pages.hcl and shown with `<instruqt-task id="...">` as the page's last
 # section. Each check is a read-only script in `<page>/scripts/check-*.sh` that names the step to
 # redo in its `failure_message`. Task IDs: create_solution, write_workflow, orchestrate, run_inspect.
-# The tasks below have no conditions and no page lists them yet: the build plan's Tasks 4 to 7 add
-# each page's conditions (one per check, with its failure_message), its `activities` entry in
-# pages.hcl and the page's `<instruqt-task id="...">`.
+# A task without conditions is not listed by any page yet: the build plan's Tasks 5 to 7 add each
+# page's conditions (one per check, with its failure_message), its `activities` entry in pages.hcl
+# and the page's `<instruqt-task id="...">`.
 
 resource "task" "create_solution" {
   description = "Check that the solution, the Engineering project and apphost.run.json are in place"
@@ -14,6 +14,42 @@ resource "task" "create_solution" {
     target            = module.sandbox.output.vm
     working_directory = "/root/university-labs/workflow-aspire"
     timeout           = "30s"
+  }
+
+  condition "solution" {
+    description = "The MeridianDiagnostics solution exists"
+
+    check {
+      script          = "1-create-the-solution/scripts/check-solution.sh"
+      failure_message = "MeridianDiagnostics/apphost.cs is missing. Redo section 2, Create the Aspire solution: run the cd command and then the aspire new command in the Aspire CLI window."
+    }
+  }
+
+  condition "engineering" {
+    description = "The Engineering project exists"
+
+    check {
+      script          = "1-create-the-solution/scripts/check-engineering.sh"
+      failure_message = "MeridianDiagnostics/Engineering/Engineering.csproj is missing. Redo section 3, Add the Engineering project: run the dotnet new web command in the Aspire CLI window."
+    }
+  }
+
+  condition "dapr_workflow" {
+    description = "The Engineering project references Dapr.Workflow"
+
+    check {
+      script          = "1-create-the-solution/scripts/check-dapr-workflow.sh"
+      failure_message = "Engineering.csproj does not reference the Dapr.Workflow package. Redo section 3, Add the Engineering project: run the dotnet add command in the Aspire CLI window."
+    }
+  }
+
+  condition "launch_profile" {
+    description = "apphost.run.json binds the Aspire dashboard to 0.0.0.0:17000"
+
+    check {
+      script          = "1-create-the-solution/scripts/check-launch-profile.sh"
+      failure_message = "MeridianDiagnostics/apphost.run.json does not bind the Aspire dashboard to http://0.0.0.0:17000. Redo section 4, Open the dashboard to the sandbox: run the command that writes apphost.run.json in the Aspire CLI window."
+    }
   }
 }
 

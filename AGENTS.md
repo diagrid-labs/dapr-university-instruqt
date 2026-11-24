@@ -348,6 +348,8 @@ and every command is a `bash,run` (or `shell,run`) block. This module parses tho
 suite can reconstruct the app exactly as the assignments describe, catching drift in the tooling
 (Aspire CLI, NuGet packages) the pages depend on. A heredoc (`cat > <file> <<'EOF'` … `EOF`) is
 one command with its body kept verbatim, including blank lines and `#:package` lines.
+`Apply Challenge` takes `rewrite_from=/root/university-labs rewrite_to=${TRACKS_SRC_DIR}`, so the
+pages' anchored `cd` runs in the suite's checkout.
 
 ## Variable resolution (where the code under test comes from)
 

@@ -181,13 +181,19 @@ class AssignmentBlocks:
     ROBOT_AUTO_KEYWORDS = True  # RF: class name != module name, so mark this the library class
 
     def apply_challenge(self, assignment_path, start_dir, solution_dir,
-                        files_manifest, skip_prefixes=("aspire run", "docker run")):
+                        files_manifest, skip_prefixes=("aspire run", "docker run"),
+                        rewrite_from=None, rewrite_to=None):
+        """Run the page's Run blocks and write its ,copy blocks, in page order. With rewrite_from
+        and rewrite_to, every command has rewrite_from replaced by rewrite_to first, so a page that
+        `cd`s to the VM's checkout (`/root/university-labs/...`) runs in the suite's checkout."""
         blocks = parse_blocks(_read(assignment_path))
         resolve_files(blocks, files_manifest)  # fail-loud coverage check up front
         cwd = start_dir
         for b in blocks:
             if is_run_block(b):
                 for cmd in command_lines(b.body):
+                    if rewrite_from:
+                        cmd = cmd.replace(rewrite_from, rewrite_to)
                     if any(cmd.startswith(p) for p in skip_prefixes):
                         continue
                     if cmd.startswith("cd "):
