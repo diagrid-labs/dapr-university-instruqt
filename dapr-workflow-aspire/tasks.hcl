@@ -3,9 +3,8 @@
 # that page's `activities` in pages.hcl and shown with `<instruqt-task id="...">` as the page's last
 # section. Each check is a read-only script in `<page>/scripts/check-*.sh` that names the step to
 # redo in its `failure_message`. Task IDs: create_solution, write_workflow, orchestrate, run_inspect.
-# A task without conditions is not listed by any page yet: the build plan's Task 7 adds page 4's
-# conditions (one per check, with its failure_message), its `activities` entry in pages.hcl and the
-# page's `<instruqt-task id="...">`.
+# A page may reuse an earlier page's script: page 4's api condition runs page 3's check-api.sh with
+# its own failure_message.
 
 resource "task" "create_solution" {
   description = "Check that the solution, the Engineering project and apphost.run.json are in place"
@@ -144,5 +143,26 @@ resource "task" "run_inspect" {
     target            = module.sandbox.output.vm
     working_directory = "/root/university-labs/workflow-aspire"
     timeout           = "30s"
+  }
+
+  # The runs are read through the app, so the app must answer first. A learner who stopped
+  # engineering in section 3 and never started it again gets this message only: the completed
+  # check passes while the app does not answer.
+  condition "api" {
+    description = "The engineering app answers on port 5411"
+
+    check {
+      script          = "3-orchestrate-with-aspire/scripts/check-api.sh"
+      failure_message = "The engineering app does not answer on http://localhost:5411. If you stopped it in section 3, start it again as in section 4: in the Aspire tab, select Start in the Actions column of the engineering row, or run aspire resource engineering start --apphost MeridianDiagnostics/apphost.cs in the curl window. If aspire run is not running in the Aspire CLI window, start it again as in section 1."
+    }
+  }
+
+  condition "completed" {
+    description = "A diagnostics run has completed"
+
+    check {
+      script          = "4-run-and-inspect/scripts/check-completed.sh"
+      failure_message = "No diagnostics run has completed yet. If you just started jump-001 or jump-002, its workflow waits 15 seconds before it finishes: wait until it completes, then check again. Otherwise redo section 1, Start a diagnostics run, in the curl window."
+    }
   }
 }

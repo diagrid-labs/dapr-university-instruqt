@@ -582,3 +582,204 @@ def test_page3_apphost_fixture_is_the_page_apphost():
     assert "cat > MeridianDiagnostics/apphost.cs <<'EOF'\n" + APPHOST_CS.replace(
         "\nvar stateStore", "\n// The workflow state store: the Redis container that `dapr init` started.\nvar stateStore"
     ) + "EOF\n" in md
+
+
+# ---- Page 4: run and inspect -------------------------------------------------------------------
+P4 = LAB / "4-run-and-inspect" / "scripts"
+P4_PAGE = LAB / "4-run-and-inspect" / "assignment.md"
+RUN_IDS = ("jump-001", "jump-002")
+COMPLETED = ('{"status":"Completed","output":{"starDate":"47634.4","priority":"Urgent",'
+             '"summary":"WarpCore=Nominal, LifeSupport=Degraded, Shields=Critical","bridgeNotified":true}}')
+
+
+def status_body(status):
+    return COMPLETED if status == "Completed" else '{"status":"%s","output":null}' % status
+
+
+class _StatusServer:
+    """A stand-in for the engineering API: GET /status/<id> answers from `runs` (id -> status, or an
+    int HTTP code), 404 for an unknown id. Records every request's method and path."""
+
+    def __init__(self, runs):
+        import http.server
+        import threading
+
+        self.runs, self.requests = runs, []
+        server = self
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def _answer(self):
+                server.requests.append((self.command, self.path))
+                run = server.runs.get(self.path.rsplit("/", 1)[-1]) if self.path.startswith("/status/") else None
+                if run is None:
+                    code, body = 404, ""
+                elif isinstance(run, int):
+                    code, body = run, "System.Text.Json.JsonException: ..."
+                else:
+                    code, body = 200, status_body(run)
+                self.send_response(code)
+                self.end_headers()
+                self.wfile.write(body.encode())
+
+            do_GET = do_POST = do_PUT = do_DELETE = _answer  # noqa: N815
+
+            def log_message(self, *args):
+                pass
+
+        self.httpd = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        self.url = f"http://127.0.0.1:{self.httpd.server_address[1]}"
+        self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
+        self.thread.start()
+
+    def close(self):
+        self.httpd.shutdown()
+        self.httpd.server_close()
+
+
+@pytest.fixture
+def engineering():
+    servers = []
+
+    def make(**runs):
+        s = _StatusServer({k.replace("_", "-"): v for k, v in runs.items()})
+        servers.append(s)
+        return s
+
+    yield make
+    for s in servers:
+        s.close()
+
+
+def p4(url):
+    r = subprocess.run(["bash", str(P4 / "check-completed.sh")],
+                       env={**os.environ, "ENGINEERING_URL": url}, capture_output=True, text=True, timeout=60)
+    return r.returncode, r.stdout + r.stderr
+
+
+@pytest.mark.parametrize("runs", [
+    {"jump_001": "Completed"},
+    {"jump_002": "Completed"},
+    {"jump_001": "Completed", "jump_002": "Running"},
+    {"jump_001": 500, "jump_002": "Completed"},
+])
+def test_page4_completed_passes_when_a_run_completed(engineering, runs):
+    api = engineering(**runs)
+    rc, out = p4(api.url)
+    assert rc == 0, out
+    assert "Completed" in out or "completed" in out
+    # Read-only: it only asks for the status of the page's two runs.
+    assert {m for m, _ in api.requests} == {"GET"}
+    assert {p for _, p in api.requests} <= {f"/status/{i}" for i in RUN_IDS}
+
+
+@pytest.mark.parametrize("status", ["Running", "Pending"])
+def test_page4_completed_asks_to_wait_while_a_run_is_still_going(engineering, status):
+    # Review Focus 4: the learner selects Check during the 15 second timer.
+    rc, out = p4(engineering(jump_001=status).url)
+    assert rc != 0
+    assert "jump-001" in out and status in out
+    assert "wait until it completes" in out and "check again" in out
+
+
+def test_page4_completed_fails_when_no_run_was_started(engineering):
+    rc, out = p4(engineering().url)
+    assert rc != 0
+    assert "jump-001" in out and "section 1" in out
+
+
+@pytest.mark.parametrize("status", ["Failed", "Terminated"])
+def test_page4_completed_names_a_run_that_did_not_complete(engineering, status):
+    rc, out = p4(engineering(jump_001=status).url)
+    assert rc != 0
+    assert f"jump-001 is {status}" in out
+
+
+def test_page4_completed_reports_a_status_it_cannot_read(engineering):
+    rc, out = p4(engineering(jump_001=500).url)
+    assert rc != 0
+    assert "jump-001" in out and "HTTP 500" in out
+
+
+def test_page4_completed_leaves_a_stopped_app_to_the_api_check():
+    # Review Focus 5: engineering is stopped. The api condition names the fix; this one stays quiet,
+    # so the learner gets one hint.
+    rc, out = p4(_closed_port_url())
+    assert rc == 0, out
+    assert "does not answer" in out
+
+
+def test_page4_completed_defaults_to_the_lab_port_and_the_page_ids():
+    text = (P4 / "check-completed.sh").read_text()
+    assert "http://localhost:5411" in text
+    for run_id in RUN_IDS:
+        assert run_id in text
+
+
+def test_page4_task_checks_the_app_and_a_completed_run():
+    conds = conditions("run_inspect")
+    assert [c[0] for c in conds] == ["api", "completed"]
+    # The api condition reuses page 3's read-only probe of the status endpoint.
+    assert [c[1] for c in conds] == ["3-orchestrate-with-aspire/scripts/check-api.sh",
+                                     "4-run-and-inspect/scripts/check-completed.sh"]
+    for _, script, message in conds:
+        assert (LAB / script).is_file(), script
+        assert re.search(r"section [1-6]", message), message
+    api_message, completed_message = conds[0][2], conds[1][2]
+    # Review Focus 5: how to start engineering again, in the dashboard and with the CLI.
+    for text in ("Aspire tab", "Start", "aspire resource engineering start --apphost MeridianDiagnostics/apphost.cs",
+                 "curl window", "aspire run", "Aspire CLI"):
+        assert text in api_message, text
+    # Review Focus 4: a run that has not finished yet.
+    assert "wait until it completes" in completed_message and "check again" in completed_message
+    block = task_block("run_inspect")
+    assert "solve" not in block
+    assert 'timeout           = "30s"' in block
+
+
+def test_page4_lists_its_task():
+    pages = (LAB / "pages.hcl").read_text()
+    page = re.search(r'resource "page" "run_and_inspect" \{(.*?)\n\}', pages, re.S).group(1)
+    assert "run_inspect = resource.task.run_inspect" in page
+    md = P4_PAGE.read_text()
+    tag = '<instruqt-task id="run_inspect"></instruqt-task>'
+    assert md.count(tag) == 1
+    close = md.index("\n---\n")
+    assert md.index(tag) < close
+    assert "## " not in md[md.index(tag):close]
+
+
+def test_page4_stop_and_start_commands_match_the_task_message():
+    # The CLI fallback on the page is the command the api failure_message names.
+    md = P4_PAGE.read_text()
+    for verb in ("stop", "start"):
+        assert f"aspire resource engineering {verb} --apphost MeridianDiagnostics/apphost.cs" in md, verb
+
+
+BADGE_COLLECT = "https://holopin.io/collect/TODO-workflow-aspire"
+BADGE_IMAGE = ("https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow-aspire/"
+               "4-run-and-inspect/images/Diagrid-Dapr-Uni-badge-wf-aspire_x300.png?raw=true")
+
+
+def test_page4_closes_the_track_with_the_badge():
+    md = P4_PAGE.read_text()
+    intro = md.split("\n## ", 1)[0]
+    assert "Holopin badge" in intro
+    close = md[md.index("\n---\n"):]
+    assert "## Collect your badge & provide feedback" in close
+    # The image at 384 x 384, linked to the collect URL (a placeholder until the badge is live).
+    assert f'<a href="{BADGE_COLLECT}"><img src="{BADGE_IMAGE}"' in close
+    assert 'width="384" height="384"' in close
+    assert f"]({BADGE_COLLECT})" in close
+    # The recap has one line per page, named by the page titles.
+    for title in ("Create the solution", "Write the workflow", "Orchestrate with Aspire", "Run and inspect"):
+        assert f"**{title}:**" in close, title
+    # Further learning.
+    for url in ("https://www.diagrid.io/university/dapr-workflow)", "https://www.diagrid.io/university/ai-agents-maf)"):
+        assert url in close, url
+    assert close.rstrip().endswith('<instruqt-completion text="You\'ve completed Dapr Workflow with .NET Aspire!"></instruqt-completion>')
+
+
+def test_page4_stops_aspire_at_the_end():
+    md = P4_PAGE.read_text()
+    close = md[md.index("\n---\n"):]
+    assert "Ctrl+C" in close and "Aspire CLI" in close
