@@ -84,6 +84,14 @@ def test_apply_rewrites_the_vm_path(tmp_path):
 
 
 def test_apply_without_rewrite_keeps_the_path(tmp_path):
-    md = _write_md(tmp_path, REWRITE)
-    with pytest.raises((RuntimeError, FileNotFoundError, NotADirectoryError)):
-        AssignmentBlocks().apply_challenge(md, str(tmp_path), str(tmp_path), [])
+    # Without rewrite_from/rewrite_to, the page's absolute path is used as written. The page path
+    # is a tmp dir standing in for the VM's checkout, so the test never touches the real
+    # /root/university-labs (which may exist, unreadable, on a CI runner).
+    vm = tmp_path / "vm"
+    (vm / "workflow-aspire").mkdir(parents=True)
+    src = tmp_path / "src"
+    (src / "workflow-aspire").mkdir(parents=True)
+    md = _write_md(tmp_path, REWRITE.replace("/root/university-labs", str(vm)))
+    AssignmentBlocks().apply_challenge(md, str(tmp_path), str(tmp_path), [])
+    assert (vm / "workflow-aspire" / "Made" / "where.txt").read_text() == "written\n"
+    assert not (src / "workflow-aspire" / "Made").exists()
