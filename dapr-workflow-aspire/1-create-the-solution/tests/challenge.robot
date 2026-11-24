@@ -112,7 +112,7 @@ The Page 1 Checks Pass
         Should Be Equal As Integers    ${check.rc}    0    msg=check-${name}.sh failed:\n${check.stdout}
     END
 
-# doc-sync coverage: Apply Page 1 runs every Run block of the page (in ${WORKSPACE}, after the cd):
+# doc-sync coverage: Apply Page 1 runs every Run block of the page (in ${WORKSPACE}, after each anchored cd):
 #   cd /root/university-labs/workflow-aspire
 #   aspire --version
 #   [ -d MeridianDiagnostics ] || aspire new aspire-empty --version 17.0.0 --name MeridianDiagnostics --output MeridianDiagnostics --non-interactive --agents none --nologo

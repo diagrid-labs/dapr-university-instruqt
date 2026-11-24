@@ -29,7 +29,12 @@ done
 mkdir -p "$dir"
 cat > "$dir/aspire" <<'ASPIRE'
 #!/usr/bin/env bash
-if [ "$1" = "--version" ]; then echo "${STUB_ASPIRE_VERSION}+2d325b13709752ba6d9a943635c5e2940a2530c0"; exit 0; fi
+if [ "$1" = "--version" ]; then
+    echo "telemetry_optout=${ASPIRE_CLI_TELEMETRY_OPTOUT:-}" >> "$STUB_LOG_DIR/aspire-version.log"
+    # A first run can print a notice (welcome, telemetry) on stdout before the version.
+    [ -n "${STUB_ASPIRE_NOTICE:-}" ] && echo "$STUB_ASPIRE_NOTICE"
+    echo "${STUB_ASPIRE_VERSION}+2d325b13709752ba6d9a943635c5e2940a2530c0"; exit 0
+fi
 echo "$PWD | $*" >> "$STUB_LOG_DIR/aspire.log"
 # The Aspire CLI reads ASPIRE_CLI_VERSION as an identity override ("emulating identity").
 [ -n "${ASPIRE_CLI_VERSION:-}" ] && echo "ASPIRE_CLI_VERSION=$ASPIRE_CLI_VERSION" >> "$STUB_LOG_DIR/aspire-env.log"
@@ -66,8 +71,10 @@ def _stubs(tmp_path):
 
 
 def _env(tmp_path, prebuild_log="prebuild.log", **extra_env):
+    # The developer's own opt-out must not hide whether the script sets it.
+    inherited = {k: v for k, v in os.environ.items() if k != "ASPIRE_CLI_TELEMETRY_OPTOUT"}
     return {
-        **os.environ,
+        **inherited,
         "PATH": f"{tmp_path / 'bin'}:{os.environ['PATH']}",
         "TRACKS_SRC_DIR": str(tmp_path / "src"),
         "LAB_ASPIRE_CLI_VERSION": PIN,
@@ -199,3 +206,29 @@ def test_warmup_never_passes_aspire_cli_version_to_the_cli(tmp_path):
     _wait_for_warmup(tmp_path)
     assert (logs / "aspire.log").exists()
     assert not (logs / "aspire-env.log").exists()
+
+
+NOTICE = "Welcome to Aspire! Telemetry is enabled. Set ASPIRE_CLI_TELEMETRY_OPTOUT=true to opt out."
+
+
+def test_version_check_reads_past_a_first_run_notice(tmp_path):
+    # The VM's first `aspire --version` runs as root before any profile is read: a notice line on
+    # stdout before the version must not fail the boot.
+    r, logs, _ = _run(tmp_path, STUB_ASPIRE_NOTICE=NOTICE)
+    assert r.returncode == 0, r.stderr
+    assert f"Aspire CLI {PIN} installed" in r.stdout
+    _wait_for_warmup(tmp_path)
+
+
+def test_version_check_with_a_notice_still_dies_on_a_mismatch(tmp_path):
+    r, _, _ = _run(tmp_path, STUB_ASPIRE_NOTICE=NOTICE, STUB_ASPIRE_VERSION="17.0.1")
+    assert r.returncode != 0
+    assert PIN in r.stderr and "'17.0.1'" in r.stderr
+
+
+def test_telemetry_opt_out_is_exported_before_the_first_aspire_call(tmp_path):
+    r, logs, _ = _run(tmp_path)
+    assert r.returncode == 0, r.stderr
+    calls = (logs / "aspire-version.log").read_text().splitlines()
+    assert calls and all(c == "telemetry_optout=true" for c in calls), calls
+    _wait_for_warmup(tmp_path)

@@ -69,10 +69,10 @@ jobs:
                     4-run-and-inspect; do
             suite="../../dapr-workflow-aspire/$ch/tests/challenge.robot"
             if [ ! -f "$suite" ]; then
-              # A page without a suite yet: checked against an empty suite, so a page with Run
-              # blocks and no suite fails here, and a page with none passes.
-              echo "$ch has no suite yet; checking it against an empty suite"
-              suite=/dev/null
+              # Every page has a suite; a missing one is drift, not a page to skip.
+              echo "::error::$ch has no suite ($suite)"
+              failed="$failed $ch"
+              continue
             fi
             if ! uv run python docsync/check_doc_sync.py --require-anchored-cd \
               "../../dapr-workflow-aspire/$ch/assignment.md" "$suite"; then
@@ -178,15 +178,18 @@ jobs:
         run: |
           cd tools/track-tester
           mkdir -p results
-          # The page suites that exist, in page order (the folders start with the page number).
+          # The four page suites, in page order. Every page has one: a missing suite fails the job.
           suites=""
-          for suite in ../../dapr-workflow-aspire/*/tests/challenge.robot; do
-            [ -f "$suite" ] && suites="$suites $suite"
+          for ch in 1-create-the-solution 2-write-the-workflow 3-orchestrate-with-aspire \
+                    4-run-and-inspect; do
+            suite="../../dapr-workflow-aspire/$ch/tests/challenge.robot"
+            if [ ! -f "$suite" ]; then
+              echo "::error::$ch has no suite ($suite)"
+              echo "build-and-run: missing-suite $ch" > results/failed-build-and-run.txt
+              exit 1
+            fi
+            suites="$suites $suite"
           done
-          if [ -z "$suites" ]; then
-            echo "::notice::dapr-workflow-aspire has no page suites yet; nothing to run"
-            exit 0
-          fi
           # Run every page even if an earlier one fails, so a single run reports all failing pages
           # (the `if !` guard is exempt from `set -e`). Each suite rebuilds the earlier pages from
           # their assignments when the solution is missing. Fail the job at the end if any failed.

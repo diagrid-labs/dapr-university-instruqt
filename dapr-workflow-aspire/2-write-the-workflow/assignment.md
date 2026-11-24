@@ -190,6 +190,12 @@ The command writes the whole file, so running it again gives the same result. Op
 
 ## 5. Build the project
 
+Use the **Aspire CLI** window to go to the `workflow-aspire` folder:
+
+```bash,run
+cd /root/university-labs/workflow-aspire
+```
+
 Use the **Aspire CLI** window to build the `Engineering` project:
 
 ```bash,run

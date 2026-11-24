@@ -19,7 +19,7 @@ This is what you'll have at the end of the track:
 
 - `apphost.cs` is the AppHost. It starts the `engineering` app, its Dapr sidecar and the Dev Dashboard.
 - The `statestore` component points the sidecar at the Redis container `dapr_redis`, which `dapr init` started in this sandbox. The sidecar saves the workflow history there.
-- You look at the running app in two places: the **Aspire** tab shows the resources and their logs, and the **Dev Dashboard** tab shows the workflows and their history. Both tabs stay empty until you start the app in lab 3.
+- You look at the running app in two places: the **Aspire** tab shows the resources and their logs, and the **Dev Dashboard** tab shows the workflows and their history. Both tabs show a connection error until you start the app in lab 3.
 
 This track focuses on Aspire. If workflows and activities are new to you, take the [Dapr Workflow 101](https://www.diagrid.io/university/dapr-workflow) track first: it covers the concepts, such as durable execution and replay, in more depth.
 
@@ -72,6 +72,12 @@ There is no project file for the AppHost: `apphost.cs` is a single-file C# app, 
 
 The engineering console is an ASP.NET Core web API, `Engineering`. It will host the workflow and have two endpoints: one to start a diagnostics run and one to read its status.
 
+Use the **Aspire CLI** window to go to the `workflow-aspire` folder:
+
+```bash,run
+cd /root/university-labs/workflow-aspire
+```
+
 Use the **Aspire CLI** window to create the project inside the solution folder:
 
 ```bash,run
@@ -99,6 +105,12 @@ Open `MeridianDiagnostics/Engineering/Engineering.csproj` in the **Editor** tab.
 ## 4. Open the dashboard to the sandbox
 
 `aspire run` reads its settings from `apphost.run.json`. The file the template created puts the Aspire dashboard on a random `localhost` port and asks for a login token. That works on your own machine, but not here: the **Aspire** tab reaches the dashboard from outside the sandbox's VM.
+
+Use the **Aspire CLI** window to go to the `workflow-aspire` folder:
+
+```bash,run
+cd /root/university-labs/workflow-aspire
+```
 
 Use the **Aspire CLI** window to replace `apphost.run.json` with a profile for this sandbox:
 
@@ -149,7 +161,7 @@ builder.Build().Run();
 - `DistributedApplication.CreateBuilder(args)` creates the builder that you add resources to.
 - `builder.Build().Run()` starts every resource and the dashboard, and keeps running until you stop it.
 
-There are no resources yet, so `aspire run` would only start an empty dashboard. In lab 3 you'll add the `statestore` component, the `engineering` project with its Dapr sidecar, and the Dev Dashboard. `aspire.config.json` tells the CLI that `apphost.cs` is the AppHost, so `aspire run` finds it.
+There are no resources yet, so `aspire run` would only start an empty dashboard. In lab 3 you'll add the `statestore` component, the `engineering` project with its Dapr sidecar, and the Dev Dashboard. `aspire.config.json` names `apphost.cs` as the AppHost when you run the CLI from inside `MeridianDiagnostics`. This track runs `aspire run` from the `workflow-aspire` folder instead, so in lab 3 you'll pass the AppHost with `--apphost`.
 
 ## 6. Check your work
 

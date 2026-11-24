@@ -176,7 +176,7 @@ The Page 2 Checks Pass
         Should Be Equal As Integers    ${check.rc}    0    msg=check-${name}.sh failed:\n${check.stdout}
     END
 
-# doc-sync coverage: Apply Page 2 runs every Run block of the page (in ${WORKSPACE}, after the cd):
+# doc-sync coverage: Apply Page 2 runs every Run block of the page (in ${WORKSPACE}, after each anchored cd):
 #   cd /root/university-labs/workflow-aspire
 #   cat > MeridianDiagnostics/Engineering/Program.cs <<'EOF'
 #   using Dapr.Workflow;

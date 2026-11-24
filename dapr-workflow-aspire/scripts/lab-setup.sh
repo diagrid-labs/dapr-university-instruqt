@@ -36,10 +36,11 @@ log "stopped the module's Dev Dashboard (dev-dashboard-lab); Aspire runs its own
 # The LAB_* overrides exist for the pytest in tools/track-tester/ci/tests.
 ASPIRE_INSTALL_DIR="${LAB_ASPIRE_INSTALL_DIR:-/usr/local/lib/aspire}"
 ASPIRE_BIN_DIR="${LAB_ASPIRE_BIN_DIR:-/usr/local/bin}"
-aspire_version() { # the installed CLI's version without the +<commit> suffix, or nothing
-    local v
-    v="$("$ASPIRE_BIN_DIR/aspire" --version 2>/dev/null | head -n 1)" || true
-    printf '%s' "${v%%+*}"
+# This is the CLI's first run on the VM, before step 4's profile exists: opt out of telemetry here,
+# and read the version from anywhere in the output, so a first-run notice cannot fail the boot.
+export ASPIRE_CLI_TELEMETRY_OPTOUT=true
+aspire_version() { # the installed CLI's version (x.y.z, without the +<commit> suffix), or nothing
+    { "$ASPIRE_BIN_DIR/aspire" --version 2>/dev/null | grep -Eom1 '[0-9]+\.[0-9]+\.[0-9]+'; } || true
 }
 if [ "$(aspire_version)" != "$LAB_ASPIRE_CLI_VERSION" ]; then
     installer="$(mktemp)"

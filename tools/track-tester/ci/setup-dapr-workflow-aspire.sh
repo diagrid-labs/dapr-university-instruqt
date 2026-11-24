@@ -74,7 +74,10 @@ fi
 # $TOOLS_BIN/../aspire with a symlink in $TOOLS_BIN. Skipped when that copy already has the pin.
 mkdir -p "$TOOLS_BIN"
 ASPIRE_DIR="$(dirname "$TOOLS_BIN")/aspire"
-aspire_version() { "$TOOLS_BIN/aspire" --version 2>/dev/null | head -n 1 | sed 's/+.*//' || true; }
+# Telemetry off before the first `aspire` call; the version is read from anywhere in the output,
+# so a first-run notice on stdout does not break the check (as in lab-setup.sh).
+export ASPIRE_CLI_TELEMETRY_OPTOUT=true
+aspire_version() { { "$TOOLS_BIN/aspire" --version 2>/dev/null | grep -Eom1 '[0-9]+\.[0-9]+\.[0-9]+'; } || true; }
 if [ "$(aspire_version)" != "$LAB_ASPIRE_CLI_VERSION" ]; then
   installer="$(mktemp)"
   curl -fsSL https://aspire.dev/install.sh -o "$installer"
