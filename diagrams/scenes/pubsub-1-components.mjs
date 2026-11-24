@@ -40,8 +40,8 @@
 //   colour on the dark ground, which the preview shows legible; a plate per
 //   mark would put four light blocks in a narrow column.
 // - The docked sidecars are 0.75 of the app radius (the house relation) and
-//   each app's name is lifted and nudged away from its sidecar (labelDy,
-//   labelDx) so the sidecar's top point clears it.
+//   sit low enough (0.9 of the app radius below its centre) that each app's
+//   name stays centred in its hexagon.
 // - Canvas 490 wide for the 424 px lab column (not 16:9 at 1100+ units).
 import { APP, C } from '../_engine/engine.mjs';
 import { arrow, group, hex, hexHalfWidth, label, region } from '../_engine/shapes.mjs';
@@ -56,9 +56,7 @@ const EDGE = 2; // an app hexagon's outer point stays this far inside the margin
 const APP_R = 56; // the house app radius, as in pubsub-1-pattern
 const SIDE_R = 0.75 * APP_R; // the house sidecar size
 const DOCK_DX = 0.75 * APP_R; // sidecar centre beside the app centre
-const DOCK_DY = 0.7 * APP_R; // and below it, so its top point clears the app's name
-const NAME_DY = -12; // the app's name, lifted above the sidecar's top point
-const NAME_DX = 6; // and nudged away from the sidecar
+const DOCK_DY = 0.9 * APP_R; // and below it, low enough that the app name sits centred in the hexagon
 
 const APP_HW = hexHalfWidth(APP_R);
 const SIDE_HW = hexHalfWidth(SIDE_R);
@@ -72,7 +70,7 @@ const SUB_SIDE_X = SUB_X - DOCK_DX;
 
 // Rows: Shipping on top, Email below it. PITCH keeps the Shipping sidecar's
 // document clear of the Email hexagon's sloping top edge below it.
-const PITCH = 150;
+const PITCH = 162;
 const Y1 = M + APP_R; // Shipping
 const Y2 = Y1 + PITCH; // Email
 const CART_Y = (Y1 + Y2) / 2; // Cart, centred between them
@@ -98,7 +96,7 @@ const MARK_X = REG_L + PAD + MARK / 2;
 const NAME_X = REG_L + PAD + MARK + MARK_GAP;
 
 // The list, top to bottom. A two-line name takes a little more room.
-const ROW = 44; // row pitch: tall enough that the region reaches below the Email arrow
+const ROW = 47; // row pitch: tall enough that the region reaches below the Email arrow
 const LINE = TEXT * 1.2;
 const BROKERS = [
   { name: 'redis', text: 'Redis', color: C.redisBrand },
@@ -107,7 +105,7 @@ const BROKERS = [
   { name: 'rabbitmq', text: 'RabbitMQ' },
 ];
 const LIST_H = ROW * BROKERS.length + LINE; // four rows (one of them two lines) and the "+11 more" line
-const REG_T = 40; // the caption pill (26 tall) is centred on this edge, clear of the margin
+const REG_T = 52; // the caption pill (26 tall) is centred on this edge; lowered with the docked sidecars so the list stays level with the arrows
 const LIST_TOP = REG_T + 30; // the first entry's centre, under the caption pill
 const REG_B = LIST_TOP + LIST_H + 14;
 // Both subscriber arrows must leave the region's side, not run past its corner.
@@ -160,13 +158,13 @@ export default {
       arrow({ from: [CART_SIDE_X + SIDE_HW + 2, cartSide.y], to: [REG_L - 2, cartSide.y] }),
       ...subs.map((s) => arrow({ from: [REG_R + 2, s.y + DOCK_DY], to: [SUB_SIDE_X - SIDE_HW - 2, s.y + DOCK_DY] })),
 
-      hex({ x: CART_X, y: CART_Y, r: APP_R, label: 'Cart', size: TEXT, labelDy: NAME_DY, labelDx: -NAME_DX, ...APP[0] }),
+      hex({ x: CART_X, y: CART_Y, r: APP_R, label: 'Cart', size: TEXT, ...APP[0] }),
       markHex({ x: CART_SIDE_X, y: cartSide.y, r: SIDE_R, mark: 'logo-blue', stroke: C.blue }),
       ...yaml(CART_SIDE_X, CART_Y),
       label({ x: CART_SIDE_X, y: CART_Y + DOC_DY + DOC_NAME_DY, text: 'component YAML', size: TEXT }),
 
       ...subs.flatMap((s) => [
-        hex({ x: s.x, y: s.y, r: APP_R, label: s.text, size: TEXT, labelDy: NAME_DY, labelDx: NAME_DX, ...s.fill }),
+        hex({ x: s.x, y: s.y, r: APP_R, label: s.text, size: TEXT, ...s.fill }),
         markHex({ x: SUB_SIDE_X, y: s.y + DOCK_DY, r: SIDE_R, mark: 'logo-blue', stroke: C.blue }),
         ...yaml(SUB_SIDE_X, s.y),
       ]),

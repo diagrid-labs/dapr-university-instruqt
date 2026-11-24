@@ -37,9 +37,7 @@ const APP_HW = hexHalfWidth(APP_R);
 const SIDE_HW = hexHalfWidth(SIDE_R);
 
 const DOCK_DX = 0.75 * APP_R;
-const DOCK_DY = 0.7 * APP_R;
-const NAME_DY = -12;
-const NAME_DX = 6;
+const DOCK_DY = 0.9 * APP_R; // and below it, low enough that the app name sits centred in the hexagon
 
 const PUB_X = M + EDGE + APP_HW;
 const PUB_SIDE_X = PUB_X + DOCK_DX;
@@ -91,7 +89,7 @@ export default {
       arrow({ from: [runL, ROW_Y + PAIR_DY], to: [runR, ROW_Y + PAIR_DY] }),
       label({ x: runX, y: ROW_Y + PAIR_DY + LABEL_GAP, text: 'messages', size: TEXT }),
 
-      hex({ x: PUB_X, y: PUB_Y, r: APP_R, label: 'order-api', size: TEXT, labelDy: NAME_DY, labelDx: -NAME_DX, ...APP[0] }),
+      hex({ x: PUB_X, y: PUB_Y, r: APP_R, label: 'order-api', size: TEXT, ...APP[0] }),
       markHex({ x: PUB_SIDE_X, y: pubSide.y, r: SIDE_R, mark: 'logo-blue', stroke: C.blue }),
 
       icon({ name: 'redis', x: BROKER_X, y: BROKER_Y, size: MARK, fit: 'ink', color: C.redisBrand }),

@@ -59,9 +59,7 @@ const SIDE_HW = hexHalfWidth(SIDE_R);
 
 // order-api's docked sidecar, copied from pubsub-1-components (Cart).
 const DOCK_DX = 0.75 * APP_R;
-const DOCK_DY = 0.7 * APP_R;
-const NAME_DY = -12;
-const NAME_DX = 6;
+const DOCK_DY = 0.9 * APP_R; // and below it, low enough that the app name sits centred in the hexagon
 
 // Columns: order-api against the left margin, the subscriber apps against the
 // right margin, their sidecars far enough left that the arrow between sidecar
@@ -135,7 +133,7 @@ export default {
       arrow({ from: [runL, INV_Y + PAIR_DY], to: [runR, INV_Y + PAIR_DY] }),
       label({ x: runX, y: INV_Y + PAIR_DY + LABEL_GAP, text: '/orders', size: TEXT }),
 
-      hex({ x: PUB_X, y: PUB_Y, r: APP_R, label: 'order-api', size: TEXT, labelDy: NAME_DY, labelDx: -NAME_DX, ...APP[0] }),
+      hex({ x: PUB_X, y: PUB_Y, r: APP_R, label: 'order-api', size: TEXT, ...APP[0] }),
       markHex({ x: PUB_SIDE_X, y: pubSide.y, r: SIDE_R, mark: 'logo-blue', stroke: C.blue }),
 
       icon({ name: 'redis', x: BROKER_X, y: BROKER_Y, size: MARK, fit: 'ink', color: C.redisBrand }),
