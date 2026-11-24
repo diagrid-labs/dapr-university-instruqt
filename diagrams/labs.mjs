@@ -21,6 +21,7 @@ export const PAGES = {
   'pubsub-5-routing': { page: 'dapr-pubsub/5-routing-and-dead-letters', file: 'routing.png' },
   'secrets-1-cloud-stores': { page: 'dapr-secrets/1-what-is-the-secrets-api', file: 'secrets-cloud-stores.png' },
   'secrets-2-secret-ref': { page: 'dapr-secrets/2-component-and-parameters', file: 'secret-ref.png' },
+  'secrets-3-scoping': { page: 'dapr-secrets/3-secret-scoping', file: 'scoping.png' },
   'workflow-101-1-architecture': { page: 'dapr-workflow-101/1-durable-execution', file: 'architecture.png' },
   'workflow-101-1-replay': { page: 'dapr-workflow-101/1-durable-execution', file: 'replay.png' },
   'workflow-101-2-chain': { page: 'dapr-workflow-101/2-task-chaining', file: 'chain.png' },
