@@ -2,7 +2,7 @@
 
 The goal of this lab is to run the Dapr sidecar in self-hosted mode and use the State Management HTTP API to interact with a state store. You do this without running any application code: you make HTTP requests with cURL and send them to the Dapr process. This hands-on lab takes about 5 minutes to complete.
 
-![curl calls the State Management API on the sidecar at port 3500, and the sidecar saves and reads the state in Redis; no application is involved.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-101/3-state-management-api/images/state.png?raw=true)
+![curl calls the State Management API on the sidecar at port 3500, and the sidecar saves and reads the state in Redis; no application is involved.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-909-dapr-101-diagrams/dapr-101/3-state-management-api/images/state.png?raw=true)
 
 ## 1. Run a Dapr sidecar
 

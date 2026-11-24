@@ -52,7 +52,7 @@ Dapr initialization included:
 - Running a Dapr placement service container instance for local actor support.
 - Running a Dapr scheduler service container instance for job scheduling.
 
-![dapr init installs the Dapr sidecar binaries, creates the default components folder, and starts the placement, scheduler, Redis and Zipkin containers.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-101/2-dapr-cli/images/dapr-init.png?raw=true)
+![dapr init installs the Dapr sidecar binaries, creates the default components folder, and starts the placement, scheduler, Redis and Zipkin containers.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/dev-909-dapr-101-diagrams/dapr-101/2-dapr-cli/images/dapr-init.png?raw=true)
 
 On your own machine, you run `dapr init` once, after you install the Dapr CLI.
 
