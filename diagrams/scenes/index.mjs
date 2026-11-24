@@ -3,6 +3,7 @@ import bindings1Directions from './bindings-1-directions.mjs';
 import bindings2Output from './bindings-2-output.mjs';
 import bindings3TwoComponents from './bindings-3-two-components.mjs';
 import bindings4SubspaceBeacon from './bindings-4-subspace-beacon.mjs';
+import pubsub1Components from './pubsub-1-components.mjs';
 import pubsub1Pattern from './pubsub-1-pattern.mjs';
 import workflow1011Architecture from './workflow-101-1-architecture.mjs';
 import workflow1011Replay from './workflow-101-1-replay.mjs';
@@ -18,6 +19,7 @@ export const scenes = {
   'bindings-2-output': bindings2Output,
   'bindings-3-two-components': bindings3TwoComponents,
   'bindings-4-subspace-beacon': bindings4SubspaceBeacon,
+  'pubsub-1-components': pubsub1Components,
   'pubsub-1-pattern': pubsub1Pattern,
   'workflow-101-1-architecture': workflow1011Architecture,
   'workflow-101-1-replay': workflow1011Replay,
