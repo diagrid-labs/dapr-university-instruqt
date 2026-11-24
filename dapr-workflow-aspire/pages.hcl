@@ -1,7 +1,7 @@
 # Each page ends with a task (tasks.hcl) that checks what the page built, so the next page starts
 # from a working solution. A page lists its task in `activities` together with the page's
 # `<instruqt-task id="...">` tag (validate fails on an activity without its tag); the build plan's
-# Tasks 5 to 7 add pages 2 to 4.
+# Tasks 6 and 7 add pages 3 and 4.
 resource "page" "create_the_solution" {
   title = "Create the solution"
   file  = "1-create-the-solution/assignment.md"
@@ -14,6 +14,10 @@ resource "page" "create_the_solution" {
 resource "page" "write_the_workflow" {
   title = "Write the workflow"
   file  = "2-write-the-workflow/assignment.md"
+
+  activities = {
+    write_workflow = resource.task.write_workflow
+  }
 }
 
 resource "page" "orchestrate_with_aspire" {

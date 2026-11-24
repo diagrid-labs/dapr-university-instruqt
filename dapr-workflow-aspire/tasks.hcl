@@ -3,7 +3,7 @@
 # that page's `activities` in pages.hcl and shown with `<instruqt-task id="...">` as the page's last
 # section. Each check is a read-only script in `<page>/scripts/check-*.sh` that names the step to
 # redo in its `failure_message`. Task IDs: create_solution, write_workflow, orchestrate, run_inspect.
-# A task without conditions is not listed by any page yet: the build plan's Tasks 5 to 7 add each
+# A task without conditions is not listed by any page yet: the build plan's Tasks 6 and 7 add each
 # page's conditions (one per check, with its failure_message), its `activities` entry in pages.hcl
 # and the page's `<instruqt-task id="...">`.
 
@@ -61,6 +61,42 @@ resource "task" "write_workflow" {
     target            = module.sandbox.output.vm
     working_directory = "/root/university-labs/workflow-aspire"
     timeout           = "120s"
+  }
+
+  condition "workflow" {
+    description = "DiagnosticsWorkflow.cs holds the workflow"
+
+    check {
+      script          = "2-write-the-workflow/scripts/check-workflow.sh"
+      failure_message = "MeridianDiagnostics/Engineering/DiagnosticsWorkflow.cs is missing or does not hold the DiagnosticsWorkflow class. Redo section 2, Add the workflow: create the file in the Editor tab, paste the code block into it and save it."
+    }
+  }
+
+  condition "activities" {
+    description = "Activities.cs holds the three activities"
+
+    check {
+      script          = "2-write-the-workflow/scripts/check-activities.sh"
+      failure_message = "MeridianDiagnostics/Engineering/Activities.cs is missing or does not hold all three activity classes. Redo section 3, Add the activities: create the file in the Editor tab, paste the whole code block into it and save it."
+    }
+  }
+
+  condition "program" {
+    description = "Program.cs registers the workflow"
+
+    check {
+      script          = "2-write-the-workflow/scripts/check-program.sh"
+      failure_message = "MeridianDiagnostics/Engineering/Program.cs does not register the workflow. Redo section 4, Register the workflow: run the command that writes Program.cs in the Aspire CLI window."
+    }
+  }
+
+  condition "build" {
+    description = "The Engineering project builds"
+
+    check {
+      script          = "2-write-the-workflow/scripts/check-build.sh"
+      failure_message = "The Engineering project does not build. Run the dotnet build command of section 5 in the Aspire CLI window to see the errors, then compare the file they name with its code block in section 2 or 3 and save it."
+    }
   }
 }
 

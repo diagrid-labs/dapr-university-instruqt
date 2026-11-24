@@ -139,14 +139,14 @@ New 2.0 tracks share one sci-fi story, so a learner who moves from one track to 
 
 **The ship.** The starship *ISV Meridian*. The bridge gives the orders, and the ship's systems carry them out. Each demo app is one of those systems, and its Dapr app ID is the system's name.
 
-**The crew.** Only Captain Ilsa Varn appears in a lab so far. The others are free for new tracks; keep their ranks and roles when you use them.
+**The crew.** All four appear in `dapr-workflow-aspire`, as the officers `NotifyBridgeActivity` picks from. Keep their ranks and roles when you use them.
 
 | Crew member | Role | Where |
 | --- | --- | --- |
-| Captain Ilsa Varn | Commanding officer. Authorizes warp jumps. | `dapr-workflow-101` page 5 (`"officer": "Captain Ilsa Varn"` in the authorize request) |
-| Commander Anja Lindqvist | First officer, on the bridge. | Not used yet |
-| Lieutenant Commander Dayo Okafor | Chief engineer. Runs the engineering console. | Not used yet |
-| Ensign Mira Varga | Navigation officer. Plots courses. | Not used yet |
+| Captain Ilsa Varn | Commanding officer. Authorizes warp jumps. | `dapr-workflow-101` page 5 (`"officer": "Captain Ilsa Varn"` in the authorize request); `dapr-workflow-aspire` page 2 (`NotifyBridgeActivity`) |
+| Commander Anja Lindqvist | First officer, on the bridge. | `dapr-workflow-aspire` page 2 (`NotifyBridgeActivity`) |
+| Lieutenant Commander Dayo Okafor | Chief engineer. Runs the engineering console. | `dapr-workflow-aspire` page 2 (`NotifyBridgeActivity`) |
+| Ensign Mira Varga | Navigation officer. Plots courses. | `dapr-workflow-aspire` page 2 (`NotifyBridgeActivity`) |
 
 **The ship systems.**
 
@@ -158,7 +158,7 @@ New 2.0 tracks share one sci-fi story, so a learner who moves from one track to 
 | Subspace beacon (`subspace-beacon`) | Opens a communications channel. A plain HTTP app that answers `GET /ping` with a signal strength. | `dapr-bindings` page 4 |
 | Nav array | Aligned to the warp factor before the jump. | `AlignNavArrayActivity` (`dapr-workflow-101`) |
 | Sensor arrays `alpha` to `epsilon` | Scan the route in parallel and return hazard scores. | `ScanSectorActivity` (`dapr-workflow-101` page 3) |
-| Life support and shields | Checked with the warp core in the pre-jump diagnostics. | Planned for the 2.0 `dapr-workflow-aspire` track |
+| Life support and shields | Checked with the warp core in the pre-jump diagnostics. | `DiagnoseSubsystemActivity` with `WarpCore`, `LifeSupport` and `Shields` (`dapr-workflow-aspire` page 2) |
 
 **Places.** Vesper Reach is the default jump destination. Calder Station is the second destination used in the examples.
 
