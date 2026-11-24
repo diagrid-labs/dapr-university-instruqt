@@ -192,6 +192,8 @@ Expected output. If the status is still `RUNNING`, wait a few seconds and run th
 
 ## 5. What happened
 
+![After the restart, stages 1 and 2 return their stored results from the history, stage 3 runs again, and stages 4 and 5 run for the first time.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-workflow-101/1-durable-execution/images/replay.png?raw=true)
+
 - **Completed stages didn't run again.** Every time an activity finishes, the sidecar records its result in the workflow's history in the state store. Each `await` (or `yield` in Python and TypeScript) on an activity is a checkpoint. Stages 1 and 2 were in the history before the crash, so they were not repeated.
 - **The stage that was running did run again.** Stage 3 had not reported back when the app stopped, so after the restart the sidecar sent it to the app again. Activities run at least once, so they should be safe to repeat.
 - **The workflow code itself ran again, from the top.** After the restart the sidecar replayed `ChargeWarpCoreWorkflow` to rebuild where it was. On a replay the SDK hands the stored results of stages 1 and 2 straight back instead of running those activities. The `charge sequence started` line is written with a replay-safe logger, or behind an *is replaying* check, so it doesn't appear a second time even though that line of code ran again.

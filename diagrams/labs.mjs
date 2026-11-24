@@ -8,6 +8,7 @@ export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 /** @type {Record<string, { page: string, file: string }>} */
 export const PAGES = {
   'workflow-101-1-architecture': { page: 'dapr-workflow-101/1-durable-execution', file: 'architecture.png' },
+  'workflow-101-1-replay': { page: 'dapr-workflow-101/1-durable-execution', file: 'replay.png' },
 };
 
 const BASE = 'https://github.com/diagrid-labs/dapr-university-instruqt/blob';
