@@ -7,13 +7,16 @@
 // Elements, with each name as it appears in the demo (university-labs secrets/
 // at 37fccac, <lang>/demo2-scoping, read in dotnet, python and java: dapr.yaml,
 // resources/ and the apps are the same in all three) and the assignment:
-// - app-a: the green hexagon (APP[0]), dapr.yaml `appID: app-a`, appPort 5002.
+// - app-a: the green hexagon (APP[0]), dapr.yaml `appID: app-a`, appPort 5002,
+//   drawn as the hexagon's second line `:5002` (sections 3 and 5 curl it).
 //   The page calls it App A; the hexagon carries the app ID, as the Dev
 //   Dashboard and the "Started Dapr with app id" lines do.
 // - app-b: the light blue hexagon (APP[1], the second app), `appID: app-b`,
-//   appPort 5003.
+//   appPort 5003, second line `:5003`.
 // - Two Dapr sidecars (markHex with the Dapr logo, as in secrets-1 and -2), on
-//   daprHTTPPort 3501 (app-a) and 3502 (app-b). Each is drawn apart from its
+//   daprHTTPPort 3501 (app-a) and 3502 (app-b), each port a label just right of
+//   the sidecar's bottom point (the "Started Dapr" lines show both, and section
+//   5 curls 3502). Each is drawn apart from its
 //   app with an arrow between them, because the point of the page is that the
 //   app does not decide; the sidecar does (section 5 asks App B's sidecar
 //   directly and gets the same refusal).
@@ -25,9 +28,9 @@
 //   it, under app-b's sidecar and joined to it by a short plain line, as the
 //   component files hang under the sidecars in pubsub-1-components: only
 //   app-b has `configFilePath: ../resources/config-app-b.yaml` in dapr.yaml.
-//   Its policy is the caption under it: `defaultAccess: deny` and
-//   `allowedSecrets: ["payments-api-key", "legacy-api-key"]` (the scope's
-//   `storeName: secretstore` is left out to keep the caption short).
+//   Its policy is the caption under it: `storeName: secretstore` first, which
+//   is what ties app-b to the same store as app-a, then `defaultAccess: deny`
+//   and `allowedSecrets: ["payments-api-key", "legacy-api-key"]`.
 //
 // Connections:
 // - app-a -> its sidecar, labelled orderdb-password (both apps call
@@ -41,7 +44,7 @@
 //   crash only.
 // - No arrow from app-b's sidecar to secretstore: the sidecar refuses the
 //   request by policy ("access denied by policy", section 5) without asking the
-//   store.
+//   store. The shared store shows in the caption's `storeName: secretstore`.
 //
 // Layout: canvas 490 wide for the 424 px lab column. Two rows, app-a above
 // app-b, each at most three shapes (store, sidecar, app); the apps against the
@@ -73,9 +76,12 @@ const NAME_GAP = 14; // a name's centre this far below a shape (about one line)
 const LABEL_GAP = 12; // an arrow's label centre this far from its arrow (about one character clear)
 
 const DOC = 22; // the document mark's height, as in secrets-2 and pubsub-1-demo
-const DOC_GAP = 10; // the line from the sidecar's bottom point to the document, as in pubsub-1-components
+const DOC_GAP = 16; // the line from the sidecar's bottom point to the document: pubsub-1-components' 10, plus room for the sidecar port beside it
 const DOC_DY = SIDE_R + DOC_GAP + DOC / 2; // document centre below its sidecar's centre
 const DOC_NAME_DX = 8 + 8; // the file name's end this far left of the document's centre (its ink is 16 wide, plus one character)
+
+const PORT_DX = 10; // a sidecar port's start this far right of the sidecar's bottom point
+const PORT_DY = SIDE_R + 4; // its centre below the sidecar's centre: its cap height clears the slanted lower-right edge (at PORT_DX that edge is ~6 above the point)
 
 // Measured with measure-labels at 13 (weight 600).
 const SECRETSTORE_W = 76; // "secretstore"
@@ -84,14 +90,16 @@ const REFUSAL_W = 164.1; // "403 PERMISSION_DENIED"
 // Columns: the apps against the right margin; the sidecar far enough left that
 // the refusal fits under app-b's arrow; the store against the left margin.
 const APP_X = W - M - EDGE - APP_HW;
-const SIDE_X = APP_X - APP_HW - CLEAR - REFUSAL_W - 2 * 6 - CLEAR - SIDE_HW; // ~6 clear either side of the refusal
-const LOCK_X = M + SECRETSTORE_W / 2 + 4;
+const REFUSAL_CLEAR = 6; // the refusal label's room either side, under app-b's arrow
+const SIDE_X = APP_X - APP_HW - CLEAR - REFUSAL_W - 2 * REFUSAL_CLEAR - CLEAR - SIDE_HW;
+const NAME_SLACK = 4; // "secretstore" stays this far inside the margin (its measured width is tight)
+const LOCK_X = M + SECRETSTORE_W / 2 + NAME_SLACK;
 
 // Rows.
 const Y1 = M + APP_R; // app-a
-const PITCH = 136; // the two app hexagons' points 24 apart, so the rows read as two pictures of the same request
+const PITCH = 124; // the two app hexagons' points 12 apart, so the rows read as two pictures of the same request (and the canvas keeps ratio >= 1.33 with the five-line caption)
 const Y2 = Y1 + PITCH; // app-b
-const CAPTION = ['defaultAccess: deny', 'allowedSecrets:', 'payments-api-key', 'legacy-api-key'];
+const CAPTION = ['storeName: secretstore', 'defaultAccess: deny', 'allowedSecrets:', 'payments-api-key', 'legacy-api-key'];
 const DOC_Y = Y2 + DOC_DY;
 const CAP_Y = DOC_Y + DOC / 2 + NAME_GAP; // the first caption line under the document
 const H = Math.ceil(Math.max(Y2 + APP_R, CAP_Y + (CAPTION.length - 1) * LINE + GLYPH) + M);
@@ -101,12 +109,12 @@ export default {
   height: H,
   title: 'Secret scoping with a sidecar configuration',
   desc:
-    'Two rows. On top, a green hexagon labelled app-a sends orderdb-password to its Dapr sidecar, '
-    + 'which passes the request on to a secret store labelled secretstore on the left. Below, a blue '
-    + 'hexagon labelled app-b sends orderdb-password to its own Dapr sidecar and gets 403 '
-    + 'PERMISSION_DENIED back; that sidecar has no arrow to the store. A plain line joins it to a '
-    + 'document under it labelled config-app-b.yaml, with the caption defaultAccess: deny, allowedSecrets: '
-    + 'payments-api-key, legacy-api-key.',
+    'Two rows. On top, a green hexagon labelled app-a :5002 sends orderdb-password to its Dapr sidecar '
+    + 'on :3501, which passes the request on to a secret store labelled secretstore on the left. Below, a '
+    + 'blue hexagon labelled app-b :5003 sends orderdb-password to its own Dapr sidecar on :3502 and gets '
+    + '403 PERMISSION_DENIED back; that sidecar has no arrow to the store. A plain line joins it to a '
+    + 'document under it labelled config-app-b.yaml, with the caption storeName: secretstore, '
+    + 'defaultAccess: deny, allowedSecrets: payments-api-key, legacy-api-key.',
 
   build() {
     const appL = APP_X - APP_HW - CLEAR;
@@ -126,7 +134,8 @@ export default {
       label({ x: (appL + sideR) / 2, y: Y2 + LABEL_GAP, text: '403 PERMISSION_DENIED', size: TEXT }),
 
       // App B's sidecar loads config-app-b.yaml.
-      arrow({ from: [SIDE_X, Y2 + SIDE_R + 1], to: [SIDE_X, DOC_Y - DOC / 2 - 1], head: false, gap: 0 }),
+      // The line's ends sit CLEAR / 2 off the sidecar's point and the document's ink.
+      arrow({ from: [SIDE_X, Y2 + SIDE_R + CLEAR / 2], to: [SIDE_X, DOC_Y - DOC / 2 - CLEAR / 2], head: false, gap: 0 }),
       icon({ name: 'fluent-document', x: SIDE_X, y: DOC_Y, size: DOC, color: C.navy, fit: 'ink' }),
       label({ x: SIDE_X - DOC_NAME_DX, y: DOC_Y, text: 'config-app-b.yaml', size: TEXT, anchor: 'end' }),
       ...CAPTION.map((text, i) => label({ x: SIDE_X, y: CAP_Y + i * LINE, text, size: TEXT, mono: true })),
@@ -136,8 +145,10 @@ export default {
 
       markHex({ x: SIDE_X, y: Y1, r: SIDE_R, mark: 'logo-blue', stroke: C.blue }),
       markHex({ x: SIDE_X, y: Y2, r: SIDE_R, mark: 'logo-blue', stroke: C.blue }),
-      hex({ x: APP_X, y: Y1, r: APP_R, label: 'app-a', size: TEXT, ...APP[0] }),
-      hex({ x: APP_X, y: Y2, r: APP_R, label: 'app-b', size: TEXT, ...APP[1] }),
+      label({ x: SIDE_X + PORT_DX, y: Y1 + PORT_DY, text: ':3501', size: TEXT, anchor: 'start', mono: true }),
+      label({ x: SIDE_X + PORT_DX, y: Y2 + PORT_DY, text: ':3502', size: TEXT, anchor: 'start', mono: true }),
+      hex({ x: APP_X, y: Y1, r: APP_R, label: 'app-a', sub: ':5002', size: TEXT, subSize: TEXT, ...APP[0] }),
+      hex({ x: APP_X, y: Y2, r: APP_R, label: 'app-b', sub: ':5003', size: TEXT, subSize: TEXT, ...APP[1] }),
     ])];
   },
 };
