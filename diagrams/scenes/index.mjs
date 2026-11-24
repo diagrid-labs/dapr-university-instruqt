@@ -1,6 +1,7 @@
 import dapr1012DaprInit from './101-2-dapr-init.mjs';
 import dapr1013State from './101-3-state.mjs';
 import dapr1014Invocation from './101-4-invocation.mjs';
+import dapr1015Pubsub from './101-5-pubsub.mjs';
 import bindings1Cron from './bindings-1-cron.mjs';
 import bindings1Directions from './bindings-1-directions.mjs';
 import bindings2Output from './bindings-2-output.mjs';
@@ -28,6 +29,7 @@ export const scenes = {
   '101-2-dapr-init': dapr1012DaprInit,
   '101-3-state': dapr1013State,
   '101-4-invocation': dapr1014Invocation,
+  '101-5-pubsub': dapr1015Pubsub,
   'bindings-1-cron': bindings1Cron,
   'bindings-1-directions': bindings1Directions,
   'bindings-2-output': bindings2Output,
