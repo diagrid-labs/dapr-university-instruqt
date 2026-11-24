@@ -15,6 +15,7 @@ export const PAGES = {
   'pubsub-1-components': { page: 'dapr-pubsub/1-subscription-types', file: 'pubsub-components.png' },
   'pubsub-1-demo': { page: 'dapr-pubsub/1-subscription-types', file: 'demo.png' },
   'pubsub-1-pattern': { page: 'dapr-pubsub/1-subscription-types', file: 'pubsub-pattern.png' },
+  'pubsub-2-streaming': { page: 'dapr-pubsub/2-streaming-subscriptions', file: 'streaming.png' },
   'workflow-101-1-architecture': { page: 'dapr-workflow-101/1-durable-execution', file: 'architecture.png' },
   'workflow-101-1-replay': { page: 'dapr-workflow-101/1-durable-execution', file: 'replay.png' },
   'workflow-101-2-chain': { page: 'dapr-workflow-101/2-task-chaining', file: 'chain.png' },
