@@ -264,7 +264,7 @@ tools/track-tester/
                          test_dapr101_pins, test_dapr_init, test_bindings_lab_setup,
                          test_bindings_pins, test_workflow_aspire_lab_setup,
                          test_workflow_aspire_pins)
-    dapr-init.sh         sourced by setup-dapr-101/secrets/pubsub/bindings/workflow-101/workflow-aspire.sh: `dapr init`, retried in CI
+    dapr-init.sh         sourced by setup-dapr-101/secrets/pubsub/bindings/workflow-101/workflow/workflow-aspire.sh: `dapr init`, retried in CI
                          when a container's host port is briefly taken on the runner
   results/               (gitignored) output dirs from local/CI runs
 ```
