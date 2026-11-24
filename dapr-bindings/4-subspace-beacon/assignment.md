@@ -1,6 +1,6 @@
 # Combining bindings with service invocation
 
-In this final lab, you'll run two apps: a cron binding makes `engineering` call a subspace beacon with service invocation, and the output binding logs every answer in PostgreSQL. This hands-on lab takes about 7 minutes to complete.
+In this final lab, you'll run two apps: a cron binding makes `engineering` call a subspace beacon with service invocation, and the output binding logs every answer in PostgreSQL. This hands-on lab takes about 7 minutes to complete. At the end of the lab, you can claim the Dapr University Holopin badge for this track.
 
 ## Before you start
 
@@ -274,7 +274,7 @@ Here is what you did in this track:
 3. **State API vs binding:** you saved each reading through both into the same database, compared the tables, and saw when to use which.
 4. **Combining bindings with service invocation:** a cron tick made one app call another by app ID and store the answer through the output binding.
 
-## Feedback and further learning
+## Collect your badge & provide feedback
 
 Congratulations! 🎉 You've completed the Dapr University bindings learning track!
 
@@ -293,9 +293,15 @@ We have more opportunities for you to learn and share knowledge:
 - Join the [Dapr Discord](https://diagrid.ws/dapr-discord) where thousands of developers share knowledge about Dapr. There are dedicated *#workflow*, *#agents* and language channels.
 - Register for one of [our webinars](https://www.diagrid.io/webinars) to learn more about building reliable applications.
 
+### Collect the badge
+
+Collect the Dapr University badge for this track by following [this link to the Holopin platform](https://holopin.io/collect/cmwutg2j20005jv08tlklphpf). You'll need a GitHub account to claim the badge. Then come back to this page, rate the track below, and click **Finish & Exit** to finish the lab.
+
+<a href="https://holopin.io/collect/cmwutg2j20005jv08tlklphpf"><img src="https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-bindings/4-subspace-beacon/images/Diagrid-Dapr-Uni-badge-bindings_x300.png?raw=true" alt="Dapr University Dapr Bindings badge" width="384" height="384"></a>
+
 ### Rate this track
 
-Please rate this track so we can keep improving it 🚀. Then click **Finish & Exit** to finish the lab.
+Please rate this track so we can keep improving it 🚀.
 
 <instruqt-feedback id="dapr-bindings-feedback"></instruqt-feedback>
 
