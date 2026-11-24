@@ -8,6 +8,7 @@
     "mono": "\"Geist Mono\", ui-monospace, \"Cascadia Mono\", Consolas, monospace"
   },
   "scenes": {
+    "bindings-1-cron": "fe8f8a7d71c04a6fa0a2b285476f5f033edfb16d5e62fad47e85537ced779cc1",
     "bindings-1-directions": "5b8d49711981b6a7e7541d49741313dd2a90b51e64075125d6d584c17b33ec04",
     "workflow-101-1-architecture": "3cce3ebefb23c17acd1691ddb29284b70de83cb09917a92d28e6ae9b44bcd07e",
     "workflow-101-1-replay": "45074fa838abf093a8a7997491985b9bda2bb36d000dfb295aaf66fb065926e4",

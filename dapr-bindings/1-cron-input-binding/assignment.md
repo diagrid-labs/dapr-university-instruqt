@@ -38,6 +38,8 @@ spec:
 
 The component is a binding of type `bindings.cron` with a schedule of every 10 seconds. `direction: input` says that Dapr calls the app, not the other way around. On every tick the sidecar sends a `POST` request to the app, and the route of that request is the name of the component: `/warp-core-scan`.
 
+![Every 10 seconds the warp-core-scan cron binding makes the sidecar send POST /warp-core-scan to the engineering app.](https://github.com/diagrid-labs/dapr-university-instruqt/blob/main/dapr-bindings/1-cron-input-binding/images/cron.png?raw=true)
+
 Now open the handler for your language.
 
 <details>
