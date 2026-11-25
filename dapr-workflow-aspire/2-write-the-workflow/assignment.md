@@ -144,13 +144,7 @@ using Dapr.Workflow;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDaprWorkflow(options =>
-{
-    options.RegisterWorkflow<DiagnosticsWorkflow>();
-    options.RegisterActivity<DiagnoseSubsystemActivity>();
-    options.RegisterActivity<PrioritizeDiagnosticsActivity>();
-    options.RegisterActivity<NotifyBridgeActivity>();
-});
+builder.Services.AddDaprWorkflow();
 
 var app = builder.Build();
 
@@ -182,7 +176,7 @@ EOF
 
 The command writes the whole file, so running it again gives the same result. Open `MeridianDiagnostics/Engineering/Program.cs` in the **Editor** tab to see it.
 
-- **`AddDaprWorkflow`** registers the workflow and the three activities with the workflow runtime, which runs inside the app. When the app starts, the runtime connects to the Dapr sidecar and waits for work: the sidecar tells it which workflow or activity to run next. The app gets its sidecar in the next lab, when the AppHost starts it.
+- **`AddDaprWorkflow()`** adds the workflow runtime, which runs inside the app, and discovers the workflow and activity classes in the project, so you don't register them one by one. When the app starts, the runtime connects to the Dapr sidecar and waits for work: the sidecar tells it which workflow or activity to run next. The app gets its sidecar in the next lab, when the AppHost starts it.
 - **`POST /start`** takes a JSON body such as `{"id":"jump-001","starDate":"47634.4"}` and schedules a new `DiagnosticsWorkflow` with the `id` as its instance ID. It returns `{"instanceId":"jump-001"}` straight away; the workflow runs in the background.
 - **`GET /status/{id}`** reads the instance's state from the sidecar: its runtime status, such as `Running` or `Completed`, and the `DiagnosticsOutput` once it has completed. An unknown ID gives `404 Not Found`.
 
@@ -190,13 +184,7 @@ The command writes the whole file, so running it again gives the same result. Op
 
 ## 5. Build the project
 
-Use the **Aspire CLI** window to go to the `workflow-aspire` folder:
-
-```bash,run
-cd /root/university-labs/workflow-aspire
-```
-
-Use the **Aspire CLI** window to build the `Engineering` project:
+In the **Aspire CLI** window, build the `Engineering` project:
 
 ```bash,run
 dotnet build MeridianDiagnostics/Engineering

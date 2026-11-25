@@ -62,13 +62,7 @@ Each `Add...` call in `apphost.cs` adds a resource, and each resource shows up i
 
 ## 3. Start the app
 
-Use the **Aspire CLI** window to go to the `workflow-aspire` folder:
-
-```bash,run
-cd /root/university-labs/workflow-aspire
-```
-
-Use the **Aspire CLI** window to start the AppHost:
+In the **Aspire CLI** window, start the AppHost:
 
 ```bash,run
 aspire run --apphost MeridianDiagnostics/apphost.cs

@@ -66,9 +66,8 @@ The Page Writes The Workflow
         Should Not Contain    ${workflow}    ${text}
     END
     ${program}=    Get File    ${ENGINEERING}${/}Program.cs
-    FOR    ${type}    IN    RegisterWorkflow<DiagnosticsWorkflow>    RegisterActivity<DiagnoseSubsystemActivity>
-    ...    RegisterActivity<PrioritizeDiagnosticsActivity>    RegisterActivity<NotifyBridgeActivity>
-    ...    app.MapPost("/start"    app.MapGet("/status/{id}"
+    # AddDaprWorkflow() discovers the workflow and activities in the project: no explicit registration.
+    FOR    ${type}    IN    builder.Services.AddDaprWorkflow();    app.MapPost("/start"    app.MapGet("/status/{id}"
         Should Contain    ${program}    ${type}
     END
     # The page's dotnet build ran: the app is in bin/.
@@ -176,20 +175,14 @@ The Page 2 Checks Pass
         Should Be Equal As Integers    ${check.rc}    0    msg=check-${name}.sh failed:\n${check.stdout}
     END
 
-# doc-sync coverage: Apply Page 2 runs every Run block of the page (in ${WORKSPACE}, after each anchored cd):
+# doc-sync coverage: Apply Page 2 runs every Run block of the page (in ${WORKSPACE}, after the anchored cd):
 #   cd /root/university-labs/workflow-aspire
 #   cat > MeridianDiagnostics/Engineering/Program.cs <<'EOF'
 #   using Dapr.Workflow;
 #
 #   var builder = WebApplication.CreateBuilder(args);
 #
-#   builder.Services.AddDaprWorkflow(options =>
-#   {
-#       options.RegisterWorkflow<DiagnosticsWorkflow>();
-#       options.RegisterActivity<DiagnoseSubsystemActivity>();
-#       options.RegisterActivity<PrioritizeDiagnosticsActivity>();
-#       options.RegisterActivity<NotifyBridgeActivity>();
-#   });
+#   builder.Services.AddDaprWorkflow();
 #
 #   var app = builder.Build();
 #

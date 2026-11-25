@@ -181,7 +181,7 @@ ACTIVITIES_CS = """public class DiagnoseSubsystemActivity : WorkflowActivity<str
 public class PrioritizeDiagnosticsActivity : WorkflowActivity<SubsystemReport[], string> { }
 public class NotifyBridgeActivity : WorkflowActivity<string, bool> { }
 """
-PROGRAM_CS = "builder.Services.AddDaprWorkflow(options => { });\n"
+PROGRAM_CS = "builder.Services.AddDaprWorkflow();\n"
 TEMPLATE_PROGRAM_CS = 'var app = WebApplication.CreateBuilder(args).Build();\napp.MapGet("/", () => "Hello World!");\napp.Run();\n'
 
 # A stand-in for `dotnet` that records how it was called and fails when FAKE_DOTNET_RC says so,

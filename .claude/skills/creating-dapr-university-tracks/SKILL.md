@@ -128,7 +128,8 @@ asides. `> [!WARNING]` for a caveat such as an alpha API. Instruqt has no INFO t
    dropdown that appears." at the top of the section, before the sentence that introduces the
    first command.
 2. A Run block `cd /root/university-labs/<folder>` before any relative `cd`. Terminals
-   keep their folder across pages, and doc-sync's `--require-anchored-cd` enforces this.
+   keep their folder across pages, and doc-sync's `--require-anchored-cd` enforces this. Once per
+   page per window: later sections don't repeat it unless a command moved the terminal elsewhere.
 3. `[!IMPORTANT]` "Run `dapr run -f .` from inside the demo folder of your language: …" with both
    folder spellings.
 4. One `<details>` block per language, each naming the window and its own folder.
