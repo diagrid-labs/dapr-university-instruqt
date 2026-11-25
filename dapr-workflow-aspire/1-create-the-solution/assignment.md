@@ -72,13 +72,7 @@ There is no project file for the AppHost: `apphost.cs` is a single-file C# app, 
 
 The engineering console is an ASP.NET Core web API, `Engineering`. It will host the workflow and have two endpoints: one to start a diagnostics run and one to read its status.
 
-Use the **Aspire CLI** window to go to the `workflow-aspire` folder:
-
-```bash,run
-cd /root/university-labs/workflow-aspire
-```
-
-Use the **Aspire CLI** window to create the project inside the solution folder:
+In the **Aspire CLI** window, create the project inside the solution folder:
 
 ```bash,run
 [ -d MeridianDiagnostics/Engineering ] || dotnet new web -n Engineering -o MeridianDiagnostics/Engineering
@@ -106,13 +100,7 @@ Open `MeridianDiagnostics/Engineering/Engineering.csproj` in the **Editor** tab.
 
 `aspire run` reads its settings from `apphost.run.json`. The file the template created puts the Aspire dashboard on a random `localhost` port and asks for a login token. That works on your own machine, but not here: the **Aspire** tab reaches the dashboard from outside the sandbox's VM.
 
-Use the **Aspire CLI** window to go to the `workflow-aspire` folder:
-
-```bash,run
-cd /root/university-labs/workflow-aspire
-```
-
-Use the **Aspire CLI** window to replace `apphost.run.json` with a profile for this sandbox:
+In the **Aspire CLI** window, replace `apphost.run.json` with a profile for this sandbox:
 
 ```bash,run
 cat > MeridianDiagnostics/apphost.run.json <<'EOF'

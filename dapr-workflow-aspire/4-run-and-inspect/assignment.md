@@ -92,13 +92,7 @@ You can also read the app's own log lines. In the **Aspire** tab, select **Conso
 
 Now see what happens when the app stops while a workflow runs. You'll start a second run and stop `engineering` while the workflow waits on its 15 second timer, so read this section to the end before you start the run.
 
-Use the **curl** window to go to the `workflow-aspire` folder:
-
-```bash,run
-cd /root/university-labs/workflow-aspire
-```
-
-Use the **curl** window to start a run with the ID `jump-002`:
+In the **curl** window, start a run with the ID `jump-002`:
 
 ```bash,run
 curl -s -X POST http://localhost:5411/start -H 'Content-Type: application/json' -d '{"id":"jump-002","starDate":"47634.5"}' | jq
@@ -117,12 +111,6 @@ Go to the **Workflows** page of the **Dev Dashboard** tab and select `jump-002`.
 If `jump-002` already shows `Completed`, you stopped the app after the timer had fired. Start the app again as in section 4, then repeat this section with a new ID, such as `jump-003`: change the ID in the curl command before you run it, and use that ID in the rest of this lab.
 
 ## 4. Start the app again
-
-Use the **curl** window to go to the `workflow-aspire` folder:
-
-```bash,run
-cd /root/university-labs/workflow-aspire
-```
 
 In the **Aspire** tab, select **Start** in the **Actions** column of the `engineering` row. After a few seconds its state is `Running` again.
 
